@@ -1,0 +1,79 @@
+<html>
+<head>
+<meta charset="UTF-8"> 
+<style type="text/css">
+table {
+    border-collapse: collapse;
+}
+table {
+    width: 100%;
+}
+table, td, th {
+    border: 1px solid black;
+    padding: 2pt;
+}
+body { 
+    font-family: "Liberation sans", "Arial", "Helvetica";
+    font-size: 10pt;
+}
+
+table th {
+    font-size: 8pt;
+}
+p { 
+    padding: 0;
+    margin: 0;  
+}
+
+@page {
+    margin: 10mm; margin-top: 15mm; margin-bottom: 15mm; 
+    size: portrait;
+    @bottom-right {
+        content: counter(page) "/" counter(pages);
+    }
+}
+
+
+@media print {
+  tr.avoid {
+    page-break-inside: avoid !important;
+  } 
+}
+@media screen {
+    div.footer_div {
+        display: none;
+    }
+}
+@media print {
+    div.footer_div {
+        position: fixed;
+        bottom: -5mm;
+        width: 100%;
+        border-top: solid 1pt;
+        padding: 2pt;
+    }
+}
+
+</style>
+</head>
+<body>
+<h1>Service Report 1</h1>
+<div class="footer_div">
+Service Report 1
+</div>
+
+
+
+Period from 22 February 2015 
+.
+
+Sites owned by welket.
+
+
+
+<h2>Sessions of Service Report 1</h2><table name="working.SessionsByReport.grid"><thead><tr><th width="10%">Start date</th><th width="6%">Start time</th><th width="6%">End Time</th><th width="5%">Break Time</th><th width="41%">Description</th><th width="16%">Worker</th><th width="4%">Regular</th><th width="4%">Extra</th><th width="4%">Free</th></tr></thead><tbody><tr><td>19/05/2015</td><td>09:00:00</td><td>09:10:00</td><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/4" title="Foo and bar don't baz">#4</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/107">Jean</a></td><td>0:10</td><td/><td/></tr><tr><td>19/05/2015</td><td>09:00:00</td><td>10:02:00</td><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/4" title="Foo and bar don't baz">#4</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/106">Luc</a></td><td>1:02</td><td/><td/></tr><tr><td>20/05/2015</td><td>09:05:00</td><td>09:17:00</td><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/4" title="Foo and bar don't baz">#4</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/105">Mathieu</a></td><td>0:12</td><td/><td/></tr><tr><td>22/05/2015</td><td>09:00:00</td><td>11:18:00</td><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/2" title="Bar is not always baz">#2</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/107">Jean</a></td><td>2:18</td><td/><td/></tr><tr><td>22/05/2015</td><td>09:00:00</td><td>12:29:00</td><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/2" title="Bar is not always baz">#2</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/106">Luc</a></td><td>3:29</td><td/><td/></tr><tr><td>22/05/2015</td><td>09:00:00</td><td>12:53:00</td><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/2" title="Bar is not always baz">#2</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/105">Mathieu</a></td><td>3:53</td><td/><td/></tr><tr><td>23/05/2015</td><td>09:00:00</td><td/><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/1" title="Föö fails to bar when baz">#1</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/107">Jean</a></td><td>0:01</td><td/><td/></tr><tr><td>23/05/2015</td><td>09:00:00</td><td/><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/1" title="Föö fails to bar when baz">#1</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/106">Luc</a></td><td>0:01</td><td/><td/></tr><tr><td>23/05/2015</td><td>09:00:00</td><td/><td/><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/1" title="Föö fails to bar when baz">#1</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/105">Mathieu</a></td><td>0:01</td><td/><td/></tr><tr><td><b>Total (9 rows)</b></td><td></td><td></td><td></td><td></td><td></td><td><b>11:07</b></td><td></td><td></td></tr></tbody></table>
+<h2>Tickets of Service Report 1</h2><table name="working.TicketsByReport.grid"><thead><tr><th class="number-cell" width="6%">ID</th><th width="37%">Description</th><th width="24%">Site</th><th width="13%">State</th><th width="6%">Regular</th><th width="6%">Extra</th><th width="6%">Free</th></tr></thead><tbody><tr><td class="number-cell"><a href="http://127.0.0.1:8000/api/tickets/Ticket/1">1</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Ticket/1">#1 (⛶ Föö fails to bar when baz)</a> for <a href="http://127.0.0.1:8000/api/contacts/Partner/104">Marc</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Site/1">welket</a></td><td>New</td><td>0:03</td><td/><td/></tr><tr><td class="number-cell"><a href="http://127.0.0.1:8000/api/tickets/Ticket/2">2</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Ticket/2">#2 (☎ Bar is not always baz)</a>  by <a href="http://127.0.0.1:8000/api/users/User/106">Luc</a> for <a href="http://127.0.0.1:8000/api/contacts/Partner/104">Marc</a>, assigned to <a href="http://127.0.0.1:8000/api/users/User/107">Jean</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Site/1">welket</a></td><td>Talk</td><td>9:40</td><td/><td/></tr><tr><td class="number-cell"><a href="http://127.0.0.1:8000/api/tickets/Ticket/4">4</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Ticket/4">#4 (⚒ Foo and bar don't baz)</a>  by <a href="http://127.0.0.1:8000/api/users/User/105">Mathieu</a> for <a href="http://127.0.0.1:8000/api/contacts/Partner/104">Marc</a>, assigned to <a href="http://127.0.0.1:8000/api/users/User/105">Mathieu</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Site/1">welket</a></td><td>Started</td><td>1:24</td><td/><td/></tr><tr><td class="number-cell"></td><td></td><td></td><td></td><td><b>11:07</b></td><td></td><td></td></tr></tbody></table>
+<h2>Sites of Service Report 1</h2><table name="working.SitesByReport.grid"><thead><tr><th width="31%">Designation</th><th width="45%">parsed_description</th><th width="7%">Regular</th><th width="7%">Extra</th><th width="7%">Free</th></tr></thead><tbody><tr><td>welket</td><td></td><td>11:07</td><td/><td/></tr><tr><td><b>Total (1 rows)</b></td><td></td><td><b>11:07</b></td><td></td><td></td></tr></tbody></table>
+
+</body>
+</html>

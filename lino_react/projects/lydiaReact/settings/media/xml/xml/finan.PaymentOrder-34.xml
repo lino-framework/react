@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pain.001.001.02>
+<GrpHdr>
+  <MsgId>34/PMO 2</MsgId>
+  <CreDtTm>2018-11-05T12:36:54.751033+00:00</CreDtTm>
+  <NbOfTxs>11</NbOfTxs>
+  <Grpg>MIXD</Grpg>
+  <InitgPty>
+    <Nm>Tough Thorough Thought Therapies</Nm>
+
+    <Id><OrgId><PrtryId>
+      <Id>234567890</Id>
+      <Issr>KBO-BCE</Issr>
+    </PrtryId></OrgId></Id>
+
+  </InitgPty>
+</GrpHdr>
+<PmtInf>
+<PmtInfId>PMO 2</PmtInfId>
+<PmtMtd>TRF</PmtMtd>
+<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf>
+<ReqdExctnDt>2015-02-13</ReqdExctnDt>
+<Dbtr>
+  <Nm>Tough Thorough Thought Therapies</Nm>
+
+  <Id><OrgId><PrtryId>
+    <Id>234567890</Id>
+    <Issr>KBO-BCE</Issr>
+  </PrtryId></OrgId></Id>
+
+</Dbtr>
+<DbtrAcct><Id><IBAN>BE03747769840658</IBAN></Id></DbtrAcct>
+
+<DbtrAgt><FinInstnId><BIC>BBRUBEBB</BIC></FinInstnId></DbtrAgt>
+
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">40.60</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Rumma &amp; Ko OÜ</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Uus tn</AdrLine>
+ 
+ 
+ <AdrLine>Vigala</AdrLine>
+ 
+ <Ctry>EE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>EE436294797788261706</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Rumma &amp; Ko OÜ*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">142.00</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Bäckerei Ausdemwald</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Vervierser Straße</AdrLine>
+ 
+ 
+ <AdrLine>Eupen</AdrLine>
+ 
+ <Ctry>BE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>BE83540256917919</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Bäckerei Ausdemwald*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">602.30</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Bäckerei Mießen</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Gospert</AdrLine>
+ 
+ 
+ <AdrLine>Eupen</AdrLine>
+ 
+ <Ctry>BE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>BE70458836777241</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Bäckerei Mießen*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">1200.50</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Bäckerei Schmitz</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Aachener Straße</AdrLine>
+ 
+ 
+ <AdrLine>Eupen</AdrLine>
+ 
+ <Ctry>BE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>BE62315236188996</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Bäckerei Schmitz*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">920.00</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Donderweer BV</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Edisonstraat</AdrLine>
+ 
+ 
+ <AdrLine>Breda</AdrLine>
+ 
+ <Ctry>NL</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>NL60UQGK4026224708</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Donderweer BV*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">3242.38</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Garage Mergelsberg</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Kasinostraße</AdrLine>
+ 
+ 
+ <AdrLine>Kelmis</AdrLine>
+ 
+ <Ctry>BE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>BE08853988745497</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Garage Mergelsberg*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">450.00</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Van Achter NV</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Hazeldonk</AdrLine>
+ 
+ 
+ <AdrLine>Breda</AdrLine>
+ 
+ <Ctry>NL</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>NL03ZSEU7683047716</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Van Achter NV*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">117.44</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Donderweer BV</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Edisonstraat</AdrLine>
+ 
+ 
+ <AdrLine>Breda</AdrLine>
+ 
+ <Ctry>NL</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>NL60UQGK4026224708</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Donderweer BV*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">880.00</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Hans Flott &amp; Co</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Niendorfer Weg</AdrLine>
+ 
+ 
+ <AdrLine>Hamburg</AdrLine>
+ 
+ <Ctry>DE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>DE70417630904413326955</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Hans Flott &amp; Co*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">165.70</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Van Achter NV</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Hazeldonk</AdrLine>
+ 
+ 
+ <AdrLine>Breda</AdrLine>
+ 
+ <Ctry>NL</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>NL03ZSEU7683047716</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Van Achter NV*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+<CdtTrfTxInf>
+<PmtId><EndToEndId>.</EndToEndId></PmtId>
+<Amt><InstdAmt Ccy="EUR">1370.00</InstdAmt></Amt>
+
+<Cdtr>
+ <Nm>Bernd Brechts Bücherladen</Nm>
+
+ <PstlAdr>
+ 
+ <AdrLine>Brienner Straße</AdrLine>
+ 
+ 
+ <AdrLine>Munich</AdrLine>
+ 
+ <Ctry>DE</Ctry>
+ </PstlAdr>
+
+ </Cdtr>
+<CdtrAcct><Id><IBAN>DE20747128173755343928</IBAN></Id></CdtrAcct>
+<RmtInf><Ustrd>*Bernd Brechts Bücherladen*PMO 2/2015</Ustrd></RmtInf>
+</CdtTrfTxInf>
+
+</PmtInf>
+</pain.001.001.02>
+</Document>

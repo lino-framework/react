@@ -1,0 +1,75 @@
+<html>
+<head>
+<meta charset="UTF-8"> 
+<style type="text/css">
+table {
+    border-collapse: collapse;
+}
+table {
+    width: 100%;
+}
+table, td, th {
+    border: 1px solid black;
+    padding: 2pt;
+}
+body { 
+    font-family: "Liberation sans", "Arial", "Helvetica";
+    font-size: 10pt;
+}
+
+table th {
+    font-size: 8pt;
+}
+p { 
+    padding: 0;
+    margin: 0;  
+}
+
+@page {
+    margin: 10mm; margin-top: 15mm; margin-bottom: 15mm; 
+    size: portrait;
+    @bottom-right {
+        content: counter(page) "/" counter(pages);
+    }
+}
+
+
+@media print {
+  tr.avoid {
+    page-break-inside: avoid !important;
+  } 
+}
+@media screen {
+    div.footer_div {
+        display: none;
+    }
+}
+@media print {
+    div.footer_div {
+        position: fixed;
+        bottom: -5mm;
+        width: 100%;
+        border-top: solid 1pt;
+        padding: 2pt;
+    }
+}
+
+</style>
+</head>
+<body>
+<h1>Service Report 1</h1>
+<div class="footer_div">
+Service Report 1
+</div>
+
+
+
+Period from 22 February 2015 
+
+
+<div><h2>Sessions</h2><table name="clocking.SessionsByReport.grid"><thead><tr><th>Start date</th><th>Start time</th><th>End Time</th><th>Break Time</th><th>Description</th><th>Worker</th><th>Regular</th><th>Extra</th><th>Free</th></tr></thead><tbody><tr><td>23/05/2015</td><td>09:00:00</td><td /><td /><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/1" title="F&#246;&#246; fails to bar when baz">#1</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/107">Jean</a></td><td>0:01</td><td /><td /></tr><tr><td>23/05/2015</td><td>09:00:00</td><td /><td /><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/1" title="F&#246;&#246; fails to bar when baz">#1</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/106">Luc</a></td><td>0:01</td><td /><td /></tr><tr><td>23/05/2015</td><td>09:00:00</td><td /><td /><td><p> <a href="http://127.0.0.1:8000/api/tickets/Ticket/1" title="F&#246;&#246; fails to bar when baz">#1</a></p></td><td><a href="http://127.0.0.1:8000/api/users/User/105">Mathieu</a></td><td>0:01</td><td /><td /></tr><tr><td><b>Total (3 rows)</b></td><td /><td /><td /><td /><td /><td><b>0:03</b></td><td /><td /></tr></tbody></table></div>
+<div><h2>Tickets</h2><table name="clocking.TicketsByReport.grid"><thead><tr><th align="right">ID</th><th>Description</th><th>Mission</th><th>State</th><th>Regular</th><th>Extra</th><th>Free</th></tr></thead><tbody><tr><td align="right"><a href="http://127.0.0.1:8000/api/tickets/Ticket/1">1</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Ticket/1">#1 (&#9974; F&#246;&#246; fails to bar when baz)</a>  by <a href="http://127.0.0.1:8000/api/users/User/106">Luc</a></td><td><a href="http://127.0.0.1:8000/api/tickets/Project/1">lin&#246;</a></td><td>New</td><td>0:03</td><td /><td /></tr><tr><td align="right" /><td /><td /><td /><td><b>0:03</b></td><td /><td /></tr></tbody></table></div>
+
+
+</body>
+</html>

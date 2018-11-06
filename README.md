@@ -1,2 +1,2 @@
-# react
-Experimental frontend for the Lino framework using Facebook's React framework
+# lino_openui5
+Experimental frontend for the Lino framework using the Openui5 framework by SAP

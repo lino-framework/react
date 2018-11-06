@@ -1,0 +1,62 @@
+# -*- coding: UTF-8 -*-
+# Copyright 2018 Rumma & Ko Ltd
+# License: BSD (see file COPYING for details)
+
+"""
+A user interface for Lino applications that uses FaceBooks React JS framework.
+
+
+.. autosummary::
+   :toctree:
+
+    views
+    renderer
+    models
+"""
+
+from lino.api.ad import Plugin
+
+
+class Plugin(Plugin):
+    # ui_label = _("React")
+    ui_handle_attr_name = 'react_handle'
+
+    needs_plugins = ['lino.modlib.jinja']
+
+    url_prefix = 'react'
+
+    media_name = 'react'
+
+    # media_root = None
+    # media_base_url = "http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/"
+
+    def on_ui_init(self, kernel):
+
+        from .renderer import Renderer
+        self.renderer = Renderer(self)
+        # ui.bs3_renderer = self.renderer
+        kernel.extjs_renderer = self.renderer
+
+    def get_patterns(self):
+        from django.conf.urls import url
+        from . import views
+
+        rx = '^'
+
+        urls = [
+            url(rx + r'$', views.App.as_view()),
+
+            url(rx + r'auth$', views.Authenticate.as_view()),
+
+            url(rx + r'api/main_html$', views.MainHtml.as_view()),
+
+        ]
+        return urls
+
+    def get_used_libs(self, html=False):
+        if html is not None:
+            yield ("React", '16.6', "https://reactjs.org/")
+
+    # def get_index_view(self):
+    #     from . import views
+    #     return views.App.as_view()
