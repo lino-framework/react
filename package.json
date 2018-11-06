@@ -1,0 +1,40 @@
+{
+  "name": "lino_react",
+  "version": "1.0.0",
+  "description": "Experimental frontend for the Lino framework using FaceBook's React js Frameowrk",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
+    "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lino-framework/react.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lino-framework/react/issues"
+  },
+  "homepage": "https://github.com/lino-framework/react#readme",
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "prop-types": "^15.6.2",
+    "query-string": "^6.2.0",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0",
+    "weak-key": "^1.0.1",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2"
+  }
+}
