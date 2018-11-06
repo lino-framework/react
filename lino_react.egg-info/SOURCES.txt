@@ -1,4 +1,5 @@
 README.rst
+setup.py
 lino_react/__init__.py
 lino_react/setup_info.py
 lino_react.egg-info/PKG-INFO

@@ -13,5 +13,5 @@ class ProjectsTests(TestCase):
         self.run_django_manage_test("lino_react/projects/teamReact")
 
     def test_lydia(self):
-        self.run_django_manage_test("lino_react/projects/lydiareact")
+        self.run_django_manage_test("lino_react/projects/lydiaReact")
 

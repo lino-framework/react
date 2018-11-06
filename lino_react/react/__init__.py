@@ -50,6 +50,34 @@ class Plugin(Plugin):
 
             url(rx + r'api/main_html$', views.MainHtml.as_view()),
 
+            # To be fased out
+            url(rx + r'restful/(?P<app_label>\w+)/(?P<actor>\w+)$',
+                views.ApiList.as_view()),
+            url(rx + r'restful/(?P<app_label>\w+)/(?P<actor>\w+)/(?P<pk>.+)$',
+                views.ApiElement.as_view()),
+            # From extjs
+            url(rx + r'api/(?P<app_label>\w+)/(?P<actor>\w+)$',
+                views.ApiList.as_view()),
+            url(rx + r'api/(?P<app_label>\w+)/(?P<actor>\w+)/(?P<pk>.+)$',
+                views.ApiElement.as_view()),
+            url(rx + r'choices/(?P<app_label>\w+)/(?P<rptname>\w+)$',
+                views.Choices.as_view()),
+            url(rx + r'choices/(?P<app_label>\w+)/(?P<rptname>\w+)/'
+                     '(?P<fldname>\w+)$',
+                views.Choices.as_view()),
+            url(rx + r'apchoices/(?P<app_label>\w+)/(?P<actor>\w+)/'
+                     '(?P<an>\w+)/(?P<field>\w+)$',
+                views.ActionParamChoices.as_view()),
+            # For generating views
+            url(rx + r'ui/(?P<name>.*)$',
+                views.Connector.as_view()),
+            url(rx + r'callbacks/(?P<thread_id>[\-0-9a-zA-Z]+)/'
+                     '(?P<button_id>\w+)$',
+                views.Callbacks.as_view()),
+
+            url(rx+ r'choicelists/',
+                views.ChoiceListModel.as_view())
+
         ]
         return urls
 

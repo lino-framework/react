@@ -9,6 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "webpack --mode none ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
     "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
     "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js"
   },
