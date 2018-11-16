@@ -6,11 +6,15 @@
 from __future__ import unicode_literals
 from builtins import str
 
+from django.conf import settings
+from django.db import models
+
 from lino.core import constants as ext_requests
-# from lino.core.renderer import HtmlRenderer, JsRenderer
-from lino.core.renderer import add_user_language, JsRenderer
+from lino.core.renderer import add_user_language, JsRenderer, HtmlRenderer
 from lino.core.menus import Menu, MenuItem
 from lino.core import constants
+from lino.core import choicelists
+
 from lino.modlib.extjs.ext_renderer import ExtRenderer
 
 from lino.core.actions import (ShowEmptyTable, ShowDetail,
@@ -18,18 +22,21 @@ from lino.core.actions import (ShowEmptyTable, ShowDetail,
                                SubmitInsert)
 from etgen.html import E
 
-from lino.utils.jsgen import py2js
+from lino.utils import jsgen
+from lino.utils.jsgen import py2js, js_code
 
 
-class Renderer(ExtRenderer):
+class Renderer(JsRenderer):
     """.
         An HTML renderer that uses the react Javascript framework.
 
     """
-    tableattrs = {'class': "table table-hover table-striped table-condensed"}
-    cellattrs = dict(align="left", valign="top")
-
+    is_interactive = True
     can_auth = False
+
+    def __init__(self, plugin):
+        super(JsRenderer, self).__init__(plugin)
+        jsgen.register_converter(self.py2js_converter)
 
     # working, but shouldn't be used, as it clears the app history
     def get_detail_url(self, actor, pk, *args, **kw):
@@ -95,6 +102,76 @@ class Renderer(ExtRenderer):
             py2js(ar.is_on_main_actor), py2js(obj.pk), py2js(params))
         # bound_action.a)
 
+    def py2js_converter(self, v):
+        """
+        Additional converting logic for serializing Python values to json.
+        """
+        if v is settings.SITE.LANGUAGE_CHOICES:
+            return js_code('LANGUAGE_CHOICES')
+        if isinstance(v, choicelists.Choice):
+            """
+            This is special. We don't render the text but the value.
+            """
+            return v.value
+        if isinstance(v, models.Model):
+            return v.pk
+        if isinstance(v, Exception):
+            return str(v)
+        if isinstance(v, Menu):
+            if v.parent is None:
+                return v.items
+                # kw.update(region='north',height=27,items=v.items)
+                # return py2js(kw)
+            return dict(text=v.label, menu=dict(items=v.items))
+
+        if isinstance(v, MenuItem):
+            if v.instance is not None:
+                h = self.instance_handler(None, v.instance, None)
+                assert h is not None
+                js = "%s" % h
+                return self.handler_item(v, h, None)
+            elif v.bound_action is not None:
+                if v.params:
+                    ar = v.bound_action.request(**v.params)
+                    js = self.request_handler(ar)
+                else:
+                    js = self.action_call(None, v.bound_action, {})
+                return self.handler_item(v, js, v.help_text)
+
+            elif v.javascript is not None:
+                js = "%s" % v.javascript
+                return self.handler_item(v, js, v.help_text)
+            elif v.href is not None:
+                url = v.href
+            # ~ elif v.request is not None:
+            # ~ raise Exception("20120918 request %r still used?" % v.request)
+            # ~ url = self.get_request_url(v.request)
+            else:
+                # a separator
+                # ~ return dict(text=v.label)
+                return v.label
+                # ~ url = self.build_url('api',v.action.actor.app_label,v.action.actor.__name__,fmt=v.action.name)
+            if v.parent.parent is None:
+                # special case for href items in main menubar
+                return dict(
+                    xtype='button', text=v.label,
+                    # ~ handler=js_code("function() { window.location='%s'; }" % url))
+                    handler=js_code("function() { Lino.load_url('%s'); }" % url))
+            return dict(text=v.label, href=url)
+        return v
+
+    def handler_item(self, mi, handler, help_text):
+        """"""
+        #~ handler = "function(){%s}" % handler
+        #~ d = dict(text=prepare_label(mi),handler=js_code(handler),tooltip="Foo")
+        d = dict(text=mi.label, handler=handler)
+        if mi.bound_action and mi.bound_action.action.icon_name:
+            d.update(iconCls='x-tbar-' + mi.bound_action.action.icon_name)
+        if settings.SITE.use_quicktips and help_text:
+            # d.update(tooltip=help_text)
+            # d.update(tooltipType='title')
+            d.update(toolTip=help_text)
+        return d
     # Todo
     def request_handler(self, ar, *args, **kw):
         """ Generates js string for action button calls.
@@ -125,10 +202,10 @@ class Renderer(ExtRenderer):
             if not status:
                 status = {}  # non param window actions also use router and just have no args,
 
-            return "Lino.window_action(%s,%s,%s)" % (
-                py2js(fullname),
-                py2js(status),
-                py2js(rp))
+            return dict(
+                action=fullname,
+                status=status,
+                rp=rp)
         # todo: have action buttons forward their requests to the server with this js link
         return "%s()" % self.get_panel_btn_handler(bound_action)
 

@@ -1,13 +1,18 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import queryString from 'query-string';
+// import Table from "./Table";
 
 class DataProvider extends Component {
   static propTypes = {
     endpoint: PropTypes.string.isRequired,
-    render: PropTypes.func.isRequired
-  };
+    render: PropTypes.func.isRequired,
+    post_data: PropTypes.func
 
+  };
+  static defaultProps = {
+      post_data: (data) => (data)
+  };
   state = {
       data: [],
       loaded: false,
@@ -15,7 +20,7 @@ class DataProvider extends Component {
     };
 
   componentDidMount() {
-      
+
       fetch(this.props.endpoint+`?${queryString.stringify({fmt:"json"})}`)
 	  .then(response => {
 	      if (response.status !== 200) {
@@ -24,13 +29,15 @@ class DataProvider extends Component {
               return response.json();
 	  })
 	  .then(data =>{
-	      data.rows.map(row => {row.splice(-2)}); // Remove Disabled rows & Is editable 
-	      this.setState({ data: data.rows, loaded: true });
+	      this.props.post_data(data);
+	      this.setState({ data: data, loaded: true });
 	  })
   };
 	       
   render() {
     const { data, loaded, placeholder } = this.state;
+    // const Comp = "Table";
+    // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
     return loaded ? this.props.render(data) : <p>{placeholder}</p>;
   }
 }

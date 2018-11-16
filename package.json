@@ -9,9 +9,10 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "webpack --mode none ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
-    "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
-    "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js"
+    "debug": "webpack --mode none ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
+    "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
+    "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
+    "move_static": "rm -rf ./lino_react/react/static/media; mv  ./lino_react/react/static/react/static/media ./lino_react/react/static/;"
   },
   "repository": {
     "type": "git",
@@ -28,14 +29,28 @@
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
+    "autoprefixer": "^9.3.1",
     "babel-loader": "^8.0.4",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "css-loader": "^1.0.1",
+    "file-loader": "^2.0.0",
+    "postcss-flexbugs-fixes": "^4.1.0",
+    "postcss-loader": "^3.0.0",
     "prop-types": "^15.6.2",
     "query-string": "^6.2.0",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "style-loader": "^0.23.1",
+    "url-loader": "^1.1.2",
     "weak-key": "^1.0.1",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "classnames": "^2.2.5",
+    "primeflex": "^1.0.0-rc.1",
+    "primeicons": "^1.0.0",
+    "primereact": "^2.0.0-rc.1",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-transition-group": "^2.2.1"
   }
 }

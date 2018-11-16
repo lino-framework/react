@@ -3,10 +3,6 @@
 # License: BSD (see file COPYING for details)
 """The :xfile:`settings.py` modules for this variant.
 
-It has :attr:`default_user<lino.core.site.Site.default_user>` set to
-'anonymous', which causes it to deactivate both authentication and
-sessions.
-
 .. autosummary::
    :toctree:
 
@@ -16,7 +12,7 @@ sessions.
 """
 
 
-from lino_book.projects.team.settings.demo import *
+from lino_book.projects.team.settings import *
 
 
 class Site(Site):

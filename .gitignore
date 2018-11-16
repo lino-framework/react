@@ -32,3 +32,7 @@ docs/tutorials/pisa/pisa.Person-1.pdf
 .coverage.*
 .eggs/
 __pycache__
+
+node_modules/
+
+yarn\.lock

@@ -69,8 +69,8 @@ class Plugin(Plugin):
                      '(?P<an>\w+)/(?P<field>\w+)$',
                 views.ActionParamChoices.as_view()),
             # For generating views
-            url(rx + r'ui/(?P<name>.*)$',
-                views.Connector.as_view()),
+            url(rx + r'ui/menu',
+                views.Menu.as_view()),
             url(rx + r'callbacks/(?P<thread_id>[\-0-9a-zA-Z]+)/'
                      '(?P<button_id>\w+)$',
                 views.Callbacks.as_view()),
