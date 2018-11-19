@@ -17,5 +17,5 @@ script:
   - inv cov
 
 after_script:
-  - coveralls
+  - coveralls report
 
