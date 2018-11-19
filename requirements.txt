@@ -1,5 +1,5 @@
 # -e svn+https://svn.forge.pallavi.be/appy-dev/dev1#egg=appy
-# -e git+https://github.com/lino-framework/appypod.git#egg=appy
+-e git+https://github.com/lino-framework/appypod.git#egg=appy
 -e git+https://github.com/lino-framework/atelier.git#egg=atelier
 # git+https://github.com/lino-framework/etgen.git#egg=etgen
 -e git+https://github.com/lino-framework/lino.git#egg=lino
