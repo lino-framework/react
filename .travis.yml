@@ -4,6 +4,7 @@ python:
   - "3.6"
 env:
   - DJANGO=1.11
+env:
   - NODE_VERSION="0.12"
 
 before_install:
