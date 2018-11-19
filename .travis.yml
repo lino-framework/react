@@ -4,6 +4,10 @@ python:
   - "3.6"
 env:
   - DJANGO=1.11
+  - NODE_VERSION="0.12"
+
+before_install:
+  - nvm install $NODE_VERSION
 
 install:
   - pip install -U setuptools
@@ -11,7 +15,9 @@ install:
   - if [[ $TRAVIS_PYTHON_VERSION != 2.7 ]]; then pip install -r requirements.python3.txt; else pip install -r requirements.txt;  fi
   - # test -e "requirements.$TRAVIS_BRANCH.txt" && ( pip install -r "requirements.$TRAVIS_BRANCH.txt" ) || ( pip install -r requirements.txt )
   - pip install Django==$DJANGO
+  - npm install
   - pip install -e .
+
 script:
   - export LINO_CACHE_ROOT=$TRAVIS_BUILD_DIR/lino_cache
   - mkdir $LINO_CACHE_ROOT
