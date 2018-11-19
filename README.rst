@@ -1,13 +1,13 @@
-============================
-The ``lino_openui5`` package
-============================
+==========================
+The ``lino_react`` package
+==========================
 
 
 
 
-The SAP Open Ui5 user interface for Lino
+The React user interface for Lino
 
-The central project homepage is http://openui5.lino-framework.org/
+The central project homepage is http://react.lino-framework.org/
 
 
 

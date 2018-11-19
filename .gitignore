@@ -15,6 +15,7 @@ lino/ui/qx/app/build/resource
 default.db
 media/cache
 lino_react/tutorials/*/media
+lino_react/projects/*/settings/media
 lino_react/projects/*/media
 lino_react/sandbox/*/media
 */test.db
