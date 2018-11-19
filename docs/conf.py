@@ -143,7 +143,7 @@ html_use_opensearch = ''
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'extjs6'
+htmlhelp_basename = 'react'
 
 if False:
 
