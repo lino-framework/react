@@ -3,5 +3,5 @@ API
 ===
 
 
-.. automodule:: lino_openui5
+.. automodule:: lino_react
 

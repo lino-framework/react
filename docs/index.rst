@@ -1,15 +1,15 @@
-.. _openui5:
+.. _react:
 
-==========================
-ExtJS 6 interface for Lino
-==========================
+========================
+React interface for Lino
+========================
 
-This is the documentation tree for :mod:`lino_openui5`.
+This is the documentation tree for :mod:`lino_react`.
 
 
 .. py2rst::
 
-  from lino_openui5 import SETUP_INFO
+  from lino_react import SETUP_INFO
   print(SETUP_INFO['long_description'])
 
 
@@ -19,12 +19,12 @@ How to try it:
 
 - In your local :class:`Site <lino.core.site.Site>` class (defined in
   your :xfile:`settings.py` file), set set the :attr:`default_ui`
-  attribute to :mod:`lino_openui5.extjs` and override the
+  attribute to :mod:`lino_react.react` and override the
   :meth:`get_apps_modifiers` so that it removes the `tinymce` plugin::
 
     class Site(Site):
         ...
-        default_ui = 'lino_openui.openui5'
+        default_ui = 'lino_react.react'
 
         def get_apps_modifiers(self, **kw):
             kw = super(Site, self).get_apps_modifiers(**kw)
