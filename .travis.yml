@@ -13,8 +13,7 @@ install:
   - if [[ $TRAVIS_PYTHON_VERSION != 2.7 ]]; then pip install -r requirements.python3.txt; else pip install -r requirements.txt;  fi
   - # test -e "requirements.$TRAVIS_BRANCH.txt" && ( pip install -r "requirements.$TRAVIS_BRANCH.txt" ) || ( pip install -r requirements.txt )
   - pip install Django==$DJANGO
-  - nvm install $NODE_VERSION
-  - npm install 
+  - npm install
   - pip install -e .
 
 script:
@@ -23,11 +22,11 @@ script:
   - cd lino_react/projects/teamReact/
   - python manage.py prep --noinput
   - python manage.py runserver -v 0 > /dev/null 2>&1 &
+  - cd -
   - sleep 15
-  - npm run cy:run
+  - npm run cy:run -- --spec cypress/integration/teamReact/*
   - kill $(jobs -p) || true
   - inv cov
 
 after_script:
   - coveralls report
-
