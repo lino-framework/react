@@ -19,425 +19,937 @@ Define a utility function:
 >>> def pSoup(soup):
 ...     print(soup.body.prettify(formatter=None))
 >>> test_client.force_login(rt.login('robin').user)
->>> pprint(json.loads(test_client.get("/ui/menu/?fmt=json").content))
+>>> print(json.dumps(json.loads(test_client.get("/ui/menu/?fmt=json").content),
+... indent=2, sort_keys=True, separators=(",",": ")))
 ... #doctest: -ELLIPSIS +REPORT_UDIFF -SKIP
-[{u'menu': {u'items': [{u'handler': {u'action': u'grid.contacts.Persons',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Persons',
-                        u'toolTip': u'Shows all persons.'},
-                       {u'handler': {u'action': u'grid.contacts.Companies',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Organizations',
-                        u'toolTip': u'An organisation.  The verbose name is "Organization" while the\ninternal name is "Company" because the latter easier to type and\nfor historical reasons.'},
-                       {u'handler': {u'action': u'grid.lists.Lists',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Partner Lists'}]},
-  u'text': u'Contacts'},
- {u'menu': {u'items': [{u'handler': {u'action': u'grid.cal.MyEntries',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My appointments',
-                        u'toolTip': u'Table of appointments for which I am responsible.'},
-                       {u'handler': {u'action': u'grid.cal.OverdueAppointments',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Overdue appointments',
-                        u'toolTip': u'Shows overdue appointments, i.e. appointments whose date is\nover but who are still in a nonstable state.'},
-                       {u'handler': {u'action': u'grid.cal.MyUnconfirmedAppointments',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Unconfirmed appointments',
-                        u'toolTip': u'Shows my appointments in the near future which are in suggested or\ndraft state.'},
-                       {u'handler': {u'action': u'grid.cal.MyTasks',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My tasks',
-                        u'toolTip': u'Shows my tasks whose start date is today or in the future.'},
-                       {u'handler': {u'action': u'grid.cal.MyGuests',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My guests',
-                        u'toolTip': u'The default table of presences.'},
-                       {u'handler': {u'action': u'grid.cal.MyPresences',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My presences',
-                        u'toolTip': u'Shows all my presences in calendar events, independently of their\nstate.'},
-                       {u'handler': {u'action': u'grid.cal.MyOverdueAppointments',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My overdue appointments',
-                        u'toolTip': u'Like OverdueAppointments, but only for myself.'},
-                       {u'handler': {u'action': u'grid.extensible.CalendarPanel',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'iconCls': u'x-tbar-calendar',
-                        u'text': u'Calendar',
-                        u'toolTip': u'Displays your events in a "calendar view"     with the possibility to switch between daily, weekly, monthly view.'}]},
-  u'text': u'Calendar'},
- {u'menu': {u'items': [{u'handler': {u'action': u'grid.excerpts.MyExcerpts',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My Excerpts',
-                        u'toolTip': u'Base class for all tables on Excerpt.'},
-                       {u'handler': {u'action': u'grid.comments.MyComments',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My Comments'},
-                       {u'handler': {u'action': u'grid.comments.RecentComments',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Recent comments'},
-                       {u'handler': {u'action': u'grid.notify.MyMessages',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My Notification messages',
-                        u'toolTip': u'Shows messages emitted to me.'},
-                       {u'handler': {u'action': u'grid.uploads.MyUploads',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My Uploads',
-                        u'toolTip': u'Shows only my Uploads (i.e. those whose author is current user).'}]},
-  u'text': u'Office'},
- {u'menu': {u'items': [{u'handler': {u'action': u'grid.tickets.MyTickets',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My tickets',
-                        u'toolTip': u'Show all active tickets reported by me.'},
-                       {u'handler': {u'action': u'grid.tickets.ActiveTickets',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Active tickets',
-                        u'toolTip': u'Show all tickets that are in an active state.'},
-                       {u'handler': {u'action': u'grid.tickets.AllTickets',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'All tickets',
-                        u'toolTip': u'Shows all tickets.'},
-                       {u'handler': {u'action': u'grid.tickets.UnassignedTickets',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Unassigned Tickets',
-                        u'toolTip': u'Base class for all tables of tickets.'},
-                       {u'handler': {u'action': u'grid.tickets.RefTickets',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Reference Tickets',
-                        u'toolTip': u'Shows all tickets that have a reference.'},
-                       {u'handler': {u'action': u'grid.tickets.MySites',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My sites',
-                        u'toolTip': u'Shows the sites for which I have a subscription.'},
-                       {u'handler': {u'action': u'grid.tickets.MyTicketsToWork',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Tickets to work',
-                        u'toolTip': u'Show all active tickets assigned to me.'}]},
-  u'text': u'Tickets'},
- {u'menu': {u'items': [{u'handler': {u'action': u'grid.working.MySessions',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Sessions'},
-                       {u'handler': {u'action': u'grid.working.ServiceReports',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Service Reports'},
-                       {u'handler': {u'action': u'grid.working.WorkedHours',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Worked hours'}]},
-  u'text': u'Working time'},
- {u'menu': {u'items': [{u'handler': {u'action': u'grid.github.MyCommits',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'My Commits'}]},
-  u'text': u'GitHub'},
- {u'menu': {u'items': [{u'handler': {u'action': u'grid.mailbox.UnassignedMessages',
-                                     u'rp': None,
-                                     u'status': {}},
-                        u'text': u'Messages'}]},
-  u'text': u'Mailbox'},
- {u'menu': {u'items': [{u'menu': {u'items': [{u'handler': {u'action': u'detail.system.SiteConfigs',
-                                                           u'rp': None,
-                                                           u'status': {u'record_id': 1}},
-                                              u'iconCls': u'x-tbar-application_form',
-                                              u'text': u'Site Parameters'},
-                                             {u'handler': {u'action': u'grid.gfks.HelpTexts',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Help Texts'},
-                                             {u'handler': {u'action': u'grid.users.AllUsers',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Users',
-                                              u'toolTip': u'Shows the list of all users on this site.'}]},
-                        u'text': u'System'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.countries.Countries',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Countries'},
-                                             {u'handler': {u'action': u'grid.countries.Places',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Places',
-                                              u'toolTip': u'\n    The table of known geographical places.\n    A geographical place can be a city, a town, a suburb,\n    a province, a lake... any named geographic entity,\n    except for countries because these have their own table.\n    '}]},
-                        u'text': u'Places'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.contacts.CompanyTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Organization types'},
-                                             {u'handler': {u'action': u'grid.contacts.RoleTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Functions'},
-                                             {u'handler': {u'action': u'grid.lists.ListTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'List Types'}]},
-                        u'text': u'Contacts'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.cal.Calendars',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Calendars'},
-                                             {u'handler': {u'action': u'grid.cal.AllRooms',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Rooms',
-                                              u'toolTip': u'List of rooms where calendar events can happen.'},
-                                             {u'handler': {u'action': u'grid.cal.Priorities',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Priorities',
-                                              u'toolTip': u'List of possible priorities of calendar events.'},
-                                             {u'handler': {u'action': u'grid.cal.RecurrentEvents',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Recurring events',
-                                              u'toolTip': u'The list of all recurrent events (RecurrentEvent).'},
-                                             {u'handler': {u'action': u'grid.cal.GuestRoles',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Guest roles',
-                                              u'toolTip': u'Global table of guest roles.'},
-                                             {u'handler': {u'action': u'grid.cal.EventTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Calendar entry types',
-                                              u'toolTip': u'The list of entry types defined on this site.'},
-                                             {u'handler': {u'action': u'grid.cal.EventPolicies',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Recurrency policies',
-                                              u'toolTip': u'Global table of all possible recurrencly policies.'},
-                                             {u'handler': {u'action': u'grid.cal.RemoteCalendars',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Remote Calendars'},
-                                             {u'handler': {u'action': u'grid.cal.DailyPlannerRows',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Planner rows'}]},
-                        u'text': u'Calendar'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.excerpts.ExcerptTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Excerpt Types',
-                                              u'toolTip': u'Displays all rows of ExcerptType.'},
-                                             {u'handler': {u'action': u'grid.comments.CommentTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Comment Types',
-                                              u'toolTip': u'The table with all existing comment types.'},
-                                             {u'handler': {u'action': u'grid.uploads.UploadTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Upload Types',
-                                              u'toolTip': u'The table with all existing upload types.'},
-                                             {u'handler': {u'action': u'grid.tinymce.MyTextFieldTemplates',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'My Text Field Templates'}]},
-                        u'text': u'Office'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.tickets.TicketTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Ticket types'},
-                                             {u'handler': {u'action': u'grid.tickets.AllSites',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Sites'}]},
-                        u'text': u'Tickets'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.working.SessionTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Session Types'}]},
-                        u'text': u'Working time'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.github.Repositories',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Repositories'}]},
-                        u'text': u'GitHub'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.mailbox.Mailboxes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Mailboxes'}]},
-                        u'text': u'Mailbox'}]},
-  u'text': u'Configure'},
- {u'menu': {u'items': [{u'menu': {u'items': [{u'handler': {u'action': u'grid.gfks.ContentTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'content types',
-                                              u'toolTip': u'Default table for django.contrib.ContentType.'},
-                                             {u'handler': {u'action': u'grid.users.Authorities',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Authorities'},
-                                             {u'handler': {u'action': u'grid.users.UserTypes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'User types',
-                                              u'toolTip': u'The list of user types available in this application.'},
-                                             {u'handler': {u'action': u'grid.users.UserRoles',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'User roles'},
-                                             {u'handler': {u'action': u'grid.changes.Changes',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Changes',
-                                              u'toolTip': u'The default table for Change.'},
-                                             {u'handler': {u'action': u'grid.notify.AllMessages',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Notification messages',
-                                              u'toolTip': u'The gobal list of all messages.'},
-                                             {u'handler': {u'action': u'grid.checkdata.Checkers',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Data checkers',
-                                              u'toolTip': u'The list of data problem types known by this application.'},
-                                             {u'handler': {u'action': u'grid.checkdata.AllProblems',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Data problems',
-                                              u'toolTip': u'Show all data problems.'},
-                                             {u'handler': {u'action': u'grid.dashboard.AllWidgets',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'All dashboard widgets'},
-                                             {u'handler': {u'action': u'grid.userstats.UserStats',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'User Statistics'}]},
-                        u'text': u'System'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.contacts.Roles',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Contact Persons'},
-                                             {u'handler': {u'action': u'grid.contacts.Partners',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Partners'},
-                                             {u'handler': {u'action': u'grid.lists.AllMembers',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'List memberships'}]},
-                        u'text': u'Contacts'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.cal.AllEntries',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'events',
-                                              u'toolTip': u'Table which shows all calendar events.'},
-                                             {u'handler': {u'action': u'grid.cal.Tasks',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Tasks',
-                                              u'toolTip': u'Global table of all tasks for all users.'},
-                                             {u'handler': {u'action': u'grid.cal.Subscriptions',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Subscriptions'},
-                                             {u'handler': {u'action': u'grid.cal.EntryStates',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Event states',
-                                              u'toolTip': u'The possible states of a calendar entry.\nStored in the state field.'},
-                                             {u'handler': {u'action': u'grid.cal.GuestStates',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Guest states',
-                                              u'toolTip': u'Global choicelist of possible guest states.'},
-                                             {u'handler': {u'action': u'grid.cal.TaskStates',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Task states',
-                                              u'toolTip': u'Possible values for the state of a Task. The list of\nchoices for the Task.state field.'}]},
-                        u'text': u'Calendar'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.excerpts.AllExcerpts',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Excerpts',
-                                              u'toolTip': u'Base class for all tables on Excerpt.'},
-                                             {u'handler': {u'action': u'grid.comments.AllComments',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Comments'},
-                                             {u'handler': {u'action': u'grid.uploads.AllUploads',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Uploads',
-                                              u'toolTip': u'Shows all Uploads'},
-                                             {u'handler': {u'action': u'grid.uploads.UploadAreas',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Upload Areas'},
-                                             {u'handler': {u'action': u'grid.tinymce.TextFieldTemplates',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Text Field Templates'}]},
-                        u'text': u'Office'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.tickets.Links',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Dependencies'},
-                                             {u'handler': {u'action': u'grid.tickets.TicketStates',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Ticket states',
-                                              u'toolTip': u'The choicelist of possible values for the state of a ticket.'},
-                                             {u'handler': {u'action': u'grid.tickets.Subscriptions',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Site subscriptions'}]},
-                        u'text': u'Tickets'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.working.Sessions',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Sessions'},
-                                             {u'handler': {u'action': u'grid.working.AllSummaries',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Site summaries'}]},
-                        u'text': u'Working time'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.github.Commits',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Commits'}]},
-                        u'text': u'GitHub'},
-                       {u'menu': {u'items': [{u'handler': {u'action': u'grid.mailbox.Messages',
-                                                           u'rp': None,
-                                                           u'status': {}},
-                                              u'text': u'Messages'}]},
-                        u'text': u'Mailbox'}]},
-  u'text': u'Explorer'},
- {u'menu': {u'items': [{u'handler': {u'action': u'show.about.About',
-                                     u'rp': None,
-                                     u'status': {u'record_id': -99998}},
-                        u'text': u'About',
-                        u'toolTip': u'Show information about this site.'}]},
-  u'text': u'Site'}]
-
+[
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.contacts.Persons",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Persons",
+          "toolTip": "Shows all persons."
+        },
+        {
+          "handler": {
+            "action": "grid.contacts.Companies",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Organizations",
+          "toolTip": "An organisation.  The verbose name is \"Organization\" while the\ninternal name is \"Company\" because the latter easier to type and\nfor historical reasons."
+        },
+        {
+          "handler": {
+            "action": "grid.lists.Lists",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Partner Lists"
+        }
+      ]
+    },
+    "text": "Contacts"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.cal.MyEntries",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My appointments",
+          "toolTip": "Table of appointments for which I am responsible."
+        },
+        {
+          "handler": {
+            "action": "grid.cal.OverdueAppointments",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Overdue appointments",
+          "toolTip": "Shows overdue appointments, i.e. appointments whose date is\nover but who are still in a nonstable state."
+        },
+        {
+          "handler": {
+            "action": "grid.cal.MyUnconfirmedAppointments",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Unconfirmed appointments",
+          "toolTip": "Shows my appointments in the near future which are in suggested or\ndraft state."
+        },
+        {
+          "handler": {
+            "action": "grid.cal.MyTasks",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My tasks",
+          "toolTip": "Shows my tasks whose start date is today or in the future."
+        },
+        {
+          "handler": {
+            "action": "grid.cal.MyGuests",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My guests",
+          "toolTip": "The default table of presences."
+        },
+        {
+          "handler": {
+            "action": "grid.cal.MyPresences",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My presences",
+          "toolTip": "Shows all my presences in calendar events, independently of their\nstate."
+        },
+        {
+          "handler": {
+            "action": "grid.cal.MyOverdueAppointments",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My overdue appointments",
+          "toolTip": "Like OverdueAppointments, but only for myself."
+        },
+        {
+          "handler": {
+            "action": "grid.extensible.CalendarPanel",
+            "rp": null,
+            "status": {}
+          },
+          "iconCls": "x-tbar-calendar",
+          "text": "Calendar",
+          "toolTip": "Displays your events in a \"calendar view\"     with the possibility to switch between daily, weekly, monthly view."
+        }
+      ]
+    },
+    "text": "Calendar"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.excerpts.MyExcerpts",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My Excerpts",
+          "toolTip": "Base class for all tables on Excerpt."
+        },
+        {
+          "handler": {
+            "action": "grid.comments.MyComments",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My Comments"
+        },
+        {
+          "handler": {
+            "action": "grid.comments.RecentComments",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Recent comments"
+        },
+        {
+          "handler": {
+            "action": "grid.notify.MyMessages",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My Notification messages",
+          "toolTip": "Shows messages emitted to me."
+        },
+        {
+          "handler": {
+            "action": "grid.uploads.MyUploads",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My Uploads",
+          "toolTip": "Shows only my Uploads (i.e. those whose author is current user)."
+        }
+      ]
+    },
+    "text": "Office"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.tickets.MyTickets",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My tickets",
+          "toolTip": "Show all active tickets reported by me."
+        },
+        {
+          "handler": {
+            "action": "grid.tickets.ActiveTickets",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Active tickets",
+          "toolTip": "Show all tickets that are in an active state."
+        },
+        {
+          "handler": {
+            "action": "grid.tickets.AllTickets",
+            "rp": null,
+            "status": {}
+          },
+          "text": "All tickets",
+          "toolTip": "Shows all tickets."
+        },
+        {
+          "handler": {
+            "action": "grid.tickets.UnassignedTickets",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Unassigned Tickets",
+          "toolTip": "Base class for all tables of tickets."
+        },
+        {
+          "handler": {
+            "action": "grid.tickets.RefTickets",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Reference Tickets",
+          "toolTip": "Shows all tickets that have a reference."
+        },
+        {
+          "handler": {
+            "action": "grid.tickets.MySites",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My sites",
+          "toolTip": "Shows the sites for which I have a subscription."
+        },
+        {
+          "handler": {
+            "action": "grid.tickets.MyTicketsToWork",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Tickets to work",
+          "toolTip": "Show all active tickets assigned to me."
+        }
+      ]
+    },
+    "text": "Tickets"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.working.MySessions",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Sessions"
+        },
+        {
+          "handler": {
+            "action": "grid.working.ServiceReports",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Service Reports"
+        },
+        {
+          "handler": {
+            "action": "grid.working.WorkedHours",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Worked hours"
+        }
+      ]
+    },
+    "text": "Working time"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.github.MyCommits",
+            "rp": null,
+            "status": {}
+          },
+          "text": "My Commits"
+        }
+      ]
+    },
+    "text": "GitHub"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "grid.mailbox.UnassignedMessages",
+            "rp": null,
+            "status": {}
+          },
+          "text": "Messages"
+        }
+      ]
+    },
+    "text": "Mailbox"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "detail.system.SiteConfigs",
+                  "rp": null,
+                  "status": {
+                    "record_id": 1
+                  }
+                },
+                "iconCls": "x-tbar-application_form",
+                "text": "Site Parameters"
+              },
+              {
+                "handler": {
+                  "action": "grid.gfks.HelpTexts",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Help Texts"
+              },
+              {
+                "handler": {
+                  "action": "grid.users.AllUsers",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Users",
+                "toolTip": "Shows the list of all users on this site."
+              }
+            ]
+          },
+          "text": "System"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.countries.Countries",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Countries"
+              },
+              {
+                "handler": {
+                  "action": "grid.countries.Places",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Places",
+                "toolTip": "\n    The table of known geographical places.\n    A geographical place can be a city, a town, a suburb,\n    a province, a lake... any named geographic entity,\n    except for countries because these have their own table.\n    "
+              }
+            ]
+          },
+          "text": "Places"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.contacts.CompanyTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Organization types"
+              },
+              {
+                "handler": {
+                  "action": "grid.contacts.RoleTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Functions"
+              },
+              {
+                "handler": {
+                  "action": "grid.lists.ListTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "List Types"
+              }
+            ]
+          },
+          "text": "Contacts"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.cal.Calendars",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Calendars"
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.AllRooms",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Rooms",
+                "toolTip": "List of rooms where calendar events can happen."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.Priorities",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Priorities",
+                "toolTip": "List of possible priorities of calendar events."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.RecurrentEvents",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Recurring events",
+                "toolTip": "The list of all recurrent events (RecurrentEvent)."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.GuestRoles",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Guest roles",
+                "toolTip": "Global table of guest roles."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.EventTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Calendar entry types",
+                "toolTip": "The list of entry types defined on this site."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.EventPolicies",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Recurrency policies",
+                "toolTip": "Global table of all possible recurrencly policies."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.RemoteCalendars",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Remote Calendars"
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.DailyPlannerRows",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Planner rows"
+              }
+            ]
+          },
+          "text": "Calendar"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.excerpts.ExcerptTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Excerpt Types",
+                "toolTip": "Displays all rows of ExcerptType."
+              },
+              {
+                "handler": {
+                  "action": "grid.comments.CommentTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Comment Types",
+                "toolTip": "The table with all existing comment types."
+              },
+              {
+                "handler": {
+                  "action": "grid.uploads.UploadTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Upload Types",
+                "toolTip": "The table with all existing upload types."
+              },
+              {
+                "handler": {
+                  "action": "grid.tinymce.MyTextFieldTemplates",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "My Text Field Templates"
+              }
+            ]
+          },
+          "text": "Office"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.tickets.TicketTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Ticket types"
+              },
+              {
+                "handler": {
+                  "action": "grid.tickets.AllSites",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Sites"
+              }
+            ]
+          },
+          "text": "Tickets"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.working.SessionTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Session Types"
+              }
+            ]
+          },
+          "text": "Working time"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.github.Repositories",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Repositories"
+              }
+            ]
+          },
+          "text": "GitHub"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.mailbox.Mailboxes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Mailboxes"
+              }
+            ]
+          },
+          "text": "Mailbox"
+        }
+      ]
+    },
+    "text": "Configure"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.gfks.ContentTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "content types",
+                "toolTip": "Default table for django.contrib.ContentType."
+              },
+              {
+                "handler": {
+                  "action": "grid.users.Authorities",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Authorities"
+              },
+              {
+                "handler": {
+                  "action": "grid.users.UserTypes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "User types",
+                "toolTip": "The list of user types available in this application."
+              },
+              {
+                "handler": {
+                  "action": "grid.users.UserRoles",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "User roles"
+              },
+              {
+                "handler": {
+                  "action": "grid.changes.Changes",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Changes",
+                "toolTip": "The default table for Change."
+              },
+              {
+                "handler": {
+                  "action": "grid.notify.AllMessages",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Notification messages",
+                "toolTip": "The gobal list of all messages."
+              },
+              {
+                "handler": {
+                  "action": "grid.checkdata.Checkers",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Data checkers",
+                "toolTip": "The list of data problem types known by this application."
+              },
+              {
+                "handler": {
+                  "action": "grid.checkdata.AllProblems",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Data problems",
+                "toolTip": "Show all data problems."
+              },
+              {
+                "handler": {
+                  "action": "grid.dashboard.AllWidgets",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "All dashboard widgets"
+              },
+              {
+                "handler": {
+                  "action": "grid.userstats.UserStats",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "User Statistics"
+              }
+            ]
+          },
+          "text": "System"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.contacts.Roles",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Contact Persons"
+              },
+              {
+                "handler": {
+                  "action": "grid.contacts.Partners",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Partners"
+              },
+              {
+                "handler": {
+                  "action": "grid.lists.AllMembers",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "List memberships"
+              }
+            ]
+          },
+          "text": "Contacts"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.cal.AllEntries",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "events",
+                "toolTip": "Table which shows all calendar events."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.Tasks",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Tasks",
+                "toolTip": "Global table of all tasks for all users."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.Subscriptions",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Subscriptions"
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.EntryStates",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Event states",
+                "toolTip": "The possible states of a calendar entry.\nStored in the state field."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.GuestStates",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Guest states",
+                "toolTip": "Global choicelist of possible guest states."
+              },
+              {
+                "handler": {
+                  "action": "grid.cal.TaskStates",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Task states",
+                "toolTip": "Possible values for the state of a Task. The list of\nchoices for the Task.state field."
+              }
+            ]
+          },
+          "text": "Calendar"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.excerpts.AllExcerpts",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Excerpts",
+                "toolTip": "Base class for all tables on Excerpt."
+              },
+              {
+                "handler": {
+                  "action": "grid.comments.AllComments",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Comments"
+              },
+              {
+                "handler": {
+                  "action": "grid.uploads.AllUploads",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Uploads",
+                "toolTip": "Shows all Uploads"
+              },
+              {
+                "handler": {
+                  "action": "grid.uploads.UploadAreas",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Upload Areas"
+              },
+              {
+                "handler": {
+                  "action": "grid.tinymce.TextFieldTemplates",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Text Field Templates"
+              }
+            ]
+          },
+          "text": "Office"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.tickets.Links",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Dependencies"
+              },
+              {
+                "handler": {
+                  "action": "grid.tickets.TicketStates",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Ticket states",
+                "toolTip": "The choicelist of possible values for the state of a ticket."
+              },
+              {
+                "handler": {
+                  "action": "grid.tickets.Subscriptions",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Site subscriptions"
+              }
+            ]
+          },
+          "text": "Tickets"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.working.Sessions",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Sessions"
+              },
+              {
+                "handler": {
+                  "action": "grid.working.AllSummaries",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Site summaries"
+              }
+            ]
+          },
+          "text": "Working time"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.github.Commits",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Commits"
+              }
+            ]
+          },
+          "text": "GitHub"
+        },
+        {
+          "menu": {
+            "items": [
+              {
+                "handler": {
+                  "action": "grid.mailbox.Messages",
+                  "rp": null,
+                  "status": {}
+                },
+                "text": "Messages"
+              }
+            ]
+          },
+          "text": "Mailbox"
+        }
+      ]
+    },
+    "text": "Explorer"
+  },
+  {
+    "menu": {
+      "items": [
+        {
+          "handler": {
+            "action": "show.about.About",
+            "rp": null,
+            "status": {
+              "record_id": -99998
+            }
+          },
+          "text": "About",
+          "toolTip": "Show information about this site."
+        }
+      ]
+    },
+    "text": "Site"
+  }
+]
