@@ -24,7 +24,7 @@ install:
 script:
   - export LINO_CACHE_ROOT=$TRAVIS_BUILD_DIR/lino_cache
   - mkdir $LINO_CACHE_ROOT
-  - cd ~/.local/lib/python2.7/site-packages/lino_react/projects/teamReact/
+  - cd lino_react/projects/teamReact/
   - python manage.py prep
   - python manage.py runserver -v 0 > /dev/null 2>&1 &
   - sleep 20
