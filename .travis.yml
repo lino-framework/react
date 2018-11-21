@@ -24,7 +24,7 @@ script:
   - python manage.py runserver -v 0 > /dev/null 2>&1 &
   - cd -
   - sleep 15
-  - npm run cy:run -- --spec cypress/integration/teamReact/*
+  - npm run cy:run -- --spec cypress/integration/teamReact/* --config video=false
   - kill $(jobs -p) || true
   - inv cov
 
