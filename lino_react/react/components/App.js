@@ -19,12 +19,16 @@ class App extends React.Component {
         this.state = {
             visible: true
         };
+
+        window.App = this;
+        console.log(window, window.App);
     }
 
     create_menu = (layout) => {
 
         const convert = (mi) => {
             let menu = {
+                // KEY          TYPE        DEFAULT DESC
                 // label	    string	    null	Text of the item.
                 label: mi.text,
                 // icon	        string	    null	Icon of the item.
@@ -47,7 +51,7 @@ class App extends React.Component {
             return menu;
         };
         let result = layout.map(mi => convert(mi));
-        console.log(result)
+        console.log(result);
         return result
     };
 
@@ -65,7 +69,7 @@ class App extends React.Component {
 
                 <DataProvider endpoint="api/tickets/AllTickets"
                               post_data={(data) => data.rows.map(row => {
-                                  row.splice(-2)
+                                  row.splice(-2);
                               })} // Remove Disabled rows & Is editable}
                     // render={(data, Comp) => {
                     //     const TagName = window[Comp];

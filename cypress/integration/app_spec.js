@@ -1,12 +1,21 @@
 describe("Django REST framework / React quickstart app", () => {
-  before(() => {
-  });
+    before(() => {
+    });
 
-  it("should be able to fill a web form", () => {
-    cy.visit("/");
-    cy
-      .get('.p-panelmenu.p-component')
-      .should("have.childElementCount", 2);
-  });
-  // more tests here
+    it("Test gen menu function", () => {
+            cy.server();
+            cy.route('ui/menu/**').as('getMenu');
+
+        let win = cy.window();
+        cy.visit("/");
+        cy.wait('@getMenu').debug();
+        }
+    );
+    it("should be able to fill a web form", () => {
+        cy
+            .get('.p-panelmenu.p-component').should('exist')
+        // .debug();
+    });
+
+    // more tests here
 });
