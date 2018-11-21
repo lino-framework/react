@@ -3,13 +3,9 @@ python:
   - "2.7"
   - "3.6"
 env:
-  global:
-    - NODE_VERSION="8.10.0"
   matrix:
     - DJANGO=1.11 
 
-before_install:
-  - nvm install $NODE_VERSION
 
 install:
   - pip install -U setuptools
@@ -25,9 +21,9 @@ script:
   - export LINO_CACHE_ROOT=$TRAVIS_BUILD_DIR/lino_cache
   - mkdir $LINO_CACHE_ROOT
   - cd lino_react/projects/teamReact/
-  - python manage.py prep
+  - python manage.py prep --noinput
   - python manage.py runserver -v 0 > /dev/null 2>&1 &
-  - sleep 20
+  - sleep 15
   - npm run cy:run
   - kill $(jobs -p) || true
   - inv cov
