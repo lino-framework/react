@@ -13,6 +13,7 @@
     "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
     "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
     "move_static": "rm -rf ./lino_react/react/static/media; mv  ./lino_react/react/static/react/static/media ./lino_react/react/static/;",
+    "build_css": "node_modules/node-sass-chokidar/bin/node-sass-chokidar ./lino_react/react/components/layout -o ./lino_react/react/components/layout",
     "cy:open": "./node_modules/.bin/cypress open",
     "cy:run": "./node_modules/.bin/cypress run"
   },
@@ -37,6 +38,8 @@
     "css-loader": "^1.0.1",
     "cypress": "^3.1.2",
     "file-loader": "^2.0.0",
+    "node-sass": "^4.10.0",
+    "node-sass-chokidar": "^1.3.4",
     "postcss-flexbugs-fixes": "^4.1.0",
     "postcss-loader": "^3.0.0",
     "prop-types": "^15.6.2",
@@ -49,6 +52,8 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
+    "node-sass": "^4.10.0",
+    "node-sass-chokidar": "^1.3.4",
     "primeflex": "^1.0.0-rc.1",
     "primeicons": "^1.0.0",
     "primereact": "^2.0.0-rc.1",

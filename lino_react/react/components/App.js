@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from "react";
 import ReactDOM from "react-dom";
 import DataProvider from "./DataProvider";
@@ -5,10 +6,15 @@ import Table from "./Table";
 import Menu from "./Menu";
 import {Sidebar} from 'primereact/sidebar';
 import {PanelMenu} from 'primereact/panelmenu';
+import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
+import {AppMenu} from './AppMenu';
 
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+
+import './layout/layout.css';
+import './App.css';
 
 window.Table = Table;
 
@@ -17,11 +23,98 @@ class App extends React.Component {
     constructor() {
         super();
         this.state = {
-            visible: true
+            visible: true,
+            layoutMode: 'static',
+            layoutColorMode: 'dark',
+            staticMenuInactive: false,
+            overlayMenuActive: false,
+            mobileMenuActive: true  
         };
+
+        this.onWrapperClick = this.onWrapperClick.bind(this);
+        this.onToggleMenu = this.onToggleMenu.bind(this);
+        this.onSidebarClick = this.onSidebarClick.bind(this);
+        this.onMenuItemClick = this.onMenuItemClick.bind(this);
 
         window.App = this;
         console.log(window, window.App);
+    }
+
+    onWrapperClick(event) {
+        if (!this.menuClick) {
+            this.setState({
+                overlayMenuActive: false,
+                mobileMenuActive: false
+            });
+        }
+
+        this.menuClick = false;
+    }
+
+    onToggleMenu(event) {
+        this.menuClick = true;
+
+        if (this.isDesktop()) {
+            if (this.state.layoutMode === 'overlay') {
+                this.setState({
+                    overlayMenuActive: !this.state.overlayMenuActive
+                });
+            }
+            else if (this.state.layoutMode === 'static') {
+                this.setState({
+                    staticMenuInactive: !this.state.staticMenuInactive
+                });
+            }
+        }
+        else {
+            const mobileMenuActive = this.state.mobileMenuActive;
+            this.setState({
+                mobileMenuActive: !mobileMenuActive
+            });
+        }
+
+        event.preventDefault();
+    }
+
+    onSidebarClick(event) {
+        this.menuClick = true;
+        setTimeout(() => {
+            this.layoutMenuScroller.moveBar();
+        }, 500);
+    }
+
+    onMenuItemClick(event) {
+        if (!event.item.items) {
+            this.setState({
+                overlayMenuActive: false,
+                mobileMenuActive: false
+            })
+        }
+    }
+
+    addClass(element, className) {
+        if (element.classList)
+            element.classList.add(className);
+        else
+            element.className += ' ' + className;
+    }
+
+    removeClass(element, className) {
+        if (element.classList)
+            element.classList.remove(className);
+        else
+            element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+
+    isDesktop() {
+        return window.innerWidth > 1024;
+    }
+
+    componentDidUpdate() {
+        if (this.state.mobileMenuActive)
+            this.addClass(document.body, 'body-overflow-hidden');
+        else
+            this.removeClass(document.body, 'body-overflow-hidden');
     }
 
     create_menu = (layout) => {
@@ -56,17 +149,39 @@ class App extends React.Component {
     };
 
     render() {
+        let wrapperClass = classNames('layout-wrapper', {
+            'layout-overlay': this.state.layoutMode === 'overlay',
+            'layout-static': this.state.layoutMode === 'static',
+            'layout-static-sidebar-inactive': this.state.staticMenuInactive && this.state.layoutMode === 'static',
+            'layout-overlay-sidebar-active': this.state.overlayMenuActive && this.state.layoutMode === 'overlay',
+            'layout-mobile-sidebar-active': this.state.mobileMenuActive
+        });
+        let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
         return (
-            <div>
-                <Sidebar visible={this.state.visible} onHide={(e) => this.setState({visible: false})}>
-                    <div className="layout-sidebar-scroll-content">
-                        <DataProvider endpoint="ui/menu"
-                                      render={(data) => <PanelMenu model={this.create_menu(data)}/>}
-                        />
-                    </div>
-                </Sidebar>
+            <div className={wrapperClass} onClick={this.onWrapperClick}>
+                <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
+
+                    <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
+                        <div className="layout-sidebar-scroll-content">
+                            {/*<div className="layout-logo">*/}
+                            {/*<img alt="Logo" src={logo}/>*/}
+                            {/*</div>*/}
+                            {/*<AppInlineProfile/>*/}
+                            <DataProvider endpoint="ui/menu"
+                                          render={(data) => <AppMenu model={this.create_menu(data)}
+                                                                     onMenuItemClick={this.onMenuItemClick}/>
+                                          }
+                            />
+                        </div>
+                    </ScrollPanel>
+
+                    {/*<Sidebar visible={this.state.visible} onHide={(e) => this.setState({visible: false})}>*/}
+                    {/*<div className="layout-sidebar-scroll-content">*/}
+                    {/*</div>*/}
+                    {/*</Sidebar>*/}
 
 
+                </div>
                 <DataProvider endpoint="api/tickets/AllTickets"
                               post_data={(data) => data.rows.map(row => {
                                   row.splice(-2);
@@ -82,6 +197,6 @@ class App extends React.Component {
     }
 }
 
-const wrapper = document.getElementById("app");
+const wrapper = document.getElementById("root");
 
 wrapper ? ReactDOM.render(<App/>, wrapper) : null;
