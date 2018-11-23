@@ -11,12 +11,18 @@ describe("Basic tests for TeamReact", () => {
 //    );
     it("Should be possible to click on menu items and close menu", () => {
         cy.visit("/");
-        cy.get('.p-panelmenu.p-component').should('exist');
         // Open first menu item
-        cy.get(':nth-child(1) > .p-component > .p-panelmenu-header-link').click();
-        cy.get(":nth-child(1) > .p-panelmenu-content-wrapper > .p-panelmenu-content >" +
-                ".p-submenu-list > .p-menuitem > .p-menuitem-link").click();
-        cy.get(".p-sidebar-close > .pi").click();
+
+        cy.get('.layout-main-menu > :nth-child(1) > :nth-child(2)').click();
+        // cy.wait(2000);
+        // For some reason I can't pinpoint the height of the side-menu gets messed up on this portion
+        // Only happens in test env, not going to dig too deep rn.
+        cy.get(".active-menuitem > ul > li > a > span").click();
+        // cy.wait(400);
+        cy.get(".layout-menu-button > .pi").click();
+        cy.get(".layout-mask").click();
+        cy.get(".layout-menu-button > .pi").click();
+
     });
 
     // more tests here

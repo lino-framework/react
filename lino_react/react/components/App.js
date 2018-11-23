@@ -124,16 +124,16 @@ class App extends React.Component {
     }
 
     fetch_menu = () => {
-      fetch("/ui/menu/"+`?${queryString.stringify({fmt:"json"})}`)
-	  .then(response => {
-	      if (response.status !== 200) {
-		  return this.setState({ placeholder: "Something went wrong" });
-		}
-              return response.json();
-	  })
-	  .then(data =>{
-	      this.setState({ menu_data: this.create_menu(data), menu_loaded: true });
-	  })
+        fetch("/ui/menu/" + `?${queryString.stringify({fmt: "json"})}`)
+            .then(response => {
+                if (response.status !== 200) {
+                    return this.setState({placeholder: "Something went wrong"});
+                }
+                return response.json();
+            })
+            .then(data => {
+                this.setState({menu_data: this.create_menu(data), menu_loaded: true});
+            })
     };
 
     create_menu = (layout) => {
@@ -204,17 +204,17 @@ class App extends React.Component {
                 </div>
                 <div className="layout-main">
                     <DataProvider endpoint="api/tickets/AllTickets"
-                    post_data={(data) => data.rows.map(row => {
-                    row.splice(-2);
-                    })} // Remove Disabled rows & Is editable}
-                    // render={(data, Comp) => {
-                    //     const TagName = window[Comp];
-                    //     return <TagName data={data}/>
-                    // }}
-                    render={(data) => <Table data={data.rows}/>}
+                                  post_data={(data) => data.rows.map(row => {
+                                      row.splice(-2);
+                                  })} // Remove Disabled rows & Is editable}
+                        // render={(data, Comp) => {
+                        //     const TagName = window[Comp];
+                        //     return <TagName data={data}/>
+                        // }}
+                                  render={(data) => <Table data={data.rows}/>}
                     />
                 </div>
-                 <div className="layout-mask"></div>
+                <div className="layout-mask"/>
             </div>
         )
     }
