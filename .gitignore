@@ -21,7 +21,7 @@ lino_react/sandbox/*/media
 */test.db
 docs/media
 docs/dl/*
-lino_react.egg-info
+lino_react.egg-info/*
 .build/
 htmlcov
 warnings_linkcheck.txt
