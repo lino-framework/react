@@ -20,10 +20,17 @@ from lino.modlib.extjs.ext_renderer import ExtRenderer
 from lino.core.actions import (ShowEmptyTable, ShowDetail,
                                ShowInsert, ShowTable, SubmitDetail,
                                SubmitInsert)
+from lino.core.boundaction import BoundAction
+from lino.core.actors import Actor
+from lino.core.layouts import LayoutHandle
+from lino.core.elems import LayoutElement
+
 from etgen.html import E
 
 from lino.utils import jsgen
 from lino.utils.jsgen import py2js, js_code
+
+from inspect import isclass
 
 
 class Renderer(JsRenderer):
@@ -158,12 +165,32 @@ class Renderer(JsRenderer):
                     # ~ handler=js_code("function() { window.location='%s'; }" % url))
                     handler=js_code("function() { Lino.load_url('%s'); }" % url))
             return dict(text=v.label, href=url)
+        if issubclass(v.__class__, LayoutElement):
+            # Layout elems
+            return dict(label=v.get_label(),
+                        repr=repr(v),
+                        items=v.elements if hasattr(v, 'elements') else None)
+        if isinstance(v, LayoutHandle):
+            # Layout entry-point
+            return dict(main=v.main)
+        if isinstance(v, BoundAction):
+            # todo include all aux info
+            # todo include grid info
+            return dict(an=v.action.get_label(),
+                        window_action=v.action.is_window_action(),
+                        window_layout=v.get_layout_handel(),
+                        )
+        if isclass(v) and issubclass(v, Actor):
+            return dict(id=v.actor_id,
+                        ba=v.actions
+                        # [py2js(b) for b in v.actions.items()]
+                        )
         return v
 
     def handler_item(self, mi, handler, help_text):
         """"""
-        #~ handler = "function(){%s}" % handler
-        #~ d = dict(text=prepare_label(mi),handler=js_code(handler),tooltip="Foo")
+        # ~ handler = "function(){%s}" % handler
+        # ~ d = dict(text=prepare_label(mi),handler=js_code(handler),tooltip="Foo")
         d = dict(text=mi.label, handler=handler)
         if mi.bound_action and mi.bound_action.action.icon_name:
             d.update(iconCls='x-tbar-' + mi.bound_action.action.icon_name)
@@ -172,6 +199,7 @@ class Renderer(JsRenderer):
             # d.update(tooltipType='title')
             d.update(toolTip=help_text)
         return d
+
     # Todo
     def request_handler(self, ar, *args, **kw):
         """ Generates js string for action button calls.

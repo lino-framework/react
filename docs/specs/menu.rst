@@ -19,8 +19,7 @@ Define a utility function:
 >>> def pSoup(soup):
 ...     print(soup.body.prettify(formatter=None))
 >>> test_client.force_login(rt.login('robin').user)
->>> print(json.dumps(json.loads(test_client.get("/ui/menu/?fmt=json").content),
-... indent=2, sort_keys=True, separators=(",",": ")))
+>>> pprint_json_string(test_client.get("/ui/menu/?fmt=json").content)
 ... #doctest: -ELLIPSIS +REPORT_UDIFF -SKIP
 [
   {
