@@ -8,6 +8,7 @@ import {Sidebar} from 'primereact/sidebar';
 import {PanelMenu} from 'primereact/panelmenu';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 import {AppMenu} from './AppMenu';
+import {AppTopbar} from './AppTopbar';
 
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -15,6 +16,7 @@ import 'primeicons/primeicons.css';
 
 import './layout/layout.css';
 import './App.css';
+import queryString from "query-string";
 
 window.Table = Table;
 
@@ -28,13 +30,17 @@ class App extends React.Component {
             layoutColorMode: 'dark',
             staticMenuInactive: false,
             overlayMenuActive: false,
-            mobileMenuActive: true  
+            mobileMenuActive: true,
+            menu_data: null,
+            menu_loaded: false,
         };
 
         this.onWrapperClick = this.onWrapperClick.bind(this);
         this.onToggleMenu = this.onToggleMenu.bind(this);
         this.onSidebarClick = this.onSidebarClick.bind(this);
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
+
+        this.fetch_menu();
 
         window.App = this;
         console.log(window, window.App);
@@ -117,6 +123,19 @@ class App extends React.Component {
             this.removeClass(document.body, 'body-overflow-hidden');
     }
 
+    fetch_menu = () => {
+      fetch("/ui/menu/"+`?${queryString.stringify({fmt:"json"})}`)
+	  .then(response => {
+	      if (response.status !== 200) {
+		  return this.setState({ placeholder: "Something went wrong" });
+		}
+              return response.json();
+	  })
+	  .then(data =>{
+	      this.setState({ menu_data: this.create_menu(data), menu_loaded: true });
+	  })
+    };
+
     create_menu = (layout) => {
 
         const convert = (mi) => {
@@ -159,19 +178,20 @@ class App extends React.Component {
         let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
         return (
             <div className={wrapperClass} onClick={this.onWrapperClick}>
+                <AppTopbar onToggleMenu={this.onToggleMenu}/>
                 <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
-
                     <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
                         <div className="layout-sidebar-scroll-content">
                             {/*<div className="layout-logo">*/}
                             {/*<img alt="Logo" src={logo}/>*/}
                             {/*</div>*/}
                             {/*<AppInlineProfile/>*/}
-                            <DataProvider endpoint="ui/menu"
-                                          render={(data) => <AppMenu model={this.create_menu(data)}
-                                                                     onMenuItemClick={this.onMenuItemClick}/>
+                            <AppMenu model={this.state.menu_data}
+                                     onMenuItemClick={this.onMenuItemClick}/>
+                            {/*<DataProvider endpoint="ui/menu"
+                                          render={(data) =>
                                           }
-                            />
+                            />*/}
                         </div>
                     </ScrollPanel>
 
@@ -182,16 +202,19 @@ class App extends React.Component {
 
 
                 </div>
-                <DataProvider endpoint="api/tickets/AllTickets"
-                              post_data={(data) => data.rows.map(row => {
-                                  row.splice(-2);
-                              })} // Remove Disabled rows & Is editable}
+                <div className="layout-main">
+                    <DataProvider endpoint="api/tickets/AllTickets"
+                    post_data={(data) => data.rows.map(row => {
+                    row.splice(-2);
+                    })} // Remove Disabled rows & Is editable}
                     // render={(data, Comp) => {
                     //     const TagName = window[Comp];
                     //     return <TagName data={data}/>
                     // }}
-                              render={(data) => <Table data={data.rows}/>}
-                />
+                    render={(data) => <Table data={data.rows}/>}
+                    />
+                </div>
+                 <div className="layout-mask"></div>
             </div>
         )
     }

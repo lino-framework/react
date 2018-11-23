@@ -37,3 +37,7 @@ __pycache__
 node_modules/
 
 yarn\.lock
+
+# Testing media recordings
+cypress/screenshots/
+cypress/videos/
