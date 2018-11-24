@@ -27,7 +27,7 @@ htmlcov
 warnings_linkcheck.txt
 .DS_Store
 .idea
-docs/api/lino.*
+docs/api/lino*
 docs/tutorials/pisa/pisa.Person-1.pdf
 .coverage
 .coverage.*

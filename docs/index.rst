@@ -48,3 +48,4 @@ Content
    :maxdepth: 1
 
    API <api/index>
+   specs/index

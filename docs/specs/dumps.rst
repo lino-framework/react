@@ -1,6 +1,10 @@
 .. doctest docs/specs/dumps.rst
 .. _specs.dumps:
 
+=====
+dumps
+=====
+
 
 >>> import lino
 >>> lino.startup('lino_react.projects.teamReact.settings.demo')
