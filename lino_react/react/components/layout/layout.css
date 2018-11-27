@@ -131,8 +131,7 @@ a {
         .layout-wrapper .layout-topbar .layout-topbar-icons a span.layout-topbar-icon {
           font-size: 2em; }
         .layout-wrapper .layout-topbar .layout-topbar-icons a span.layout-topbar-item-text {
-          font-size: 20px;
-          display: none; }
+          font-size: 20px; }
         .layout-wrapper .layout-topbar .layout-topbar-icons a span.layout-topbar-badge {
           position: absolute;
           font-size: 10px;

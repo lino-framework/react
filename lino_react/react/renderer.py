@@ -11,6 +11,8 @@ from django.db import models
 
 from lino.core import constants as ext_requests
 from lino.core.renderer import add_user_language, JsRenderer, HtmlRenderer
+from lino.core.renderer_mixins import JsCacheRenderer
+
 from lino.core.menus import Menu, MenuItem
 from lino.core import constants
 from lino.core import choicelists
@@ -30,20 +32,36 @@ from etgen.html import E
 from lino.utils import jsgen
 from lino.utils.jsgen import py2js, js_code
 
+from lino.modlib.users.utils import get_user_profile, with_user_profile
+
 from inspect import isclass
 
 
-class Renderer(JsRenderer):
+class Renderer(JsRenderer, JsCacheRenderer):
     """.
-        An HTML renderer that uses the react Javascript framework.
-
+        An JS renderer that uses the react Javascript framework.
     """
     is_interactive = True
     can_auth = False
 
+    lino_web_template = "react/linoweb.json"
+
     def __init__(self, plugin):
         super(JsRenderer, self).__init__(plugin)
+        JsCacheRenderer.__init__(self)
         jsgen.register_converter(self.py2js_converter)
+
+    def write_lino_js(self, f):
+        """
+
+        :param f: File object
+        :return: 1
+        """
+        f.write(py2js(dict(
+            actors=self.actors_list,
+            menu=settings.SITE.get_site_menu(get_user_profile()),
+        )))
+        return 1
 
     # working, but shouldn't be used, as it clears the app history
     def get_detail_url(self, actor, pk, *args, **kw):
@@ -216,8 +234,8 @@ class Renderer(JsRenderer):
     def action_call(self, request, bound_action, status):
 
         a = bound_action.action
+        fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
         if a.opens_a_window or (a.parameters and not a.no_params_window):
-            fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
             if request and request.subst_user:
                 status[
                     constants.URL_PARAM_SUBST_USER] = request.subst_user
@@ -234,8 +252,8 @@ class Renderer(JsRenderer):
                 action=fullname,
                 status=status,
                 rp=rp)
-        # todo: have action buttons forward their requests to the server with this js link
-        return "%s()" % self.get_panel_btn_handler(bound_action)
+            # return "%s()" % self.get_panel_btn_handler(bound_action)
+        return "simple_action(%s)" % fullname
 
     def show_menu(self, ar, mnu, level=1):
         """

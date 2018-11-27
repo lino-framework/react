@@ -43,9 +43,11 @@ class Plugin(Plugin):
 
         rx = '^'
 
+        self.renderer.build_site_cache()
+
         urls = [
             url(rx + r'$', views.App.as_view()),
-
+            url(rx + r'user/settings', views.UserSettings.as_view()),
             url(rx + r'auth$', views.Authenticate.as_view()),
 
             url(rx + r'api/main_html$', views.MainHtml.as_view()),

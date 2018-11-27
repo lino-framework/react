@@ -44,6 +44,8 @@ from etgen.html import E, tostring
 from etgen import html as xghtml
 from lino.core import kernel
 
+from lino.modlib.users.utils import get_user_profile, with_user_profile
+
 from lino.api import rt
 import re
 import cgi
@@ -742,7 +744,7 @@ class Menu(View):
 class Authenticate(View):
     def get(self, request, *args, **kw):
         action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME)
-        if action_name == 'logout':
+        if True or action_name == 'logout':
             username = request.session.pop('username', None)
             auth.logout(request)
             # request.user = settings.SITE.user_model.get_anonymous_user()
@@ -758,13 +760,18 @@ class Authenticate(View):
         raise http.Http404()
 
     def post(self, request, *args, **kw):
+        """logs the user in and builds the linoweb.js file for the logged in user"""
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = auth.authenticate(
             request, username=username, password=password)
         auth.login(request, user, backend=u'lino.core.auth.backends.ModelBackend')
         target = '/'
-        return http.HttpResponseRedirect(target)
+        def result():
+            if not settings.SITE.build_js_cache_on_startup:
+                settings.SITE.plugins.react.renderer.build_js_cache(False)
+            return http.HttpResponseRedirect(target)
+        return with_user_profile(user.user_type, result)
         # ar = BaseRequest(request)
         # mw = auth.get_auth_middleware()
         # msg = mw.authenticate(username, password, request)
@@ -783,27 +790,57 @@ class Authenticate(View):
 class App(View):
     """
     Main app entry point,
+    Also builds linoweb file for current user type.
+    Content is mostly in the :xfile:`react/main.html` template.
     """
 
     def get(self, request):
-        ui = settings.SITE.plugins.react
-        ar = BaseRequest(
-            # user=user,
-            request=request,
-            renderer=ui.renderer)
-        context = dict(
-            # title=ar.get_title(),
-            # heading=ar.get_title(),
-            # main=main,
-        )
-        context.update(ar=ar)
 
-        context = ar.get_printable_context(**context)
-        env = settings.SITE.plugins.jinja.renderer.jinja_env
-        template = env.get_template("react/main.html")
-        return http.HttpResponse(
-            template.render(**context),
-            content_type='text/html;charset="utf-8"')
+        user = request.user
+        if True:  # user.user_type.level >= UserLevels.admin:
+            if request.subst_user:
+                user = request.subst_user
+
+        def getit():
+
+            ui = settings.SITE.plugins.react
+            if not settings.SITE.build_js_cache_on_startup:
+                ui.renderer.build_js_cache(False)
+
+            ar = BaseRequest(
+                # user=user,
+                request=request,
+                renderer=ui.renderer)
+            context = dict(
+                # title=ar.get_title(),
+                # heading=ar.get_title(),
+                # main=main,
+            )
+            context.update(ar=ar)
+
+            context = ar.get_printable_context(**context)
+            env = settings.SITE.plugins.jinja.renderer.jinja_env
+            template = env.get_template("react/main.html")
+            return http.HttpResponse(
+                template.render(**context),
+                content_type='text/html;charset="utf-8"')
+
+        return with_user_profile(user.user_type, getit)
+
+class UserSettings(View):
+    """
+    Ajax interface for getting the current session/user settings."""
+
+    def get(self, request):
+        u = request.user
+        def getit():
+            return json_response(dict(
+                user_type=u.user_type,
+                lang=u.language,
+                site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts())
+            ))
+
+        return with_user_profile(u.user_type, getit)
 
 # class Index(View):
 #     """
