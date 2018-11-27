@@ -4,7 +4,11 @@
 
 
 from __future__ import unicode_literals
+
 from builtins import str
+import six
+
+from cgi import escape
 
 from django.conf import settings
 from django.db import models
@@ -254,6 +258,15 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 rp=rp)
             # return "%s()" % self.get_panel_btn_handler(bound_action)
         return "simple_action(%s)" % fullname
+
+    def js2url(self, js):
+        if not js:
+            return None
+        # Convert to string as currently window actions are py2js => dict
+        if not isinstance(js, six.string_types):
+            js = str(js)
+        js = escape(js)
+        return 'javascript:' + js
 
     def show_menu(self, ar, mnu, level=1):
         """

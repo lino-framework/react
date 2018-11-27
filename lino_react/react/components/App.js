@@ -17,7 +17,10 @@ import 'primeicons/primeicons.css';
 
 import './layout/layout.css';
 import './App.css';
-import queryString from "query-string";
+import queryString from "query-string"
+
+import { BrowserRouter as Router, HashRouter, Route, Link } from "react-router-dom";
+
 
 window.Table = Table;
 
@@ -30,7 +33,7 @@ class App extends React.Component {
             layoutMode: 'static',
             layoutColorMode: 'dark',
             staticMenuInactive: false,
-            overlayMenuActive: false,
+            overlayMenuActive: true,
             mobileMenuActive: true,
 
             site_loaded: false,
@@ -201,6 +204,7 @@ class App extends React.Component {
         });
         let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
         return (
+        <HashRouter>
             <div className={wrapperClass} onClick={this.onWrapperClick}>
                 <AppTopbar onToggleMenu={this.onToggleMenu}/>
                 <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
@@ -232,19 +236,17 @@ class App extends React.Component {
 
                 </div>
                 <div className="layout-main">
-                    <DataProvider endpoint="api/tickets/AllTickets"
-                                  post_data={(data) => data.rows.map(row => {
-                                      row.splice(-2);
-                                  })} // Remove Disabled rows & Is editable}
-                        // render={(data, Comp) => {
-                        //     const TagName = window[Comp];
-                        //     return <TagName data={data}/>
-                        // }}
-                                  render={(data) => <Table data={data.rows}/>}
-                    />
+                    <Route exact path="/" render={(match) => (
+                            <DataProvider endpoint="/api/main_html"
+                                  render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
+                            />
+                     )}/>
+                    <Link to="/about/">About</Link>
                 </div>
                 <div className="layout-mask"/>
             </div>
+
+        </HashRouter>
         )
     }
 }
