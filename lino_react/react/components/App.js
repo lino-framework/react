@@ -9,6 +9,7 @@ import {PanelMenu} from 'primereact/panelmenu';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 import {AppMenu} from './AppMenu';
 import {AppTopbar} from './AppTopbar';
+import {ProgressSpinner} from 'primereact/progressspinner';
 
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -31,8 +32,11 @@ class App extends React.Component {
             staticMenuInactive: false,
             overlayMenuActive: false,
             mobileMenuActive: true,
+
+            site_loaded: false,
+            site_data: null,
             menu_data: null,
-            menu_loaded: false,
+            user_settings:null
         };
 
         this.onWrapperClick = this.onWrapperClick.bind(this);
@@ -40,7 +44,7 @@ class App extends React.Component {
         this.onSidebarClick = this.onSidebarClick.bind(this);
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
 
-        this.fetch_menu();
+        this.fetch_user_settings();
 
         window.App = this;
         console.log(window, window.App);
@@ -123,8 +127,19 @@ class App extends React.Component {
             this.removeClass(document.body, 'body-overflow-hidden');
     }
 
-    fetch_menu = () => {
-        fetch("/ui/menu/" + `?${queryString.stringify({fmt: "json"})}`)
+    fetch_user_settings = () => {
+        fetch("/user/settings/").then( response => {
+            return response.json();
+        }
+        ).then( (data) => {
+            this.setState({user_settings: data});
+            return this.fetch_site_data(data.site_data);
+            }
+        )
+    };
+
+    fetch_site_data = (uri) => {
+        return fetch(uri)
             .then(response => {
                 if (response.status !== 200) {
                     return this.setState({placeholder: "Something went wrong"});
@@ -132,10 +147,19 @@ class App extends React.Component {
                 return response.json();
             })
             .then(data => {
-                this.setState({menu_data: this.create_menu(data), menu_loaded: true});
+
+                let menu_data = data.menu;
+                delete data.menu;
+                this.setState({menu_data: this.create_menu(menu_data),
+                               site_data: data,
+                               site_loaded: true});
             })
     };
 
+    /**
+     * Converts
+     *
+     **/
     create_menu = (layout) => {
 
         const convert = (mi) => {
@@ -186,12 +210,17 @@ class App extends React.Component {
                             {/*<img alt="Logo" src={logo}/>*/}
                             {/*</div>*/}
                             {/*<AppInlineProfile/>*/}
-                            <AppMenu model={this.state.menu_data}
-                                     onMenuItemClick={this.onMenuItemClick}/>
+                            {this.state.site_loaded ?
+                                <AppMenu model={this.state.menu_data}
+                                         onMenuItemClick={this.onMenuItemClick}/>
+                                :
+                                <ProgressSpinner />
+                            }
                             {/*<DataProvider endpoint="ui/menu"
                                           render={(data) =>
                                           }
                             />*/}
+
                         </div>
                     </ScrollPanel>
 

@@ -146,3 +146,10 @@ Test py > json for Actors.
   },
   "id": "about.About"
 }
+
+>>> pprint_json_string(test_client.get("/user/settings").content)
+{
+  "lang": "en",
+  "site_data": "/media/cache/js/lino_900_en.js",
+  "user_type": "900"
+}
