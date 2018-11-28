@@ -9,8 +9,10 @@ import {PanelMenu} from 'primereact/panelmenu';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 import {AppMenu} from './AppMenu';
 import {AppTopbar} from './AppTopbar';
+import {AppInlineProfile} from "./AppInlineProfile"
 import {ProgressSpinner} from 'primereact/progressspinner';
-
+//import {OverlayPanel} from 'primereact/overlaypanel';
+import {Dialog} from 'primereact/dialog';
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -47,10 +49,16 @@ class App extends React.Component {
         this.onSidebarClick = this.onSidebarClick.bind(this);
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
 
+        this.onSignOutIn = this.onSignOutIn.bind(this);
         this.fetch_user_settings();
 
         window.App = this;
         console.log(window, window.App);
+    }
+
+    onSignOutIn(event){
+        console.log(event, "SigninOut")
+
     }
 
     onWrapperClick(event) {
@@ -215,8 +223,13 @@ class App extends React.Component {
                             {/*</div>*/}
                             {/*<AppInlineProfile/>*/}
                             {this.state.site_loaded ?
+                                <div>
+                                <AppInlineProfile username={this.state.user_settings.username}
+                                                  logged_in={this.state.user_settings.logged_in}
+                                                  onSignOutIn={(e) => this.onSignOutIn(e)}/>
                                 <AppMenu model={this.state.menu_data}
                                          onMenuItemClick={this.onMenuItemClick}/>
+                                </div>
                                 :
                                 <ProgressSpinner />
                             }

@@ -837,7 +837,9 @@ class UserSettings(View):
             return json_response(dict(
                 user_type=u.user_type,
                 lang=u.language,
-                site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts())
+                site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()),
+                logged_in=not bool(u.is_anonymous),
+                username=u.get_full_name()
             ))
 
         return with_user_profile(u.user_type, getit)
