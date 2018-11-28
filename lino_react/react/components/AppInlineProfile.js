@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from "prop-types";
 
+
 export class AppInlineProfile extends Component {
 
     static propTypes = {
         logged_in: PropTypes.bool,
-        username: PropTypes.string.isRequired,
-        onSignOutIn: PropTypes.func.isRequired
-    }
+        username: PropTypes.string.isRequired
+    };
 
     constructor() {
         super();
@@ -31,7 +31,11 @@ export class AppInlineProfile extends Component {
                     <i className="pi pi-fw pi-cog"/>
                 </a>
                 <ul className={classNames({'profile-expanded': this.state.expanded})}>
-                    <li onClick={this.props.onSignOutIn}><a><i className="pi pi-fw pi-power-off"/>{this.props.logged_in? <span>Logout</span>: <span>Log In</span>}</a></li>
+                    <li onClick={this.props.onSignOutIn}><a><i className="pi pi-fw pi-power-off"/>
+                        {this.props.logged_in?
+                            <span>Logout</span>
+                            :
+                            <span>Log In</span>}</a></li>
                 </ul>
             </div>
         );

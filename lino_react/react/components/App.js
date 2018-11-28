@@ -10,6 +10,7 @@ import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 import {AppMenu} from './AppMenu';
 import {AppTopbar} from './AppTopbar';
 import {AppInlineProfile} from "./AppInlineProfile"
+import {SignInDialog} from './SignInDialog'
 import {ProgressSpinner} from 'primereact/progressspinner';
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {Dialog} from 'primereact/dialog';
@@ -41,7 +42,9 @@ class App extends React.Component {
             site_loaded: false,
             site_data: null,
             menu_data: null,
-            user_settings:null
+            user_settings:null,
+
+            logging_in:false,
         };
 
         this.onWrapperClick = this.onWrapperClick.bind(this);
@@ -57,7 +60,9 @@ class App extends React.Component {
     }
 
     onSignOutIn(event){
-        console.log(event, "SigninOut")
+        if (!this.state.user_settings.logged_in){
+            this.setState({logging_in:true})
+        }
 
     }
 
@@ -257,8 +262,8 @@ class App extends React.Component {
                     <Link to="/about/">About</Link>
                 </div>
                 <div className="layout-mask"/>
+                <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in:false})}/>
             </div>
-
         </HashRouter>
         )
     }

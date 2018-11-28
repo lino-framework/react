@@ -20,7 +20,7 @@ export class AppTopbar extends Component {
                 </a>
                 <div className="layout-topbar-icons">
                     <span className="layout-topbar-search">
-                        <InputText type="text" placeholder="Search" />
+                        <InputText type="text" placeholder="Search"/>
                         <span className="layout-topbar-search-icon pi pi-search"/>
                     </span>
                     <a>

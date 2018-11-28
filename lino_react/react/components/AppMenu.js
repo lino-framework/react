@@ -78,7 +78,7 @@ class AppSubmenu extends Component {
     }
 }
 
-export class AppMenu extends Component {
+export class  AppMenu extends Component {
 
     static defaultProps = {
         model: null,
