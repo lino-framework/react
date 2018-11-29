@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import queryString from 'query-string';
+import {ProgressSpinner} from 'primereact/progressspinner';
 // import Table from "./Table";
 
 class DataProvider extends Component {
@@ -13,22 +14,23 @@ class DataProvider extends Component {
   static defaultProps = {
       post_data: (data) => (data)
   };
-  state = {
-      data: [],
-      loaded: false,
-      placeholder: "Loading..."
+
+    constructor() {
+        super();
+    this.state = {
+        data: [],
+        loaded: false,
+        placeholder: "Loading..."
     };
-  constructor() {
-      super();
       this.reloadData = this.reloadData.bind(this);
     }
 
   componentDidMount() {
-    this.reloadData();
+      this.reloadData();
     }
 
   reloadData() {
-
+      this.setState({loaded:false});
       fetch(this.props.endpoint+`?${queryString.stringify({fmt:"json"})}`)
 	  .then(response => {
 	      if (response.status !== 200) {
@@ -46,7 +48,7 @@ class DataProvider extends Component {
     const { data, loaded, placeholder } = this.state;
     // const Comp = "Table";
     // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-    return loaded ? this.props.render(data) : <p>{placeholder}</p>;
+    return loaded ? this.props.render(data) : <ProgressSpinner/> ;
   }
 }
 
