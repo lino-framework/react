@@ -18,8 +18,16 @@ class DataProvider extends Component {
       loaded: false,
       placeholder: "Loading..."
     };
+  constructor() {
+      super();
+      this.reloadData = this.reloadData.bind(this);
+    }
 
   componentDidMount() {
+    this.reloadData();
+    }
+
+  reloadData() {
 
       fetch(this.props.endpoint+`?${queryString.stringify({fmt:"json"})}`)
 	  .then(response => {

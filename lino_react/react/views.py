@@ -725,7 +725,6 @@ class MainHtml(View):
         return json_response(ar.response, ar.content_type)
 
 
-
 class Authenticate(View):
     def get(self, request, *args, **kw):
         action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME)
@@ -748,15 +747,18 @@ class Authenticate(View):
         """logs the user in and builds the linoweb.js file for the logged in user"""
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(username,password)
+        print(username, password)
         user = auth.authenticate(
             request, username=username, password=password)
         auth.login(request, user, backend=u'lino.core.auth.backends.ModelBackend')
-        target = '/'
+
+        # target = '/user/settings/'
         def result():
             if not settings.SITE.build_js_cache_on_startup:
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
-            return http.HttpResponseRedirect(target)
+            # http.HttpResponseRedirect(target) # Seems that fetch has some issues with this...
+            return json_response({"success": True})
+
         return with_user_profile(user.user_type, result)
         # ar = BaseRequest(request)
         # mw = auth.get_auth_middleware()
@@ -813,19 +815,21 @@ class App(View):
 
         return with_user_profile(user.user_type, getit)
 
+
 class UserSettings(View):
     """
     Ajax interface for getting the current session/user settings."""
 
     def get(self, request):
         u = request.user
+
         def getit():
             return json_response(dict(
                 user_type=u.user_type,
                 lang=u.language,
                 site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()),
-                logged_in=u.user_type.authenticated, # not bool(u.is_anonymous)
-                username=u.get_full_name() if u.user_type.authenticated else _("Anonymous")
+                logged_in=u.is_authenticated(),
+                username=u.get_full_name() if u.is_authenticated() else _("Anonymous")
             ))
 
         return with_user_profile(u.user_type, getit)

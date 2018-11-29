@@ -14,7 +14,8 @@ export class SignInDialog extends Component {
 
     static propTypes = {
         visible: PropTypes.bool,
-        onClose: PropTypes.func
+        onClose: PropTypes.func,
+        onSignIn: PropTypes.func,
     };
     static defaultProps = {};
 
@@ -25,7 +26,6 @@ export class SignInDialog extends Component {
             username: ""
         };
         this.onHide = this.onHide.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     // method() {return this.props.}
@@ -36,31 +36,13 @@ export class SignInDialog extends Component {
     componentDidMount() {
     };
 
-    handleSubmit(event) {
-        event.preventDefault();
-        let payload = {
-            username: this.state.username,
-            password: this.state.password
-        };
-        let data = Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&');
-        // let data = new FormData();
-        // data.append("json", JSON.stringify(payload));
-        // Object.entries(payload).map((k,v) => data.append(k,v));
-        fetch("/auth",
-            {
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                method: "POST",
-                body: data
-            }
-        ).then((res) => (res.json())
-        ).then((data) => console.log(data));
-
-    }
-
     render() {
         const footer = (
             <div>
-                <Button label="Sign In" icon="pi pi-times" onClick={this.handleSubmit}/>
+                <Button label="Sign In" icon="pi pi-times" onClick={() => (this.props.onSignIn({
+                    username: this.state.username,
+                    password: this.state.password
+                }))}/>
                 <Button label="Cancel" icon="pi pi-check" onClick={this.onHide} className="p-button-secondary"/>
             </div>
         );

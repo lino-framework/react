@@ -22,7 +22,7 @@ import './layout/layout.css';
 import './App.css';
 import queryString from "query-string"
 
-import { BrowserRouter as Router, HashRouter, Route, Link } from "react-router-dom";
+import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 
 
 window.Table = Table;
@@ -42,9 +42,9 @@ class App extends React.Component {
             site_loaded: false,
             site_data: null,
             menu_data: null,
-            user_settings:null,
+            user_settings: null,
 
-            logging_in:false,
+            logging_in: false,
         };
 
         this.onWrapperClick = this.onWrapperClick.bind(this);
@@ -53,16 +53,54 @@ class App extends React.Component {
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
 
         this.onSignOutIn = this.onSignOutIn.bind(this);
+        this.onSignIn = this.onSignIn.bind(this);
+
         this.fetch_user_settings();
 
         window.App = this;
         console.log(window, window.App);
     }
 
-    onSignOutIn(event){
-        if (!this.state.user_settings.logged_in){
-            this.setState({logging_in:true})
+    onSignOutIn(event) {
+        if (!this.state.user_settings.logged_in) {
+            this.setState({logging_in: true})
         }
+        else {
+            fetch("/auth").then((req) => {
+                this.setState({logging_in: false});
+                this.fetch_user_settings();
+                this.dashboard.reloadData();
+
+            })
+        }
+
+    }
+
+    onSignIn(payload) {
+        // event.preventDefault();
+        // let payload = {
+        //     username: this.state.username,
+        //     password: this.state.password
+        // };
+        let data = Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&');
+        // let data = new FormData();
+        // data.append("json", JSON.stringify(payload));
+        // Object.entries(payload).map((k,v) => data.append(k,v));
+        this.setState({logging_in: false});
+        fetch("/auth",
+            {
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                method: "POST",
+                body: data
+            }
+        ).then((res) => (res.json())
+        ).then((data) => {
+            if (data.success) {
+                this.fetch_user_settings();
+                this.dashboard.reloadData();
+
+            }
+        });
 
     }
 
@@ -144,12 +182,12 @@ class App extends React.Component {
     }
 
     fetch_user_settings = () => {
-        fetch("/user/settings/").then( response => {
-            return response.json();
-        }
-        ).then( (data) => {
-            this.setState({user_settings: data});
-            return this.fetch_site_data(data.site_data);
+        fetch("/user/settings/").then(response => {
+                return response.json();
+            }
+        ).then((data) => {
+                this.setState({user_settings: data});
+                return this.fetch_site_data(data.site_data);
             }
         )
     };
@@ -166,9 +204,11 @@ class App extends React.Component {
 
                 let menu_data = data.menu;
                 delete data.menu;
-                this.setState({menu_data: this.create_menu(menu_data),
-                               site_data: data,
-                               site_loaded: true});
+                this.setState({
+                    menu_data: this.create_menu(menu_data),
+                    site_data: data,
+                    site_loaded: true
+                });
             })
     };
 
@@ -217,54 +257,57 @@ class App extends React.Component {
         });
         let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
         return (
-        <HashRouter>
-            <div className={wrapperClass} onClick={this.onWrapperClick}>
-                <AppTopbar onToggleMenu={this.onToggleMenu}/>
-                <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
-                    <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
-                        <div className="layout-sidebar-scroll-content">
-                            {/*<div className="layout-logo">*/}
-                            {/*<img alt="Logo" src={logo}/>*/}
-                            {/*</div>*/}
-                            {/*<AppInlineProfile/>*/}
-                            {this.state.site_loaded ?
-                                <div>
-                                <AppInlineProfile username={this.state.user_settings.username}
-                                                  logged_in={this.state.user_settings.logged_in}
-                                                  onSignOutIn={(e) => this.onSignOutIn(e)}/>
-                                <AppMenu model={this.state.menu_data}
-                                         onMenuItemClick={this.onMenuItemClick}/>
-                                </div>
-                                :
-                                <ProgressSpinner />
-                            }
-                            {/*<DataProvider endpoint="ui/menu"
+            <HashRouter>
+                <div className={wrapperClass} onClick={this.onWrapperClick}>
+                    <AppTopbar onToggleMenu={this.onToggleMenu}/>
+                    <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
+                        <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
+                            <div className="layout-sidebar-scroll-content">
+                                {/*<div className="layout-logo">*/}
+                                {/*<img alt="Logo" src={logo}/>*/}
+                                {/*</div>*/}
+                                {/*<AppInlineProfile/>*/}
+                                {this.state.site_loaded ?
+                                    <div>
+                                        <AppInlineProfile username={this.state.user_settings.username}
+                                                          logged_in={this.state.user_settings.logged_in}
+                                                          onSignOutIn={(e) => this.onSignOutIn(e)}/>
+                                        <AppMenu model={this.state.menu_data}
+                                                 onMenuItemClick={this.onMenuItemClick}/>
+                                    </div>
+                                    :
+                                    <ProgressSpinner/>
+                                }
+                                {/*<DataProvider endpoint="ui/menu"
                                           render={(data) =>
                                           }
                             />*/}
 
-                        </div>
-                    </ScrollPanel>
+                            </div>
+                        </ScrollPanel>
 
-                    {/*<Sidebar visible={this.state.visible} onHide={(e) => this.setState({visible: false})}>*/}
-                    {/*<div className="layout-sidebar-scroll-content">*/}
-                    {/*</div>*/}
-                    {/*</Sidebar>*/}
+                        {/*<Sidebar visible={this.state.visible} onHide={(e) => this.setState({visible: false})}>*/}
+                        {/*<div className="layout-sidebar-scroll-content">*/}
+                        {/*</div>*/}
+                        {/*</Sidebar>*/}
 
 
-                </div>
-                <div className="layout-main">
-                    <Route exact path="/" render={(match) => (
-                            <DataProvider endpoint="/api/main_html"
-                                  render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
+                    </div>
+                    <div className="layout-main">
+                        <Route exact path="/" render={(match) => (
+                            <DataProvider
+                                ref={(el) => this.dashboard = el}
+                                endpoint="/api/main_html"
+                                render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
                             />
-                     )}/>
-                    <Link to="/about/">About</Link>
+                        )}/>
+                        <Link to="/about/">About</Link>
+                    </div>
+                    <div className="layout-mask"/>
+                    <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
+                                  onSignIn={this.onSignIn}/>
                 </div>
-                <div className="layout-mask"/>
-                <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in:false})}/>
-            </div>
-        </HashRouter>
+            </HashRouter>
         )
     }
 }

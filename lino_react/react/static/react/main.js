@@ -277,6 +277,7 @@ function (_React$Component) {
     _this.onSidebarClick = _this.onSidebarClick.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onMenuItemClick = _this.onMenuItemClick.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.onSignOutIn = _this.onSignOutIn.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onSignIn = _this.onSignIn.bind(_assertThisInitialized(_assertThisInitialized(_this)));
 
     _this.fetch_user_settings();
 
@@ -288,11 +289,58 @@ function (_React$Component) {
   _createClass(App, [{
     key: "onSignOutIn",
     value: function onSignOutIn(event) {
+      var _this2 = this;
+
       if (!this.state.user_settings.logged_in) {
         this.setState({
           logging_in: true
         });
+      } else {
+        fetch("/auth").then(function (req) {
+          _this2.setState({
+            logging_in: false
+          });
+
+          _this2.fetch_user_settings();
+
+          _this2.dashboard.reloadData();
+        });
       }
+    }
+  }, {
+    key: "onSignIn",
+    value: function onSignIn(payload) {
+      var _this3 = this;
+
+      // event.preventDefault();
+      // let payload = {
+      //     username: this.state.username,
+      //     password: this.state.password
+      // };
+      var data = Object.keys(payload).map(function (key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(payload[key]);
+      }).join('&'); // let data = new FormData();
+      // data.append("json", JSON.stringify(payload));
+      // Object.entries(payload).map((k,v) => data.append(k,v));
+
+      this.setState({
+        logging_in: false
+      });
+      fetch("/auth", {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        method: "POST",
+        body: data
+      }).then(function (res) {
+        return res.json();
+      }).then(function (data) {
+        if (data.success) {
+          _this3.fetch_user_settings();
+
+          _this3.dashboard.reloadData();
+        }
+      });
     }
   }, {
     key: "onWrapperClick",
@@ -333,11 +381,11 @@ function (_React$Component) {
   }, {
     key: "onSidebarClick",
     value: function onSidebarClick(event) {
-      var _this2 = this;
+      var _this4 = this;
 
       this.menuClick = true;
       setTimeout(function () {
-        _this2.layoutMenuScroller.moveBar();
+        _this4.layoutMenuScroller.moveBar();
       }, 500);
     }
   }, {
@@ -373,7 +421,7 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
+      var _this5 = this;
 
       var wrapperClass = classnames__WEBPACK_IMPORTED_MODULE_0___default()('layout-wrapper', {
         'layout-overlay': this.state.layoutMode === 'overlay',
@@ -392,13 +440,13 @@ function (_React$Component) {
         onToggleMenu: this.onToggleMenu
       }), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         ref: function ref(el) {
-          return _this3.sidebar = el;
+          return _this5.sidebar = el;
         },
         className: sidebarClassName,
         onClick: this.onSidebarClick
       }, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(primereact_components_scrollpanel_ScrollPanel__WEBPACK_IMPORTED_MODULE_8__["ScrollPanel"], {
         ref: function ref(el) {
-          return _this3.layoutMenuScroller = el;
+          return _this5.layoutMenuScroller = el;
         },
         style: {
           height: '100%'
@@ -409,7 +457,7 @@ function (_React$Component) {
         username: this.state.user_settings.username,
         logged_in: this.state.user_settings.logged_in,
         onSignOutIn: function onSignOutIn(e) {
-          return _this3.onSignOutIn(e);
+          return _this5.onSignOutIn(e);
         }
       }), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_AppMenu__WEBPACK_IMPORTED_MODULE_9__["AppMenu"], {
         model: this.state.menu_data,
@@ -421,6 +469,9 @@ function (_React$Component) {
         path: "/",
         render: function render(match) {
           return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_DataProvider__WEBPACK_IMPORTED_MODULE_3__["default"], {
+            ref: function ref(el) {
+              return _this5.dashboard = el;
+            },
             endpoint: "/api/main_html",
             render: function render(data) {
               return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
@@ -438,10 +489,11 @@ function (_React$Component) {
       }), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_SignInDialog__WEBPACK_IMPORTED_MODULE_12__["SignInDialog"], {
         visible: this.state.logging_in,
         onClose: function onClose() {
-          return _this3.setState({
+          return _this5.setState({
             logging_in: false
           });
-        }
+        },
+        onSignIn: this.onSignIn
       })));
     }
   }]);
@@ -7437,13 +7489,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 
 
@@ -7455,26 +7507,28 @@ function (_Component) {
   _inherits(DataProvider, _Component);
 
   function DataProvider() {
-    var _getPrototypeOf2;
-
-    var _temp, _this;
+    var _this;
 
     _classCallCheck(this, DataProvider);
 
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _possibleConstructorReturn(_this, (_temp = _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(DataProvider)).call.apply(_getPrototypeOf2, [this].concat(args))), _this.state = {
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DataProvider).call(this));
+    _this.state = {
       data: [],
       loaded: false,
       placeholder: "Loading..."
-    }, _temp));
+    };
+    _this.reloadData = _this.reloadData.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    return _this;
   }
 
   _createClass(DataProvider, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      this.reloadData();
+    }
+  }, {
+    key: "reloadData",
+    value: function reloadData() {
       var _this2 = this;
 
       fetch(this.props.endpoint + "?".concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify({
@@ -12857,7 +12911,8 @@ function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 AppInlineProfile.propTypes = {
   logged_in: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.bool,
-  username: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.string.isRequired
+  username: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.string.isRequired,
+  onSignOutIn: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.func.isRequired
 };
 
 /***/ }),
@@ -12922,7 +12977,6 @@ function (_Component) {
       username: ""
     };
     _this.onHide = _this.onHide.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   } // method() {return this.props.}
 
@@ -12936,32 +12990,6 @@ function (_Component) {
     key: "componentDidMount",
     value: function componentDidMount() {}
   }, {
-    key: "handleSubmit",
-    value: function handleSubmit(event) {
-      event.preventDefault();
-      var payload = {
-        username: this.state.username,
-        password: this.state.password
-      };
-      var data = Object.keys(payload).map(function (key) {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(payload[key]);
-      }).join('&'); // let data = new FormData();
-      // data.append("json", JSON.stringify(payload));
-      // Object.entries(payload).map((k,v) => data.append(k,v));
-
-      fetch("/auth", {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        method: "POST",
-        body: data
-      }).then(function (res) {
-        return res.json();
-      }).then(function (data) {
-        return console.log(data);
-      });
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -12969,7 +12997,12 @@ function (_Component) {
       var footer = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_3__["Button"], {
         label: "Sign In",
         icon: "pi pi-times",
-        onClick: this.handleSubmit
+        onClick: function onClick() {
+          return _this2.props.onSignIn({
+            username: _this2.state.username,
+            password: _this2.state.password
+          });
+        }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_3__["Button"], {
         label: "Cancel",
         icon: "pi pi-check",
@@ -13017,7 +13050,8 @@ function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 SignInDialog.propTypes = {
   visible: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool,
-  onClose: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
+  onClose: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
+  onSignIn: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
 };
 SignInDialog.defaultProps = {};
 ;

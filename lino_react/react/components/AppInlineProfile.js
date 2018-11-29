@@ -7,7 +7,8 @@ export class AppInlineProfile extends Component {
 
     static propTypes = {
         logged_in: PropTypes.bool,
-        username: PropTypes.string.isRequired
+        username: PropTypes.string.isRequired,
+        onSignOutIn: PropTypes.func.isRequired
     };
 
     constructor() {
