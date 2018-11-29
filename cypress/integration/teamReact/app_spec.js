@@ -1,5 +1,7 @@
 describe("Basic tests for TeamReact", () => {
     before(() => {
+       // cy.server();
+       // cy.route('user/settings/').as('getUserSettings');
     });
 
 //    it("Test gen menu function", () => {
@@ -23,6 +25,22 @@ describe("Basic tests for TeamReact", () => {
         cy.get(".layout-mask").click();
         cy.get(".layout-menu-button > .pi").click();
 
+    });
+
+    it("Should be possible to login and out", () => {
+        cy.visit('/');
+        cy.get('.username').click();
+        cy.get(".profile-expanded > li > a > span").click();
+        cy.get("#signin-username").type("robin");
+        cy.get("#signin-password").type("1234");
+        cy.get(":nth-child(1) > .p-button-text").click();
+        // logged in
+        cy.wait(200);
+        cy.get(".layout-menu-button > .pi").click();
+        cy.get(".profile-expanded > li > a > span").click();
+        // logged out
+        
+        // cy.wait('@getUserSettings');
     });
 
     // more tests here
