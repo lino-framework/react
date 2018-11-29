@@ -12,6 +12,7 @@ import {AppTopbar} from './AppTopbar';
 import {AppInlineProfile} from "./AppInlineProfile"
 import {SignInDialog} from './SignInDialog'
 import {ProgressSpinner} from 'primereact/progressspinner';
+import {Actor} from "./Actor";
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {Dialog} from 'primereact/dialog';
 import 'primereact/resources/themes/nova-light/theme.css';
@@ -24,6 +25,7 @@ import queryString from "query-string"
 
 import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 
+import { Redirect } from 'react-router-dom';
 
 window.Table = Table;
 
@@ -226,7 +228,12 @@ class App extends React.Component {
                 // icon	        string	    null	Icon of the item.
                 // command	    function	null	Callback to execute when item is clicked.
                 command: (event) => {
-                    console.log(mi, event)
+                    let action_name = mi.handler.action; // grid.contacts.Persons
+                    action_name = action_name.split("."); // [ "grid", "contacts", "Persons" ]
+                    action_name = action_name.splice(1).concat(action_name).join("/"); // "contacts/Persons/grid/"
+                    console.log(mi, event, action_name);
+                    this.router.history.push("/api/" + action_name);
+                    // console.log(this.router);
                 }
                 // url	        string	    null	External link to navigate when item is clicked.
                 // items	    array	    null	An array of children menuitems.
@@ -238,7 +245,8 @@ class App extends React.Component {
                 // className	string	    null	Style class of the menuitem.
             };
             if (mi.menu && mi.menu.items) {
-                menu.items = mi.menu.items.map(mi => convert(mi))
+                menu.items = mi.menu.items.map(mi => convert(mi));
+                delete menu.command; // Only have command on submenu items,
             }
             return menu;
         };
@@ -257,7 +265,7 @@ class App extends React.Component {
         });
         let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
         return (
-            <HashRouter>
+            <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick}>
                     <AppTopbar onToggleMenu={this.onToggleMenu}/>
                     <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
@@ -301,7 +309,8 @@ class App extends React.Component {
                                 render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
                             />
                         )}/>
-                        <Link to="/about/">About</Link>
+                        <Route path="/api/:packId/:actorId/:actionId" component={Actor}/>
+                        <Link to="/api/tickets/AllTickets/grid">tickets.AllTickets</Link>
                     </div>
                     <div className="layout-mask"/>
                     <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
