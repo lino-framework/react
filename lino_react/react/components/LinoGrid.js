@@ -27,7 +27,13 @@ export class LinoGrid extends Component {
 
     }
 
+
     reload() {
+        this.setState({
+            data: null,
+            rows: []
+        });
+
         fetch(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify({fmt: "json"})}`).then(
             (res) => (res.json())
         ).then(

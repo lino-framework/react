@@ -21519,6 +21519,10 @@ function (_Component) {
     value: function reload() {
       var _this2 = this;
 
+      this.setState({
+        data: null,
+        rows: []
+      });
       fetch("/api/".concat(this.props.packId, "/").concat(this.props.actorId) + "?".concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify({
         fmt: "json"
       }))).then(function (res) {
