@@ -29,7 +29,7 @@ from lino.core.actions import (ShowEmptyTable, ShowDetail,
 from lino.core.boundaction import BoundAction
 from lino.core.actors import Actor
 from lino.core.layouts import LayoutHandle
-from lino.core.elems import LayoutElement
+from lino.core.elems import LayoutElement, ComboFieldElement
 
 from etgen.html import E
 
@@ -40,6 +40,19 @@ from lino.modlib.users.utils import get_user_profile, with_user_profile
 
 from inspect import isclass
 
+def find(itter, target, key=None):
+    """Returns the index of an element in a callable which can be use a key function"""
+    assert key == None or callable(key), "key shold be a function that takes the itter's item " \
+                                         "and returns that wanted matched item"
+    for i, x in enumerate(itter):
+        if key:
+            x = key(x)
+        if x == target:
+            return i
+    else:
+        return -1
+
+
 
 class Renderer(JsRenderer, JsCacheRenderer):
     """.
@@ -49,6 +62,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
     can_auth = False
 
     lino_web_template = "react/linoweb.json"
+    file_type = '.json'
+
 
     def __init__(self, plugin):
         super(JsRenderer, self).__init__(plugin)
@@ -62,7 +77,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :return: 1
         """
         f.write(py2js(dict(
-            actors=self.actors_list,
+            actors={a.actor_id: a for a in self.actors_list},
             menu=settings.SITE.get_site_menu(get_user_profile()),
         )))
         return 1
@@ -189,9 +204,14 @@ class Renderer(JsRenderer, JsCacheRenderer):
             return dict(text=v.label, href=url)
         if issubclass(v.__class__, LayoutElement):
             # Layout elems
-            return dict(label=v.get_label(),
-                        repr=repr(v),
-                        items=v.elements if hasattr(v, 'elements') else None)
+            result = dict(label=v.get_label(),
+                        repr=repr(v))
+            if hasattr(v, "fields_index"):
+                result["fields_index"] = v.fields_index
+            if hasattr(v, "elements"):
+                result['items'] = v.elements
+
+            return result
         if isinstance(v, LayoutHandle):
             # Layout entry-point
             return dict(main=v.main)
@@ -203,10 +223,22 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         window_layout=v.get_layout_handel(),
                         )
         if isclass(v) and issubclass(v, Actor):
-            return dict(id=v.actor_id,
-                        ba=v.actions
+            result = dict(id=v.actor_id,
+                        ba=v.actions,
                         # [py2js(b) for b in v.actions.items()]
                         )
+            if hasattr(v.get_handle(),"get_columns"):
+                result['col'] = v.get_handle().get_columns()
+                index_mod = 0
+                for c in result['col']:
+                    c.fields_index = find(v.get_handle().store.list_fields, c.field.name,
+                                          key=lambda f: f.name) + index_mod
+                    if isinstance(c, ComboFieldElement):
+                        # Skip the data value for multi value columns, such as choices and FK fields.
+                        # use c.fields_index -1 for data value
+                        index_mod += 1
+            return result
+
         return v
 
     def handler_item(self, mi, handler, help_text):

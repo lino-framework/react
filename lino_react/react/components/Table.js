@@ -1,7 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import key from "weak-key";
-
+import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
 
 const Table = ({ data }) =>
   !data.length ? (

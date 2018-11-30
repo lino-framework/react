@@ -13,6 +13,7 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {SignInDialog} from './SignInDialog'
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {Actor} from "./Actor";
+import {LinoGrid} from "./LinoGrid";
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {Dialog} from 'primereact/dialog';
 import 'primereact/resources/themes/nova-light/theme.css';
@@ -25,7 +26,7 @@ import queryString from "query-string"
 
 import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 
-import { Redirect } from 'react-router-dom';
+import {Redirect} from 'react-router-dom';
 
 window.Table = Table;
 
@@ -309,8 +310,20 @@ class App extends React.Component {
                                 render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
                             />
                         )}/>
-                        <Route path="/api/:packId/:actorId/:actionId" component={Actor}/>
-                        <Link to="/api/tickets/AllTickets/grid">tickets.AllTickets</Link>
+                        {this.state.site_loaded ?
+                            <div>
+                                {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
+                                <Route path="/api/:packId/:actorId/" render={(route) => (
+                                    <LinoGrid actorId={route.match.params.actorId}
+                                              packId={route.match.params.packId}
+                                              site_data={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
+                            </div>
+                            :
+                            <ProgressSpinner/>
+                        }
+
+                        {/*<Link to="/api/tickets/AllTickets/grid">tickets.AllTickets</Link>*/}
+                        <Link to="/api/tickets/AllTickets/">Grid</Link>
                     </div>
                     <div className="layout-mask"/>
                     <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
