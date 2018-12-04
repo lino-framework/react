@@ -205,7 +205,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
         if issubclass(v.__class__, LayoutElement):
             # Layout elems
             result = dict(label=v.get_label(),
-                        repr=repr(v))
+                          repr=repr(v),
+                          react_name=v.__class__.__name__) # Used for choosing correct react component
             if hasattr(v, "fields_index"):
                 result["fields_index"] = v.fields_index
             if hasattr(v, "elements"):

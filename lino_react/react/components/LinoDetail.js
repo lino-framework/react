@@ -7,13 +7,16 @@ import key from "weak-key";
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 
-export class LinoGrid extends Component {
+import LinoComponents from "./LinoComponents"
+
+export class LinoDetail extends Component {
 
     static propTypes = {
         match: PropTypes.object,
         actorId: PropTypes.string,
         packId: PropTypes.string,
-        actorData: PropTypes.object
+        actorData: PropTypes.object,
+        pk: PropTypes.string
     };
     static defaultProps = {};
 
@@ -34,7 +37,7 @@ export class LinoGrid extends Component {
             rows: []
         });
 
-        fetch(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify({fmt: "json"})}`).then(
+        fetch(`/api/${this.props.packId}/${this.props.actorId}`+`/${this.props.pk}` + `?${queryString.stringify({fmt: "json"})}`).then(
             (res) => (res.json())
         ).then(
             (data) => {
@@ -46,19 +49,16 @@ export class LinoGrid extends Component {
 
     componentDidMount() {
         this.reload();
-        console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
+        console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
     };
 
     render() {
-        const {rows} = this.state;
+        const layout = this.props.actorData.ba.detail.window_layout;
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
+        const MainComp = LinoComponents[layout.main.react_name]
         return <div>
-            <DataTable value={rows} paginator={false}>
-                {this.props.actorData.col.map((col, i) => (
-                    <Column field={String(col.fields_index)} header={col.label} key={key(col)}/>))
-                }
-            </DataTable>
-        </div>
+                <MainComp elem={layout.main} />
+               </div>
     }
 };

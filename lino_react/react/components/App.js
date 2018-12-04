@@ -13,7 +13,7 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {SignInDialog} from './SignInDialog'
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {Actor} from "./Actor";
-import {LinoGrid} from "./LinoGrid";
+//import {LinoGrid} from "./LinoGrid";
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {Dialog} from 'primereact/dialog';
 import 'primereact/resources/themes/nova-light/theme.css';
@@ -314,12 +314,12 @@ class App extends React.Component {
                         {this.state.site_loaded ?
                             <div>
                                 {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
-                                <Route path="/api/:packId/:actorId/" render={(route) => (
-                                    <LinoGrid match={route}
+                                <Route path="/api/:packId/:actorId" render={(route) => (
+                                    <Actor match={route}
                                               actorId={route.match.params.actorId}
                                               packId={route.match.params.packId}
                                               key={route.match.params.packId + "." + route.match.params.actorId } // makes react recreate the LinoGrid instance
-                                              grid_data={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
+                                              actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
                             </div>
                             :
                             <ProgressSpinner/>
