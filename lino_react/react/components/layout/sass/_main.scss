@@ -143,6 +143,22 @@ a {
                 color: $topbarItemHoverColor;
             }
         }
+        .layout-home-button {
+            cursor: pointer;
+            display: inline-block;
+            margin-left: 20px;
+            text-decoration: none;
+            color: $topbarItemColor;
+            @include transition(color $transitionDuration);
+
+            span {
+                font-size: 2em;
+            }
+
+            &:hover {
+                color: $topbarItemHoverColor;
+            }
+        }
 
         a {
             cursor: pointer;
@@ -188,7 +204,7 @@ a {
 
         .layout-logo {
             text-align: center;
-            margin-top: 24px;   
+            margin-top: 24px;
         }
 
         .profile {
@@ -348,7 +364,7 @@ a {
             @include linear-gradient($menuDarkBgColorFirst, $menuDarkBgColorLast);
 
             .layout-logo {
-                
+
             }
 
             .profile {
@@ -436,20 +452,20 @@ a {
             .layout-sidebar {
                 left: -250px;
             }
-            
+
             .layout-topbar {
                 left: 0;
             }
-    
+
             .layout-main, .layout-footer {
                 margin-left: 0;
             }
-    
+
             &.layout-overlay-sidebar-active {
                 .layout-sidebar {
                     left: 0;
                 }
-    
+
                 .layout-topbar  {
                     left: 250px;
                 }
@@ -460,20 +476,20 @@ a {
             .layout-sidebar {
                 left: 0;
             }
-            
+
             .layout-topbar {
                 left: 250px;
             }
-    
+
             .layout-main, .layout-footer {
                 margin-left: 250px;
             }
-    
+
             &.layout-static-sidebar-inactive {
                 .layout-sidebar {
                     left: -250px;
                 }
-    
+
                 .layout-topbar  {
                     left: 0;
                 }

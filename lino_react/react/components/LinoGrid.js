@@ -10,10 +10,10 @@ import {Column} from 'primereact/column';
 export class LinoGrid extends Component {
 
     static propTypes = {
-        // match: PropTypes.object
+        match: PropTypes.object
         actorId: PropTypes.string,
         packId: PropTypes.string,
-        site_data: PropTypes.object
+        grid_data: PropTypes.object
     };
     static defaultProps = {};
 
@@ -46,7 +46,7 @@ export class LinoGrid extends Component {
 
     componentDidMount() {
         this.reload();
-        console.log(this.props);
+        console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     };
 
     render() {
@@ -55,7 +55,7 @@ export class LinoGrid extends Component {
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         return <div>
             <DataTable value={rows} paginator={false}>
-                {this.props.site_data.col.map((col, i) => (
+                {this.props.grid_data.col.map((col, i) => (
                     <Column field={String(col.fields_index)} header={col.label} key={key(col)}/>))
                 }
             </DataTable>

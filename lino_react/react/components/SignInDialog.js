@@ -49,21 +49,32 @@ export class SignInDialog extends Component {
 
         return (
             <div>
-                <Dialog header="Welcome To Our linosite" visible={this.props.visible} width="350px" footer={footer}
+                <Dialog header="Welcome To Our linosite" visible={this.props.visible} width="500px " footer={footer}
                         minY={70}
                         onHide={this.onHide} maximizable={false}>
                     {/*{Object.entries(this.).map(el => <th key={key(el)}>{el[0]}</th>)}*/}
                     <form>
-                        <span className="p-float-label">
-                            <InputText id="signin-username" value={this.state.username}
-                                       onChange={(e) => this.setState({username: e.target.value})}/>
-                            <label htmlFor="signin-username">Username</label>
-                        </span>
-                        <span className="p-float-label">
-                            <Password id="signin-password" feedback={false} value={this.state.password}
-                                      onChange={(e) => this.setState({password: e.target.value})}/>
-                            <label htmlFor="signin-password">password</label>
-                        </span>
+                        <div className="card">
+                        <div className="p-grid p-justify-center p-fluid">
+                            <div className="p-col-12">
+                                    <span className="p-float-label">
+                                        <InputText id="signin-username" value={this.state.username}
+                                                   className="p-inputtext p-component"
+                                                   onChange={(e) => this.setState({username: e.target.value})}/>
+                                        <label htmlFor="signin-username">Username</label>
+                                    </span>
+                            </div>
+
+                            <div className="p-col-12 ">
+                                    <span className="p-float-label">
+                                        <Password id="signin-password" feedback={false} value={this.state.password}
+                                                  className="p-inputtext p-component"
+                                                  onChange={(e) => this.setState({password: e.target.value})}/>
+                                        <label htmlFor="signin-password">password</label>
+                                    </span>
+                            </div>
+                        </div>
+                        </div>
                     </form>
                 </Dialog>
             </div>

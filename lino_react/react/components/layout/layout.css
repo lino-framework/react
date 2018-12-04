@@ -225,6 +225,20 @@ a {
         font-size: 2em; }
       .layout-wrapper .layout-topbar .layout-menu-button:hover {
         color: #77c7ff; }
+    .layout-wrapper .layout-topbar .layout-home-button {
+      cursor: pointer;
+      display: inline-block;
+      margin-left: 20px;
+      text-decoration: none;
+      color: #ffffff;
+      -moz-transition: color 0.2s;
+      -o-transition: color 0.2s;
+      -webkit-transition: color 0.2s;
+      transition: color 0.2s; }
+      .layout-wrapper .layout-topbar .layout-home-button span {
+        font-size: 2em; }
+      .layout-wrapper .layout-topbar .layout-home-button:hover {
+        color: #77c7ff; }
     .layout-wrapper .layout-topbar a {
       cursor: pointer; }
   .layout-wrapper .p-scrollpanel {

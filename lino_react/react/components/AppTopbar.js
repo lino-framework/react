@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {InputText} from 'primereact/inputtext';
 import PropTypes from 'prop-types';
+import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 
 export class AppTopbar extends Component {
 
@@ -18,6 +19,9 @@ export class AppTopbar extends Component {
                 <a className="layout-menu-button" onClick={this.props.onToggleMenu}>
                     <span className="pi pi-bars"/>
                 </a>
+                <Link className="layout-home-button" to="/">
+                    <span className="pi pi-home"/>
+                </Link>
                 <div className="layout-topbar-icons">
                     <span className="layout-topbar-search">
                         <InputText type="text" placeholder="Search"/>

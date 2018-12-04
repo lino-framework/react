@@ -1,19 +1,21 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 
 
 export class Actor extends Component {
 
     static propTypes = {
-        match: PropTypes.object, // routing match object
+        match: PropTypes.object,
+        actorId: PropTypes.string,
+        packId: PropTypes.string,
+        grid_data: PropTypes.object
     };
-    static defaultProps = {
-    };
+    static defaultProps = {};
 
     constructor() {
         super();
-        this.state = {
-        };
+        this.state = {};
         // this.method = this.method.bind(this);
 
     }
@@ -26,10 +28,6 @@ export class Actor extends Component {
 
     render() {
         const {match} = this.props;
-        return <div>
-            <p>{match.params.packId}</p>
-            <p>{match.params.actorId}</p>
-            <p>{match.params.actionId}</p>
-        </div>
+        return <Route exact path={match.path}/>
     }
 }

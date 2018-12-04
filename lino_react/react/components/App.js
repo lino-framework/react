@@ -19,6 +19,7 @@ import {Dialog} from 'primereact/dialog';
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
 
 import './layout/layout.css';
 import './App.css';
@@ -314,16 +315,15 @@ class App extends React.Component {
                             <div>
                                 {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
                                 <Route path="/api/:packId/:actorId/" render={(route) => (
-                                    <LinoGrid actorId={route.match.params.actorId}
+                                    <LinoGrid match={route}
+                                              actorId={route.match.params.actorId}
                                               packId={route.match.params.packId}
-                                              site_data={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
+                                              key={route.match.params.packId + "." + route.match.params.actorId } // makes react recreate the LinoGrid instance
+                                              grid_data={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
                             </div>
                             :
                             <ProgressSpinner/>
                         }
-
-                        {/*<Link to="/api/tickets/AllTickets/grid">tickets.AllTickets</Link>*/}
-                        <Link to="/api/tickets/AllTickets/">Grid</Link>
                     </div>
                     <div className="layout-mask"/>
                     <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
