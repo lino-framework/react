@@ -23,8 +23,13 @@ export class LinoDetail extends Component {
     constructor() {
         super();
         this.state = {
-            data: null,
-            rows: []
+            data: {},
+            original_data: {}, // Copy of data for diff test
+            disabled_fields: [],
+            id: null,
+            title: "",
+            nav_info: {},
+            // loading: true
         };
         this.reload = this.reload.bind(this);
 
@@ -32,17 +37,26 @@ export class LinoDetail extends Component {
 
 
     reload() {
-        this.setState({
-            data: null,
-            rows: []
-        });
+        // this.setState({
+        // loading: true,
+        // });
 
-        fetch(`/api/${this.props.packId}/${this.props.actorId}`+`/${this.props.pk}` + `?${queryString.stringify({fmt: "json"})}`).then(
+        fetch(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify({fmt: "json"})}`).then(
             (res) => (res.json())
         ).then(
             (data) => {
                 console.log("table GET", data);
-                this.setState({data: data, rows: data.rows});
+                let df = data.data.disabled_field;
+                delete data.data.disabled_field;
+                this.setState({
+                    data: data.data,
+                    original_data: JSON.parse(JSON.stringify(data.data)), // Copy of data for diff test
+                    disabled_fields: df,
+                    id: data.id,
+                    title: data.title,
+                    nav_info: data.nav_info,
+                    // loading:false,
+                });
             }
         )
     }
@@ -57,8 +71,20 @@ export class LinoDetail extends Component {
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         const MainComp = LinoComponents[layout.main.react_name]
-        return <div>
-                <MainComp elem={layout.main} />
-               </div>
+        const prop_bundle = {
+            data: this.state.data,
+            disabled_fields: this.state.disabled_fields
+            };
+        prop_bundle.prop_bundle = prop_bundle;
+        return (
+            <div>
+                <h1> {this.state.title} </h1>
+
+                {/*{!this.state.loading &&*/}
+
+                <MainComp {...prop_bundle} elem={layout.main} title={this.state.title}/>
+                {/*}*/}
+            </div>
+        )
     }
 };

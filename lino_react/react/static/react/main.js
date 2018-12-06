@@ -25470,8 +25470,14 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(LinoDetail).call(this));
     _this.state = {
-      data: null,
-      rows: []
+      data: {},
+      original_data: {},
+      // Copy of data for diff test
+      disabled_fields: [],
+      id: null,
+      title: "",
+      nav_info: {} // loading: true
+
     };
     _this.reload = _this.reload.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
@@ -25482,20 +25488,27 @@ function (_Component) {
     value: function reload() {
       var _this2 = this;
 
-      this.setState({
-        data: null,
-        rows: []
-      });
+      // this.setState({
+      // loading: true,
+      // });
       fetch("/api/".concat(this.props.packId, "/").concat(this.props.actorId) + "/".concat(this.props.pk) + "?".concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify({
         fmt: "json"
       }))).then(function (res) {
         return res.json();
       }).then(function (data) {
         console.log("table GET", data);
+        var df = data.data.disabled_field;
+        delete data.data.disabled_field;
 
         _this2.setState({
-          data: data,
-          rows: data.rows
+          data: data.data,
+          original_data: JSON.parse(JSON.stringify(data.data)),
+          // Copy of data for diff test
+          disabled_fields: df,
+          id: data.id,
+          title: data.title,
+          nav_info: data.nav_info // loading:false,
+
         });
       });
     }
@@ -25512,8 +25525,11 @@ function (_Component) {
       // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
 
       var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"][layout.main.react_name];
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, {
-        elem: layout.main
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, " ", this.state.title, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, {
+        elem: layout.main,
+        data: this.state.data,
+        disabled_fields: this.state.disabled_fields,
+        title: this.state.title
       }));
     }
   }]);
@@ -25560,16 +25576,42 @@ var LinoComponents = {
         key: weak_key__WEBPACK_IMPORTED_MODULE_1___default()(panel)
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, {
         elem: panel,
-        header: true
+        header: false,
+        data: props.data,
+        disabled_fields: props.disabled_fields
       }));
     }));
   },
   Panel: function Panel(props) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_4___default()("card", {
+    var children = props.elem.items.map(function (child, i) {
+      var Child = LinoComponents[child.react_name];
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: classnames__WEBPACK_IMPORTED_MODULE_4___default()({
+          "p-col-12": props.elem.vertical,
+          "p-col": !props.elem.vertical
+        })
+      }, Child === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, " ", child.name, " ") : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, {
+        elem: child,
+        data: props.data,
+        disabled_fields: props.disabled_fields
+      }));
+    });
+    return props.elem.is_fieldset ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      className: "p-grid"
+    }, children) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      className: classnames__WEBPACK_IMPORTED_MODULE_4___default()("card", "p-grid", {
         "card-w-header": props.header
       })
-    }, props.header && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, props.elem.label), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, props.elem.label, " "));
+    }, props.header && props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, props.elem.label), children);
+  },
+  SlaveSummaryPanel: function SlaveSummaryPanel(props) {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_panel__WEBPACK_IMPORTED_MODULE_3__["Panel"], {
+      header: props.elem.label
+    }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      dangerouslySetInnerHTML: {
+        __html: props.data[props.elem.name]
+      }
+    }));
   }
 };
 LinoComponents.Panel.defaultProps = {

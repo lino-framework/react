@@ -14,10 +14,9 @@ dumps
 >>> from lino.modlib.users.utils import get_user_profile, set_user_profile, with_user_profile
 
 
+Must set the user profile, as py2js is used in the generation of lino_XXX_en.js and doesn't care about current session.
 
 >>> test_client.force_login(rt.login('robin').user)
-
-Must set the user profile, as py2js is used in the generation of lino_XXX_en.js and doesn't care about current session.
 >>> set_user_profile(rt.login('robin').user.user_type)
 
 Test py > json for Actors.
@@ -26,7 +25,7 @@ Test py > json for Actors.
 >>> p = lambda o : pprint_json_string(py2js(o))
 
 >>> p(t)
-... #doctest: +ELLIPSIS -REPORT_UDIFF -SKIP
+... #doctest: +ELLIPSIS -REPORT_UDIFF +SKIP
 {
   "ba": {
     "as_pdf": {
@@ -118,7 +117,7 @@ Test py > json for Actors.
 
 >>> from lino.modlib.about.models import About
 >>> p(About)
-... #doctest: +ELLIPSIS +REPORT_UDIFF -SKIP
+... #doctest: +ELLIPSIS +REPORT_UDIFF +SKIP
 {
   "ba": {
     "show": {
@@ -150,6 +149,11 @@ Test py > json for Actors.
 >>> pprint_json_string(test_client.get("/user/settings").content)
 {
   "lang": "en",
+  "logged_in": true,
   "site_data": "/media/cache/js/lino_900_en.js",
-  "user_type": "900"
+  "user_type": "900",
+  "username": "Robin Rood"
 }
+
+>>> pprint_json_string(py2js(t.actions['detail']))
+... #doctest: +ELLIPSIS +REPORT_UDIFF -SKIP

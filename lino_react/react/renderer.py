@@ -34,7 +34,7 @@ from lino.core.elems import LayoutElement, ComboFieldElement
 from etgen.html import E
 
 from lino.utils import jsgen
-from lino.utils.jsgen import py2js, js_code
+from lino.utils.jsgen import py2js, js_code, obj2dict
 
 from lino.modlib.users.utils import get_user_profile, with_user_profile
 
@@ -207,10 +207,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result = dict(label=v.get_label(),
                           repr=repr(v),
                           react_name=v.__class__.__name__) # Used for choosing correct react component
-            if hasattr(v, "fields_index"):
-                result["fields_index"] = v.fields_index
             if hasattr(v, "elements"):
                 result['items'] = v.elements
+            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name"))
 
             return result
         if isinstance(v, LayoutHandle):
