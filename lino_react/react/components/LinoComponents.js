@@ -14,7 +14,7 @@ const LinoComponents = {
             {props.elem.items.map((panel, i) => {
                     const Child = LinoComponents[panel.react_name];
                     return <TabPanel header={panel.label} key={key(panel)}>
-                        <Child elem={panel} header={false} data={props.data} disabled_fields={props.disabled_fields}/>
+                        <Child {...props.prop_bundle} elem={panel} header={false}/>
                     </TabPanel>
                 }
             )
@@ -27,10 +27,19 @@ const LinoComponents = {
 
         const children = props.elem.items.map((child, i) => {
             const Child = LinoComponents[child.react_name];
-            return <div className={classNames({"p-col-12":props.elem.vertical, "p-col":!props.elem.vertical})}>
+            let style = {};
+            if (props.elem.width) {
+                style.width = props.elem.width + "ch"
+            }
+            return <div className={classNames({
+                "p-col-12": props.elem.vertical,
+                "p-col": !props.elem.vertical /*&& !props.elem.width*/
+            })}
+                // style={style}
+            >
                 {Child === undefined ?
                     (<span> {child.name} </span>) :
-                    (<Child elem={child} data={props.data} disabled_fields={props.disabled_fields}/>)
+                    (<Child {...props.prop_bundle} elem={child}/>)
                 }
             </div>
         });
@@ -52,18 +61,37 @@ const LinoComponents = {
     },
 
     SlaveSummaryPanel: (props) => {
-        return <Panel header={props.elem.label}>
+        let style = {};
+        if (props.elem.width) {
+            style.width = props.elem.width + "ch"
+        }
+        return <Panel header={props.elem.label} style={style} >
             <div dangerouslySetInnerHTML={{__html: props.data[props.elem.name]}}/>
         </Panel>
 
     },
 
-   CharFieldElement: (props) => {
-       return <InputText value={props.data[props.elem.name]} onChange={(e) => props.update_value({value: e.target.value})}/>
-   }
+    CharFieldElement: (props) => {
+        let style = {};
+        if (props.elem.width) {
+            style.width = props.elem.width + "ch"
+        }
+        const name = props.elem.name;
+        return <InputText style={style} value={props.data[props.elem.name]}
+                          onChange={(e) => props.prop_bundle.update_value({[name]: e.target.value})}/>
+    },
 
+    AutoFieldElement: (props) => {
+        let style = {};
+        if (props.elem.width) {
+            style.width = props.elem.width + "ch"
+        }
+        return <InputText style={style} type="text" keyfilter="pint" value={props.data[props.elem.name]}
+                          onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+
+    }
 };
 
-LinoComponents.Panel.defaultProps = {header: true}
+LinoComponents.Panel.defaultProps = {header: true};
 
 export default LinoComponents;

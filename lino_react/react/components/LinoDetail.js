@@ -32,9 +32,14 @@ export class LinoDetail extends Component {
             // loading: true
         };
         this.reload = this.reload.bind(this);
+        this.update_value = this.update_value.bind(this);
 
     }
 
+    update_value(values) {
+        console.log(arguments);
+        this.setState((prevState) => Object.assign({}, prevState, {...values})) // copy and replace values
+    }
 
     reload() {
         // this.setState({
@@ -73,7 +78,8 @@ export class LinoDetail extends Component {
         const MainComp = LinoComponents[layout.main.react_name]
         const prop_bundle = {
             data: this.state.data,
-            disabled_fields: this.state.disabled_fields
+            disabled_fields: this.state.disabled_fields,
+            update_value: this.update_value
             };
         prop_bundle.prop_bundle = prop_bundle;
         return (

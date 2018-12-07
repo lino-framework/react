@@ -242,10 +242,10 @@ function (_React$Component) {
             var action_name = mi.handler.action; // grid.contacts.Persons
 
             action_name = action_name.split("."); // [ "grid", "contacts", "Persons" ]
+            // action_name = action_name.splice(1).concat(action_name).join("/"); // "contacts/Persons/grid/"
 
-            action_name = action_name.splice(1).concat(action_name).join("/"); // "contacts/Persons/grid/"
-
-            console.log(mi, event, action_name);
+            action_name = action_name.splice(1).join("/"); // "contacts/Persons"
+            // console.log(mi, event, action_name);
 
             _this.router.history.push("/api/" + action_name); // console.log(this.router);
 
@@ -25435,6 +25435,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LinoComponents__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(188);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -25480,10 +25486,19 @@ function (_Component) {
 
     };
     _this.reload = _this.reload.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.update_value = _this.update_value.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
   _createClass(LinoDetail, [{
+    key: "update_value",
+    value: function update_value(values) {
+      console.log(arguments);
+      this.setState(function (prevState) {
+        return Object.assign({}, prevState, _objectSpread({}, values));
+      }); // copy and replace values
+    }
+  }, {
     key: "reload",
     value: function reload() {
       var _this2 = this;
@@ -25525,12 +25540,16 @@ function (_Component) {
       // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
 
       var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"][layout.main.react_name];
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, " ", this.state.title, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, {
-        elem: layout.main,
+      var prop_bundle = {
         data: this.state.data,
         disabled_fields: this.state.disabled_fields,
+        update_value: this.update_value
+      };
+      prop_bundle.prop_bundle = prop_bundle;
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, " ", this.state.title, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
+        elem: layout.main,
         title: this.state.title
-      }));
+      })));
     }
   }]);
 
@@ -25560,8 +25579,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var primereact_tabview__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(primereact_tabview__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var primereact_panel__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(191);
 /* harmony import */ var primereact_panel__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(primereact_panel__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(2);
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(134);
+/* harmony import */ var primereact_inputtext__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(2);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_5__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+
 
 
 
@@ -25574,44 +25600,89 @@ var LinoComponents = {
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_tabview__WEBPACK_IMPORTED_MODULE_2__["TabPanel"], {
         header: panel.label,
         key: weak_key__WEBPACK_IMPORTED_MODULE_1___default()(panel)
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, _extends({}, props.prop_bundle, {
         elem: panel,
-        header: false,
-        data: props.data,
-        disabled_fields: props.disabled_fields
-      }));
+        header: false
+      })));
     }));
   },
   Panel: function Panel(props) {
     var children = props.elem.items.map(function (child, i) {
       var Child = LinoComponents[child.react_name];
+      var style = {};
+
+      if (props.elem.width) {
+        style.width = props.elem.width + "ch";
+      }
+
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: classnames__WEBPACK_IMPORTED_MODULE_4___default()({
+        className: classnames__WEBPACK_IMPORTED_MODULE_5___default()({
           "p-col-12": props.elem.vertical,
           "p-col": !props.elem.vertical
-        })
-      }, Child === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, " ", child.name, " ") : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, {
-        elem: child,
-        data: props.data,
-        disabled_fields: props.disabled_fields
-      }));
+          /*&& !props.elem.width*/
+
+        }) // style={style}
+
+      }, Child === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, " ", child.name, " ") : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, _extends({}, props.prop_bundle, {
+        elem: child
+      })));
     });
     return props.elem.is_fieldset ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       className: "p-grid"
     }, children) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_4___default()("card", "p-grid", {
+      className: classnames__WEBPACK_IMPORTED_MODULE_5___default()("card", "p-grid", {
         "card-w-header": props.header
       })
     }, props.header && props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, props.elem.label), children);
   },
   SlaveSummaryPanel: function SlaveSummaryPanel(props) {
+    var style = {};
+
+    if (props.elem.width) {
+      style.width = props.elem.width + "ch";
+    }
+
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_panel__WEBPACK_IMPORTED_MODULE_3__["Panel"], {
-      header: props.elem.label
+      header: props.elem.label,
+      style: style
     }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       dangerouslySetInnerHTML: {
         __html: props.data[props.elem.name]
       }
     }));
+  },
+  CharFieldElement: function CharFieldElement(props) {
+    var style = {};
+
+    if (props.elem.width) {
+      style.width = props.elem.width + "ch";
+    }
+
+    var name = props.elem.name;
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
+      style: style,
+      value: props.data[props.elem.name],
+      onChange: function onChange(e) {
+        return props.prop_bundle.update_value(_defineProperty({}, name, e.target.value));
+      }
+    });
+  },
+  AutoFieldElement: function AutoFieldElement(props) {
+    var style = {};
+
+    if (props.elem.width) {
+      style.width = props.elem.width + "ch";
+    }
+
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
+      style: style,
+      type: "text",
+      keyfilter: "pint",
+      value: props.data[props.elem.name],
+      onChange: function onChange(e) {
+        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
+      }
+    });
   }
 };
 LinoComponents.Panel.defaultProps = {

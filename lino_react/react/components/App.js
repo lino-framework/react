@@ -232,8 +232,9 @@ class App extends React.Component {
                 command: (event) => {
                     let action_name = mi.handler.action; // grid.contacts.Persons
                     action_name = action_name.split("."); // [ "grid", "contacts", "Persons" ]
-                    action_name = action_name.splice(1).concat(action_name).join("/"); // "contacts/Persons/grid/"
-                    console.log(mi, event, action_name);
+                    // action_name = action_name.splice(1).concat(action_name).join("/"); // "contacts/Persons/grid/"
+                    action_name = action_name.splice(1).join("/"); // "contacts/Persons"
+                    // console.log(mi, event, action_name);
                     this.router.history.push("/api/" + action_name);
                     // console.log(this.router);
                 }
