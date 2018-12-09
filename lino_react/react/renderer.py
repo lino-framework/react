@@ -12,6 +12,7 @@ from cgi import escape
 
 from django.conf import settings
 from django.db import models
+from django.utils.text import format_lazy
 
 from lino.core import constants as ext_requests
 from lino.core.renderer import add_user_language, JsRenderer, HtmlRenderer
@@ -40,6 +41,7 @@ from lino.modlib.users.utils import get_user_profile, with_user_profile
 
 from inspect import isclass
 
+
 def find(itter, target, key=None):
     """Returns the index of an element in a callable which can be use a key function"""
     assert key == None or callable(key), "key shold be a function that takes the itter's item " \
@@ -53,7 +55,6 @@ def find(itter, target, key=None):
         return -1
 
 
-
 class Renderer(JsRenderer, JsCacheRenderer):
     """.
         An JS renderer that uses the react Javascript framework.
@@ -63,7 +64,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
     lino_web_template = "react/linoweb.json"
     file_type = '.json'
-
 
     def __init__(self, plugin):
         super(JsRenderer, self).__init__(plugin)
@@ -206,10 +206,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
             # Layout elems
             result = dict(label=v.get_label(),
                           repr=repr(v),
-                          react_name=v.__class__.__name__) # Used for choosing correct react component
+                          react_name=v.__class__.__name__)  # Used for choosing correct react component
             if hasattr(v, "elements"):
                 result['items'] = v.elements
-            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width"))
+            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width value"))
 
             return result
         if isinstance(v, LayoutHandle):
@@ -224,10 +224,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         )
         if isclass(v) and issubclass(v, Actor):
             result = dict(id=v.actor_id,
-                        ba=v.actions,
-                        # [py2js(b) for b in v.actions.items()]
-                        )
-            if hasattr(v.get_handle(),"get_columns"):
+                          ba=v.actions,
+                          # [py2js(b) for b in v.actions.items()]
+                          )
+            if hasattr(v.get_handle(), "get_columns"):
                 result['col'] = v.get_handle().get_columns()
                 index_mod = 0
                 for c in result['col']:
@@ -342,3 +342,18 @@ class Renderer(JsRenderer, JsCacheRenderer):
             menu_title,
             E.ul(*items, **{'class': 'dropdown-menu'}),
             **{'class': cl})
+
+    def add_help_text(self, kw, help_text, title, datasource, fieldname):
+        if settings.SITE.use_quicktips:
+            if settings.SITE.show_internal_field_names:
+                ttt = "(%s.%s) " % (datasource, fieldname)
+            else:
+                ttt = ''
+            if help_text:
+                ttt = format_lazy(u"{}{}", ttt, help_text)
+            if ttt:
+                # kw.update(qtip=self.field.help_text)
+                # kw.update(toolTipText=self.field.help_text)
+                # kw.update(tooltip=self.field.help_text)
+                kw.update(quicktip="(%s,%s)" % (title,
+                                                ttt))
