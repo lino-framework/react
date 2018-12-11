@@ -447,7 +447,11 @@ a {
     -o-transition: margin-left 0.2s;
     -webkit-transition: margin-left 0.2s;
     transition: margin-left 0.2s;
-    padding: 66px 16px 16px 16px; }
+    padding: 66px 16px 16px 16px;
+    display: flex;
+    flex-direction: column; }
+    .layout-wrapper .layout-main .lino-main {
+      flex: auto; }
   .layout-wrapper .layout-footer {
     -moz-transition: margin-left 0.2s;
     -o-transition: margin-left 0.2s;

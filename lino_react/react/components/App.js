@@ -313,7 +313,7 @@ class App extends React.Component {
                             />
                         )}/>
                         {this.state.site_loaded ?
-                            <div>
+                            <React.Fragment>
                                 {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
                                 <Route path="/api/:packId/:actorId" render={(route) => (
                                     <Actor match={route}
@@ -321,7 +321,7 @@ class App extends React.Component {
                                               packId={route.match.params.packId}
                                               key={route.match.params.packId + "." + route.match.params.actorId } // makes react recreate the LinoGrid instance
                                               actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
-                            </div>
+                            </React.Fragment>
                             :
                             <ProgressSpinner/>
                         }

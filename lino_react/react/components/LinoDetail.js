@@ -33,12 +33,19 @@ export class LinoDetail extends Component {
         };
         this.reload = this.reload.bind(this);
         this.update_value = this.update_value.bind(this);
-
     }
 
+    /**
+     * Method for updating data values.
+     * Is passed down to each Elem, takes a dict of keyboard:value pairs.
+     * Only merges the data object of this.state
+     **/
     update_value(values) {
-        console.log(arguments);
-        this.setState((prevState) => Object.assign({}, prevState, {...values})) // copy and replace values
+        // console.log(arguments);
+        this.setState((prevState) => (
+                {data: Object.assign(prevState.data, {...values})}
+            )
+        ) // copy and replace values
     }
 
     reload() {
@@ -51,8 +58,8 @@ export class LinoDetail extends Component {
         ).then(
             (data) => {
                 console.log("table GET", data);
-                let df = data.data.disabled_field;
-                delete data.data.disabled_field;
+                let df = data.data.disabled_fields;
+                delete data.data.disabled_fields;
                 this.setState({
                     data: data.data,
                     original_data: JSON.parse(JSON.stringify(data.data)), // Copy of data for diff test
@@ -80,17 +87,17 @@ export class LinoDetail extends Component {
             data: this.state.data,
             disabled_fields: this.state.disabled_fields,
             update_value: this.update_value
-            };
+        };
         prop_bundle.prop_bundle = prop_bundle;
         return (
-            <div>
+            <React.Fragment>
                 <h1> {this.state.title} </h1>
 
                 {/*{!this.state.loading &&*/}
 
-                <MainComp {...prop_bundle} elem={layout.main} title={this.state.title}/>
+                <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
                 {/*}*/}
-            </div>
+            </React.Fragment>
         )
     }
 };

@@ -428,6 +428,9 @@ a {
     .layout-main {
         @include transition(margin-left $transitionDuration);
         padding: 66px 16px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
     }
 
     .layout-footer {
@@ -443,6 +446,11 @@ a {
             vertical-align: middle;
         }
     }
+}
+.lino-panel {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Responsive */

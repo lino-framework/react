@@ -28,7 +28,7 @@ export class Actor extends Component {
     };
 
     render() {
-        return <div>
+        return <React.Fragment>
                 <Route exact path={this.props.match.match.path} render={(match) => (
                        <LinoGrid
                             match={match}
@@ -49,7 +49,7 @@ export class Actor extends Component {
                             />)}
                 />
 
-                </div>
+                </React.Fragment>
 
 
          }
