@@ -209,7 +209,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           react_name=v.__class__.__name__)  # Used for choosing correct react component
             if hasattr(v, "elements"):
                 result['items'] = v.elements
-            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width value"))
+            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width value hflex vflex"))
 
             return result
         if isinstance(v, LayoutHandle):

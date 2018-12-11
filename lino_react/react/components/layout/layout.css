@@ -449,9 +449,8 @@ a {
     transition: margin-left 0.2s;
     padding: 66px 16px 16px 16px;
     display: flex;
-    flex-direction: column; }
-    .layout-wrapper .layout-main .lino-main {
-      flex: auto; }
+    flex-direction: column;
+    height: 100vh; }
   .layout-wrapper .layout-footer {
     -moz-transition: margin-left 0.2s;
     -o-transition: margin-left 0.2s;
@@ -463,6 +462,32 @@ a {
       vertical-align: middle; }
     .layout-wrapper .layout-footer .footer-text {
       vertical-align: middle; }
+
+.lino-main {
+  flex: auto;
+  display: flex;
+  flex-direction: column; }
+
+.lino-panel {
+  height: 100%; }
+
+.p-tabview-panels {
+  flex: auto;
+  display: flex;
+  flex-direction: column; }
+
+.p-tabview-panel {
+  display: flex; }
+
+.p-editor-container {
+  height: 100%; }
+
+.p-panel-content {
+  flex: auto; }
+
+.p-panel-content-wrapper-expanded {
+  flex: auto;
+  display: flex; }
 
 /* Responsive */
 @media (min-width: 1025px) {

@@ -12,10 +12,10 @@ import classNames from 'classnames';
 const LinoComponents = {
 
     TabPanel: (props) => (
-        <TabView className={classNames("lino-panel",{"lino-main": props.main})}>
+        <TabView className={classNames("lino-panel", {"lino-main": props.main})}>
             {props.elem.items.map((panel, i) => {
-                    const Child = LinoComponents[panel.react_name];
-                    return <TabPanel header={panel.label} key={key(panel)}>
+                    let Child = LinoComponents._GetComponent(panel.react_name);
+                    return <TabPanel header={panel.label} key={key(panel)} contentClassName={"lino-panel"}>
                         <Child {...props.prop_bundle} elem={panel} header={false}/>
                     </TabPanel>
                 }
@@ -28,17 +28,18 @@ const LinoComponents = {
     Panel: (props) => {
 
         const children = props.elem.items.map((child, i) => {
-            let Child = LinoComponents[child.react_name];
-            if (Child === undefined) {
-                Child = LinoComponents.UnknownElement;
-            }
+            let Child = LinoComponents._GetComponent(child.react_name);
             let style = {};
             if (child.value.flex) {
                 // style.width = props.elem.width + "ch"
                 style.flex = child.value.flex
             }
+            if (child.vflex) {
+                style.flex
+            }
             return <div className={classNames({
                 "p-col-12": props.elem.vertical,
+                // "lino-panel" : props.elem.vertical,
                 "p-col": !props.elem.vertical /*&& !props.elem.width*/
             })}
                         style={style}
@@ -47,17 +48,26 @@ const LinoComponents = {
 
             </div>
         });
-        // Should also have a Main class / struct for panel,
-        //
+        let style = {};
+        style["height"] = "100%";
+        style["flex"] = "auto";
+        if (props.elem.vertical) {
+            style["flexDirection"] = "column";
+        }
         return props.elem.is_fieldset ? (
-                <div className={"p-grid"}>
+                <div style={style} className={classNames("p-grid", {})}>
                     {children}
                 </div>
             )
             :
             (
 
-                <div className={classNames("card", "p-grid", {"card-w-header": props.header, "lino-main": props.main})}
+                <div style={style} className={classNames("card", "p-grid", {
+                    "card-w-header": props.header,
+                    "lino-main": props.main,
+                    // "lino-panel": props.elem.vertical || true,
+                    // "p-col-align-stretch": props.elem.vertical,
+                })}
                 >
                     {props.header && props.elem.label && <h1>{props.elem.label}</h1>}
                     {children}
@@ -67,7 +77,11 @@ const LinoComponents = {
     },
 
     SlaveSummaryPanel: (props) => {
-        let style = {};
+        let style = {
+            height: "100%",
+            display: "flex",
+            flexDirection: "column"
+        };
         if (props.elem.width) {
             // style.width = props.elem.width + "ch"
         }
@@ -75,10 +89,10 @@ const LinoComponents = {
             <div dangerouslySetInnerHTML={{__html: props.data[props.elem.name]}}/>
         </Panel>
 
+
     },
 
     CharFieldElement: (props) => {
-        const name = props.elem.name;
         return <React.Fragment>
             {props.elem.label && <label>{props.elem.label}</label>}
             {props.elem.label && <br/>}
@@ -91,7 +105,6 @@ const LinoComponents = {
         return <React.Fragment>
             {props.elem.label && <label>{props.elem.label}</label>}
             {props.elem.label && <br/>}
-            S
             <InputText style={{width: "100%"}} type="text" keyfilter="pint" value={props.data[props.elem.name] || ""}
                        onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
         </React.Fragment>
@@ -107,15 +120,15 @@ const LinoComponents = {
     },
 
     TextFieldElement: (props) => {
-        return <div>
+        return <React.Fragment>
             <Editor style={{
-                width: "100%",
-                height: '100%'
+                // width: "100%",
+                // height: '100%'
             }}
                     value={props.data[props.elem.name] || ""}
                     onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
             />
-        </div>
+        </React.Fragment>
 
     },
 
@@ -123,7 +136,22 @@ const LinoComponents = {
 
         return <span>{props.elem.label}</span>
 
+    },
+
+    /**
+     *
+     * @param name
+     * @returns Component or UnknoenElement if the element is unknown
+     * @private
+     */
+    _GetComponent: (name) => {
+        let Child = LinoComponents[name];
+        if (Child === undefined) {
+            Child = LinoComponents.UnknownElement;
+        }
+        return Child
     }
+
 };
 
 LinoComponents.Panel.defaultProps = {header: true};

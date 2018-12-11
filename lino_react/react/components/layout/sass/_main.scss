@@ -30,7 +30,7 @@ a {
         color: #ffffff;
         z-index: 999;
         right: 0;
-        @include linear-gradient-left($topbarLeftBgColor,$topbarRightBgColor);
+        @include linear-gradient-left($topbarLeftBgColor, $topbarRightBgColor);
         @include transition(left $transitionDuration);
 
         .layout-topbar-icons {
@@ -99,10 +99,26 @@ a {
                     margin: 0px;
                     @include border-radius(2px);
 
-                    &::-webkit-input-placeholder { color:$topbarSearchInputColor; opacity: .7; @include transition(opacity $transitionDuration);}
-                    &:-moz-placeholder { color:$topbarSearchInputColor; opacity: .7; @include transition(opacity $transitionDuration);}
-                    &::-moz-placeholder { color:$topbarSearchInputColor; opacity: .7; @include transition(opacity $transitionDuration);}
-                    &:-ms-input-placeholder { color:$topbarSearchInputColor; opacity: .7; @include transition(opacity $transitionDuration);}
+                    &::-webkit-input-placeholder {
+                        color: $topbarSearchInputColor;
+                        opacity: .7;
+                        @include transition(opacity $transitionDuration);
+                    }
+                    &:-moz-placeholder {
+                        color: $topbarSearchInputColor;
+                        opacity: .7;
+                        @include transition(opacity $transitionDuration);
+                    }
+                    &::-moz-placeholder {
+                        color: $topbarSearchInputColor;
+                        opacity: .7;
+                        @include transition(opacity $transitionDuration);
+                    }
+                    &:-ms-input-placeholder {
+                        color: $topbarSearchInputColor;
+                        opacity: .7;
+                        @include transition(opacity $transitionDuration);
+                    }
                 }
 
                 .layout-topbar-search-icon {
@@ -115,10 +131,18 @@ a {
                 &:hover {
                     input {
                         border-bottom-color: $topbarItemHoverColor;
-                        &::-webkit-input-placeholder { opacity: 1 }
-                        &:-moz-placeholder {opacity: 1}
-                        &::-moz-placeholder {opacity: 1}
-                        &:-ms-input-placeholder {opacity: 1}
+                        &::-webkit-input-placeholder {
+                            opacity: 1
+                        }
+                        &:-moz-placeholder {
+                            opacity: 1
+                        }
+                        &::-moz-placeholder {
+                            opacity: 1
+                        }
+                        &:-ms-input-placeholder {
+                            opacity: 1
+                        }
                     }
 
                     .layout-topbar-search-icon {
@@ -193,7 +217,7 @@ a {
     .layout-sidebar {
         position: fixed;
         width: 250px;
-    	height: 100%;
+        height: 100%;
         z-index: 999;
         user-select: none;
         -moz-user-select: none;
@@ -447,10 +471,39 @@ a {
         }
     }
 }
-.lino-panel {
+
+.lino-main {
     flex: auto;
     display: flex;
     flex-direction: column;
+}
+
+.lino-panel {
+    height: 100%;
+
+}
+
+.p-tabview-panels {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.p-tabview-panel {
+    display: flex;
+}
+
+.p-editor-container {
+    height: 100%;
+}
+
+.p-panel-content {
+    flex: auto;
+}
+
+.p-panel-content-wrapper-expanded {
+    flex: auto;
+    display: flex;
 }
 
 /* Responsive */
@@ -474,7 +527,7 @@ a {
                     left: 0;
                 }
 
-                .layout-topbar  {
+                .layout-topbar {
                     left: 250px;
                 }
             }
@@ -498,7 +551,7 @@ a {
                     left: -250px;
                 }
 
-                .layout-topbar  {
+                .layout-topbar {
                     left: 0;
                 }
 
