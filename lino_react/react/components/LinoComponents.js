@@ -24,6 +24,9 @@ const LinoComponents = {
 
         </TabView>
     ),
+    DetailMainPanel: (props) => {
+        return <LinoComponents.Panel {...props} />
+    },
 
     Panel: (props) => {
 
@@ -139,6 +142,7 @@ const LinoComponents = {
         let Child = LinoComponents[name];
         if (Child === undefined) {
             Child = LinoComponents.UnknownElement;
+            console.warn(`${name} does not exist`);
         }
         return Child
     }
@@ -146,5 +150,8 @@ const LinoComponents = {
 };
 
 LinoComponents.Panel.defaultProps = {header: true};
+
+LinoComponents.HtmlBoxElement = LinoComponents.SlaveSummaryPanel;
+
 
 export default LinoComponents;

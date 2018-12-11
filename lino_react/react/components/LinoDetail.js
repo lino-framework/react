@@ -82,7 +82,7 @@ export class LinoDetail extends Component {
         const layout = this.props.actorData.ba.detail.window_layout;
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-        const MainComp = LinoComponents[layout.main.react_name]
+        const MainComp = LinoComponents._GetComponent(layout.main.react_name);
         const prop_bundle = {
             data: this.state.data,
             disabled_fields: this.state.disabled_fields,

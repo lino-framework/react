@@ -25352,10 +25352,17 @@ function (_Component) {
       rows: []
     };
     _this.reload = _this.reload.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.onRowSelect = _this.onRowSelect.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
 
   _createClass(LinoGrid, [{
+    key: "onRowSelect",
+    value: function onRowSelect(e) {
+      this.props.match.history.push("/api/".concat(this.props.packId, "/").concat(this.props.actorId, "/").concat(e.data[this.props.actorData.pk_index]));
+      console.log(e.data);
+    }
+  }, {
     key: "reload",
     value: function reload() {
       var _this2 = this;
@@ -25386,12 +25393,21 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this3 = this;
+
       var rows = this.state.rows; // const Comp = "Table";
       // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_datatable__WEBPACK_IMPORTED_MODULE_4__["DataTable"], {
         value: rows,
-        paginator: false
+        paginator: false,
+        selectionMode: "single",
+        onSelectionChange: function onSelectionChange(e) {
+          return _this3.setState({
+            selectedRow: e.value
+          });
+        },
+        onRowSelect: this.onRowSelect
       }, this.props.actorData.col.map(function (col, i) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_5__["Column"], {
           field: String(col.fields_index),
@@ -25547,7 +25563,8 @@ function (_Component) {
       var layout = this.props.actorData.ba.detail.window_layout; // const Comp = "Table";
       // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
 
-      var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"][layout.main.react_name];
+      var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"]._GetComponent(layout.main.react_name);
+
       var prop_bundle = {
         data: this.state.data,
         disabled_fields: this.state.disabled_fields,
@@ -25627,6 +25644,9 @@ var LinoComponents = {
       })));
     }));
   },
+  DetailMainPanel: function DetailMainPanel(props) {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LinoComponents.Panel, props);
+  },
   Panel: function Panel(props) {
     var children = props.elem.items.map(function (child, i) {
       var Child = LinoComponents._GetComponent(child.react_name);
@@ -25653,7 +25673,8 @@ var LinoComponents = {
 
     var panel_classes = classnames__WEBPACK_IMPORTED_MODULE_7___default()("l-panel", {
       "l-panel-vertical": props.elem.vertical,
-      "l-panel-horizontal": !props.elem.vertical
+      "l-panel-horizontal": !props.elem.vertical,
+      "l-panel-fieldset": props.elem.isFieldSet
     });
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       style: style,
@@ -25741,6 +25762,7 @@ var LinoComponents = {
 
     if (Child === undefined) {
       Child = LinoComponents.UnknownElement;
+      console.warn("".concat(name, " does not exist"));
     }
 
     return Child;
@@ -25749,6 +25771,7 @@ var LinoComponents = {
 LinoComponents.Panel.defaultProps = {
   header: true
 };
+LinoComponents.HtmlBoxElement = LinoComponents.SlaveSummaryPanel;
 /* harmony default export */ __webpack_exports__["default"] = (LinoComponents);
 
 /***/ }),

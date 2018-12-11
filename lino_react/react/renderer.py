@@ -237,6 +237,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         # Skip the data value for multi value columns, such as choices and FK fields.
                         # use c.fields_index -1 for data value
                         index_mod += 1
+            result.update(obj2dict(v.get_handle().store, "pk_index"))
             return result
 
         return v
