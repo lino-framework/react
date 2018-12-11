@@ -463,13 +463,27 @@ a {
     .layout-wrapper .layout-footer .footer-text {
       vertical-align: middle; }
 
-.lino-main {
+/*.lino-main {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}*/
+.l-panel {
+  height: 100%;
+  flex: auto;
+  display: flex; }
+  .l-panel .l-component {
+    padding: .5em;
+    padding-bottom: unset;
+    padding-top: unset; }
+
+.l-panel-vertical {
+  flex-direction: column; }
+
+.p-tabview {
   flex: auto;
   display: flex;
   flex-direction: column; }
-
-.lino-panel {
-  height: 100%; }
 
 .p-tabview-panels {
   flex: auto;
@@ -477,10 +491,12 @@ a {
   flex-direction: column; }
 
 .p-tabview-panel {
+  flex: auto;
   display: flex; }
 
 .p-editor-container {
-  height: 100%; }
+  height: 100%;
+  padding-bottom: 90px; }
 
 .p-panel-content {
   flex: auto; }

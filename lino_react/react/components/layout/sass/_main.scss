@@ -472,15 +472,39 @@ a {
     }
 }
 
-.lino-main {
+/*.lino-main {
     flex: auto;
     display: flex;
     flex-direction: column;
+}*/
+
+.l-panel {
+    height: 100%;
+    flex: auto;
+    display: flex;
+
+    .l-component {
+        padding: .5em;
+        padding-bottom: unset;
+        padding-top: unset;
+    }
+
 }
 
-.lino-panel {
-    height: 100%;
+.l-panel-vertical {
+    flex-direction: column;
+}
 
+.l-panel-horizontal {
+
+}
+
+// Makes tab panels + editors fill all vertical space.
+
+.p-tabview {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .p-tabview-panels {
@@ -490,11 +514,14 @@ a {
 }
 
 .p-tabview-panel {
+    flex: auto;
     display: flex;
 }
 
 .p-editor-container {
+    // Todo have the editor fill all vertical space correctly...
     height: 100%;
+    padding-bottom: 90px;
 }
 
 .p-panel-content {
@@ -505,6 +532,7 @@ a {
     flex: auto;
     display: flex;
 }
+
 
 /* Responsive */
 @media (min-width: 1025px) {

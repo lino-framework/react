@@ -34,45 +34,36 @@ const LinoComponents = {
                 // style.width = props.elem.width + "ch"
                 style.flex = child.value.flex
             }
-            if (child.vflex) {
-                style.flex
-            }
-            return <div className={classNames({
-                "p-col-12": props.elem.vertical,
-                // "lino-panel" : props.elem.vertical,
-                "p-col": !props.elem.vertical /*&& !props.elem.width*/
-            })}
-                        style={style}
-            >
-                <Child {...props.prop_bundle} elem={child}/>
 
+            return <div style={style} className={classNames("l-component")}>
+                <Child {...props.prop_bundle} elem={child}/>
             </div>
+
+
         });
         let style = {};
-        style["height"] = "100%";
-        style["flex"] = "auto";
-        if (props.elem.vertical) {
-            style["flexDirection"] = "column";
-        }
-        return props.elem.is_fieldset ? (
-                <div style={style} className={classNames("p-grid", {})}>
-                    {children}
-                </div>
-            )
-            :
-            (
+        // style["height"] = "100%";
+        // style["flex"] = "auto";
+        // if (props.elem.flex) {
+        //     style["flex"] = props.elem.flex;
+        // }
+        let panel_classes = classNames(
+            "l-panel",
+            {
+                "l-panel-vertical": props.elem.vertical,
+                "l-panel-horizontal": !props.elem.vertical,
+                "l-panel-fieldset": props.elem.isFieldSet,
+            });
+        return <div style={style} className={panel_classes}
+            // "card-w-header": props.header,
+            // "lino-main": props.main,
+            // "lino-panel": props.elem.vertical || true,
+            // "p-col-align-stretch": props.elem.vertical,
+        >
+            {props.header && props.elem.label && <h1>{props.elem.label}</h1>}
+            {children}
+        </div>
 
-                <div style={style} className={classNames("card", "p-grid", {
-                    "card-w-header": props.header,
-                    "lino-main": props.main,
-                    // "lino-panel": props.elem.vertical || true,
-                    // "p-col-align-stretch": props.elem.vertical,
-                })}
-                >
-                    {props.header && props.elem.label && <h1>{props.elem.label}</h1>}
-                    {children}
-                </div>
-            )
 
     },
 
