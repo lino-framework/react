@@ -1,0 +1,78 @@
+.. _react.0.0.0: 
+
+========================
+0.0.0 (Proof of concept)
+========================
+
+General goal is to make the react frontend good enough so it can replace the currenbt bootstrap frontent used for bugs.
+
+
+.. :class:`Site` per milestone.  A
+   :ref:`noi`
+   :mod:`lino_xl.lib.deploy`
+   `primereact<primerect.com>`_
+   text_
+
+Roadmap For Hobbit
+==================
+
+!! means that it's for the next release
+
+- Reactive
+
+  - Detail view, (use flex-display : columns @smaller screens)
+
+  - Grid view, (USe reactive = true) with prime react compoennt
+
+- Navigation
+
+  - Detail elements which are FK should have link to to the detail view of the object
+
+  - HTML links for navigation 
+
+  - FK links in grid view
+
+  - Slave summairs  + grid  need 'expand' button
+
+  - Nav buttons in detail view (Next / Previous)
+
+  - !! Search bar for and topbar
+
+- Grid View
+
+  - Correctly rendered colunns + fields. 
+
+  - Hidden Columns are hidden
+
+    - Toglable columns !!
+
+  - Pagination / load-more button
+
+  - Param values saved and used in ajax calls
+
+  - !! parm values filter window
+
+- Detail View
+
+  - Display mode components for all elements
+
+    - SlaveGrid
+
+- Site.About
+
+  - hard-coded
+
+
+Later
+=====
+
+- Editing
+
+- Dialogs
+
+  - with params
+
+  - yes / no dialog
+
+- param window
+

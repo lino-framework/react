@@ -1,7 +1,7 @@
 .. _react:
 
 ========================
-React interface for Lino
+React Front-end for Lino
 ========================
 
 This is the documentation tree for :mod:`lino_react`.
@@ -36,16 +36,12 @@ How to try it:
 
     $ python manage.py collectstatic
 
-
-
-
-
-
 Content
 ========
 
 .. toctree::
    :maxdepth: 1
-
+   
+   changes/index
    API <api/index>
    specs/index
