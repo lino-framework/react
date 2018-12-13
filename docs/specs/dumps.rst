@@ -12,6 +12,8 @@ dumps
 >>> from pprint import pprint
 >>> from lino.utils.jsgen import py2js
 >>> from lino.modlib.users.utils import get_user_profile, set_user_profile, with_user_profile
+>>> from lino.modlib.users.choicelists import UserTypes
+>>> anon = UserTypes.choices[0][0]
 
 
 Must set the user profile, as py2js is used in the generation of lino_XXX_en.js and doesn't care about current session.
@@ -25,99 +27,12 @@ Test py > json for Actors.
 >>> p = lambda o : pprint_json_string(py2js(o))
 
 >>> p(t)
-... #doctest: +ELLIPSIS -REPORT_UDIFF +SKIP
-{
-  "ba": {
-    "as_pdf": {
-      "an": "Table (landscape)",
-      "window_action": null,
-      "window_layout": null
-    },
-...
-    "insert": {
-      "an": "New",
-      "window_action": true,
-      "window_layout": {
-        "main": {
-          "items": [
-            {
-              "items": null,
-              "label": "Summary",
-              "repr": "<CharFieldElement summary in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-            },
-            {
-              "items": [
-                {
-                  "items": [
-                    {
-                      "items": null,
-                      "label": "Ticket type",
-                      "repr": "<ForeignKeyElement ticket_type in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-                    },
-                    {
-                      "items": null,
-                      "label": "Priority",
-                      "repr": "<ChoiceListFieldElement priority in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-                    },
-                    {
-                      "items": null,
-                      "label": "End user",
-                      "repr": "<ForeignKeyElement end_user in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-                    }
-                  ],
-                  "label": null,
-                  "repr": "<Panel right in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-                },
-                {
-                  "items": null,
-                  "label": "Description",
-                  "repr": "<TextFieldElement description in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-                }
-              ],
-              "label": null,
-              "repr": "<Panel main_2 in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-            }
-          ],
-          "label": null,
-          "repr": "<DetailMainPanel main in lino_noi.lib.tickets.models.TicketInsertLayout on lino_xl.lib.tickets.ui.Tickets>"
-        }
-      }
-    },
-    ...
-    "merge_row": {
-      "an": "Merge",
-      "window_action": true,
-      "window_layout": {
-        "main": {
-          "items": [
-            {
-              "items": null,
-              "label": "into...",
-              "repr": "<ForeignKeyElement merge_to in lino.core.layouts.ActionParamsLayout on <lino.core.merge.MergeAction merge_row ('Merge')>>"
-            },
-            {
-              "items": null,
-              "label": "Reason",
-              "repr": "<CharFieldElement reason in lino.core.layouts.ActionParamsLayout on <lino.core.merge.MergeAction merge_row ('Merge')>>"
-            }
-          ],
-          "label": null,
-          "repr": "<ActionParamsPanel main in lino.core.layouts.ActionParamsLayout on <lino.core.merge.MergeAction merge_row ('Merge')>>"
-        }
-      }
-    },
-    "show_as_html": {
-      "an": "HTML",
-      "window_action": null,
-      "window_layout": null
-    },
-    ...
-  "id": "tickets.AllTickets"
-}
+... #doctest: +ELLIPSIS -REPORT_UDIFF -SKIP
+{...}
 
 >>> from lino.modlib.about.models import About
 >>> p(About)
-... #doctest: +ELLIPSIS +REPORT_UDIFF +SKIP
+... #doctest: +ELLIPSIS +REPORT_UDIFF -SKIP
 {
   "ba": {
     "show": {
@@ -125,26 +40,63 @@ Test py > json for Actors.
       "window_action": true,
       "window_layout": {
         "main": {
+          "editable": false,
+          "hflex": true,
+          "hpad": 1,
+          "is_fieldset": true,
           "items": [
             {
-              "items": null,
+              "editable": false,
+              "hflex": true,
               "label": null,
-              "repr": "<ConstantElement about_html in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>"
+              "name": "about_html",
+              "react_name": "ConstantElement",
+              "repr": "<ConstantElement about_html in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
+              "value": {
+                "flex": 25,
+                "html": "..."
+              },
+              "vflex": true,
+              "width": null
             },
             {
-              "items": null,
+              "editable": false,
+              "hflex": true,
               "label": "Server status",
-              "repr": "<DisplayElement server_status in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>"
+              "name": "server_status",
+              "react_name": "DisplayElement",
+              "repr": "<DisplayElement server_status in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
+              "value": {
+                "always_enabled": true,
+                "quicktip": "(Server status,(about.About.server_status) )",
+                "value": "<br/>"
+              },
+              "vflex": false,
+              "width": null
             }
           ],
           "label": null,
-          "repr": "<DetailMainPanel main in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>"
+          "name": "main",
+          "react_name": "DetailMainPanel",
+          "repr": "<DetailMainPanel main in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
+          "value": {
+            "autoScroll": true,
+            "hideCheckBoxLabels": true,
+            "layout": {
+              "align": "stretch",
+              "type": "vbox"
+            }
+          },
+          "vertical": true,
+          "vflex": true,
+          "width": null
         }
       }
     }
   },
   "id": "about.About"
 }
+
 
 >>> pprint_json_string(test_client.get("/user/settings").content)
 {
@@ -155,5 +107,14 @@ Test py > json for Actors.
   "username": "Robin Rood"
 }
 
+
 >>> pprint_json_string(py2js(t.actions['detail']))
-... #doctest: +ELLIPSIS +REPORT_UDIFF -SKIP
+... #doctest: +ELLIPSIS +REPORT_UDIFF +SKIP
+
+
+Also test for Anon user
+
+>>> set_user_profile(anon)
+>>> p(t)
+... #doctest: +ELLIPSIS -REPORT_UDIFF -SKIP
+{...}

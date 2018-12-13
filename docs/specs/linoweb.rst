@@ -29,4 +29,9 @@ Define a utility function:
 ... #doctest: +ELLIPSIS +REPORT_UDIFF +SKIP
 2... lino*.js files have been built in ...
 
+
+For some reason django test client doesn't find static files.
+
 >>> test_client.get("/media/cache/js/lino_900_en.js")
+Not Found: /media/cache/js/lino_900_en.js
+<HttpResponseNotFound status_code=404, "text/html">

@@ -24,7 +24,7 @@ Define a utility function:
 ...     print(soup.body.prettify(formatter=None))
 >>> test_client.force_login(rt.login('robin').user)
 >>> pprint_json_string(test_client.get("/ui/menu/?fmt=json").content)
-... #doctest: -ELLIPSIS +REPORT_UDIFF -SKIP
+... #doctest: -ELLIPSIS +REPORT_UDIFF +SKIP
 [
   {
     "menu": {

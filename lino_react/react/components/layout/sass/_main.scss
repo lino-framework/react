@@ -485,8 +485,6 @@ a {
 
     .l-component {
         padding: .5em;
-        padding-bottom: unset;
-        padding-top: unset;
     }
 
 }
@@ -497,6 +495,9 @@ a {
 
 .l-panel-horizontal {
 
+}
+
+@media (max-width: 1024px) {
 }
 
 // Makes tab panels + editors fill all vertical space.
@@ -532,7 +533,6 @@ a {
     flex: auto;
     display: flex;
 }
-
 
 /* Responsive */
 @media (min-width: 1025px) {
@@ -589,12 +589,29 @@ a {
             }
         }
     }
+
+    .l-panel {
+        .l-component {
+            padding-top: unset;
+            padding-bottom: unset;
+        }
+    }
+
 }
 
 @media (max-width: 1024px) {
     .layout-wrapper {
         .layout-topbar {
             left: 0;
+            .layout-topbar-icons {
+                a {
+                    span {
+                        &.layout-topbar-item-text {
+                            display: none;
+                        }
+                    }
+                }
+            }
         }
 
         .layout-main, .layout-footer {
@@ -632,4 +649,14 @@ a {
     .body-overflow-hidden {
         overflow: hidden;
     }
+
+    .l-panel {
+        flex-direction: column;
+
+        .l-component {
+            padding-left: unset;
+            padding-right: unset;
+        }
+    }
+
 }

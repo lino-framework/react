@@ -62,7 +62,9 @@ export class LinoGrid extends Component {
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         return <div>
-            <DataTable value={rows} paginator={false} selectionMode="single"
+            <DataTable responsive={true}
+                       resizableColumns={true}
+                       value={rows} paginator={false} selectionMode="single"
                        onSelectionChange={e => this.setState({selectedRow: e.value})}
                        onRowSelect={this.onRowSelect}>
                 {this.props.actorData.col.map((col, i) => (

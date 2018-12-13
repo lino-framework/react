@@ -76,10 +76,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :param f: File object
         :return: 1
         """
-        f.write(py2js(dict(
-            actors={a.actor_id: a for a in self.actors_list},
-            menu=settings.SITE.get_site_menu(get_user_profile()),
-        )))
+        f.write(py2js(dict(actors={a.actor_id: a for a in self.actors_list},
+                           menu=settings.SITE.get_site_menu(get_user_profile())),
+                      compact=not settings.SITE.is_demo_site))
         return 1
 
     # working, but shouldn't be used, as it clears the app history

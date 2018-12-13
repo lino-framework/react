@@ -8,6 +8,13 @@ import {Editor} from 'primereact/editor';
 
 import classNames from 'classnames';
 
+const Labled = (props) => {
+    return <React.Fragment>
+        {props.elem.label && <label>{props.elem.label}</label>}
+        {props.elem.label && <br/>}
+        {props.children}
+    </React.Fragment>
+};
 
 const LinoComponents = {
 
@@ -76,9 +83,6 @@ const LinoComponents = {
             display: "flex",
             flexDirection: "column"
         };
-        if (props.elem.width) {
-            // style.width = props.elem.width + "ch"
-        }
         return <Panel header={props.elem.label} style={style}>
             <div dangerouslySetInnerHTML={{__html: props.data[props.elem.name]}}/>
         </Panel>
@@ -87,12 +91,10 @@ const LinoComponents = {
     },
 
     CharFieldElement: (props) => {
-        return <React.Fragment>
-            {props.elem.label && <label>{props.elem.label}</label>}
-            {props.elem.label && <br/>}
+        return <Labled {...props.prop_bundle} elem={props.elem} >
             <InputText style={{width: "100%"}} value={props.data[props.elem.name] || ""}
                        onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
-        </React.Fragment>
+        </Labled>
     },
 
     AutoFieldElement: (props) => {
