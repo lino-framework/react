@@ -8,10 +8,12 @@ import {Editor} from 'primereact/editor';
 
 import classNames from 'classnames';
 
-const Labled = (props) => {
+const Labeled = (props) => {
     return <React.Fragment>
-        {props.elem.label && <label>{props.elem.label}</label>}
-        {props.elem.label && <br/>}
+        {!props.hide_label && props.elem.label && <React.Fragment>
+            <label> {props.elem.label}</label>
+            <br/>
+        </React.Fragment>}
         {props.children}
     </React.Fragment>
 };
@@ -83,35 +85,59 @@ const LinoComponents = {
             display: "flex",
             flexDirection: "column"
         };
+        let Wrapper = (props.in_grid ? React.Fragment : Panel);
         return <Panel header={props.elem.label} style={style}>
-            <div dangerouslySetInnerHTML={{__html: props.data[props.elem.name]}}/>
+            <div
+                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
         </Panel>
 
 
     },
 
+    DisplayElement: (props) => {
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+            <div
+                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+        </Labeled>
+    },
+
     CharFieldElement: (props) => {
-        return <Labled {...props.prop_bundle} elem={props.elem} >
-            <InputText style={{width: "100%"}} value={props.data[props.elem.name] || ""}
-                       onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
-        </Labled>
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+
+            {props.prop_bundle.editing_mode ?
+                <InputText style={{width: "100%"}}
+                           value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}
+                           onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                :
+                <div
+                    dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+
+            }
+        </Labeled>
     },
 
     AutoFieldElement: (props) => {
         return <React.Fragment>
-            {props.elem.label && <label>{props.elem.label}</label>}
-            {props.elem.label && <br/>}
-            <InputText style={{width: "100%"}} type="text" keyfilter="pint" value={props.data[props.elem.name] || ""}
-                       onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+                { props.prop_bundle.editing_mode ?
+                    <InputText style={{width: "100%"}} type="text" keyfilter="pint"
+                           value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}
+                           onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                :                <div
+                    dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+}
+            </Labeled>
         </React.Fragment>
     },
 
     BooleanFieldElement: (props) => {
         return <div>
-            {props.elem.label && <label>{props.elem.label}</label>}
-            {props.elem.label && <br/>}
-            <Checkbox onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.checked} || false)}
-                      checked={props.data[props.elem.name]}/>
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+                <Checkbox onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.checked})}
+                          checked={
+                              (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name])
+                              || false}/>
+            </Labeled>
         </div>
     },
 
@@ -121,17 +147,28 @@ const LinoComponents = {
                 // width: "100%",
                 // height: '100%'
             }}
-                    value={props.data[props.elem.name] || ""}
+                    value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}
                     onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
             />
         </React.Fragment>
 
     },
 
+    ForeignKeyElement: (props) => {
+
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+            <div
+                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+        </Labeled>
+
+    },
+
     UnknownElement: (props) => {
-
-        return <span>{props.elem.label}</span>
-
+        return (
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+                <span>{(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}</span>
+            </Labeled>
+        )
     },
 
     /**
@@ -154,6 +191,5 @@ const LinoComponents = {
 LinoComponents.Panel.defaultProps = {header: true};
 
 LinoComponents.HtmlBoxElement = LinoComponents.SlaveSummaryPanel;
-
 
 export default LinoComponents;

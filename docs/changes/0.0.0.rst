@@ -22,6 +22,9 @@ Done
   * Detail view, (use flex-display : columns @smaller screens)
   * Grid view, (USe reactive = true) with prime react compoennt
 
+* Grid View
+  * Correctly rendered colunns + fields.
+  * Hidden Columns are hidden
 
 Roadmap For Hobbit
 ==================
@@ -39,14 +42,7 @@ Roadmap For Hobbit
 
 * Grid View
 
-  * Correctly rendered colunns + fields.
-  * Hidden Columns are hidden
-
-    * Toggleable columns !!
-
   * Pagination / load-more button
-  * Param values saved and used in ajax calls
-  * parm values filter window !!
 
 * Detail View
 
@@ -61,6 +57,22 @@ Roadmap For Hobbit
 
 Later
 =====
+
+Toggleable columns for Grid
+---------------------------
+This will require adding a toolbar / header to the grid and a multi-select element.
+There should be a state.array which is bool values for each of the columns, generated from site-data on componentMount.
+
+
+ParamValues
+-----------
+If pvs' are not sent to the server with a grid data request, the default pv's are applied. As such they do 'work'
+currently and there is no need to store them in the state until there is an interface to modify them.
+
+* Grid
+
+  * Toggleable columns !!
+  * parm values filter window !!
 
 * Editing
 * Dialogs

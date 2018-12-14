@@ -7,6 +7,8 @@ import key from "weak-key";
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 
+import LinoComponents from "./LinoComponents"
+
 export class LinoGrid extends Component {
 
     static propTypes = {
@@ -21,12 +23,37 @@ export class LinoGrid extends Component {
         super();
         this.state = {
             data: null,
-            rows: []
+            rows: [],
+            show_columns: {} // Used to override hidden value for columns
         };
         this.reload = this.reload.bind(this);
         this.onRowSelect = this.onRowSelect.bind(this);
 
 
+    }
+
+    /**
+     * Template function generator for grid data.
+     * Looks up the correct template and passes in correct data.
+     * @param col : json Lino site data, the col value.
+     */
+    columnTemplate(col) {
+        console.log(col);
+        let Template = LinoComponents._GetComponent(col.react_name);
+        return (rowData, column) => {
+            const prop_bundle = {
+                data: rowData,
+                disabled_fields: this.state.disabled_fields,
+                // update_value: this.update_value // No editable yet
+                edit_mode: false,
+                hide_label: true,
+                in_grid: true,
+                column: column,
+                editing_mode: false
+            };
+            prop_bundle.prop_bundle = prop_bundle;
+            return <Template {...prop_bundle} elem={col}/>;
+        }
     }
 
     onRowSelect(e) {
@@ -55,7 +82,7 @@ export class LinoGrid extends Component {
     componentDidMount() {
         this.reload();
         console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
-    };
+    }
 
     render() {
         const {rows} = this.state;
@@ -67,8 +94,13 @@ export class LinoGrid extends Component {
                        value={rows} paginator={false} selectionMode="single"
                        onSelectionChange={e => this.setState({selectedRow: e.value})}
                        onRowSelect={this.onRowSelect}>
-                {this.props.actorData.col.map((col, i) => (
-                    <Column field={String(col.fields_index)} header={col.label} key={key(col)}/>))
+                {this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name]).map((col, i) => (
+                        <Column field={String(col.fields_index)}
+                                body={this.columnTemplate(col)}
+                                header={col.label}
+                                key={key(col)}/>
+                    )
+                )
                 }
             </DataTable>
         </div>

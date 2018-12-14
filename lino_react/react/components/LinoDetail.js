@@ -83,10 +83,11 @@ export class LinoDetail extends Component {
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         const MainComp = LinoComponents._GetComponent(layout.main.react_name);
-        const prop_bundle = {
+        let prop_bundle = {
             data: this.state.data,
             disabled_fields: this.state.disabled_fields,
-            update_value: this.update_value
+            update_value: this.update_value,
+            // editing_mode: true
         };
         prop_bundle.prop_bundle = prop_bundle;
         return (

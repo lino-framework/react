@@ -25202,7 +25202,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(135);
 /* harmony import */ var _LinoGrid__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(186);
-/* harmony import */ var _LinoDetail__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(187);
+/* harmony import */ var _LinoDetail__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(208);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -25312,7 +25312,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var primereact_datatable__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(primereact_datatable__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var primereact_column__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(124);
 /* harmony import */ var primereact_column__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(primereact_column__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _LinoComponents__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(187);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -25329,6 +25332,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
 
 
 
@@ -25355,8 +25359,40 @@ function (_Component) {
     _this.onRowSelect = _this.onRowSelect.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
+  /**
+   * Template function generator for grid data.
+   * Looks up the correct template and passes in correct data.
+   * @param col : json Lino site data, the col value.
+   */
+
 
   _createClass(LinoGrid, [{
+    key: "columnTemplate",
+    value: function columnTemplate(col) {
+      var _this2 = this;
+
+      console.log(col);
+
+      var Template = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"]._GetComponent(col.react_name);
+
+      return function (rowData, column) {
+        var prop_bundle = {
+          data: rowData,
+          disabled_fields: _this2.state.disabled_fields,
+          // update_value: this.update_value // No editable yet
+          edit_mode: false,
+          hide_label: true,
+          in_grid: true,
+          column: column,
+          editing_mode: false
+        };
+        prop_bundle.prop_bundle = prop_bundle;
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Template, _extends({}, prop_bundle, {
+          elem: col
+        }));
+      };
+    }
+  }, {
     key: "onRowSelect",
     value: function onRowSelect(e) {
       this.props.match.history.push("/api/".concat(this.props.packId, "/").concat(this.props.actorId, "/").concat(e.data[this.props.actorData.pk_index]));
@@ -25365,7 +25401,7 @@ function (_Component) {
   }, {
     key: "reload",
     value: function reload() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.setState({
         data: null,
@@ -25378,7 +25414,7 @@ function (_Component) {
       }).then(function (data) {
         console.log("table GET", data);
 
-        _this2.setState({
+        _this3.setState({
           data: data,
           rows: data.rows
         });
@@ -25393,7 +25429,7 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
+      var _this4 = this;
 
       var rows = this.state.rows; // const Comp = "Table";
       // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
@@ -25405,14 +25441,17 @@ function (_Component) {
         paginator: false,
         selectionMode: "single",
         onSelectionChange: function onSelectionChange(e) {
-          return _this3.setState({
+          return _this4.setState({
             selectedRow: e.value
           });
         },
         onRowSelect: this.onRowSelect
-      }, this.props.actorData.col.map(function (col, i) {
+      }, this.props.actorData.col.filter(function (col) {
+        return !col.hidden;
+      }).map(function (col, i) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_5__["Column"], {
           field: String(col.fields_index),
+          body: _this4.columnTemplate(col),
           header: col.label,
           key: weak_key__WEBPACK_IMPORTED_MODULE_3___default()(col)
         });
@@ -25437,181 +25476,19 @@ LinoGrid.defaultProps = {};
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LinoDetail", function() { return LinoDetail; });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
-/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(query_string__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var weak_key__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
-/* harmony import */ var weak_key__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(weak_key__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var primereact_datatable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(96);
-/* harmony import */ var primereact_datatable__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(primereact_datatable__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var primereact_column__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(124);
-/* harmony import */ var primereact_column__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(primereact_column__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _LinoComponents__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(188);
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-
-
-
-
-
-
-
-var LinoDetail =
-/*#__PURE__*/
-function (_Component) {
-  _inherits(LinoDetail, _Component);
-
-  function LinoDetail() {
-    var _this;
-
-    _classCallCheck(this, LinoDetail);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LinoDetail).call(this));
-    _this.state = {
-      data: {},
-      original_data: {},
-      // Copy of data for diff test
-      disabled_fields: [],
-      id: null,
-      title: "",
-      nav_info: {} // loading: true
-
-    };
-    _this.reload = _this.reload.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    _this.update_value = _this.update_value.bind(_assertThisInitialized(_assertThisInitialized(_this)));
-    return _this;
-  }
-  /**
-   * Method for updating data values.
-   * Is passed down to each Elem, takes a dict of keyboard:value pairs.
-   * Only merges the data object of this.state
-   **/
-
-
-  _createClass(LinoDetail, [{
-    key: "update_value",
-    value: function update_value(values) {
-      // console.log(arguments);
-      this.setState(function (prevState) {
-        return {
-          data: Object.assign(prevState.data, _objectSpread({}, values))
-        };
-      }); // copy and replace values
-    }
-  }, {
-    key: "reload",
-    value: function reload() {
-      var _this2 = this;
-
-      // this.setState({
-      // loading: true,
-      // });
-      fetch("/api/".concat(this.props.packId, "/").concat(this.props.actorId) + "/".concat(this.props.pk) + "?".concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify({
-        fmt: "json"
-      }))).then(function (res) {
-        return res.json();
-      }).then(function (data) {
-        console.log("table GET", data);
-        var df = data.data.disabled_fields;
-        delete data.data.disabled_fields;
-
-        _this2.setState({
-          data: data.data,
-          original_data: JSON.parse(JSON.stringify(data.data)),
-          // Copy of data for diff test
-          disabled_fields: df,
-          id: data.id,
-          title: data.title,
-          nav_info: data.nav_info // loading:false,
-
-        });
-      });
-    }
-  }, {
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.reload();
-      console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var layout = this.props.actorData.ba.detail.window_layout; // const Comp = "Table";
-      // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-
-      var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"]._GetComponent(layout.main.react_name);
-
-      var prop_bundle = {
-        data: this.state.data,
-        disabled_fields: this.state.disabled_fields,
-        update_value: this.update_value
-      };
-      prop_bundle.prop_bundle = prop_bundle;
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, " ", this.state.title, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
-        elem: layout.main,
-        title: this.state.title,
-        main: true
-      })));
-    }
-  }]);
-
-  return LinoDetail;
-}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
-LinoDetail.propTypes = {
-  match: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  actorId: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
-  packId: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
-  actorData: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  pk: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string
-};
-LinoDetail.defaultProps = {};
-;
-
-/***/ }),
-/* 188 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var weak_key__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
 /* harmony import */ var weak_key__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(weak_key__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var primereact_tabview__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(189);
+/* harmony import */ var primereact_tabview__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(188);
 /* harmony import */ var primereact_tabview__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(primereact_tabview__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var primereact_panel__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(191);
+/* harmony import */ var primereact_panel__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(190);
 /* harmony import */ var primereact_panel__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(primereact_panel__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(134);
 /* harmony import */ var primereact_inputtext__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(193);
+/* harmony import */ var primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(192);
 /* harmony import */ var primereact_checkbox__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var primereact_editor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(195);
+/* harmony import */ var primereact_editor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(194);
 /* harmony import */ var primereact_editor__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(primereact_editor__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(2);
 /* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_7__);
@@ -25628,8 +25505,8 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
-var Labled = function Labled(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, props.elem.label), props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), props.children);
+var Labeled = function Labeled(props) {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, !props.hide_label && props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, " ", props.elem.label), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null)), props.children);
 };
 
 var LinoComponents = {
@@ -25698,62 +25575,101 @@ var LinoComponents = {
       display: "flex",
       flexDirection: "column"
     };
+    var Wrapper = props.in_grid ? react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment : primereact_panel__WEBPACK_IMPORTED_MODULE_3__["Panel"];
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_panel__WEBPACK_IMPORTED_MODULE_3__["Panel"], {
       header: props.elem.label,
       style: style
     }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       dangerouslySetInnerHTML: {
-        __html: props.data[props.elem.name]
+        __html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""
+      }
+    }));
+  },
+  DisplayElement: function DisplayElement(props) {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+      elem: props.elem,
+      labeled: props.labeled
+    }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      dangerouslySetInnerHTML: {
+        __html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""
       }
     }));
   },
   CharFieldElement: function CharFieldElement(props) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labled, _extends({}, props.prop_bundle, {
-      elem: props.elem
-    }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+      elem: props.elem,
+      labeled: props.labeled
+    }), props.prop_bundle.editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
       style: {
         width: "100%"
       },
-      value: props.data[props.elem.name] || "",
+      value: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "",
       onChange: function onChange(e) {
         return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
+      }
+    }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      dangerouslySetInnerHTML: {
+        __html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""
       }
     }));
   },
   AutoFieldElement: function AutoFieldElement(props) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, props.elem.label), props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+      elem: props.elem,
+      labeled: props.labeled
+    }), props.prop_bundle.editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
       style: {
         width: "100%"
       },
       type: "text",
       keyfilter: "pint",
-      value: props.data[props.elem.name] || "",
+      value: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "",
       onChange: function onChange(e) {
         return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
       }
-    }));
+    }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      dangerouslySetInnerHTML: {
+        __html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""
+      }
+    })));
   },
   BooleanFieldElement: function BooleanFieldElement(props) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, props.elem.label), props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__["Checkbox"], {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+      elem: props.elem,
+      labeled: props.labeled
+    }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__["Checkbox"], {
       onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.checked) || false);
+        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.checked));
       },
-      checked: props.data[props.elem.name]
-    }));
+      checked: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || false
+    })));
   },
   TextFieldElement: function TextFieldElement(props) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_editor__WEBPACK_IMPORTED_MODULE_6__["Editor"], {
       style: {// width: "100%",
         // height: '100%'
       },
-      value: props.data[props.elem.name] || "",
+      value: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "",
       onTextChange: function onTextChange(e) {
         return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.htmlValue));
       }
     }));
   },
+  ForeignKeyElement: function ForeignKeyElement(props) {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+      elem: props.elem,
+      labeled: props.labeled
+    }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      dangerouslySetInnerHTML: {
+        __html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""
+      }
+    }));
+  },
   UnknownElement: function UnknownElement(props) {
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, props.elem.label);
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+      elem: props.elem,
+      labeled: props.labeled
+    }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""));
   },
 
   /**
@@ -25780,16 +25696,16 @@ LinoComponents.HtmlBoxElement = LinoComponents.SlaveSummaryPanel;
 /* harmony default export */ __webpack_exports__["default"] = (LinoComponents);
 
 /***/ }),
-/* 189 */
+/* 188 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(190);
+module.exports = __webpack_require__(189);
 
 /***/ }),
-/* 190 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26064,16 +25980,16 @@ TabView.propTypes = {
 };
 
 /***/ }),
-/* 191 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(192);
+module.exports = __webpack_require__(191);
 
 /***/ }),
-/* 192 */
+/* 191 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26342,16 +26258,16 @@ Panel.propTypes = {
 };
 
 /***/ }),
-/* 193 */
+/* 192 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(194);
+module.exports = __webpack_require__(193);
 
 /***/ }),
-/* 194 */
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26599,16 +26515,16 @@ Checkbox.propTypes = {
 };
 
 /***/ }),
-/* 195 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = __webpack_require__(196);
+module.exports = __webpack_require__(195);
 
 /***/ }),
-/* 196 */
+/* 195 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -26649,13 +26565,13 @@ var _classnames = __webpack_require__(2);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _quill = __webpack_require__(197);
+var _quill = __webpack_require__(196);
 
 var _quill2 = _interopRequireDefault(_quill);
 
-__webpack_require__(202);
+__webpack_require__(201);
 
-__webpack_require__(207);
+__webpack_require__(206);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {
@@ -26926,7 +26842,7 @@ Editor.propsTypes = {
 };
 
 /***/ }),
-/* 197 */
+/* 196 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -42342,10 +42258,10 @@ Editor.propsTypes = {
     }])["default"]
   );
 });
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(198).Buffer))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(197).Buffer))
 
 /***/ }),
-/* 198 */
+/* 197 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42359,11 +42275,11 @@ Editor.propsTypes = {
 /* eslint-disable no-proto */
 
 
-var base64 = __webpack_require__(199);
+var base64 = __webpack_require__(198);
 
-var ieee754 = __webpack_require__(200);
+var ieee754 = __webpack_require__(199);
 
-var isArray = __webpack_require__(201);
+var isArray = __webpack_require__(200);
 
 exports.Buffer = Buffer;
 exports.SlowBuffer = SlowBuffer;
@@ -44205,7 +44121,7 @@ function isnan(val) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(24)))
 
 /***/ }),
-/* 199 */
+/* 198 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44329,7 +44245,7 @@ function fromByteArray(uint8) {
 }
 
 /***/ }),
-/* 200 */
+/* 199 */
 /***/ (function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -44422,7 +44338,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 };
 
 /***/ }),
-/* 201 */
+/* 200 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -44432,11 +44348,11 @@ module.exports = Array.isArray || function (arr) {
 };
 
 /***/ }),
-/* 202 */
+/* 201 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(203);
+var content = __webpack_require__(202);
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -44450,17 +44366,17 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
 if(false) {}
 
 /***/ }),
-/* 203 */
+/* 202 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -44471,7 +44387,7 @@ exports.push([module.i, "/*!\n * Quill Editor v1.3.6\n * https://quilljs.com/\n 
 
 
 /***/ }),
-/* 204 */
+/* 203 */
 /***/ (function(module, exports) {
 
 /*
@@ -44553,7 +44469,7 @@ function toComment(sourceMap) {
 }
 
 /***/ }),
-/* 205 */
+/* 204 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -44622,7 +44538,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(206);
+var	fixUrls = __webpack_require__(205);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -44957,7 +44873,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 206 */
+/* 205 */
 /***/ (function(module, exports) {
 
 /**
@@ -45046,11 +44962,11 @@ module.exports = function (css) {
 };
 
 /***/ }),
-/* 207 */
+/* 206 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(208);
+var content = __webpack_require__(207);
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -45064,17 +44980,17 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
 if(false) {}
 
 /***/ }),
-/* 208 */
+/* 207 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -45083,6 +44999,169 @@ exports.push([module.i, "/*!\n * Quill Editor v1.3.6\n * https://quilljs.com/\n 
 
 // exports
 
+
+/***/ }),
+/* 208 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LinoDetail", function() { return LinoDetail; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(15);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(query_string__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var weak_key__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
+/* harmony import */ var weak_key__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(weak_key__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var primereact_datatable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(96);
+/* harmony import */ var primereact_datatable__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(primereact_datatable__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var primereact_column__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(124);
+/* harmony import */ var primereact_column__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(primereact_column__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _LinoComponents__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(187);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+
+
+
+
+
+
+
+var LinoDetail =
+/*#__PURE__*/
+function (_Component) {
+  _inherits(LinoDetail, _Component);
+
+  function LinoDetail() {
+    var _this;
+
+    _classCallCheck(this, LinoDetail);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(LinoDetail).call(this));
+    _this.state = {
+      data: {},
+      original_data: {},
+      // Copy of data for diff test
+      disabled_fields: [],
+      id: null,
+      title: "",
+      nav_info: {} // loading: true
+
+    };
+    _this.reload = _this.reload.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    _this.update_value = _this.update_value.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+    return _this;
+  }
+  /**
+   * Method for updating data values.
+   * Is passed down to each Elem, takes a dict of keyboard:value pairs.
+   * Only merges the data object of this.state
+   **/
+
+
+  _createClass(LinoDetail, [{
+    key: "update_value",
+    value: function update_value(values) {
+      // console.log(arguments);
+      this.setState(function (prevState) {
+        return {
+          data: Object.assign(prevState.data, _objectSpread({}, values))
+        };
+      }); // copy and replace values
+    }
+  }, {
+    key: "reload",
+    value: function reload() {
+      var _this2 = this;
+
+      // this.setState({
+      // loading: true,
+      // });
+      fetch("/api/".concat(this.props.packId, "/").concat(this.props.actorId) + "/".concat(this.props.pk) + "?".concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify({
+        fmt: "json"
+      }))).then(function (res) {
+        return res.json();
+      }).then(function (data) {
+        console.log("table GET", data);
+        var df = data.data.disabled_fields;
+        delete data.data.disabled_fields;
+
+        _this2.setState({
+          data: data.data,
+          original_data: JSON.parse(JSON.stringify(data.data)),
+          // Copy of data for diff test
+          disabled_fields: df,
+          id: data.id,
+          title: data.title,
+          nav_info: data.nav_info // loading:false,
+
+        });
+      });
+    }
+  }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.reload();
+      console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var layout = this.props.actorData.ba.detail.window_layout; // const Comp = "Table";
+      // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
+
+      var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_6__["default"]._GetComponent(layout.main.react_name);
+
+      var prop_bundle = {
+        data: this.state.data,
+        disabled_fields: this.state.disabled_fields,
+        update_value: this.update_value // editing_mode: true  
+
+      };
+      prop_bundle.prop_bundle = prop_bundle;
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, " ", this.state.title, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
+        elem: layout.main,
+        title: this.state.title,
+        main: true
+      })));
+    }
+  }]);
+
+  return LinoDetail;
+}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+LinoDetail.propTypes = {
+  match: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  actorId: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
+  packId: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
+  actorData: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  pk: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string
+};
+LinoDetail.defaultProps = {};
+;
 
 /***/ }),
 /* 209 */
@@ -45103,7 +45182,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -45114,7 +45193,7 @@ if(false) {}
 /***/ (function(module, exports, __webpack_require__) {
 
 var escape = __webpack_require__(211);
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -45256,7 +45335,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -45267,7 +45346,7 @@ if(false) {}
 /***/ (function(module, exports, __webpack_require__) {
 
 var escape = __webpack_require__(211);
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -45326,7 +45405,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -45337,7 +45416,7 @@ if(false) {}
 /***/ (function(module, exports, __webpack_require__) {
 
 var escape = __webpack_require__(211);
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -45390,7 +45469,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -45400,7 +45479,7 @@ if(false) {}
 /* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -45429,7 +45508,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -45439,7 +45518,7 @@ if(false) {}
 /* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
@@ -45468,7 +45547,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(205)(content, options);
+var update = __webpack_require__(204)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -45478,7 +45557,7 @@ if(false) {}
 /* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(204)(false);
+exports = module.exports = __webpack_require__(203)(false);
 // imports
 
 
