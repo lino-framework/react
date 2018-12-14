@@ -73,6 +73,7 @@ currently and there is no need to store them in the state until there is an inte
   * parm values filter window
   * rows per page.
   * small pager for slave-grid
+  * have pagination page part of url ?
 
 * Editing
 * Dialogs
