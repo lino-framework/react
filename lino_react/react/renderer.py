@@ -238,6 +238,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         # use c.fields_index -1 for data value
                         index_mod += 1
             result.update(obj2dict(v.get_handle().store, "pk_index"))
+            result.update(obj2dict(v, "preview_limit"))
+
             return result
 
         return v

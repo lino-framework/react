@@ -87,7 +87,7 @@ export class LinoDetail extends Component {
             data: this.state.data,
             disabled_fields: this.state.disabled_fields,
             update_value: this.update_value,
-            // editing_mode: true
+            editing_mode: true // keep detail as editing mode only for now, untill beautifying things/
         };
         prop_bundle.prop_bundle = prop_bundle;
         return (

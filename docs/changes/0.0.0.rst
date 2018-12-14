@@ -25,6 +25,7 @@ Done
 * Grid View
   * Correctly rendered colunns + fields.
   * Hidden Columns are hidden
+  * basic Pagination
 
 Roadmap For Hobbit
 ==================
@@ -36,13 +37,10 @@ Roadmap For Hobbit
   * Detail elements which are FK should have link to to the detail view of the object
   * HTML links for navigation
   * FK links in grid view
-  * Slave summairs  + grid  need 'expand' button
+  * Slave summarise  + grid  need 'expand' button
   * Nav buttons in detail view (Next / Previous)
   * Search bar for and topbar !!
 
-* Grid View
-
-  * Pagination / load-more button
 
 * Detail View
 
@@ -71,8 +69,10 @@ currently and there is no need to store them in the state until there is an inte
 
 * Grid
 
-  * Toggleable columns !!
-  * parm values filter window !!
+  * Toggleable columns
+  * parm values filter window
+  * rows per page.
+  * small pager for slave-grid
 
 * Editing
 * Dialogs
