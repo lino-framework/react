@@ -23,9 +23,15 @@ Done
   * Grid view, (USe reactive = true) with prime react compoennt
 
 * Grid View
+
   * Correctly rendered colunns + fields.
   * Hidden Columns are hidden
   * basic Pagination
+
+* Detail View
+
+  * Improved CSS for unset data.
+
 
 Roadmap For Hobbit
 ==================
@@ -43,7 +49,6 @@ Roadmap For Hobbit
 
 
 * Detail View
-
   * Display mode components for all elements
 
     * SlaveGrid

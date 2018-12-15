@@ -242,6 +242,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
             return result
 
+        if isinstance(v, js_code):
+            # Convert js_code into strings so they are serialised. rather than displayed w/o quotes
+            return str(v.s)
+
         return v
 
     def handler_item(self, mi, handler, help_text):
