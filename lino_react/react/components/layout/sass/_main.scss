@@ -482,9 +482,20 @@ a {
     height: 100%;
     flex: auto;
     display: flex;
-
     .l-component {
-        padding: .5em;
+        padding: .25em;
+
+        label {
+            font-weight: lighter;
+            border-bottom: dotted 1px;
+
+            &.l-label--unfilled {
+                color:grey;
+            }
+        }
+        .p-checkbox.p-component {
+            padding-top: .5ch;
+        }
     }
 
 }
@@ -523,6 +534,7 @@ a {
     // Todo have the editor fill all vertical space correctly...
     height: 100%;
     padding-bottom: 90px;
+    padding-top: .5ch;
 }
 
 .p-panel-content {
@@ -534,7 +546,7 @@ a {
     display: flex;
 }
 
-/* Responsive */
+/* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {
     .layout-wrapper {
         &.layout-overlay {
@@ -592,8 +604,11 @@ a {
 
     .l-panel {
         .l-component {
-            padding-top: unset;
-            padding-bottom: unset;
+            //padding-top: unset;
+            //padding-bottom: 0.25em;
+            //padding-left: 0.25em;
+            //padding-right: 0.25em;
+
         }
     }
 

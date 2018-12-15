@@ -11,7 +11,9 @@ import classNames from 'classnames';
 const Labeled = (props) => {
     return <React.Fragment>
         {!props.hide_label && props.elem.label && <React.Fragment>
-            <label> {props.elem.label}</label>
+            <label className={classNames(
+                {"l-label--unfilled": !props.isFilled}
+            )}> {props.elem.label}:</label>
             <br/>
         </React.Fragment>}
         {props.children}
@@ -88,51 +90,56 @@ const LinoComponents = {
         let Wrapper = (props.in_grid ? React.Fragment : Panel);
         return <Panel header={props.elem.label} style={style}>
             <div
-                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "\u00a0"}}/>
         </Panel>
 
 
     },
 
     DisplayElement: (props) => {
-        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <div
-                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+                dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
         </Labeled>
     },
 
     CharFieldElement: (props) => {
-        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
             {props.prop_bundle.editing_mode ?
                 <InputText style={{width: "100%"}}
-                           value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}
+                           value={value || "\u00a0"}
                            onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
                 :
                 <div
-                    dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+                    dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
 
             }
         </Labeled>
     },
 
     AutoFieldElement: (props) => {
+        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
         return <React.Fragment>
-            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
-                { props.prop_bundle.editing_mode ?
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.prop_bundle.editing_mode ?
                     <InputText style={{width: "100%"}} type="text" keyfilter="pint"
-                           value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}
-                           onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
-                :                <div
-                    dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
-}
+                               value={value || "\u00a0"}
+                               onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                    : <div
+                        dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+                }
             </Labeled>
         </React.Fragment>
     },
 
     BooleanFieldElement: (props) => {
         return <div>
-            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}
+                     isFilled={true} // either 1 or 0, can't be unfilled
+            >
                 <Checkbox onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.checked})}
                           checked={
                               (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name])
@@ -147,7 +154,7 @@ const LinoComponents = {
                 // width: "100%",
                 // height: '100%'
             }}
-                    value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}
+                    value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "\u00a0"}
                     onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
             />
         </React.Fragment>
@@ -155,18 +162,19 @@ const LinoComponents = {
     },
 
     ForeignKeyElement: (props) => {
-
-        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <div
-                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}}/>
+                dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
         </Labeled>
 
     },
 
     UnknownElement: (props) => {
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
         return (
-            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}>
-                <span>{(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || ""}</span>
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                <span>{value || "\u00a0"}</span>
             </Labeled>
         )
     },
