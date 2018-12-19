@@ -25581,10 +25581,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var primereact_checkbox__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var primereact_editor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(195);
 /* harmony import */ var primereact_editor__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(primereact_editor__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _LinoGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(186);
-/* harmony import */ var _SiteContext__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(209);
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(2);
-/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var primereact_button__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(181);
+/* harmony import */ var primereact_button__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(primereact_button__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _LinoGrid__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(186);
+/* harmony import */ var _SiteContext__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(209);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(2);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_10__);
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -25608,9 +25610,10 @@ function _extends() { _extends = Object.assign || function (target) { for (var i
 
 
 
+
 var Labeled = function Labeled(props) {
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, !props.hide_label && props.elem.label && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
-    className: classnames__WEBPACK_IMPORTED_MODULE_9___default()({
+    className: classnames__WEBPACK_IMPORTED_MODULE_10___default()({
       "l-label--unfilled": !props.isFilled
     })
   }, " ", props.elem.label, ":"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null)), props.children);
@@ -25619,7 +25622,7 @@ var Labeled = function Labeled(props) {
 var LinoComponents = {
   TabPanel: function TabPanel(props) {
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_tabview__WEBPACK_IMPORTED_MODULE_2__["TabView"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_9___default()("lino-panel", {
+      className: classnames__WEBPACK_IMPORTED_MODULE_10___default()("lino-panel", {
         "lino-main": props.main
       })
     }, props.elem.items.map(function (panel, i) {
@@ -25652,7 +25655,7 @@ var LinoComponents = {
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         style: style,
         key: weak_key__WEBPACK_IMPORTED_MODULE_1___default()(child),
-        className: classnames__WEBPACK_IMPORTED_MODULE_9___default()("l-component")
+        className: classnames__WEBPACK_IMPORTED_MODULE_10___default()("l-component")
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Child, _extends({}, props.prop_bundle, {
         elem: child
       })));
@@ -25663,7 +25666,7 @@ var LinoComponents = {
     //     style["flex"] = props.elem.flex;
     // }
 
-    var panel_classes = classnames__WEBPACK_IMPORTED_MODULE_9___default()("l-panel", {
+    var panel_classes = classnames__WEBPACK_IMPORTED_MODULE_10___default()("l-panel", {
       "l-panel-vertical": props.elem.vertical,
       "l-panel-horizontal": !props.elem.vertical,
       "l-panel-fieldset": props.elem.isFieldSet
@@ -25786,6 +25789,12 @@ var LinoComponents = {
       dangerouslySetInnerHTML: {
         __html: value || "\xA0"
       }
+    }), value && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_7__["Button"], {
+      label: "Secondary",
+      className: "p-button-secondary",
+      onClick: function onClick(e) {
+        return console.log(props.elem);
+      }
     }));
   },
   GridElement: function GridElement(props) {
@@ -25796,8 +25805,8 @@ var LinoComponents = {
         actorId = _props$elem$actor_id$2[1]; // "contacts.RolesByPerson"
 
 
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_8__["SiteContext"].Consumer, null, function (siteData) {
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_LinoGrid__WEBPACK_IMPORTED_MODULE_7__["LinoGrid"], {
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_9__["SiteContext"].Consumer, null, function (siteData) {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_LinoGrid__WEBPACK_IMPORTED_MODULE_8__["LinoGrid"], {
         match: props.prop_bundle.match // todo
         ,
         mk: props.prop_bundle.mk,

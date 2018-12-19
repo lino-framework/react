@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import key from "weak-key";
+
 import {TabView, TabPanel} from 'primereact/tabview';
 import {Panel} from 'primereact/panel';
 import {InputText} from 'primereact/inputtext';
 import {Checkbox} from 'primereact/checkbox';
 import {Editor} from 'primereact/editor';
+import {Button} from 'primereact/button';
 
 import {LinoGrid} from "./LinoGrid";
-
 import {SiteContext} from "./SiteContext"
 
 import classNames from 'classnames';
@@ -178,6 +179,7 @@ const LinoComponents = {
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <div
                 dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+            {value && <Button label="Secondary" className="p-button-secondary" onClick={(e) => console.log(props.elem)}/>}
         </Labeled>
 
     },

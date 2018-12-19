@@ -210,9 +210,13 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 result['items'] = v.elements
             result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width \
                                       hidden value hflex vflex"))
+            # Slave tables
             if hasattr(v, "actor"):
                 # reference to actor data for slave-grids
-                result.update(obj2dict(v.actor, "actor_id"))
+                result.update(obj2dict(v.actor, "actor_id"))  # to get siteDate layout index
+
+            if hasattr(v, "get_field_options"):
+                result.update(field_options=v.get_field_options())
 
 
             return result
@@ -231,6 +235,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           ba=v.actions,
                           # [py2js(b) for b in v.actions.items()]
                           )
+            # grids
             if hasattr(v.get_handle(), "get_columns"):
                 result['col'] = v.get_handle().get_columns()
                 index_mod = 0
@@ -241,13 +246,13 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         # Skip the data value for multi value columns, such as choices and FK fields.
                         # use c.fields_index -1 for data value
                         index_mod += 1
-            result.update(obj2dict(v.get_handle().store, "pk_index"))
-            result.update(obj2dict(v, "preview_limit"))
-            if settings.SITE.is_installed('contenttypes'):
+            result.update(obj2dict(v.get_handle().store, "pk_index"))  # Data index which is the PK
+            result.update(obj2dict(v, "preview_limit"))  # number of rows to render
+            # mt + slave-tables
+            if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None:
                 # Perhaps I should have the model also be py2js'd?
-                m = getattr(v, 'model', None)
-                if m is not None:
-                    result.update(content_type=ContentType.objects.get_for_model(m).pk)
+                result.update(content_type=ContentType.objects.get_for_model(v.model).pk)
+
             return result
 
         if isinstance(v, js_code):
