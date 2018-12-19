@@ -31,6 +31,7 @@ Done
 * Detail View
 
   * Improved CSS for unset data.
+  * SlaveGrid
 
 
 Roadmap For Hobbit
@@ -50,8 +51,6 @@ Roadmap For Hobbit
 
 * Detail View
   * Display mode components for all elements
-
-    * SlaveGrid
 
 * Site.About
 

@@ -4,6 +4,8 @@ import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom
 import {LinoGrid} from "./LinoGrid";
 import {LinoDetail} from "./LinoDetail";
 
+import _ from 'lodash';
+
 export class Actor extends Component {
 
     static propTypes = {
@@ -27,31 +29,40 @@ export class Actor extends Component {
         console.log("Actor mount");
     };
 
+    componentWillReceiveProps(nextProps) {
+        const changedProps = _.reduce(this.props, function (result, value, key) {
+            return _.isEqual(value, nextProps[key])
+                ? result
+                : result.concat(key)
+        }, []);
+        console.log('changedProps: ', changedProps)
+    }
+
     render() {
         return <React.Fragment>
-                <Route exact path={this.props.match.match.path} render={(match) => (
-                       <LinoGrid
-                            match={match}
-                            actorId={this.props.actorId}
-                            packId={this.props.packId}
-                            key={this.props.packId + "." + this.props.actorId } // makes react recreate the LinoGrid instance
-                            actorData={this.props.actorData}/>)
-                }
-                />
-                <Route path={`${this.props.match.match.path}/:pk`} render={(match) => (
-                       <LinoDetail
-                            match={match}
-                            actorId={this.props.actorId}
-                            packId={this.props.packId}
-                            pk={match.match.params.pk}
-                            key={this.props.packId + "." + this.props.actorId +"."+ match.match.params.pk} // makes react recreate the LinoGrid instance
-                            actorData={this.props.actorData}
-                            />)}
-                />
+            <Route exact path={this.props.match.match.path} render={(match) => (
+                <LinoGrid
+                    match={match}
+                    actorId={this.props.actorId}
+                    packId={this.props.packId}
+                    key={this.props.packId + "." + this.props.actorId} // makes react recreate the LinoGrid instance
+                    actorData={this.props.actorData}/>)
+            }
+            />
+            <Route path={`${this.props.match.match.path}/:pk`} render={(match) => (
+                <LinoDetail
+                    match={match}
+                    actorId={this.props.actorId}
+                    packId={this.props.packId}
+                    pk={match.match.params.pk}
+                    key={this.props.packId + "." + this.props.actorId + "." + match.match.params.pk} // makes react recreate the LinoGrid instance
+                    actorData={this.props.actorData}
+                />)}
+            />
 
-                </React.Fragment>
+        </React.Fragment>
 
 
-         }
+    }
 
-        }
+}

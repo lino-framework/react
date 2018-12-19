@@ -31,7 +31,7 @@ const LinoComponents = {
             {props.elem.items.map((panel, i) => {
                     let Child = LinoComponents._GetComponent(panel.react_name);
                     return <TabPanel header={panel.label} key={key(panel)} contentClassName={"lino-panel"}>
-                        <Child {...props.prop_bundle} key={key(panel)} elem={panel} header={false}/>
+                        <Child {...props.prop_bundle} elem={panel} header={false}/>
                     </TabPanel>
                 }
             )
@@ -54,7 +54,7 @@ const LinoComponents = {
             }
 
             return <div style={style} key={key(child)} className={classNames("l-component")}>
-                <Child {...props.prop_bundle} elem={child} key={key(child)}/>
+                <Child {...props.prop_bundle} elem={child}/>
             </div>
 
 

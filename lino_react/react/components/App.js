@@ -112,7 +112,10 @@ class App extends React.Component {
     }
 
     onWrapperClick(event) {
-        if (!this.menuClick) {
+        // console.log("onWrapperClick", this.menuClick);
+        if (!this.menuClick
+            && (this.state.overlayMenuActive || this.state.mobileMenuActive) // prevents rerendering all the time on-click
+        ) {
             this.setState({
                 overlayMenuActive: false,
                 mobileMenuActive: false
@@ -270,6 +273,7 @@ class App extends React.Component {
             'layout-mobile-sidebar-active': this.state.mobileMenuActive
         });
         let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
+        console.log("app_re-render");
         return (
             <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick}>
@@ -319,16 +323,19 @@ class App extends React.Component {
                             <SiteContext.Provider value={this.state.site_data}>
                                 <React.Fragment>
                                     {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
-                                    <Route path="/api/:packId/:actorId" render={(route) => (
-                                        <Actor match={route}
-                                               actorId={route.match.params.actorId}
-                                               packId={route.match.params.packId}
+                                    <Route path="/api/:packId/:actorId" render={(route) => {
+                                        let key = route.match.params.packId + "." + route.match.params.actorId;
+                                        console.log(key);
+                                        return <Actor match={route}
+                                                      actorId={route.match.params.actorId}
+                                                      packId={route.match.params.packId}
 
-                                               // makes react recreate the LinoGrid instance
-                                               key={route.match.params.packId + "." + route.match.params.actorId}
+                                            // makes react recreate the LinoGrid instance
+                                                      key={key}
 
-                                               // Should it look at SiteContext?
-                                               actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}
+                                            // Should it look at SiteContext?
+                                                      actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>
+                                    }}
                                     />
                                 </React.Fragment>
                             </SiteContext.Provider>
