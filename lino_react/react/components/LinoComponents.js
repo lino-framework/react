@@ -6,6 +6,10 @@ import {InputText} from 'primereact/inputtext';
 import {Checkbox} from 'primereact/checkbox';
 import {Editor} from 'primereact/editor';
 
+import {LinoGrid} from "./LinoGrid";
+
+import {SiteContext} from "./SiteContext"
+
 import classNames from 'classnames';
 
 const Labeled = (props) => {
@@ -27,7 +31,7 @@ const LinoComponents = {
             {props.elem.items.map((panel, i) => {
                     let Child = LinoComponents._GetComponent(panel.react_name);
                     return <TabPanel header={panel.label} key={key(panel)} contentClassName={"lino-panel"}>
-                        <Child {...props.prop_bundle} elem={panel} header={false}/>
+                        <Child {...props.prop_bundle} key={key(panel)} elem={panel} header={false}/>
                     </TabPanel>
                 }
             )
@@ -49,8 +53,8 @@ const LinoComponents = {
                 style.flex = child.value.flex
             }
 
-            return <div style={style} className={classNames("l-component")}>
-                <Child {...props.prop_bundle} elem={child}/>
+            return <div style={style} key={key(child)} className={classNames("l-component")}>
+                <Child {...props.prop_bundle} elem={child} key={key(child)}/>
             </div>
 
 
@@ -87,11 +91,19 @@ const LinoComponents = {
             display: "flex",
             flexDirection: "column"
         };
-        let Wrapper = (props.in_grid ? React.Fragment : Panel);
-        return <Panel header={props.elem.label} style={style}>
-            <div
-                dangerouslySetInnerHTML={{__html: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "\u00a0"}}/>
-        </Panel>
+        let result = <div
+            dangerouslySetInnerHTML={{
+                __html: (props.in_grid ? props.data[props.elem.fields_index]
+                    :
+                    props.data[props.elem.name]) || "\u00a0"
+            }}/>;
+        if (props.in_grid) {
+            return result
+        } else {
+            return <Panel header={props.elem.label} style={style}>
+                {result}
+            </Panel>
+        }
 
 
     },
@@ -170,8 +182,26 @@ const LinoComponents = {
 
     },
 
+    GridElement: (props) => {
+        // https://jane.saffre-rumma.net/api/contacts/RolesByPerson?_dc=1545239958036&limit=15&start=0&fmt=json&rp=ext-comp-1353&mt=8&mk=316
+
+        let [packId, actorId] = props.elem.actor_id.split("."); // "contacts.RolesByPerson"
+
+        return <SiteContext.Consumer>{(siteData) => (<LinoGrid
+            match={props.prop_bundle.match} // todo
+            mk={props.prop_bundle.mk}
+            mt={siteData.actors[props.elem.actor_id].content_type} // Should this be a state rather than prop?
+            actorId={actorId}
+            packId={packId}
+            actorData={siteData.actors[props.elem.actor_id]}
+        />)}</SiteContext.Consumer>
+
+    },
+
+
     UnknownElement: (props) => {
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        // console.log(props); // Not needed, can get props via react debug tools in browser
         return (
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <span>{value || "\u00a0"}</span>
@@ -189,7 +219,7 @@ const LinoComponents = {
         let Child = LinoComponents[name];
         if (Child === undefined) {
             Child = LinoComponents.UnknownElement;
-            console.warn(`${name} does not exist`);
+            console.warn(`${name} does not exist`,);
         }
         return Child
     }

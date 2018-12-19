@@ -21,7 +21,7 @@ from lino.core.renderer_mixins import JsCacheRenderer
 from lino.core.menus import Menu, MenuItem
 from lino.core import constants
 from lino.core import choicelists
-
+from lino.core.gfks import ContentType
 from lino.modlib.extjs.ext_renderer import ExtRenderer
 
 from lino.core.actions import (ShowEmptyTable, ShowDetail,
@@ -210,6 +210,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 result['items'] = v.elements
             result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width \
                                       hidden value hflex vflex"))
+            if hasattr(v, "actor"):
+                # reference to actor data for slave-grids
+                result.update(obj2dict(v.actor, "actor_id"))
+
 
             return result
         if isinstance(v, LayoutHandle):
@@ -239,7 +243,11 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         index_mod += 1
             result.update(obj2dict(v.get_handle().store, "pk_index"))
             result.update(obj2dict(v, "preview_limit"))
-
+            if settings.SITE.is_installed('contenttypes'):
+                # Perhaps I should have the model also be py2js'd?
+                m = getattr(v, 'model', None)
+                if m is not None:
+                    result.update(content_type=ContentType.objects.get_for_model(m).pk)
             return result
 
         if isinstance(v, js_code):

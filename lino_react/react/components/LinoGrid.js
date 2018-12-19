@@ -7,7 +7,7 @@ import key from "weak-key";
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 import {Paginator} from 'primereact/paginator';
-import LinoComponents from "./LinoComponents"
+import LinoComponents from "./LinoComponents";
 
 export class LinoGrid extends Component {
 
@@ -15,7 +15,10 @@ export class LinoGrid extends Component {
         match: PropTypes.object,
         actorId: PropTypes.string,
         packId: PropTypes.string,
-        actorData: PropTypes.object
+        actorData: PropTypes.object,
+	    mt: PropTypes.int,
+	    mk: PropTypes.any // we want to allow str / slug pks
+	// todo: in_detail : PropTypes.bool
     };
     static defaultProps = {};
 
@@ -24,11 +27,15 @@ export class LinoGrid extends Component {
         this.state = {
             data: null,
             rows: [],
-            // show_columns: {}, // Used to override hidden value for columns
-            totalRecords: 0,
+            show_columns: {}, // Used to override hidden value for columns
+	    // for pager
+	    totalRecords: 0,
             rowsPerPage: props.actorData.preview_limit,
             page: 0,
-            topRow: 0
+            topRow: 0,
+	    // todo pvs: paramValues: [], 
+
+	    
         };
         this.reload = this.reload.bind(this);
         this.onRowSelect = this.onRowSelect.bind(this);
@@ -78,7 +85,17 @@ export class LinoGrid extends Component {
             fmt: "json",
             limit: this.state.rowsPerPage,
             start: (page || this.state.page) * this.state.rowsPerPage // Needed due to race condition when setting-state
+            // todo pv
+            //
         };
+
+        if (this.props.mk){
+            query.mk = this.props.mk;
+        }
+        if (this.props.mt){
+            query.mt = this.props.mt;
+        }
+
         console.log("table pre-GET", query, this.state);
 
         fetch(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify(query)}`).then(
@@ -92,7 +109,9 @@ export class LinoGrid extends Component {
                     data: data,
                     rows: rows,
                     totalRecords: data.count,
-                    topRow: (page || this.state.page) * this.state.rowsPerPage
+                    topRow: (page || this.state.page) * this.state.rowsPerPage,
+		    // beware race conditions
+		    // pv: data.paramValues
                 });
             }
         )

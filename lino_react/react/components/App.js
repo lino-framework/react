@@ -29,7 +29,10 @@ import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom
 
 import {Redirect} from 'react-router-dom';
 
-window.Table = Table;
+// window.Table = Table;
+
+import {SiteContext} from "./SiteContext"
+
 
 class App extends React.Component {
 
@@ -313,15 +316,22 @@ class App extends React.Component {
                             />
                         )}/>
                         {this.state.site_loaded ?
-                            <React.Fragment>
-                                {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
-                                <Route path="/api/:packId/:actorId" render={(route) => (
-                                    <Actor match={route}
-                                              actorId={route.match.params.actorId}
-                                              packId={route.match.params.packId}
-                                              key={route.match.params.packId + "." + route.match.params.actorId } // makes react recreate the LinoGrid instance
-                                              actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}/>
-                            </React.Fragment>
+                            <SiteContext.Provider value={this.state.site_data}>
+                                <React.Fragment>
+                                    {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
+                                    <Route path="/api/:packId/:actorId" render={(route) => (
+                                        <Actor match={route}
+                                               actorId={route.match.params.actorId}
+                                               packId={route.match.params.packId}
+
+                                               // makes react recreate the LinoGrid instance
+                                               key={route.match.params.packId + "." + route.match.params.actorId}
+
+                                               // Should it look at SiteContext?
+                                               actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>)}
+                                    />
+                                </React.Fragment>
+                            </SiteContext.Provider>
                             :
                             <ProgressSpinner/>
                         }
