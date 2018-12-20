@@ -500,6 +500,17 @@ a {
 
 }
 
+.l-ForeignKeyElement {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    button {
+        margin-left: 1em;
+        height: 3.5ch;
+        width: 3.5ch;
+    }
+}
+
 .l-panel-vertical {
     flex-direction: column;
 }

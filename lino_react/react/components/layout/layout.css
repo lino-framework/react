@@ -482,6 +482,15 @@ a {
     .l-panel .l-component .p-checkbox.p-component {
       padding-top: .5ch; }
 
+.l-ForeignKeyElement {
+  display: flex;
+  flex-direction: row;
+  align-items: center; }
+  .l-ForeignKeyElement button {
+    margin-left: 1em;
+    height: 3.5ch;
+    width: 3.5ch; }
+
 .l-panel-vertical {
   flex-direction: column; }
 

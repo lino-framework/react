@@ -252,6 +252,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
             if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None:
                 # Perhaps I should have the model also be py2js'd?
                 result.update(content_type=ContentType.objects.get_for_model(v.model).pk)
+            for a in "detail_action insert_action default_action".split(" "):
+                if hasattr(v, a) and getattr(v,a) is not None:
+                    result.update({a:getattr(v,a).action.action_name})
 
             return result
 

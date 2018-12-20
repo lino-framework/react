@@ -176,11 +176,27 @@ const LinoComponents = {
 
     ForeignKeyElement: (props) => {
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
-        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            <div
-                dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-            {value && <Button label="Secondary" className="p-button-secondary" onClick={(e) => console.log(props.elem)}/>}
-        </Labeled>
+        return <SiteContext.Consumer>{(siteData) => (
+            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                <div className="l-ForeignKeyElement">
+                    <div
+                        dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+                    {value &&
+                    <Button icon="pi pi-external-link" className="p-button-secondary"
+                            onClick={(e) => {
+                                let {match} = props.prop_bundle,
+                                    actor = siteData.actors[props.elem.field_options.related_actor_id],
+                                    detailAction = actor.ba[actor.detailAction],
+                                    insertAction = actor.ba[actor.insertAction],
+                                    [packId, actorId] = props.elem.field_options.related_actor_id.split(".");
+                                console.log(props.elem, detailAction);
+                                match.history.push(`/api/${packId}/${actorId}/${
+                                    (props.in_grid ? props.data[props.elem.fields_index + 1]
+                                        : props.data[props.elem.name + 'Hidden'])}`);
+                            }}
+                    />}
+                </div>
+            </Labeled>)}</SiteContext.Consumer>
 
     },
 

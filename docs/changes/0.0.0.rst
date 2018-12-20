@@ -33,6 +33,10 @@ Done
   * Improved CSS for unset data.
   * SlaveGrid
 
+* Navigation
+
+  * FK elements have a link to to the detail view of the object
+  * FK links in grid view
 
 Roadmap For Hobbit
 ==================
@@ -41,9 +45,7 @@ Roadmap For Hobbit
 
 * Navigation
 
-  * Detail elements which are FK should have link to to the detail view of the object
   * HTML links for navigation
-  * FK links in grid view
   * Slave summarise  + grid  need 'expand' button
   * Nav buttons in detail view (Next / Previous)
   * Search bar for and topbar !!
