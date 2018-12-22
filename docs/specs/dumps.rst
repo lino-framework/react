@@ -32,7 +32,7 @@ Test py > json for Actors.
 
 >>> from lino.modlib.about.models import About
 >>> p(About)
-... #doctest: +ELLIPSIS +REPORT_UDIFF -SKIP
+... #doctest: +ELLIPSIS -REPORT_UDIFF -SKIP
 {
   "ba": {
     "show": {
@@ -42,26 +42,35 @@ Test py > json for Actors.
         "main": {
           "editable": false,
           "hflex": true,
+          "hidden": false,
           "hpad": 1,
           "is_fieldset": true,
           "items": [
             {
               "editable": false,
               "hflex": true,
+              "hidden": false,
               "label": null,
               "name": "about_html",
               "react_name": "ConstantElement",
               "repr": "<ConstantElement about_html in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
               "value": {
                 "flex": 25,
-                "html": "..."
+                "html": ...
               },
               "vflex": true,
               "width": null
             },
             {
               "editable": false,
+              "field_options": {
+                "disabled": true,
+                "fieldLabel": "Server status",
+                "labelAlign": "top",
+                "name": "server_status"
+              },
               "hflex": true,
+              "hidden": false,
               "label": "Server status",
               "name": "server_status",
               "react_name": "DisplayElement",
@@ -94,7 +103,10 @@ Test py > json for Actors.
       }
     }
   },
-  "id": "about.About"
+  "default_action": "show",
+  "detail_action": "show",
+  "id": "about.About",
+  "preview_limit": null
 }
 
 

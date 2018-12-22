@@ -25836,7 +25836,7 @@ var LinoComponents = {
         }
       }), value && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_7__["Button"], {
         icon: "pi pi-external-link",
-        className: "p-button-secondary",
+        className: "p-button-secondary l-button-fk",
         onClick: function onClick(e) {
           var match = props.prop_bundle.match,
               actor = siteData.actors[props.elem.field_options.related_actor_id],
@@ -45393,24 +45393,28 @@ function (_Component) {
       prop_bundle.prop_bundle = prop_bundle;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, " ", this.state.title || "\xA0", " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_toolbar__WEBPACK_IMPORTED_MODULE_5__["Toolbar"], null, this.state.navinfo && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.first || this.props.pk == this.state.navinfo.first,
+        className: "l-nav-first",
         icon: "pi pi-angle-double-left",
         onClick: function onClick() {
           return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.first));
         }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev,
+        className: "l-nav-prev",
         icon: "pi pi-angle-left",
         onClick: function onClick() {
           return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.prev));
         }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.next || this.props.pk == this.state.navinfo.next,
+        className: "l-nav-next",
         icon: "pi pi-angle-right",
         onClick: function onClick() {
           return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.next));
         }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.last || this.props.pk == this.state.navinfo.last,
+        className: "l-nav-last",
         icon: "pi pi-angle-double-right",
         onClick: function onClick() {
           return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.last));

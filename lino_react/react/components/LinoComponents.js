@@ -189,7 +189,7 @@ const LinoComponents = {
                     <div
                         dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                     {value &&
-                    <Button icon="pi pi-external-link" className="p-button-secondary"
+                    <Button icon="pi pi-external-link" className="p-button-secondary l-button-fk"
                             onClick={(e) => {
                                 let {match} = props.prop_bundle,
                                     actor = siteData.actors[props.elem.field_options.related_actor_id],
