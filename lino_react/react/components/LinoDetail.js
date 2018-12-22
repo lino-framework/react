@@ -79,7 +79,7 @@ export class LinoDetail extends Component {
     };
 
     render() {
-        const layout = this.props.actorData.ba.detail.window_layout;
+        const layout = this.props.actorData.ba[this.props.actorData.detail_action].window_layout;
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         const MainComp = LinoComponents._GetComponent(layout.main.react_name);

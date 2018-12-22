@@ -117,6 +117,12 @@ const LinoComponents = {
         </Labeled>
     },
 
+    ConstantElement: (props) => {
+        const value = props.elem.value.html;
+        return <div
+            dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
+    },
+
     CharFieldElement: (props) => {
         let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>

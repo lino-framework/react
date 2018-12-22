@@ -16,9 +16,9 @@ export class LinoGrid extends Component {
         actorId: PropTypes.string,
         packId: PropTypes.string,
         actorData: PropTypes.object,
-	    mt: PropTypes.int,
-	    mk: PropTypes.any // we want to allow str / slug pks
-	// todo: in_detail : PropTypes.bool
+        mt: PropTypes.int,
+        mk: PropTypes.any // we want to allow str / slug pks
+        // todo: in_detail : PropTypes.bool
     };
     static defaultProps = {};
 
@@ -28,14 +28,14 @@ export class LinoGrid extends Component {
             data: null,
             rows: [],
             show_columns: {}, // Used to override hidden value for columns
-	    // for pager
-	    totalRecords: 0,
+            // for pager
+            totalRecords: 0,
             rowsPerPage: props.actorData.preview_limit,
             page: 0,
             topRow: 0,
-	    // todo pvs: paramValues: [], 
+            // todo pvs: paramValues: [],
 
-	    
+
         };
         this.reload = this.reload.bind(this);
         this.onRowSelect = this.onRowSelect.bind(this);
@@ -69,8 +69,11 @@ export class LinoGrid extends Component {
     }
 
     onRowSelect(e) {
-        this.props.match.history.push(
-            `/api/${this.props.packId}/${this.props.actorId}/${e.data[this.props.actorData.pk_index]}`);
+
+        if (e.data[this.props.actorData.pk_index]) {
+            this.props.match.history.push(
+                `/api/${this.props.packId}/${this.props.actorId}/${e.data[this.props.actorData.pk_index]}`);
+        }
         console.log(e.data);
     }
 
@@ -89,10 +92,10 @@ export class LinoGrid extends Component {
             //
         };
 
-        if (this.props.mk){
+        if (this.props.mk) {
             query.mk = this.props.mk;
         }
-        if (this.props.mt){
+        if (this.props.mt) {
             query.mt = this.props.mt;
         }
 
@@ -110,8 +113,8 @@ export class LinoGrid extends Component {
                     rows: rows,
                     totalRecords: data.count,
                     topRow: (page || this.state.page) * this.state.rowsPerPage,
-		    // beware race conditions
-		    // pv: data.paramValues
+                    // beware race conditions
+                    // pv: data.paramValues
                 });
             }
         )

@@ -218,7 +218,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
             if hasattr(v, "get_field_options"):
                 result.update(field_options=v.get_field_options())
 
-
             return result
         if isinstance(v, LayoutHandle):
             # Layout entry-point
@@ -253,8 +252,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 # Perhaps I should have the model also be py2js'd?
                 result.update(content_type=ContentType.objects.get_for_model(v.model).pk)
             for a in "detail_action insert_action default_action".split(" "):
-                if hasattr(v, a) and getattr(v,a) is not None:
-                    result.update({a:getattr(v,a).action.action_name})
+                if hasattr(v, a) and getattr(v, a) is not None:
+                    result.update({a: getattr(v, a).action.action_name})
 
             return result
 
@@ -293,7 +292,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
     def action_call(self, request, bound_action, status):
 
         a = bound_action.action
-        fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
+        # fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
+        actorId, an= bound_action.full_name().rsplit(".", 1)  # moves action name to first arg,
+
         if a.opens_a_window or (a.parameters and not a.no_params_window):
             if request and request.subst_user:
                 status[
@@ -305,12 +306,13 @@ class Renderer(JsRenderer, JsCacheRenderer):
             else:
                 rp = request.requesting_panel
             if not status:
-                status = {}  # non param window actions also use router and just have no args,
+                status = {}
 
-            return dict(
-                action=fullname,
+            return "window.App.runAction(%s)" % py2js(dict(
+                an=an,
+                actorId=actorId,
                 status=status,
-                rp=rp)
+                rp=rp))
             # return "%s()" % self.get_panel_btn_handler(bound_action)
         return "simple_action(%s)" % fullname
 

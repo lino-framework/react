@@ -40,6 +40,7 @@ export class Actor extends Component {
 
     render() {
         return <React.Fragment>
+            {this.props.actorData.default_action === "grid" &&
             <Route exact path={this.props.match.match.path} render={(match) => (
                 <LinoGrid
                     match={match}
@@ -49,6 +50,8 @@ export class Actor extends Component {
                     actorData={this.props.actorData}/>)
             }
             />
+            }
+            {this.props.actorData.detail_action === "detail" &&
             <Route path={`${this.props.match.match.path}/:pk`} render={(match) => (
                 <LinoDetail
                     match={match}
@@ -59,7 +62,21 @@ export class Actor extends Component {
                     actorData={this.props.actorData}
                 />)}
             />
+            }
+            {this.props.actorData.detail_action === "show" &&
+            <Route path={`${this.props.match.match.path}`} render={(match) => (
+                <LinoDetail
+                    match={match}
+                    actorId={this.props.actorId}
+                    packId={this.props.packId}
+                    pk={"-99998"}
+                    key={this.props.packId + "." + this.props.actorId} // makes react recreate the LinoGrid instance
+                    actorData={this.props.actorData}
+                />)}
 
+            />
+            }
+            
         </React.Fragment>
 
 

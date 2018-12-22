@@ -29,7 +29,6 @@ import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom
 
 import {Redirect} from 'react-router-dom';
 
-// window.Table = Table;
 
 import {SiteContext} from "./SiteContext"
 
@@ -65,7 +64,7 @@ class App extends React.Component {
         this.fetch_user_settings();
 
         window.App = this;
-        console.log(window, window.App);
+        // console.log(window, window.App);
     }
 
     onSignOutIn(event) {
@@ -223,7 +222,28 @@ class App extends React.Component {
     };
 
     /**
-     * Converts
+     * Slighly hacky solution for html nav buttons
+     * @param an
+     * @param actorId
+     * @param rp
+     * @param status
+     */
+    runAction = ({an, actorId, rp, status} = {}) => {
+
+        console.log(an, actorId, rp, status);
+        if (an === "grid") {
+            this.router.history.push(`/api/${actorId.split(".").join("/")}/`);
+        }
+        else if (an === "detail"){
+            this.router.history.push(`/api/${actorId.split(".").join("/")}/${status.record_id ? status.record_id : ""}`);
+        }
+        else if (an === "show"){ // About
+            this.router.history.push(`/api/${actorId.split(".").join("/")}`);
+        }
+    };
+
+    /**
+     * Converts sitedata menu data into Primereact menu data with functions
      *
      **/
     create_menu = (layout) => {
@@ -236,13 +256,14 @@ class App extends React.Component {
                 // icon	        string	    null	Icon of the item.
                 // command	    function	null	Callback to execute when item is clicked.
                 command: (event) => {
-                    let action_name = mi.handler.action; // grid.contacts.Persons
-                    action_name = action_name.split("."); // [ "grid", "contacts", "Persons" ]
+                    // let action_name = mi.handler.action; // grid.contacts.Persons
+                    // action_name = action_name.split("."); // [ "grid", "contacts", "Persons" ]
                     // action_name = action_name.splice(1).concat(action_name).join("/"); // "contacts/Persons/grid/"
-                    action_name = action_name.splice(1).join("/"); // "contacts/Persons"
+                    // action_name = action_name.splice(1).join("/"); // "contacts/Persons"
                     // console.log(mi, event, action_name);
-                    this.router.history.push("/api/" + action_name);
+                    // this.router.history.push("/api/" + action_name);
                     // console.log(this.router);
+                    eval(mi.handler);
                 }
                 // url	        string	    null	External link to navigate when item is clicked.
                 // items	    array	    null	An array of children menuitems.
