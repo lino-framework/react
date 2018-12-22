@@ -159,7 +159,8 @@ const LinoComponents = {
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}
                      isFilled={true} // either 1 or 0, can't be unfilled
             >
-                <Checkbox onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.checked})}
+                <Checkbox readOnly={!props.prop_bundle.editing_mode}
+                          onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.checked})}
                           checked={
                               (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name])
                               || false}/>

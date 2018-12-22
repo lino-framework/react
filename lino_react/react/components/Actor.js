@@ -58,7 +58,7 @@ export class Actor extends Component {
                     actorId={this.props.actorId}
                     packId={this.props.packId}
                     pk={match.match.params.pk}
-                    key={this.props.packId + "." + this.props.actorId + "." + match.match.params.pk} // makes react recreate the LinoGrid instance
+                    key={this.props.packId + "." + this.props.actorId} // makes react recreate the LinoGrid instance
                     actorData={this.props.actorData}
                 />)}
             />

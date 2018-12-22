@@ -490,7 +490,7 @@ a {
             border-bottom: dotted 1px;
 
             &.l-label--unfilled {
-                color:grey;
+                color: grey;
             }
         }
         .p-checkbox.p-component {
@@ -500,14 +500,15 @@ a {
 
 }
 
-.l-ForeignKeyElement {
+.layout-main .l-ForeignKeyElement {
     display: flex;
     flex-direction: row;
     align-items: center;
     button {
         margin-left: 1em;
-        height: 3.5ch;
-        width: 3.5ch;
+        height: 1.5em;
+        width: 1.5em;
+        margin-top: 3px;
     }
 }
 
@@ -557,6 +558,17 @@ a {
     display: flex;
 }
 
+@media (max-width: 600px) {
+
+    .l-panel {
+        flex-direction: column;
+
+        .l-component {
+            padding-left: unset;
+            padding-right: unset;
+        }
+    }
+}
 /* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {
     .layout-wrapper {
@@ -674,15 +686,6 @@ a {
 
     .body-overflow-hidden {
         overflow: hidden;
-    }
-
-    .l-panel {
-        flex-direction: column;
-
-        .l-component {
-            padding-left: unset;
-            padding-right: unset;
-        }
     }
 
 }

@@ -482,14 +482,15 @@ a {
     .l-panel .l-component .p-checkbox.p-component {
       padding-top: .5ch; }
 
-.l-ForeignKeyElement {
+.layout-main .l-ForeignKeyElement {
   display: flex;
   flex-direction: row;
   align-items: center; }
-  .l-ForeignKeyElement button {
+  .layout-main .l-ForeignKeyElement button {
     margin-left: 1em;
-    height: 3.5ch;
-    width: 3.5ch; }
+    height: 1.5em;
+    width: 1.5em;
+    margin-top: 3px; }
 
 .l-panel-vertical {
   flex-direction: column; }
@@ -519,6 +520,13 @@ a {
 .p-panel-content-wrapper-expanded {
   flex: auto;
   display: flex; }
+
+@media (max-width: 600px) {
+  .l-panel {
+    flex-direction: column; }
+    .l-panel .l-component {
+      padding-left: unset;
+      padding-right: unset; } }
 
 /* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {
@@ -571,12 +579,7 @@ a {
   .layout-wrapper.layout-mobile-sidebar-active .layout-mask {
     display: block; }
   .body-overflow-hidden {
-    overflow: hidden; }
-  .l-panel {
-    flex-direction: column; }
-    .l-panel .l-component {
-      padding-left: unset;
-      padding-right: unset; } }
+    overflow: hidden; } }
 
 /* Typography */
 h1 {

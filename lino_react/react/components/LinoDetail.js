@@ -4,8 +4,10 @@ import PropTypes from "prop-types";
 import queryString from 'query-string';
 
 import key from "weak-key";
-import {DataTable} from 'primereact/datatable';
+
 import {Column} from 'primereact/column';
+import {Toolbar} from 'primereact/toolbar';
+import {Button} from 'primereact/button';
 
 import LinoComponents from "./LinoComponents"
 
@@ -28,7 +30,7 @@ export class LinoDetail extends Component {
             disabled_fields: [],
             id: null,
             title: "",
-            nav_info: {},
+            navinfo: {},
             // loading: true
         };
         this.reload = this.reload.bind(this);
@@ -48,6 +50,13 @@ export class LinoDetail extends Component {
         ) // copy and replace values
     }
 
+    componentDidUpdate(prevProps) {
+        // console.log("Detail compDidUpdate")
+        if (this.props.pk !== prevProps.pk) {
+            this.reload();
+        }
+    }
+
     reload() {
         // this.setState({
         // loading: true,
@@ -57,7 +66,7 @@ export class LinoDetail extends Component {
             (res) => (res.json())
         ).then(
             (data) => {
-                console.log("table GET", data);
+                console.log("detail GET", data);
                 let df = data.data.disabled_fields;
                 delete data.data.disabled_fields;
                 this.setState({
@@ -66,7 +75,7 @@ export class LinoDetail extends Component {
                     disabled_fields: df,
                     id: data.id,
                     title: data.title,
-                    nav_info: data.nav_info,
+                    navinfo: data.navinfo,
                     // loading:false,
                 });
             }
@@ -94,12 +103,25 @@ export class LinoDetail extends Component {
         prop_bundle.prop_bundle = prop_bundle;
         return (
             <React.Fragment>
-                <h1> {this.state.title} </h1>
+                <h1> {this.state.title || "\u00a0"} </h1>
 
-                {/*{!this.state.loading &&*/}
-
+                <Toolbar>
+                    {this.state.navinfo && <React.Fragment>
+                        <Button disabled={!this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
+                                icon="pi pi-angle-double-left"
+                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.first}`))}/>
+                        <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
+                                icon="pi pi-angle-left"
+                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.prev}`))}/>
+                        <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
+                                icon="pi pi-angle-right"
+                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.next}`))}/>
+                        <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
+                                icon="pi pi-angle-double-right"
+                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.last}`))}/>
+                    </React.Fragment>}
+                </Toolbar>
                 <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
-                {/*}*/}
             </React.Fragment>
         )
     }

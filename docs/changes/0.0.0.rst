@@ -35,9 +35,16 @@ Done
 
 * Navigation
 
-  * FK elements have a link to to the detail view of the object
+   * Detail elements which are FK should have link to to the detail view of the object
+  * HTML links for navigation
   * FK links in grid view
+    
+* Site.About
 
+ * Is hacked in action.render()
+
+ 
+   
 Roadmap For Hobbit
 ==================
 
@@ -45,7 +52,9 @@ Roadmap For Hobbit
 
 * Navigation
 
+  * Detail elements which are FK should have link to to the detail view of the object
   * HTML links for navigation
+  * FK links in grid view
   * Slave summarise  + grid  need 'expand' button
   * Nav buttons in detail view (Next / Previous)
   * Search bar for and topbar !!
@@ -54,9 +63,7 @@ Roadmap For Hobbit
 * Detail View
   * Display mode components for all elements
 
-* Site.About
 
- * hard-coded
 
 
 Later

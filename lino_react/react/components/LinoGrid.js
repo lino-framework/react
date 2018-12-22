@@ -16,9 +16,9 @@ export class LinoGrid extends Component {
         actorId: PropTypes.string,
         packId: PropTypes.string,
         actorData: PropTypes.object,
-        mt: PropTypes.int,
-        mk: PropTypes.any // we want to allow str / slug pks
-        // todo: in_detail : PropTypes.bool
+	    mt: PropTypes.int,
+	    mk: PropTypes.string // we want to allow str / slug pks
+	// todo: in_detail : PropTypes.bool
     };
     static defaultProps = {};
 
@@ -62,6 +62,7 @@ export class LinoGrid extends Component {
                 in_grid: true,
                 column: column,
                 editing_mode: false,
+                match: this.props.match
             };
             prop_bundle.prop_bundle = prop_bundle;
             return <Template {...prop_bundle} elem={col}/>;
