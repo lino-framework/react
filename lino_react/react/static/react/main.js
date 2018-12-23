@@ -247,6 +247,8 @@ function (_React$Component) {
       } else if (an === "show") {
         // About
         _this.router.history.push("/api/".concat(actorId.split(".").join("/")));
+      } else {
+        console.warn("Unknown action ".concat(an, " on actor ").concat(actorId, " with status ").concat(JSON.stringify(status)));
       }
     };
 
@@ -8824,7 +8826,7 @@ g = function () {
 
 try {
   // This works if eval is allowed (see CSP)
-  g = g || new Function("return this")();
+  g = g || Function("return this")() || (1, eval)("this");
 } catch (e) {
   // This works if the window reference is available
   if (typeof window === "object") g = window;
@@ -25459,8 +25461,17 @@ function (_Component) {
   }, {
     key: "onRowSelect",
     value: function onRowSelect(e) {
+      var pk = e.data[this.props.actorData.pk_index];
+
       if (e.data[this.props.actorData.pk_index]) {
-        this.props.match.history.push("/api/".concat(this.props.packId, "/").concat(this.props.actorId, "/").concat(e.data[this.props.actorData.pk_index]));
+        window.App.runAction({
+          an: this.props.actorData.detail_action,
+          actorId: "".concat(this.props.packId, ".").concat(this.props.actorId),
+          rp: null,
+          status: {
+            record_id: pk
+          }
+        }); // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
       }
 
       console.log(e.data);
@@ -25840,15 +25851,16 @@ var LinoComponents = {
         onClick: function onClick(e) {
           var match = props.prop_bundle.match,
               actor = siteData.actors[props.elem.field_options.related_actor_id],
-              detailAction = actor.ba[actor.detailAction],
-              insertAction = actor.ba[actor.insertAction],
-              _props$elem$field_opt = props.elem.field_options.related_actor_id.split("."),
-              _props$elem$field_opt2 = _slicedToArray(_props$elem$field_opt, 2),
-              packId = _props$elem$field_opt2[0],
-              actorId = _props$elem$field_opt2[1];
+              pk = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + 'Hidden']; // console.log(props.elem, detail_action);
 
-          console.log(props.elem, detailAction);
-          match.history.push("/api/".concat(packId, "/").concat(actorId, "/").concat(props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + 'Hidden']));
+          window.App.runAction({
+            an: actor.detail_action,
+            actorId: props.elem.field_options.related_actor_id,
+            rp: null,
+            status: {
+              record_id: pk
+            }
+          }); // match.history.push(`/api/${packId}/${actorId}/${pk}`);
         }
       })));
     });
@@ -45396,28 +45408,56 @@ function (_Component) {
         className: "l-nav-first",
         icon: "pi pi-angle-double-left",
         onClick: function onClick() {
-          return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.first));
+          return window.App.runAction({
+            an: "detail",
+            actorId: "".concat(_this3.props.packId, ".").concat(_this3.props.actorId),
+            rp: null,
+            status: {
+              record_id: _this3.state.navinfo.first
+            }
+          });
         }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev,
         className: "l-nav-prev",
         icon: "pi pi-angle-left",
         onClick: function onClick() {
-          return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.prev));
+          return window.App.runAction({
+            an: "detail",
+            actorId: "".concat(_this3.props.packId, ".").concat(_this3.props.actorId),
+            rp: null,
+            status: {
+              record_id: _this3.state.navinfo.prev
+            }
+          });
         }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.next || this.props.pk == this.state.navinfo.next,
         className: "l-nav-next",
         icon: "pi pi-angle-right",
         onClick: function onClick() {
-          return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.next));
+          return window.App.runAction({
+            an: "detail",
+            actorId: "".concat(_this3.props.packId, ".").concat(_this3.props.actorId),
+            rp: null,
+            status: {
+              record_id: _this3.state.navinfo.next
+            }
+          });
         }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_6__["Button"], {
         disabled: !this.state.navinfo.last || this.props.pk == this.state.navinfo.last,
         className: "l-nav-last",
         icon: "pi pi-angle-double-right",
         onClick: function onClick() {
-          return _this3.props.match.history.push("/api/".concat(_this3.props.packId, "/").concat(_this3.props.actorId, "/").concat(_this3.state.navinfo.last));
+          return window.App.runAction({
+            an: "detail",
+            actorId: "".concat(_this3.props.packId, ".").concat(_this3.props.actorId),
+            rp: null,
+            status: {
+              record_id: _this3.state.navinfo.last
+            }
+          });
         }
       }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
         elem: layout.main,

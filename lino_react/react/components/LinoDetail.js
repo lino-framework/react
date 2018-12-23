@@ -101,6 +101,9 @@ export class LinoDetail extends Component {
             match: this.props.match,
         };
         prop_bundle.prop_bundle = prop_bundle;
+
+
+
         return (
             <React.Fragment>
                 <h1> {this.state.title || "\u00a0"} </h1>
@@ -110,19 +113,31 @@ export class LinoDetail extends Component {
                         <Button disabled={!this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
                                 className="l-nav-first"
                                 icon="pi pi-angle-double-left"
-                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.first}`))}/>
+                                onClick={() => window.App.runAction({an:"detail",
+                                    actorId:`${this.props.packId}.${this.props.actorId}`,
+                                    rp:null, status:{record_id: this.state.navinfo.first}})}
+                        />
                         <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
                                 className="l-nav-prev"
                                 icon="pi pi-angle-left"
-                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.prev}`))}/>
+                                onClick={() => window.App.runAction({an:"detail",
+                                    actorId:`${this.props.packId}.${this.props.actorId}`,
+                                    rp:null, status:{record_id: this.state.navinfo.prev}})}
+                        />
                         <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
                                 className="l-nav-next"
                                 icon="pi pi-angle-right"
-                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.next}`))}/>
+                                onClick={() => window.App.runAction({an:"detail",
+                                    actorId:`${this.props.packId}.${this.props.actorId}`,
+                                    rp:null, status:{record_id: this.state.navinfo.next}})}
+                        />
                         <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
                                 className="l-nav-last"
                                 icon="pi pi-angle-double-right"
-                                onClick={() => (this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${this.state.navinfo.last}`))}/>
+                                onClick={() => window.App.runAction({an:"detail",
+                                    actorId:`${this.props.packId}.${this.props.actorId}`,
+                                    rp:null, status:{record_id: this.state.navinfo.last}})}
+                        />
                     </React.Fragment>}
                 </Toolbar>
                 <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>

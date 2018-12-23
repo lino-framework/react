@@ -222,13 +222,16 @@ class App extends React.Component {
     };
 
     /**
-     * Slighly hacky solution for html nav buttons
+     * Slighly hacky solution for running actions.
+     * Called by eval'd js from the server in html elems, as well as internall for navigation.
+     *
+     * Has only basic suport for navigation
      * @param an
      * @param actorId
      * @param rp
      * @param status
      */
-    runAction = ({an, actorId, rp, status} = {}) => {
+    runAction = ({an, actorId, rp, status}= {}) => {
 
         console.log(an, actorId, rp, status);
         if (an === "grid") {
@@ -239,7 +242,10 @@ class App extends React.Component {
         }
         else if (an === "show"){ // About
             this.router.history.push(`/api/${actorId.split(".").join("/")}`);
+        } else {
+            console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`)
         }
+
     };
 
     /**
