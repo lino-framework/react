@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import queryString from 'query-string';
 import {ProgressSpinner} from 'primereact/progressspinner';
 // import Table from "./Table";
+import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 class DataProvider extends Component {
   static propTypes = {
@@ -31,7 +32,7 @@ class DataProvider extends Component {
 
   reloadData() {
       this.setState({loaded:false});
-      fetch(this.props.endpoint+`?${queryString.stringify({fmt:"json"})}`)
+      fetchPolyfill(this.props.endpoint+`?${queryString.stringify({fmt:"json"})}`)
 	  .then(response => {
 	      if (response.status !== 200) {
 		  return this.setState({ placeholder: "Something went wrong" });

@@ -29,6 +29,9 @@ import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom
 
 import {Redirect} from 'react-router-dom';
 
+import {fetch as fetchPolyfill} from 'whatwg-fetch'
+
+
 
 import {SiteContext} from "./SiteContext"
 
@@ -72,7 +75,7 @@ class App extends React.Component {
             this.setState({logging_in: true})
         }
         else {
-            fetch("/auth").then((req) => {
+            fetchPolyfill("/auth").then((req) => {
                 this.setState({logging_in: false});
                 this.fetch_user_settings();
                 this.dashboard.reloadData();
@@ -93,7 +96,7 @@ class App extends React.Component {
         // data.append("json", JSON.stringify(payload));
         // Object.entries(payload).map((k,v) => data.append(k,v));
         this.setState({logging_in: false});
-        fetch("/auth",
+        fetchPolyfill("/auth",
             {
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 method: "POST",
@@ -191,7 +194,7 @@ class App extends React.Component {
     }
 
     fetch_user_settings = () => {
-        fetch("/user/settings/").then(response => {
+        fetchPolyfill("/user/settings/").then(response => {
                 return response.json();
             }
         ).then((data) => {
@@ -202,7 +205,7 @@ class App extends React.Component {
     };
 
     fetch_site_data = (uri) => {
-        return fetch(uri)
+        return fetchPolyfill(uri)
             .then(response => {
                 if (response.status !== 200) {
                     return this.setState({placeholder: "Something went wrong"});

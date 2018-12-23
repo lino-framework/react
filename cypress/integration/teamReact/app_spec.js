@@ -1,7 +1,7 @@
 describe("Basic tests for TeamReact", () => {
     before(() => {
-       cy.server();
-       cy.route('/api/*/*').as('getData');
+        cy.server();
+        cy.route('**/api/**').as('getData');
     });
 
 //    it("Test gen menu function", () => {
@@ -44,6 +44,8 @@ describe("Basic tests for TeamReact", () => {
     });
 
     it("Should be possible to log in again and navigate around ", () => {
+        cy.server();
+        cy.route('**/api/**').as('getData');
         cy.visit('/');
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
@@ -91,7 +93,6 @@ describe("Basic tests for TeamReact", () => {
 
         cy.get('h1').contains("About");
     });
-
 
 
     // more tests here

@@ -8,6 +8,7 @@ import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 import {Paginator} from 'primereact/paginator';
 import LinoComponents from "./LinoComponents";
+import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 export class LinoGrid extends Component {
 
@@ -102,7 +103,7 @@ export class LinoGrid extends Component {
 
         console.log("table pre-GET", query, this.state);
 
-        fetch(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify(query)}`).then(
+        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify(query)}`).then(
             (res) => (res.json())
         ).then(
             (data) => {

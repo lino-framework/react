@@ -10,6 +10,7 @@ import {Toolbar} from 'primereact/toolbar';
 import {Button} from 'primereact/button';
 
 import LinoComponents from "./LinoComponents"
+import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 export class LinoDetail extends Component {
 
@@ -62,7 +63,7 @@ export class LinoDetail extends Component {
         // loading: true,
         // });
 
-        fetch(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify({fmt: "json"})}`).then(
+        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify({fmt: "json"})}`).then(
             (res) => (res.json())
         ).then(
             (data) => {
