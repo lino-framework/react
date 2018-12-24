@@ -193,13 +193,17 @@ const LinoComponents = {
                             onClick={(e) => {
                                 let {match} = props.prop_bundle,
                                     actor = siteData.actors[props.elem.field_options.related_actor_id],
-                                    detailAction = actor.ba[actor.detailAction],
-                                    insertAction = actor.ba[actor.insertAction],
-                                    [packId, actorId] = props.elem.field_options.related_actor_id.split(".");
-                                console.log(props.elem, detailAction);
-                                match.history.push(`/api/${packId}/${actorId}/${
-                                    (props.in_grid ? props.data[props.elem.fields_index + 1]
-                                        : props.data[props.elem.name + 'Hidden'])}`);
+                                    // detail_action = actor.ba[actor.detail_action],
+                                    // insert_action = actor.ba[actor.insert_action],
+                                    // [packId, actorId] = props.elem.field_options.related_actor_id.split("."),
+                                    pk = props.in_grid ? props.data[props.elem.fields_index + 1]
+                                        : props.data[props.elem.name + 'Hidden'];
+                                // console.log(props.elem, detail_action);
+                                window.App.runAction({
+                                    an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
+                                    rp: null, status: {record_id: pk}
+                                });
+                                // match.history.push(`/api/${packId}/${actorId}/${pk}`);
                             }}
                     />}
                 </div>

@@ -17,9 +17,9 @@ export class LinoGrid extends Component {
         actorId: PropTypes.string,
         packId: PropTypes.string,
         actorData: PropTypes.object,
-	    mt: PropTypes.int,
-	    mk: PropTypes.string // we want to allow str / slug pks
-	// todo: in_detail : PropTypes.bool
+        mt: PropTypes.int,
+        mk: PropTypes.string // we want to allow str / slug pks
+        // todo: in_detail : PropTypes.bool
     };
     static defaultProps = {};
 
@@ -71,10 +71,10 @@ export class LinoGrid extends Component {
     }
 
     onRowSelect(e) {
-
+        let pk = e.data[this.props.actorData.pk_index];
         if (e.data[this.props.actorData.pk_index]) {
-            this.props.match.history.push(
-                `/api/${this.props.packId}/${this.props.actorId}/${e.data[this.props.actorData.pk_index]}`);
+            window.App.runAction({an:this.props.actorData.detail_action, actorId:`${this.props.packId}.${this.props.actorId}`,rp:null, status:{record_id: pk}});
+            // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
         }
         console.log(e.data);
     }

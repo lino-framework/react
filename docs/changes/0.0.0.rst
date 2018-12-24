@@ -54,6 +54,7 @@ Roadmap For Hobbit
 * Navigation
 
   * Slave summarise  + grid  need 'expand' button
+    Will require adding mt + mk into url patterns.
   * Search bar for and topbar !!
 
 
