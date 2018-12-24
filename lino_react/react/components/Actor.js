@@ -12,7 +12,10 @@ export class Actor extends Component {
         match: PropTypes.object,
         actorId: PropTypes.string,
         packId: PropTypes.string,
-        actorData: PropTypes.object
+        actorData: PropTypes.object,
+
+        mt: PropTypes.int,
+        mk: PropTypes.string // we want to allow str / slug pks
     };
     static defaultProps = {};
 
@@ -47,7 +50,10 @@ export class Actor extends Component {
                     actorId={this.props.actorId}
                     packId={this.props.packId}
                     key={this.props.packId + "." + this.props.actorId} // makes react recreate the LinoGrid instance
-                    actorData={this.props.actorData}/>)
+                    actorData={this.props.actorData}
+                    mk={this.props.mk}
+                    mt={this.props.mt}
+                />)
             }
             />
             }
@@ -60,6 +66,8 @@ export class Actor extends Component {
                     pk={match.match.params.pk}
                     key={this.props.packId + "." + this.props.actorId} // makes react recreate the LinoGrid instance
                     actorData={this.props.actorData}
+                    mk={this.props.mk}
+                    mt={this.props.mt}
                 />)}
             />
             }
@@ -72,6 +80,8 @@ export class Actor extends Component {
                     pk={"-99998"}
                     key={this.props.packId + "." + this.props.actorId} // makes react recreate the LinoGrid instance
                     actorData={this.props.actorData}
+                    mk={this.props.mk}
+                    mt={this.props.mt}
                 />)}
 
             />

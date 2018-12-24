@@ -232,6 +232,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
         if isclass(v) and issubclass(v, Actor):
             result = dict(id=v.actor_id,
                           ba=v.actions,
+                          label=v.get_actor_label(),
+                          slave=bool(v.master)
                           # [py2js(b) for b in v.actions.items()]
                           )
             # grids

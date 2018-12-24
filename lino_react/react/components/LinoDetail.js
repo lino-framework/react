@@ -19,7 +19,10 @@ export class LinoDetail extends Component {
         actorId: PropTypes.string,
         packId: PropTypes.string,
         actorData: PropTypes.object,
-        pk: PropTypes.string
+        pk: PropTypes.string,
+
+        mt: PropTypes.int,
+        mk: PropTypes.string // we want to allow str / slug pks
     };
     static defaultProps = {};
 
@@ -29,6 +32,7 @@ export class LinoDetail extends Component {
             data: {},
             original_data: {}, // Copy of data for diff test
             disabled_fields: [],
+            editing_mode: false,
             id: null,
             title: "",
             navinfo: {},
@@ -53,7 +57,9 @@ export class LinoDetail extends Component {
 
     componentDidUpdate(prevProps) {
         // console.log("Detail compDidUpdate")
-        if (this.props.pk !== prevProps.pk) {
+        if (this.props.pk !== prevProps.pk ||
+            this.props.mk !== prevProps.mk ||
+            this.props.mt !== prevProps.mt ) {
             this.reload();
         }
     }
@@ -62,8 +68,15 @@ export class LinoDetail extends Component {
         // this.setState({
         // loading: true,
         // });
-
-        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify({fmt: "json"})}`).then(
+        let query = {
+            fmt: "json",
+            // mt: this.props.actorData.content_type, // Should be the master actor's PK, so should be a prop / url param
+        };
+        if (this.props.actorData.slave) {
+            this.props.mt && (query.mt = this.props.mt);
+            this.props.mk && (query.mk = this.props.mk);
+        }
+        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify(query)}`).then(
             (res) => (res.json())
         ).then(
             (data) => {
@@ -97,8 +110,10 @@ export class LinoDetail extends Component {
             data: this.state.data,
             disabled_fields: this.state.disabled_fields,
             update_value: this.update_value,
-            editing_mode: true, // keep detail as editing mode only for now, untill beautifying things/
+            // editing_mode: true, // keep detail as editing mode only for now, untill beautifying things/
+            editing_mode: this.state.editing_mode, // keep detail as editing mode only for now, untill beautifying things/
             mk: this.props.pk,
+            mt: this.props.actorData.content_type,
             match: this.props.match,
         };
         prop_bundle.prop_bundle = prop_bundle;
@@ -107,7 +122,7 @@ export class LinoDetail extends Component {
 
         return (
             <React.Fragment>
-                <h1> {this.state.title || "\u00a0"} </h1>
+                <h1 className={"l-detail-header"}> {this.state.title || "\u00a0"} </h1>
 
                 <Toolbar>
                     {this.state.navinfo && <React.Fragment>
@@ -116,28 +131,28 @@ export class LinoDetail extends Component {
                                 icon="pi pi-angle-double-left"
                                 onClick={() => window.App.runAction({an:"detail",
                                     actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{record_id: this.state.navinfo.first}})}
+                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.first}})}
                         />
                         <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
                                 className="l-nav-prev"
                                 icon="pi pi-angle-left"
                                 onClick={() => window.App.runAction({an:"detail",
                                     actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{record_id: this.state.navinfo.prev}})}
+                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.prev}})}
                         />
                         <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
                                 className="l-nav-next"
                                 icon="pi pi-angle-right"
                                 onClick={() => window.App.runAction({an:"detail",
                                     actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{record_id: this.state.navinfo.next}})}
+                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.next}})}
                         />
                         <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
                                 className="l-nav-last"
                                 icon="pi pi-angle-double-right"
                                 onClick={() => window.App.runAction({an:"detail",
                                     actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{record_id: this.state.navinfo.last}})}
+                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.last}})}
                         />
                     </React.Fragment>}
                 </Toolbar>

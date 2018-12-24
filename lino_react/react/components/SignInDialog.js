@@ -39,11 +39,11 @@ export class SignInDialog extends Component {
     render() {
         const footer = (
             <div>
-                <Button label="Sign In" icon="pi pi-times" onClick={() => (this.props.onSignIn({
+                <Button label="Sign In" icon="pi pi-check" onClick={() => (this.props.onSignIn({
                     username: this.state.username,
                     password: this.state.password
                 }))}/>
-                <Button label="Cancel" icon="pi pi-check" onClick={this.onHide} className="p-button-secondary"/>
+                <Button label="Cancel" icon="pi pi-times" onClick={this.onHide} className="p-button-secondary"/>
             </div>
         );
 

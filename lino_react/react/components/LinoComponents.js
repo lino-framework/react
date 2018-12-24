@@ -29,7 +29,7 @@ const LinoComponents = {
 
     TabPanel: (props) => (
         <TabView className={classNames("lino-panel", {"lino-main": props.main})}>
-            {props.elem.items.map((panel, i) => {
+            {props.elem.items.filter((e) => !e.hidden).map((panel, i) => {
                     let Child = LinoComponents._GetComponent(panel.react_name);
                     return <TabPanel header={panel.label} key={key(panel)} contentClassName={"lino-panel"}>
                         <Child {...props.prop_bundle} elem={panel} header={false}/>
@@ -46,7 +46,7 @@ const LinoComponents = {
 
     Panel: (props) => {
 
-        const children = props.elem.items.map((child, i) => {
+        const children = props.elem.items.filter((e) => !e.hidden).map((child, i) => {
             let Child = LinoComponents._GetComponent(child.react_name);
             let style = {};
             if (child.value.flex) {
@@ -92,17 +92,35 @@ const LinoComponents = {
             display: "flex",
             flexDirection: "column"
         };
-        let result = <div
+
+        // let status = {};
+        //
+        // if (props.actorData.slave) {
+        //     props.props_bundle.mt && (status.mt = props.props_bundle.mt);
+        //     props.props_bundle.mk && (status.mk = props.props_bundle.mk);
+        // }
+
+        // window.App.runAction({
+        //     an: "grid",
+        //     actorId: `${this.props.packId}.${this.props.actorId}`,
+        //     rp: null,
+        //     status: status
+        // })
+
+
+        let summary = <div
             dangerouslySetInnerHTML={{
                 __html: (props.in_grid ? props.data[props.elem.fields_index]
                     :
                     props.data[props.elem.name]) || "\u00a0"
             }}/>;
         if (props.in_grid) {
-            return result
+            return summary
         } else {
-            return <Panel header={props.elem.label} style={style}>
-                {result}
+            return <Panel className="l-slave-summary-panel"
+                          header={props.elem.label} style={style}>
+                <Button className="l-slave-summary-expand-button" icon="pi pi-external-link" className="p-button-secondary l-button-fk"/>
+                {summary}
             </Panel>
         }
 
@@ -169,14 +187,26 @@ const LinoComponents = {
     },
 
     TextFieldElement: (props) => {
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "\u00a0",
+            style = {
+                height: "100%",
+                display: "flex",
+                flexDirection: "column"
+            };
         return <React.Fragment>
-            <Editor style={{
-                // width: "100%",
-                // height: '100%'
-            }}
-                    value={(props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "\u00a0"}
-                    onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
-            />
+            <Panel header={props.elem.label} style={style}>
+
+                {props.prop_bundle.editing_mode ?
+                    <Editor style={{
+                        // width: "100%",
+                        // height: '100%'
+                    }}
+                            value={value}
+                            onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
+                    /> :
+                    <div dangerouslySetInnerHTML={{__html: value}}/>
+                }
+            </Panel>
         </React.Fragment>
 
     },
@@ -197,11 +227,17 @@ const LinoComponents = {
                                     // insert_action = actor.ba[actor.insert_action],
                                     // [packId, actorId] = props.elem.field_options.related_actor_id.split("."),
                                     pk = props.in_grid ? props.data[props.elem.fields_index + 1]
-                                        : props.data[props.elem.name + 'Hidden'];
+                                        : props.data[props.elem.name + 'Hidden'],
+                                    status = {record_id: pk};
+
+                                if (actor.slave) {
+                                    status.mk = props.prop_bundle.mk;
+                                    status.mt = props.prop_bundle.mt;
+                                }
                                 // console.log(props.elem, detail_action);
                                 window.App.runAction({
                                     an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
-                                    rp: null, status: {record_id: pk}
+                                    rp: null, status: status
                                 });
                                 // match.history.push(`/api/${packId}/${actorId}/${pk}`);
                             }}
@@ -217,13 +253,16 @@ const LinoComponents = {
         let [packId, actorId] = props.elem.actor_id.split("."); // "contacts.RolesByPerson"
 
         return <SiteContext.Consumer>{(siteData) => (<LinoGrid
+            inDetail={true}
             match={props.prop_bundle.match} // todo
             mk={props.prop_bundle.mk}
-            mt={siteData.actors[props.elem.actor_id].content_type} // Should this be a state rather than prop?
+            mt={props.prop_bundle.mt} // Correct: Should be content_type of the detail object, not of the grid actor
+            // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
             actorId={actorId}
             packId={packId}
             actorData={siteData.actors[props.elem.actor_id]}
         />)}</SiteContext.Consumer>
+
 
     },
 

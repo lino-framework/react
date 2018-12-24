@@ -32,9 +32,12 @@ Done
 
   * Improved CSS for unset data.
   * SlaveGrid
+  * Display mode components for all elements
 
 * Navigation
 
+  * Grid  have working 'expand' button.
+  * mt + mk add into url patterns.
   * Detail elements which are FK should have link to to the detail view of the object
   * HTML links for navigation
   * FK links in grid view
@@ -51,15 +54,15 @@ Roadmap For Hobbit
 
 !! means that it's likely for the next release
 
+* TopBar
+
+  * Remove templated items
+  * Add global search input
+
 * Navigation
 
-  * Slave summarise  + grid  need 'expand' button
-    Will require adding mt + mk into url patterns.
+  * Slave summarise have button, but not working
   * Search bar for and topbar !!
-
-
-* Detail View
-  * Display mode components for all elements
 
 
 

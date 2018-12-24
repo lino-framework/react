@@ -7,12 +7,15 @@ import key from "weak-key";
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 import {Paginator} from 'primereact/paginator';
+import {Button} from 'primereact/button';
+
 import LinoComponents from "./LinoComponents";
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 export class LinoGrid extends Component {
 
     static propTypes = {
+        inDetail: PropTypes.bool,
         match: PropTypes.object,
         actorId: PropTypes.string,
         packId: PropTypes.string,
@@ -21,7 +24,10 @@ export class LinoGrid extends Component {
         mk: PropTypes.string // we want to allow str / slug pks
         // todo: in_detail : PropTypes.bool
     };
-    static defaultProps = {};
+
+    static defaultProps = {
+        inDetail: false,
+    };
 
     constructor(props) {
         super(props);
@@ -41,6 +47,7 @@ export class LinoGrid extends Component {
         this.reload = this.reload.bind(this);
         this.onRowSelect = this.onRowSelect.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
+        this.expand = this.expand.bind(this);
 
 
     }
@@ -70,10 +77,41 @@ export class LinoGrid extends Component {
         }
     }
 
+    expand(e) {
+        let status = {};
+
+        if (this.props.actorData.slave) {
+            this.props.mt && (status.mt = this.props.mt);
+            this.props.mk && (status.mk = this.props.mk);
+        }
+
+        window.App.runAction({
+            an: "grid",
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            rp: null,
+            status: status
+        })
+
+    }
+
     onRowSelect(e) {
         let pk = e.data[this.props.actorData.pk_index];
         if (e.data[this.props.actorData.pk_index]) {
-            window.App.runAction({an:this.props.actorData.detail_action, actorId:`${this.props.packId}.${this.props.actorId}`,rp:null, status:{record_id: pk}});
+            let status = {
+                record_id: pk,
+            };
+
+            if (this.props.actorData.slave) {
+                this.props.mt && (status.mt = this.props.mt);
+                this.props.mk && (status.mk = this.props.mk);
+            }
+
+            window.App.runAction({
+                an: this.props.actorData.detail_action,
+                actorId: `${this.props.packId}.${this.props.actorId}`,
+                rp: null,
+                status: status
+            });
             // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
         }
         console.log(e.data);
@@ -91,16 +129,11 @@ export class LinoGrid extends Component {
             limit: this.state.rowsPerPage,
             start: (page || this.state.page) * this.state.rowsPerPage // Needed due to race condition when setting-state
             // todo pv
-            //
         };
-
-        if (this.props.mk) {
-            query.mk = this.props.mk;
+        if (this.props.actorData.slave) {
+            this.props.mk && (query.mk = this.props.mk);
+            this.props.mt && (query.mt = this.props.mt);
         }
-        if (this.props.mt) {
-            query.mt = this.props.mt;
-        }
-
         console.log("table pre-GET", query, this.state);
 
         fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify(query)}`).then(
@@ -120,6 +153,15 @@ export class LinoGrid extends Component {
                 });
             }
         )
+    }
+
+    componentDidUpdate(prevProps) {
+        // console.log("Detail compDidUpdate")
+        if (this.props.pk !== prevProps.pk ||
+            this.props.mk !== prevProps.mk ||
+            this.props.mt !== prevProps.mt) {
+            this.reload();
+        }
     }
 
     componentDidMount() {
@@ -145,10 +187,16 @@ export class LinoGrid extends Component {
                 this.reload({page: e.page});
 
             }}/>;
-
+        const header = <div className="p-clearfix" style={{'lineHeight':'1.87em'}}>
+            <span className="l-grid-header">{this.props.actorData.label}</span>
+            {this.props.inDetail && <Button className="l-button-expand-grid" onClick={this.expand}
+                    icon="pi pi-external-link"
+                    style={{'float': 'right'}}/>}
+        </div>;
 
         return <div>
             <DataTable
+                header={header}
                 footer={paginator}
                 responsive={true}
                 resizableColumns={true}

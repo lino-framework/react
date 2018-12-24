@@ -521,6 +521,10 @@ a {
   flex: auto;
   display: flex; }
 
+.l-slave-summary-panel .p-panel-content .p-button:first-child {
+  float: right;
+  margin-top: -44px; }
+
 @media (max-width: 600px) {
   .l-panel {
     flex-direction: column; }

@@ -32,7 +32,6 @@ import {Redirect} from 'react-router-dom';
 import {fetch as fetchPolyfill} from 'whatwg-fetch'
 
 
-
 import {SiteContext} from "./SiteContext"
 
 
@@ -232,22 +231,34 @@ class App extends React.Component {
      * @param an
      * @param actorId
      * @param rp
-     * @param status
+     * @param status uses keys: record_id, mk and mt for navigation data
      */
-    runAction = ({an, actorId, rp, status}= {}) => {
+    runAction = ({an, actorId, rp, status} = {}) => {
 
         console.log(an, actorId, rp, status);
+        let history_conf = {
+            pathname: `/api/${actorId.split(".").join("/")}/`,
+            search: {}
+        };
+
+        status.mk && (history_conf.search.mk = status.mk);
+        status.mt && (history_conf.search.mt = status.mt);
+        history_conf.search = queryString.stringify(history_conf.search);
+
+        // Only run grid detail and show actions
         if (an === "grid") {
-            this.router.history.push(`/api/${actorId.split(".").join("/")}/`);
         }
-        else if (an === "detail"){
-            this.router.history.push(`/api/${actorId.split(".").join("/")}/${status.record_id ? status.record_id : ""}`);
+        else if (an === "detail") {
+            history_conf.pathname += `${status.record_id ? status.record_id : ""}`
         }
-        else if (an === "show"){ // About
-            this.router.history.push(`/api/${actorId.split(".").join("/")}`);
-        } else {
-            console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`)
+        else if (an === "show") { /*About*/
         }
+        else {
+            console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
+            return
+        }
+        this.router.history.push(history_conf);
+
 
     };
 
@@ -355,11 +366,13 @@ class App extends React.Component {
                                     {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
                                     <Route path="/api/:packId/:actorId" render={(route) => {
                                         let key = route.match.params.packId + "." + route.match.params.actorId;
+                                        let parms = new URLSearchParams(route.location.search);
                                         console.log(key);
                                         return <Actor match={route}
                                                       actorId={route.match.params.actorId}
                                                       packId={route.match.params.packId}
-
+                                                      mk={parms.get("mk")}
+                                                      mt={parms.get("mt")}
                                             // makes react recreate the LinoGrid instance
                                                       key={key}
 
