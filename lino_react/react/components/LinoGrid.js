@@ -189,7 +189,7 @@ export class LinoGrid extends Component {
             }}/>;
         const header = <div className="p-clearfix" style={{'lineHeight':'1.87em'}}>
             <span className="l-grid-header">{this.props.actorData.label}</span>
-            {this.props.inDetail && <Button className="l-button-expand-grid" onClick={this.expand}
+            {this.props.inDetail && <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                     icon="pi pi-external-link"
                     style={{'float': 'right'}}/>}
         </div>;

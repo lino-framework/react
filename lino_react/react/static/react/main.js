@@ -26161,7 +26161,7 @@ function (_Component) {
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
         className: "l-grid-header"
       }, this.props.actorData.label), this.props.inDetail && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_7__["Button"], {
-        className: "l-button-expand-grid",
+        className: "l-button-expand-grid p-button-secondary",
         onClick: this.expand,
         icon: "pi pi-external-link",
         style: {
@@ -26373,14 +26373,32 @@ var LinoComponents = {
     if (props.in_grid) {
       return summary;
     } else {
+      // Unsure if the classNames are even passed to any HTML elems...
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_panel__WEBPACK_IMPORTED_MODULE_3__["Panel"], {
         className: "l-slave-summary-panel",
         header: props.elem.label,
         style: style
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_7__["Button"], _defineProperty({
-        className: "l-slave-summary-expand-button",
-        icon: "pi pi-external-link"
-      }, "className", "p-button-secondary l-button-fk")), summary);
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_7__["Button"], {
+        className: "l-slave-summary-expand-button p-button-secondary",
+        icon: "pi pi-external-link",
+        onClick: function onClick() {
+          var status = {
+            mk: props.prop_bundle.mk,
+            // No need to test for if-slave as it's a slave-summary
+            mt: props.prop_bundle.mt // We always know we need mk/mt be
+
+          }; // console.log(props.elem, detail_action);
+
+          window.App.runAction({
+            an: "grid",
+            // use default_action ??
+            actorId: props.elem.field_options.name.replace("_", "."),
+            // See elems.py, hopfully safe
+            rp: null,
+            status: status
+          });
+        }
+      }), summary);
     }
   },
   DisplayElement: function DisplayElement(props) {
@@ -26576,7 +26594,7 @@ var LinoComponents = {
 LinoComponents.Panel.defaultProps = {
   header: true
 };
-LinoComponents.HtmlBoxElement = LinoComponents.SlaveSummaryPanel;
+LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 /* harmony default export */ __webpack_exports__["default"] = (LinoComponents);
 
 /***/ }),

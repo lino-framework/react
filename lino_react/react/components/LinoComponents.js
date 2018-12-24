@@ -117,9 +117,21 @@ const LinoComponents = {
         if (props.in_grid) {
             return summary
         } else {
+            // Unsure if the classNames are even passed to any HTML elems...
             return <Panel className="l-slave-summary-panel"
                           header={props.elem.label} style={style}>
-                <Button className="l-slave-summary-expand-button" icon="pi pi-external-link" className="p-button-secondary l-button-fk"/>
+                <Button className="l-slave-summary-expand-button p-button-secondary" icon="pi pi-external-link" onClick={() => {
+                    let status = {
+                        mk: props.prop_bundle.mk, // No need to test for if-slave as it's a slave-summary
+                        mt: props.prop_bundle.mt // We always know we need mk/mt be
+                    };
+                    // console.log(props.elem, detail_action);
+                    window.App.runAction({
+                        an: "grid", // use default_action ??
+                        actorId: props.elem.field_options.name.replace("_","."), // See elems.py, hopfully safe
+                        rp: null, status: status
+                    });
+                }}/>
                 {summary}
             </Panel>
         }
@@ -296,6 +308,6 @@ const LinoComponents = {
 
 LinoComponents.Panel.defaultProps = {header: true};
 
-LinoComponents.HtmlBoxElement = LinoComponents.SlaveSummaryPanel;
+LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 
 export default LinoComponents;

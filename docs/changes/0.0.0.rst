@@ -36,7 +36,7 @@ Done
 
 * Navigation
 
-  * Grid  have working 'expand' button.
+  * Grid and slave summary elems have working 'expand' button.
   * mt + mk add into url patterns.
   * Detail elements which are FK should have link to to the detail view of the object
   * HTML links for navigation
@@ -61,7 +61,6 @@ Roadmap For Hobbit
 
 * Navigation
 
-  * Slave summarise have button, but not working
   * Search bar for and topbar !!
 
 
@@ -97,3 +96,8 @@ currently and there is no need to store them in the state until there is an inte
   * yes / no dialog
 * param window
 
+
+Minor debugs / optimizations
+----------------------------
+
+* Have name ref for field elems only in field_options

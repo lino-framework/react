@@ -20,8 +20,9 @@ describe("Basic tests for TeamReact", () => {
 //        cy.wait('@getMenu').debug();
 //        }
 //    );
-    it("SlaveGrids should update on nav update and be expandable", () => {
+    it("SlaveElems should update on nav update and be expandable", () => {
         cy.route('/api/tickets/TicketsBySite?**').as('getTicketData');
+        cy.route('/api/working/**').as('getSessionData');
 
         cy.visit("http://127.0.0.1:8000/#/api/tickets/Sites/1").wait("@getTicketData");
         cy.wait(200);
@@ -30,6 +31,7 @@ describe("Basic tests for TeamReact", () => {
         cy.get(".l-grid-header").contains("Tickets");
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(1)').click(); // 3ed row, 1st cell
         cy.get(".l-detail-header").contains("Tickets");
+        cy.get(".l-slave-summary-expand-button:first").click().wait("@getSessionData");
 
 
     });
