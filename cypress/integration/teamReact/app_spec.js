@@ -1,7 +1,10 @@
 describe("Basic tests for TeamReact", () => {
-    before(() => {
+    beforeEach(() => {
         cy.server();
-        cy.route('**/api/**').as('getData');
+        cy.route('/api/**').as('getData');
+        cy.route("post",'/auth/**').as('logIn');
+        cy.route('/auth/**').as('logOut');
+        cy.visit("/");
     });
 
 //    it("Test gen menu function", () => {
@@ -12,7 +15,7 @@ describe("Basic tests for TeamReact", () => {
 //        }
 //    );
     it("Should be possible to click on menu items and close menu", () => {
-        cy.visit("/");
+
         // Open first menu item
 
         cy.get('.layout-main-menu > :nth-child(1) > :nth-child(2)').click();
@@ -28,7 +31,6 @@ describe("Basic tests for TeamReact", () => {
     });
 
     it("Should be possible to login and out", () => {
-        cy.visit('/');
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
         cy.get("#signin-username").type("robin");
@@ -44,9 +46,6 @@ describe("Basic tests for TeamReact", () => {
     });
 
     it("Should be possible to log in again and navigate around ", () => {
-        cy.server();
-        cy.route('**/api/**').as('getData');
-        cy.visit('/');
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
         cy.get("#signin-username").type("robin");
@@ -54,21 +53,24 @@ describe("Basic tests for TeamReact", () => {
         cy.get(":nth-child(1) > .p-button-text").click();
         // logged in
         cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click(); // goto allTickets via html
-        cy.wait(200); // wait to load...
-        cy.get('.p-datatable-tbody > :nth-child(1)').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
+        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(1)').click(); // 3ed row, 1st cell
+        cy.wait("@getData"); // wait to load...
+
+        // Test nav arrows
         cy.get('.l-nav-last > .pi').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
         cy.get('.l-nav-first > .pi').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
         cy.get('.l-nav-prev > .pi').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
         cy.get('.l-nav-next > .pi').click();
 
+        // test detail -> other detail
         cy.get('.l-button-fk:first').click(); // opens Site
-        cy.wait(500);
-        cy.get(":nth-child(1) > :nth-child(2) > :nth-child(2) > div > a").click()
-        cy.wait(200); // wait to load...
+        cy.wait("@getData");
+        cy.get(":nth-child(1) > :nth-child(2) > :nth-child(2) > div > a").click();
+        cy.wait("@getData"); // wait to load...
         cy.get('.layout-home-button').click();
 
         cy.get(".layout-menu-button > .pi").click(); // open menu
@@ -77,14 +79,14 @@ describe("Basic tests for TeamReact", () => {
         cy.get(".active-menuitem > ul > :nth-child(3) > a").click();
 
         cy.get('.p-paginator-pages > :nth-child(2)').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
         cy.get('.p-paginator-prev').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
         cy.get('.p-paginator-next').click();
-        cy.wait(200); // wait to load...
+        cy.wait("@getData"); // wait to load...
 
         cy.get('.l-button-fk:first').click(); // opens Site again
-        cy.wait(200);
+        cy.wait("@getData");
         cy.get('.layout-home-button').click();
 
         cy.get(".layout-menu-button > .pi").click(); // open menu
