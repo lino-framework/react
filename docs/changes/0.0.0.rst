@@ -47,21 +47,19 @@ Done
 
  * Is hacked in action.render()
 
- 
+* TopBar
+
+  * Remove templated items
+
    
 Roadmap For Hobbit
 ==================
 
 !! means that it's likely for the next release
 
-* TopBar
-
-  * Remove templated items
-  * Add global search input
-
 * Navigation
 
-  * Search bar for and topbar !!
+  * Search bar for and topbar 
 
 
 
@@ -95,6 +93,10 @@ currently and there is no need to store them in the state until there is an inte
   * with params
   * yes / no dialog
 * param window
+
+* TopBar
+
+  * Add global search input
 
 
 Minor debugs / optimizations

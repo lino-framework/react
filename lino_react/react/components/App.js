@@ -53,6 +53,11 @@ class App extends React.Component {
             user_settings: null,
 
             logging_in: false,
+
+            // Topbar states // Disabled until global search api documentation is found.
+            // searchValue: "",
+            // searchSuggestions: []
+
         };
 
         this.onWrapperClick = this.onWrapperClick.bind(this);
@@ -62,6 +67,8 @@ class App extends React.Component {
 
         this.onSignOutIn = this.onSignOutIn.bind(this);
         this.onSignIn = this.onSignIn.bind(this);
+
+        // this.searchMethod = this.searchMethod.bind(this);
 
         this.fetch_user_settings();
 
@@ -263,6 +270,14 @@ class App extends React.Component {
     };
 
     /**
+     * global search method.
+     * @param query: string send to server to fetch thing.
+     */
+    searchMethod  = (query) => {
+        // fetchPolyfill()
+    };
+
+    /**
      * Converts sitedata menu data into Primereact menu data with functions
      *
      **/
@@ -318,7 +333,11 @@ class App extends React.Component {
         return (
             <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick}>
-                    <AppTopbar onToggleMenu={this.onToggleMenu}/>
+                    <AppTopbar onToggleMenu={this.onToggleMenu}
+                               // searchValue={this.state.searchValue}
+                               // searchMethod={}
+                               // searchSuggestions={}
+                    />
                     <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
                         <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
                             <div className="layout-sidebar-scroll-content">
