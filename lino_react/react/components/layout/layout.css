@@ -525,6 +525,12 @@ a {
   float: right;
   margin-top: -44px; }
 
+.l-grid-header {
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  right: 0; }
+
 @media (max-width: 600px) {
   .l-panel {
     flex-direction: column; }

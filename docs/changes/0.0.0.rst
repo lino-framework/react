@@ -14,8 +14,8 @@ General goal is to make the react frontend good enough so it can replace the cur
    text_
 
 
-Done
-====
+Changes
+=======
 
 * Reactive
 
@@ -31,6 +31,7 @@ Done
 
 * Detail View
 
+  * Quick Search
   * Improved CSS for unset data.
   * SlaveGrid
   * Display mode components for all elements
@@ -51,19 +52,6 @@ Done
 * TopBar
 
   * Remove templated items
-
-   
-Roadmap For Hobbit
-==================
-
-!! means that it's likely for the next release
-
-* Navigation
-
-  * Search bar for detail
-
-
-
 
 Later
 =====

@@ -136,7 +136,7 @@ export class LinoGrid extends Component {
             data: null,
             rows: []
         }
-        query !== undefined && (state.query = query) // update state if query passed to method
+        query !== undefined && (state.query = query); // update state if query passed to method
         this.setState(state);
 
         let ajax_query = {
@@ -147,12 +147,12 @@ export class LinoGrid extends Component {
             query: query !== undefined? query : this.state.query // use given query or state-query
         };
         if (this.props.actorData.slave) {
-            this.props.mk && (query.mk = this.props.mk);
-            this.props.mt && (query.mt = this.props.mt);
+            this.props.mk && (ajax_query.mk = this.props.mk);
+            this.props.mt && (ajax_query.mt = this.props.mt);
         }
-        console.log("table pre-GET", query, this.state);
+        // console.log("table pre-GET", ajax_query, this.state);
 
-        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `?${queryString.stringify(ajax_query)}`).then(
+        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
             (res) => (res.json())
         ).then(
             (data) => {

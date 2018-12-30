@@ -5,11 +5,13 @@ import queryString from 'query-string';
 
 import key from "weak-key";
 
-import {Column} from 'primereact/column';
 import {Toolbar} from 'primereact/toolbar';
 import {Button} from 'primereact/button';
+import {AutoComplete} from 'primereact/autocomplete';
 
 import LinoComponents from "./LinoComponents"
+import {debounce} from "./LinoUtils";
+
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 export class LinoDetail extends Component {
@@ -36,10 +38,14 @@ export class LinoDetail extends Component {
             id: null,
             title: "",
             navinfo: {},
+            searchSuggestions: [],
+            quickSearchQuery: ""
             // loading: true
         };
         this.reload = this.reload.bind(this);
         this.update_value = this.update_value.bind(this);
+        this.quickSearch = debounce(this.quickSearch.bind(this))
+
     }
 
     /**
@@ -59,7 +65,7 @@ export class LinoDetail extends Component {
         // console.log("Detail compDidUpdate")
         if (this.props.pk !== prevProps.pk ||
             this.props.mk !== prevProps.mk ||
-            this.props.mt !== prevProps.mt ) {
+            this.props.mt !== prevProps.mt) {
             this.reload();
         }
     }
@@ -101,6 +107,33 @@ export class LinoDetail extends Component {
         console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
     };
 
+    onNavClick(pk) {
+        window.App.runAction({
+            an: "detail",
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            rp: null,
+            status: {mk: this.props.mk, mt: this.props.mt, record_id: pk}
+        });
+    };
+
+
+    quickSearch(query) {
+        // if (query.length < 3) return;
+        let ajaxQuery = {
+            query: query,
+            start: 0,
+            //todo have pageing / some sort of max amount
+        };
+
+        fetchPolyfill(`/choices/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajaxQuery)}`).then(
+            (res) => (res.json())
+        ).then(
+            (data => this.setState({
+                searchSuggestions: data.rows,
+            }))
+        );
+    }
+
     render() {
         const layout = this.props.actorData.ba[this.props.actorData.detail_action].window_layout;
         // const Comp = "Table";
@@ -119,42 +152,44 @@ export class LinoDetail extends Component {
         prop_bundle.prop_bundle = prop_bundle;
 
 
-
         return (
             <React.Fragment>
                 <h1 className={"l-detail-header"}> {this.state.title || "\u00a0"} </h1>
 
                 <Toolbar>
-                    {this.state.navinfo && <React.Fragment>
-                        <Button disabled={!this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
-                                className="l-nav-first"
-                                icon="pi pi-angle-double-left"
-                                onClick={() => window.App.runAction({an:"detail",
-                                    actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.first}})}
-                        />
-                        <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
-                                className="l-nav-prev"
-                                icon="pi pi-angle-left"
-                                onClick={() => window.App.runAction({an:"detail",
-                                    actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.prev}})}
-                        />
-                        <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
-                                className="l-nav-next"
-                                icon="pi pi-angle-right"
-                                onClick={() => window.App.runAction({an:"detail",
-                                    actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.next}})}
-                        />
-                        <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
-                                className="l-nav-last"
-                                icon="pi pi-angle-double-right"
-                                onClick={() => window.App.runAction({an:"detail",
-                                    actorId:`${this.props.packId}.${this.props.actorId}`,
-                                    rp:null, status:{mk: this.props.mk, mt:this.props.mt, record_id: this.state.navinfo.last}})}
-                        />
-                    </React.Fragment>}
+
+                    <AutoComplete placeholder={"Quick Search"}
+                                  value={this.state.quickSearchQuery}
+                                  onChange={(e) => this.setState({quickSearchQuery: e.value})}
+                                  suggestions={this.state.searchSuggestions}
+                                  field={"text"} dropdown={true}
+                                  minLength={2}
+                                  completeMethod={(e) => this.quickSearch(e.query)}
+                                  onSelect={(e) => {
+                                      console.log("Search selection onSelect", e);
+                                      this.setState({quickSearchQuery: ""});
+                                      this.onNavClick(e.value.value)
+                                  }
+                                  }
+                    />
+                    <i className="pi pi-bars p-toolbar-separator" style={{marginRight:'.25em'}} />
+                    <Button disabled={!this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
+                            className="l-nav-first"
+                            icon="pi pi-angle-double-left"
+                            onClick={() => this.onNavClick(this.state.navinfo.first)}/>
+                    <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
+                            className="l-nav-prev"
+                            icon="pi pi-angle-left"
+                            onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
+                    <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
+                            className="l-nav-next"
+                            icon="pi pi-angle-right"
+                            onClick={() => this.onNavClick(this.state.navinfo.next)}/>
+                    <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
+                            className="l-nav-last"
+                            icon="pi pi-angle-double-right"
+                            onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+
                 </Toolbar>
                 <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
             </React.Fragment>

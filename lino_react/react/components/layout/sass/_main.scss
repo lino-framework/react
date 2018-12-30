@@ -558,9 +558,16 @@ a {
     display: flex;
 }
 
-.l-slave-summary-panel .p-panel-content .p-button:first-child{
+.l-slave-summary-panel .p-panel-content .p-button:first-child {
     float: right;
     margin-top: -44px;
+}
+
+.l-grid-header {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    right: 0;
 }
 
 @media (max-width: 600px) {
@@ -574,6 +581,7 @@ a {
         }
     }
 }
+
 /* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {
     .layout-wrapper {
