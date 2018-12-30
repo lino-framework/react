@@ -24,7 +24,8 @@ Done
 
 * Grid View
 
-  * Correctly rendered colunns + fields.
+  * Correctly rendered columns + fields.
+  * Correct column widths
   * Hidden Columns are hidden
   * basic Pagination
 
@@ -59,7 +60,7 @@ Roadmap For Hobbit
 
 * Navigation
 
-  * Search bar for and topbar 
+  * Search bar for detail
 
 
 
