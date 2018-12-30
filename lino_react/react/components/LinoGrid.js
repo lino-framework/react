@@ -227,7 +227,8 @@ export class LinoGrid extends Component {
                         <Column field={String(col.fields_index)}
                                 body={this.columnTemplate(col)}
                                 header={col.label}
-                                key={key(col)}/>
+                                key={key(col)}
+                                style={{width: `${col.width || col.preferred_width}ch`}}/>
                     )
                 )
                 }

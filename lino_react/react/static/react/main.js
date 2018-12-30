@@ -27261,7 +27261,10 @@ function (_Component) {
           field: String(col.fields_index),
           body: _this4.columnTemplate(col),
           header: col.label,
-          key: weak_key__WEBPACK_IMPORTED_MODULE_3___default()(col)
+          key: weak_key__WEBPACK_IMPORTED_MODULE_3___default()(col),
+          style: {
+            width: "".concat(col.width || col.preferred_width, "ch")
+          }
         });
       })));
     }

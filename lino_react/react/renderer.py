@@ -208,8 +208,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           react_name=v.__class__.__name__)  # Used for choosing correct react component
             if hasattr(v, "elements"):
                 result['items'] = v.elements
-            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width \
+            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width preferred_width\
                                       hidden value hflex vflex"))
+            # result["width"] = v.width or v.preferred_width
             # Slave tables
             if hasattr(v, "actor"):
                 # reference to actor data for slave-grids
