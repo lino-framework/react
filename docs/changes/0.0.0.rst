@@ -103,3 +103,5 @@ Minor debugs / optimizations
 ----------------------------
 
 * Have name ref for field elems only in field_options
+* Improve design of grid toolbar for action buttons + other tools
+* Improve design of Detail toolbar for nav buttons, action buttons and more.
