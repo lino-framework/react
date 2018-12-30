@@ -24,9 +24,13 @@ export class LinoDetail extends Component {
         pk: PropTypes.string,
 
         mt: PropTypes.int,
-        mk: PropTypes.string // we want to allow str / slug pks
+        mk: PropTypes.string, // we want to allow str / slug pks
+
+        noToolbar: PropTypes.bool
     };
-    static defaultProps = {};
+    static defaultProps = {
+        noToolbar: false,
+    };
 
     constructor() {
         super();
@@ -157,7 +161,7 @@ export class LinoDetail extends Component {
                 <h1 className={"l-detail-header"}> {this.state.title || "\u00a0"} </h1>
 
                 <Toolbar>
-
+                    {!this.props.noToolbar && <React.Fragment>
                     <AutoComplete placeholder={"Quick Search"}
                                   value={this.state.quickSearchQuery}
                                   onChange={(e) => this.setState({quickSearchQuery: e.value})}
@@ -172,24 +176,24 @@ export class LinoDetail extends Component {
                                   }
                                   }
                     />
-                    <i className="pi pi-bars p-toolbar-separator" style={{marginRight:'.25em'}} />
-                    <Button disabled={!this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
-                            className="l-nav-first"
-                            icon="pi pi-angle-double-left"
-                            onClick={() => this.onNavClick(this.state.navinfo.first)}/>
-                    <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
-                            className="l-nav-prev"
-                            icon="pi pi-angle-left"
-                            onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
-                    <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
-                            className="l-nav-next"
-                            icon="pi pi-angle-right"
-                            onClick={() => this.onNavClick(this.state.navinfo.next)}/>
-                    <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
-                            className="l-nav-last"
-                            icon="pi pi-angle-double-right"
-                            onClick={() => this.onNavClick(this.state.navinfo.last)}/>
-
+                    < i className="pi pi-bars p-toolbar-separator" style={{marginRight:'.25em'}} />
+                        <Button disabled={!this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
+                        className="l-nav-first"
+                        icon="pi pi-angle-double-left"
+                        onClick={() => this.onNavClick(this.state.navinfo.first)}/>
+                        <Button disabled={!this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
+                        className="l-nav-prev"
+                        icon="pi pi-angle-left"
+                        onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
+                        <Button disabled={!this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
+                        className="l-nav-next"
+                        icon="pi pi-angle-right"
+                        onClick={() => this.onNavClick(this.state.navinfo.next)}/>
+                        <Button disabled={!this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
+                        className="l-nav-last"
+                        icon="pi pi-angle-double-right"
+                        onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+                    </React.Fragment>}
                 </Toolbar>
                 <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
             </React.Fragment>

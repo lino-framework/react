@@ -26924,7 +26924,8 @@ function (_Component) {
             ,
             actorData: _this2.props.actorData,
             mk: _this2.props.mk,
-            mt: _this2.props.mt
+            mt: _this2.props.mt,
+            noToolbar: true
           });
         }
       }));
@@ -47239,7 +47240,7 @@ function (_Component) {
       prop_bundle.prop_bundle = prop_bundle;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", {
         className: "l-detail-header"
-      }, " ", this.state.title || "\xA0", " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_toolbar__WEBPACK_IMPORTED_MODULE_4__["Toolbar"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_autocomplete__WEBPACK_IMPORTED_MODULE_6__["AutoComplete"], {
+      }, " ", this.state.title || "\xA0", " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_toolbar__WEBPACK_IMPORTED_MODULE_4__["Toolbar"], null, !this.props.noToolbar && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_autocomplete__WEBPACK_IMPORTED_MODULE_6__["AutoComplete"], {
         placeholder: "Quick Search",
         value: this.state.quickSearchQuery,
         onChange: function onChange(e) {
@@ -47296,7 +47297,7 @@ function (_Component) {
         onClick: function onClick() {
           return _this4.onNavClick(_this4.state.navinfo.last);
         }
-      })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
+      }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
         elem: layout.main,
         title: this.state.title,
         main: true
@@ -47313,10 +47314,13 @@ LinoDetail.propTypes = {
   actorData: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   pk: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
   mt: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.int,
-  mk: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string // we want to allow str / slug pks
-
+  mk: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
+  // we want to allow str / slug pks
+  noToolbar: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool
 };
-LinoDetail.defaultProps = {};
+LinoDetail.defaultProps = {
+  noToolbar: false
+};
 ;
 
 /***/ }),

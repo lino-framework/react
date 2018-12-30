@@ -82,6 +82,7 @@ export class Actor extends Component {
                     actorData={this.props.actorData}
                     mk={this.props.mk}
                     mt={this.props.mt}
+                    noToolbar={true}
                 />)}
 
             />
