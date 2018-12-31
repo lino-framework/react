@@ -112,8 +112,28 @@ describe("Basic tests for TeamReact", () => {
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(1)').click();
         cy.log("Entering last session record for this site");
         cy.get('.l-nav-first > .pi').click().wait("@getData");
-    })
+    });
 
+    it("Should allow quick filtering of grid view", () => {
+        cy.route('/api/**').as('getData');
+        cy.visit("http://127.0.0.1:8000/#/api/tickets/AllTickets").wait("@getData");
+
+        cy.get(".l-grid-quickfilter").type("foo");
+        cy.wait("@getData");
+        cy.get(".l-grid-quickfilter").type(" so bar");
+        cy.get('.p-datatable-tbody > :nth-child(1) > .l-grid-col-summary').contains("Why is foo so bar");
+    });
+
+
+    it("Should be possible to navigate to another detail using quick find", () => {
+        cy.route('/api/**').as('getData');
+        cy.route('/choices/**').as('getChoices');
+        cy.visit("http://127.0.0.1:8000/#/api/tickets/Tickets/1").wait("@getData");
+        cy.get(".l-detail-quicksearch input").type("68");
+        cy.get('.p-autocomplete-list-item').click();
+        cy.get(".l-detail-header").contains("#68");
+
+    });
 
     // more tests here
 });

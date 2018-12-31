@@ -525,11 +525,8 @@ a {
   float: right;
   margin-top: -44px; }
 
-.l-grid-header {
-  display: inline-block;
-  position: absolute;
-  left: 0;
-  right: 0; }
+body .l-grid .p-datatable .p-datatable-header {
+  padding: 0.15em 0.25em; }
 
 @media (max-width: 600px) {
   .l-panel {

@@ -44,7 +44,9 @@ export class LinoGrid extends Component {
             page: 0,
             topRow: 0,
             // todo pvs: paramValues: [],
-            query:""
+            query: "",
+
+            loading:true
 
         };
         this.reload = debounce(this.reload.bind(this), 200);
@@ -122,10 +124,10 @@ export class LinoGrid extends Component {
     }
 
 
-    quickFilter (query) {
+    quickFilter(query) {
         // in own method so we can use it as a debouce
-        this.setState({query:query});
-        this.reload({query:query});
+        this.setState({query: query});
+        this.reload({query: query});
 //        this.log(query);
     }
 
@@ -133,9 +135,10 @@ export class LinoGrid extends Component {
 
     reload({page = undefined, query = undefined} = {}) {
         let state = {
-            data: null,
-            rows: []
-        }
+            // data: null,
+            // rows: [],
+            loading:true,
+        };
         query !== undefined && (state.query = query); // update state if query passed to method
         this.setState(state);
 
@@ -144,7 +147,7 @@ export class LinoGrid extends Component {
             limit: this.state.rowsPerPage,
             start: (page || this.state.page) * this.state.rowsPerPage, // Needed due to race condition when setting-state
             // todo pv
-            query: query !== undefined? query : this.state.query // use given query or state-query
+            query: query !== undefined ? query : this.state.query // use given query or state-query
         };
         if (this.props.actorData.slave) {
             this.props.mk && (ajax_query.mk = this.props.mk);
@@ -164,6 +167,7 @@ export class LinoGrid extends Component {
                     rows: rows,
                     totalRecords: data.count,
                     topRow: (page || this.state.page) * this.state.rowsPerPage,
+                    loading: false,
                     // beware race conditions
                     // pv: data.paramValues
                 });
@@ -203,16 +207,24 @@ export class LinoGrid extends Component {
                 this.reload({page: e.page});
 
             }}/>;
-        const header = <div className="p-clearfix" style={{'lineHeight': '1.87em'}}>
-            <InputText placeholder="QuickSearch" /*value={this.state.query}*/ style={{'float': 'left'}} onChange={(e) => this.quickFilter(e.target.value)}/>
+        const header = <div className="p-clearfix p-grid"
+            // style={{'lineHeight': '1.87em'}}
+        >
+            <div className={"p-col p-justify-end"} style={{"text-align": "left"}}>
+                {!this.props.inDetail && <InputText className="l-grid-quickfilter"
+                                                    placeholder="QuickSearch" /*value={this.state.query}*/
+                                                    onChange={(e) => this.quickFilter(e.target.value)}/>}
+            </div>
+            <div className={"p-col p-justify-center"}><span
+                className="l-grid-header">{this.props.actorData.label}</span></div>
 
-            <span className="l-grid-header">{this.props.actorData.label}</span>
-            {this.props.inDetail && <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
-                                            icon="pi pi-external-link"
-                                            style={{'float': 'right'}}/>}
+            <div className={"p-col p-justify-end"}>{this.props.inDetail &&
+            <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
+                    icon="pi pi-external-link"
+                    style={{'float': 'right'}}/>}</div>
         </div>;
 
-        return <div>
+        return <div className={"l-grid"}>
             <DataTable
                 header={header}
                 footer={paginator}
@@ -221,14 +233,15 @@ export class LinoGrid extends Component {
                 value={rows} paginator={false} selectionMode="single"
                 onSelectionChange={e => this.setState({selectedRow: e.value})}
                 onRowSelect={this.onRowSelect}
-                loading={this.state.data === null}
+                loading={this.state.loading}
             >
                 {this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name]).map((col, i) => (
                         <Column field={String(col.fields_index)}
                                 body={this.columnTemplate(col)}
                                 header={col.label}
                                 key={key(col)}
-                                style={{width: `${col.width || col.preferred_width}ch`}}/>
+                                style={{width: `${col.width || col.preferred_width}ch`}}
+                                className={`l-grid-col-${col.name}`}/>
                     )
                 )
                 }

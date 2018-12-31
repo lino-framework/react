@@ -563,11 +563,13 @@ a {
     margin-top: -44px;
 }
 
-.l-grid-header {
-    display: inline-block;
-    position: absolute;
-    left: 0;
-    right: 0;
+body .l-grid .p-datatable .p-datatable-header{
+    padding: 0.15em 0.25em;
+    //display: inline-block;
+    //position: absolute;
+    //left: 0;
+    //right: 0;
+    //z-index: -1;
 }
 
 @media (max-width: 600px) {
