@@ -224,12 +224,19 @@ class Renderer(JsRenderer, JsCacheRenderer):
             # Layout entry-point
             return dict(main=v.main)
         if isinstance(v, BoundAction):
+
             # todo include all aux info
             # todo include grid info
-            return dict(an=v.action.get_label(),
-                        window_action=v.action.is_window_action(),
-                        window_layout=v.get_layout_handel(),
-                        )
+            # todo refactor this into a all_actions object and have the bound actions ref it to reduse json size
+            result = dict(an=v.action.get_label(),
+                          window_action=v.action.is_window_action(),
+                          window_layout=v.get_layout_handel(),
+                          )
+
+            # if v.action.show_in_bbar: result["bbar"] = True # not needed
+            if v.action.combo_group: result["combo_group"] = v.action.combo_group
+
+            return result
         if isclass(v) and issubclass(v, Actor):
             result = dict(id=v.actor_id,
                           ba=v.actions,
@@ -237,6 +244,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           slave=bool(v.master)
                           # [py2js(b) for b in v.actions.items()]
                           )
+            if v.default_action.action.window_type: result["toolbarActions"] = [ba.action.action_name for ba in
+                                                                                v.get_toolbar_actions(
+                                                                                    v.default_action.action)]
             # grids
             if hasattr(v.get_handle(), "get_columns"):
                 result['col'] = v.get_handle().get_columns()
@@ -296,7 +306,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
         a = bound_action.action
         # fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
-        actorId, an= bound_action.full_name().rsplit(".", 1)  # moves action name to first arg,
+        actorId, an = bound_action.full_name().rsplit(".", 1)  # moves action name to first arg,
 
         if a.opens_a_window or (a.parameters and not a.no_params_window):
             if request and request.subst_user:

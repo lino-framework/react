@@ -2,8 +2,9 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 
 import queryString from 'query-string';
-
 import key from "weak-key";
+import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
+
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
 import {Paginator} from 'primereact/paginator';
@@ -13,7 +14,6 @@ import {InputText} from 'primereact/inputtext';
 import {debounce} from "./LinoUtils";
 
 import LinoComponents from "./LinoComponents";
-import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 export class LinoGrid extends Component {
 
@@ -46,7 +46,7 @@ export class LinoGrid extends Component {
             // todo pvs: paramValues: [],
             query: "",
 
-            loading:true
+            loading: true
 
         };
         this.reload = debounce(this.reload.bind(this), 200);
@@ -55,6 +55,7 @@ export class LinoGrid extends Component {
         this.columnTemplate = this.columnTemplate.bind(this);
         this.expand = this.expand.bind(this);
         this.quickFilter = this.quickFilter.bind(this);
+        this.runAction = this.runAction.bind(this);
 
     }
 
@@ -100,7 +101,25 @@ export class LinoGrid extends Component {
 
     }
 
-    onRowSelect(e) {
+    /**
+     * Passed to toolbar and context menu
+     *
+     * * @param an: string, action name of action to be run
+     */
+
+    runAction(an) {
+        let sr = this.//https://jane.saffre-rumma.net/api/working/Sessions/11119?_dc=1546445609030&sr=11119&an=end_session
+        fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}/${sr}?${queryString({sr: sr, an: an})}`).then(
+            (req) => req.json()
+        ).then((data) => {
+                console.log(data);
+            }
+        );
+        // console.log(an);
+    }
+
+    onRowSelect(e,d,t) {
+        console.log("onRowSelect", e,d,t);
         let pk = e.data[this.props.actorData.pk_index];
         if (e.data[this.props.actorData.pk_index]) {
             let status = {
@@ -137,15 +156,17 @@ export class LinoGrid extends Component {
         let state = {
             // data: null,
             // rows: [],
-            loading:true,
+            loading: true,
         };
         query !== undefined && (state.query = query); // update state if query passed to method
-        this.setState(state);
+        page && (state.page = page);
+        page = page || this.state.page;
 
+        this.setState(state);
         let ajax_query = {
             fmt: "json",
             limit: this.state.rowsPerPage,
-            start: (page || this.state.page) * this.state.rowsPerPage, // Needed due to race condition when setting-state
+            start: page * this.state.rowsPerPage, // Needed due to race condition when setting-state
             // todo pv
             query: query !== undefined ? query : this.state.query // use given query or state-query
         };
@@ -168,6 +189,7 @@ export class LinoGrid extends Component {
                     totalRecords: data.count,
                     topRow: (page || this.state.page) * this.state.rowsPerPage,
                     loading: false,
+                    // page: page
                     // beware race conditions
                     // pv: data.paramValues
                 });
@@ -214,6 +236,8 @@ export class LinoGrid extends Component {
                 {!this.props.inDetail && <InputText className="l-grid-quickfilter"
                                                     placeholder="QuickSearch" /*value={this.state.query}*/
                                                     onChange={(e) => this.quickFilter(e.target.value)}/>}
+
+
             </div>
             <div className={"p-col p-justify-center"}><span
                 className="l-grid-header">{this.props.actorData.label}</span></div>
@@ -222,6 +246,15 @@ export class LinoGrid extends Component {
             <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                     icon="pi pi-external-link"
                     style={{'float': 'right'}}/>}</div>
+            {!this.props.inDetail && <div className={"p-col-12"} style={{"text-align": "left"}}>
+                <Button icon={"pi pi-refresh"} onClick={this.reload}/>
+                {this.props.actorData.toolbarActions.map((an) => {
+                    return <Button label={an} key={an} onClick={this.runAction}/>
+
+                })}
+                {/*<LinoBbar actorData={this.props.actorData} sr={this.state.selectedRow}*/}
+                {/*runAction={this.runAction}/>*/}
+            </div>}
         </div>;
 
         return <div className={"l-grid"}>
@@ -232,9 +265,13 @@ export class LinoGrid extends Component {
                 resizableColumns={true}
                 value={rows} paginator={false} selectionMode="single"
                 onSelectionChange={e => this.setState({selectedRow: e.value})}
-                onRowSelect={this.onRowSelect}
+                onRowSelect={this.onRowSelect} // Todo: allow multi-selection
+                selection={this.state.selectedRow}
+                selectionMode="multiple"
                 loading={this.state.loading}
             >
+                {/*<Column selectionMode="multiple" style={{width: '2em'}}/>*/}
+
                 {this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name]).map((col, i) => (
                         <Column field={String(col.fields_index)}
                                 body={this.columnTemplate(col)}
