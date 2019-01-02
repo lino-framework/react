@@ -8,9 +8,10 @@
 .. toctree::
    :maxdepth: 1
 
+   1.0.0
    0.0.0
 
-Design queations
+Design Questions
 ================
 
 translating actions into urls.

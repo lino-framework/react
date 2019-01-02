@@ -1,21 +1,28 @@
-import classNames from 'classnames';
+
 import React from "react";
 import ReactDOM from "react-dom";
+
+import classNames from 'classnames';
+import queryString from "query-string"
+
 import DataProvider from "./DataProvider";
 import Table from "./Table";
 import Menu from "./Menu";
-import {Sidebar} from 'primereact/sidebar';
-import {PanelMenu} from 'primereact/panelmenu';
-import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 import {AppMenu} from './AppMenu';
 import {AppTopbar} from './AppTopbar';
 import {AppInlineProfile} from "./AppInlineProfile"
 import {SignInDialog} from './SignInDialog'
-import {ProgressSpinner} from 'primereact/progressspinner';
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
+
+
+import {Sidebar} from 'primereact/sidebar';
+import {PanelMenu} from 'primereact/panelmenu';
+import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 //import {OverlayPanel} from 'primereact/overlaypanel';
+import {ProgressSpinner} from 'primereact/progressspinner';
 import {Dialog} from 'primereact/dialog';
+
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -23,7 +30,7 @@ import 'primeflex/primeflex.css';
 
 import './layout/layout.css';
 import './App.css';
-import queryString from "query-string"
+
 
 import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 

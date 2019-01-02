@@ -51,46 +51,4 @@ Changes
 
 * TopBar
 
-  * Remove templated items
-
-Later
-=====
-
-Toggleable columns for Grid
----------------------------
-This will require adding a toolbar / header to the grid and a multi-select element.
-There should be a state.array which is bool values for each of the columns, generated from site-data on componentMount.
-
-
-ParamValues
------------
-If pvs' are not sent to the server with a grid data request, the default pv's are applied. As such they do 'work'
-currently and there is no need to store them in the state until there is an interface to modify them.
-
-* Grid
-
-  * Correct Column Widths
-  * Modifiable columns widths
-  * Hide Toggleable columns
-  * parm values filter window
-  * modifiable rows per page.
-  * small pager for slave-grid
-  * have pagination page part of url ?
-
-* Editing
-* Dialogs
-  * with params
-  * yes / no dialog
-* param window
-
-* TopBar
-
-  * Add global search input
-
-
-Minor debugs / optimizations
-----------------------------
-
-* Have name ref for field elems only in field_options
-* Improve design of grid toolbar for action buttons + other tools
-* Improve design of Detail toolbar for nav buttons, action buttons and more.
+  * Remove placeholder buttons from template.

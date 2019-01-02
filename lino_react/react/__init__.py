@@ -76,7 +76,10 @@ class Plugin(Plugin):
                 views.Callbacks.as_view()),
 
             url(rx+ r'choicelists/',
-                views.ChoiceListModel.as_view())
+                views.ChoiceListModel.as_view()),
+
+            # url(rx + "static/(?<Pstatic_path>.+)",
+            #     views.StaticRedirect.as_view())
 
         ]
         return urls
