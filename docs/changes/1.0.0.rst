@@ -26,7 +26,8 @@ Edit mode for Detail view
 "Are you sure you wish to lave this page" confermation
     Detail view needs a safety feature which stops users from loosing imputed data.
 
-Yes / No confirmation dialog.
+Dialogs
+    Yes / No confirmation  as well as param dialogs
     Requires the dialog which will continue a thread on the server,
     This is used in delete actions
 
@@ -54,8 +55,16 @@ Roadmap
 
 The basic order of completion ought to be:
 
-#.
-
+#. Action Toolbar
+#. Edit Button for detail
+#. Simple Actions
+#. FK chooser elem
+#. Choice list elem
+#. Dialog system
+#. yes / no dialogs
+#. Param Actions
+#. Editable Grid
+#. Grid optimizations
 
 ParamValues
 -----------
