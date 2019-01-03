@@ -118,8 +118,8 @@ export class LinoGrid extends Component {
         // console.log(an);
     }
 
-    onRowSelect(e,d,t) {
-        console.log("onRowSelect", e,d,t);
+    onRowSelect(e, d, t) {
+        console.log("onRowSelect", e, d, t);
         let pk = e.data[this.props.actorData.pk_index];
         if (e.data[this.props.actorData.pk_index]) {
             let status = {
@@ -270,15 +270,15 @@ export class LinoGrid extends Component {
                 selectionMode="multiple"
                 loading={this.state.loading}
             >
-                {/*<Column selectionMode="multiple" style={{width: '2em'}}/>*/}
 
-                {this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name]).map((col, i) => (
-                        <Column field={String(col.fields_index)}
-                                body={this.columnTemplate(col)}
-                                header={col.label}
-                                key={key(col)}
-                                style={{width: `${col.width || col.preferred_width}ch`}}
-                                className={`l-grid-col-${col.name}`}/>
+                {["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
+                        col === "SelectCol" ? <Column selectionMode="multiple" style={{width: '2em'}}/> :
+                            <Column field={String(col.fields_index)}
+                                    body={this.columnTemplate(col)}
+                                    header={col.label}
+                                    key={key(col)}
+                                    style={{width: `${col.width || col.preferred_width}ch`}}
+                                    className={`l-grid-col-${col.name}`}/>
                     )
                 )
                 }
