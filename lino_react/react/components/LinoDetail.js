@@ -115,8 +115,11 @@ export class LinoDetail extends Component {
         window.App.runAction({
             an: "detail",
             actorId: `${this.props.packId}.${this.props.actorId}`,
-            rp: null,
-            status: {mk: this.props.mk, mt: this.props.mt, record_id: pk}
+            rp: this,
+            status: {
+                base_params: {mk: this.props.mk, mt: this.props.mt},
+                record_id: pk
+            }
         });
     };
 

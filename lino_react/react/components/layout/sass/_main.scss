@@ -563,13 +563,25 @@ a {
     margin-top: -44px;
 }
 
-body .l-grid .p-datatable .p-datatable-header{
+body .l-grid .p-datatable .p-datatable-header {
     padding: 0.15em 0.25em;
     //display: inline-block;
     //position: absolute;
     //left: 0;
     //right: 0;
     //z-index: -1;
+
+    .p-button {
+        margin-right: 2px;
+        margin-bottom: 1px;
+        // Possiblly make the action button smaller...
+        //.p-button-text-only .p-button-text {
+        //    padding: 0 1em;
+        //}
+        //.p-button-icon-only .p-button-icon {
+        //    padding: 0 0.5em;
+        //}
+    }
 }
 
 @media (max-width: 600px) {

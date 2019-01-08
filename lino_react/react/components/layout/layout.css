@@ -527,6 +527,9 @@ a {
 
 body .l-grid .p-datatable .p-datatable-header {
   padding: 0.15em 0.25em; }
+  body .l-grid .p-datatable .p-datatable-header .p-button {
+    margin-right: 2px;
+    margin-bottom: 1px; }
 
 @media (max-width: 600px) {
   .l-panel {

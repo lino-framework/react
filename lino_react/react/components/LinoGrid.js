@@ -46,10 +46,13 @@ export class LinoGrid extends Component {
             // todo pvs: paramValues: [],
             query: "",
 
+            selectedRows: [],
+            title: "", // defaults to actor label?
             loading: true
 
         };
         this.reload = debounce(this.reload.bind(this), 200);
+        this.refresh = this.reload;
 //        this.log = debounce(this.log.bind(this), 200);
         this.onRowSelect = this.onRowSelect.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
@@ -85,11 +88,11 @@ export class LinoGrid extends Component {
     }
 
     expand(e) {
-        let status = {};
+        let status = {base_params: {}};
 
         if (this.props.actorData.slave) {
-            this.props.mt && (status.mt = this.props.mt);
-            this.props.mk && (status.mk = this.props.mk);
+            this.props.mt && (status.base_params.mt = this.props.mt);
+            this.props.mk && (status.base_params.mk = this.props.mk);
         }
 
         window.App.runAction({
@@ -108,38 +111,56 @@ export class LinoGrid extends Component {
      */
 
     runAction(an) {
-        let sr = this.//https://jane.saffre-rumma.net/api/working/Sessions/11119?_dc=1546445609030&sr=11119&an=end_session
-        fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}/${sr}?${queryString({sr: sr, an: an})}`).then(
-            (req) => req.json()
-        ).then((data) => {
-                console.log(data);
-            }
-        );
-        // console.log(an);
+        //https://jane.saffre-rumma.net/api/working/Sessions/11119?_dc=1546445609030&sr=11119&an=end_session
+
+        let sr = this.state.selectedRows.map((row) => row[this.props.actorData.pk_index]);
+
+        window.App.runAction({
+            an: an,
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            rp: this,
+            status: status,
+            sr: sr
+        });
     }
 
-    onRowSelect(e, d, t) {
-        console.log("onRowSelect", e, d, t);
-        let pk = e.data[this.props.actorData.pk_index];
-        if (e.data[this.props.actorData.pk_index]) {
+
+    /**
+     *
+     * Row selection event on grid, either selects the row or opens a detail action.
+     *
+     * @param originalEvent
+     * @param d
+     * @param type ``"radio" | "checkbox" | "row"` ``
+     */
+    onRowSelect({originalEvent, data, type}) {
+        console.log("onRowSelect", originalEvent, data, type);
+        originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
+        if (type === "checkbox" || type === "radio") {
+            return // We only want selection, no nav.
+        }
+        let pk = data[this.props.actorData.pk_index];
+        if (data[this.props.actorData.pk_index]) {
             let status = {
                 record_id: pk,
+                base_params: {}
             };
 
             if (this.props.actorData.slave) {
-                this.props.mt && (status.mt = this.props.mt);
-                this.props.mk && (status.mk = this.props.mk);
+
+                this.props.mt && (status.base_params.mt = this.props.mt);
+                this.props.mk && (status.base_params.mk = this.props.mk);
             }
 
             window.App.runAction({
                 an: this.props.actorData.detail_action,
                 actorId: `${this.props.packId}.${this.props.actorId}`,
-                rp: null,
+                rp: this,
                 status: status
             });
             // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
         }
-        console.log(e.data);
+        // console.log(data);
     }
 
 
@@ -189,6 +210,7 @@ export class LinoGrid extends Component {
                     totalRecords: data.count,
                     topRow: (page || this.state.page) * this.state.rowsPerPage,
                     loading: false,
+                    title: data.title
                     // page: page
                     // beware race conditions
                     // pv: data.paramValues
@@ -240,7 +262,7 @@ export class LinoGrid extends Component {
 
             </div>
             <div className={"p-col p-justify-center"}><span
-                className="l-grid-header">{this.props.actorData.label}</span></div>
+                className="l-grid-header">{this.state.title || this.props.actorData.label}</span></div>
 
             <div className={"p-col p-justify-end"}>{this.props.inDetail &&
             <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
@@ -249,10 +271,12 @@ export class LinoGrid extends Component {
             {!this.props.inDetail && <div className={"p-col-12"} style={{"text-align": "left"}}>
                 <Button icon={"pi pi-refresh"} onClick={this.reload}/>
                 {this.props.actorData.toolbarActions.map((an) => {
-                    return <Button label={an} key={an} onClick={this.runAction}/>
+                    return <Button label={an} key={an}
+                                   disabled={this.props.actorData.ba[an].select_rows && this.state.selectedRows.length === 0}
+                                   onClick={() => this.runAction(an)}/>
 
                 })}
-                {/*<LinoBbar actorData={this.props.actorData} sr={this.state.selectedRow}*/}
+                {/*<LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows}*/}
                 {/*runAction={this.runAction}/>*/}
             </div>}
         </div>;
@@ -263,16 +287,18 @@ export class LinoGrid extends Component {
                 footer={paginator}
                 responsive={true}
                 resizableColumns={true}
-                value={rows} paginator={false} selectionMode="single"
-                onSelectionChange={e => this.setState({selectedRow: e.value})}
-                onRowSelect={this.onRowSelect} // Todo: allow multi-selection
-                selection={this.state.selectedRow}
+                value={rows} paginator={false}
+                // selectionMode="single"
                 selectionMode="multiple"
+                onSelectionChange={e => this.setState({selectedRows: e.value})}
+                onRowSelect={this.onRowSelect} // Todo: allow multi-selection
+                selection={this.state.selectedRows}
                 loading={this.state.loading}
             >
 
                 {["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
-                        col === "SelectCol" ? <Column selectionMode="multiple" style={{width: '2em'}}/> :
+                        col === "SelectCol" ? <Column selectionMode="multiple"
+                                                      style={{width: '2em', "padding": "unset", "text-align": "center"}}/> :
                             <Column field={String(col.fields_index)}
                                     body={this.columnTemplate(col)}
                                     header={col.label}

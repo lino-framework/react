@@ -1,4 +1,3 @@
-
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -22,6 +21,7 @@ import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {Dialog} from 'primereact/dialog';
+import {Growl} from 'primereact/growl';
 
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -74,6 +74,9 @@ class App extends React.Component {
 
         this.onSignOutIn = this.onSignOutIn.bind(this);
         this.onSignIn = this.onSignIn.bind(this);
+
+        this.handleActionResponce = this.handleActionResponce.bind(this);
+        this.runAction = this.runAction.bind(this);
 
         // this.searchMethod = this.searchMethod.bind(this);
 
@@ -242,36 +245,73 @@ class App extends React.Component {
      * Called by eval'd js from the server in html elems, as well as internall for navigation.
      *
      * Has only basic suport for navigation
-     * @param an
-     * @param actorId
-     * @param rp
-     * @param status uses keys: record_id, mk and mt for navigation data
+     * @param an, string, name of action
+     * @param actorId ID for actor, in . notation ie: tickets.AllTickets
+     * @param rp instance that's running the action, grid / detail component
+     * @param status uses keys: record_id, mk and mt for navigation data,
      */
-    runAction = ({an, actorId, rp, status} = {}) => {
+    runAction = ({an, actorId, rp, status, sr} = {}) => {
 
-        console.log(an, actorId, rp, status);
-        let history_conf = {
-            pathname: `/api/${actorId.split(".").join("/")}/`,
-            search: {}
-        };
+        // console.log(an, actorId, rp, status);
 
-        status.mk && (history_conf.search.mk = status.mk);
-        status.mt && (history_conf.search.mt = status.mt);
-        history_conf.search = queryString.stringify(history_conf.search);
+        // Grid show and detail actions change url to correct page.
+        if (an === "grid" || an === "show" || an === "detail") {
+            let history_conf = {
+                pathname: `/api/${actorId.split(".").join("/")}/`,
+                search: {}
+            };
+            if (an === "detail") {
+                history_conf.pathname += `${status.record_id ? status.record_id : ""}`
+            }
 
-        // Only run grid detail and show actions
-        if (an === "grid") {
+
+            status.base_params && status.base_params.mk && (history_conf.search.mk = status.base_params.mk);
+            status.base_params && status.base_params.mt && (history_conf.search.mt = status.base_params.mt);
+            // Convert to string (Needed for array style PV values)
+            history_conf.search = queryString.stringify(history_conf.search);
+
+            this.router.history.push(history_conf);
+
         }
-        else if (an === "detail") {
-            history_conf.pathname += `${status.record_id ? status.record_id : ""}`
-        }
-        else if (an === "show") { /*About*/
-        }
+        // Other actions require an ajax call
         else {
-            console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
-            return
+
+            let urlSr = Array.isArray(sr) ? sr[0] : sr,
+                args = {
+                    an: an,
+                    sr: sr
+                };
+            fetchPolyfill(`api/${actorId.split(".").join("/")}/${urlSr}?${queryString.stringify(args)}`).then(
+                (req) => {
+                    //Todo error handeling.
+                    return req.json()
+                }
+            ).then((data) => {
+                    this.handleActionResponce({response: data, rp: rp});
+                }
+            );
+            // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
         }
-        this.router.history.push(history_conf);
+    };
+
+    handleActionResponce = ({response, rp = undefined}) => {
+        console.log(response, rp);
+        if (response.eval_js) {
+            eval(response.eval_js);
+        }
+
+        if (response.message) {
+            this.growl.show({
+                // severity: "error",
+                severity: response.alert.toLowerCase(),
+                summary: response.alert,
+                detail: response.message
+            })
+        }
+
+        if (response.refresh){
+            rp && rp.reload();
+        }
 
 
     };
@@ -280,7 +320,7 @@ class App extends React.Component {
      * global search method.
      * @param query: string send to server to fetch thing.
      */
-    searchMethod  = (query) => {
+    searchMethod = (query) => {
         // fetchPolyfill()
     };
 
@@ -341,9 +381,9 @@ class App extends React.Component {
             <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick}>
                     <AppTopbar onToggleMenu={this.onToggleMenu}
-                               // searchValue={this.state.searchValue}
-                               // searchMethod={}
-                               // searchSuggestions={}
+                        // searchValue={this.state.searchValue}
+                        // searchMethod={}
+                        // searchSuggestions={}
                     />
                     <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
                         <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
@@ -379,6 +419,8 @@ class App extends React.Component {
 
                     </div>
                     <div className="layout-main">
+                        <Growl ref={(el) => this.growl = el}/>
+
                         <Route exact path="/" render={(match) => (
                             <DataProvider
                                 ref={(el) => this.dashboard = el}
