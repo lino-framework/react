@@ -4,6 +4,8 @@ import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom
 import {LinoGrid} from "./LinoGrid";
 import {LinoDetail} from "./LinoDetail";
 
+import key from "weak-key";
+
 import _ from 'lodash';
 
 export class Actor extends Component {
@@ -46,6 +48,7 @@ export class Actor extends Component {
             {this.props.actorData.default_action === "grid" &&
             <Route exact path={this.props.match.match.path} render={(match) => (
                 <LinoGrid
+                    ref={window.App.setRpRef}
                     match={match}
                     actorId={this.props.actorId}
                     packId={this.props.packId}
@@ -60,6 +63,7 @@ export class Actor extends Component {
             {this.props.actorData.detail_action === "detail" &&
             <Route path={`${this.props.match.match.path}/:pk`} render={(match) => (
                 <LinoDetail
+                    ref={window.App.setRpRef}
                     match={match}
                     actorId={this.props.actorId}
                     packId={this.props.packId}
@@ -74,6 +78,7 @@ export class Actor extends Component {
             {this.props.actorData.detail_action === "show" &&
             <Route path={`${this.props.match.match.path}`} render={(match) => (
                 <LinoDetail
+                    ref={window.App.setRpRef}
                     match={match}
                     actorId={this.props.actorId}
                     packId={this.props.packId}
@@ -87,7 +92,7 @@ export class Actor extends Component {
 
             />
             }
-            
+
         </React.Fragment>
 
 

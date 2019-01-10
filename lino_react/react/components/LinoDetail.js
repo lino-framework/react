@@ -82,6 +82,7 @@ export class LinoDetail extends Component {
         // });
         let query = {
             fmt: "json",
+            rp: key(this)
             // mt: this.props.actorData.content_type, // Should be the master actor's PK, so should be a prop / url param
         };
         if (this.props.actorData.slave) {

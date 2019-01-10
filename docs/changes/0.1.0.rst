@@ -58,7 +58,9 @@ The basic order of completion ought to be:
 #. Action Toolbar
    Working in grid, show error messages, send ajax, eval responses, are disabled correctly when no rows are selected.
 #. Edit Button for detail
+   Working, but no logic for submitting data
 #. Simple Actions
+   Working with refresh
 #. FK chooser elem
 #. Choice list elem
 #. Dialog system

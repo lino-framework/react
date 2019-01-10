@@ -24,6 +24,7 @@ class DataProvider extends Component {
         placeholder: "Loading..."
     };
       this.reloadData = this.reloadData.bind(this);
+      this.reload = this.reloadData;
     }
 
   componentDidMount() {

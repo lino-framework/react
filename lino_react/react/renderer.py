@@ -60,7 +60,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
         An JS renderer that uses the react Javascript framework.
     """
     is_interactive = True
-    can_auth = False
+    can_auth = True
 
     lino_web_template = "react/linoweb.json"
     file_type = '.json'
@@ -76,9 +76,11 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :param f: File object
         :return: 1
         """
+        self.serialise_js_code = True
         f.write(py2js(dict(actors={a.actor_id: a for a in self.actors_list},
                            menu=settings.SITE.get_site_menu(get_user_profile())),
                       compact=not settings.SITE.is_demo_site))
+        self.serialise_js_code = False
         return 1
 
     # working, but shouldn't be used, as it clears the app history
@@ -113,6 +115,45 @@ class Renderer(JsRenderer, JsCacheRenderer):
         return self.plugin.build_plain_url(
             ar.actor.app_label, ar.actor.__name__, *args, **kw)
 
+    # from extrenderer
+    def action_button(self, obj, ar, ba, label=None, **kw):
+        label = label or ba.get_button_label()
+        if len(label) == 1:
+            label = "\u00A0{}\u00A0".format(label)
+            # label = ONE_CHAR_LABEL.format(label)
+        if ba.action.parameters and not ba.action.no_params_window:
+            st = self.get_action_status(ar, ba, obj)
+            return self.window_action_button(
+                ar, ba, st, label, **kw)
+        if ba.action.opens_a_window:
+            st = ar.get_status()
+            if obj is not None:
+                st.update(record_id=obj.pk)
+            return self.window_action_button(ar, ba, st, label, **kw)
+        return self.row_action_button(obj, ar, ba, label, **kw)
+
+    # from extrendere
+    def action_call_on_instance(
+            self, obj, ar, ba, request_kwargs={}, **status):
+        """Note that `ba.actor` may differ from `ar.actor` when defined on a
+        different actor. Remember e.g. the "Must read eID card" action
+        button in eid_info of newcomers.NewClients (20140422).
+
+        :obj:  The database object
+        :ar:   The action request
+        :ba:  The bound action
+        :request_kwargs: keyword arguments to forwarded to the child action request
+
+        Any kwyword other arguments are forwarded to :meth:`ar2js`.
+
+        """
+        if ar is None:
+            sar = ba.request(**request_kwargs)
+        else:
+
+            sar = ar.spawn(ba, **request_kwargs)
+        return self.ar2js(sar, obj, **status)
+
     def get_action_params(self, ar, ba, obj, **kw):
         if ba.action.parameters:
             fv = ba.action.params_layout.params_store.pv2list(
@@ -140,9 +181,15 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
         # 20140429 `ar` is now None, see :ref:`welfare.tested.integ`
         params = self.get_action_params(ar, ba, obj)
-        return "Lino.simple_action(%s,%s,%s,%s,%s,%s)" % (
-            py2js(ba.actor.actor_id), py2js(ba.action.action_name), py2js(rp),
-            py2js(ar.is_on_main_actor), py2js(obj.pk), py2js(params))
+        return "window.App.runAction(%s)" % (
+            py2js({
+                "rp": rp,
+                "an": ba.action.action_name,
+                "onMain": ar.is_on_main_actor,
+                "actorId": ba.actor.actor_id,
+                "sr": obj.pk,
+                "status": params
+            }))
         # bound_action.a)
 
     def py2js_converter(self, v):
@@ -271,7 +318,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
             return result
 
-        if isinstance(v, js_code):
+        if isinstance(v, js_code) and self.serialise_js_code:
             # Convert js_code into strings so they are serialised. rather than displayed w/o quotes
             return str(v.s)
 

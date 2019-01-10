@@ -120,18 +120,19 @@ const LinoComponents = {
             // Unsure if the classNames are even passed to any HTML elems...
             return <Panel className="l-slave-summary-panel"
                           header={props.elem.label} style={style}>
-                <Button className="l-slave-summary-expand-button p-button-secondary" icon="pi pi-external-link" onClick={() => {
-                    let status = {
-                        mk: props.prop_bundle.mk, // No need to test for if-slave as it's a slave-summary
-                        mt: props.prop_bundle.mt // We always know we need mk/mt be
-                    };
-                    // console.log(props.elem, detail_action);
-                    window.App.runAction({
-                        an: "grid", // use default_action ??
-                        actorId: props.elem.field_options.name.replace("_","."), // See elems.py, hopfully safe
-                        rp: null, status: status
-                    });
-                }}/>
+                <Button className="l-slave-summary-expand-button p-button-secondary" icon="pi pi-external-link"
+                        onClick={() => {
+                            let status = {
+                                mk: props.prop_bundle.mk, // No need to test for if-slave as it's a slave-summary
+                                mt: props.prop_bundle.mt // We always know we need mk/mt be
+                            };
+                            // console.log(props.elem, detail_action);
+                            window.App.runAction({
+                                an: "grid", // use default_action ??
+                                actorId: props.elem.field_options.name.replace("_", "."), // See elems.py, hopfully safe
+                                rp: null, status: status
+                            });
+                        }}/>
                 {summary}
             </Panel>
         }
@@ -265,6 +266,7 @@ const LinoComponents = {
         let [packId, actorId] = props.elem.actor_id.split("."); // "contacts.RolesByPerson"
 
         return <SiteContext.Consumer>{(siteData) => (<LinoGrid
+            ref={window.App.setRpRef}
             inDetail={true}
             match={props.prop_bundle.match} // todo
             mk={props.prop_bundle.mk}

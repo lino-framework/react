@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import key from "weak-key";
+
 import classNames from 'classnames';
 import queryString from "query-string"
 
@@ -67,6 +69,8 @@ class App extends React.Component {
 
         };
 
+        this.rps = {}; // used for rp
+
         this.onWrapperClick = this.onWrapperClick.bind(this);
         this.onToggleMenu = this.onToggleMenu.bind(this);
         this.onSidebarClick = this.onSidebarClick.bind(this);
@@ -127,6 +131,14 @@ class App extends React.Component {
             }
         });
 
+    }
+
+    setRpRef(el) {
+        if (el) {
+            let rp = key(el);
+            window.App.rps[rp] = el;
+            el.rp = rp;
+        }
     }
 
     onWrapperClick(event) {
@@ -279,15 +291,17 @@ class App extends React.Component {
             let urlSr = Array.isArray(sr) ? sr[0] : sr,
                 args = {
                     an: an,
-                    sr: sr
+                    sr: sr,
+
                 };
+            rp && (args.rp = typeof rp === "string" ? rp : key(rp)); // rp can be null / undefined, in that case don't pass
             fetchPolyfill(`api/${actorId.split(".").join("/")}/${urlSr}?${queryString.stringify(args)}`).then(
                 (req) => {
                     //Todo error handeling.
                     return req.json()
                 }
             ).then((data) => {
-                    this.handleActionResponce({response: data, rp: rp});
+                    this.handleActionResponce({response: data, rp: typeof rp === "string" ? window.App.rps[rp] : rp});
                 }
             );
             // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
@@ -309,8 +323,10 @@ class App extends React.Component {
             })
         }
 
-        if (response.refresh){
+        if (response.refresh) {
             rp && rp.reload();
+            if (rp === null) this.dashboard.reloadData();
+
         }
 
 
@@ -423,7 +439,10 @@ class App extends React.Component {
 
                         <Route exact path="/" render={(match) => (
                             <DataProvider
-                                ref={(el) => this.dashboard = el}
+                                ref={(el) => {
+                                    this.dashboard = el;
+                                    this.setRpRef(el)
+                                }}
                                 endpoint="/api/main_html"
                                 render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
                             />
