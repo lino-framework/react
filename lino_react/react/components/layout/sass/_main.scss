@@ -584,6 +584,11 @@ body .l-grid .p-datatable .p-datatable-header {
     }
 }
 
+body .l-detail-toolbar .p-button {
+    margin-right: 2px;
+    margin-bottom: 1px;
+}
+
 @media (max-width: 600px) {
 
     .l-panel {

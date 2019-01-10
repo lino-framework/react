@@ -531,6 +531,10 @@ body .l-grid .p-datatable .p-datatable-header {
     margin-right: 2px;
     margin-bottom: 1px; }
 
+body .l-detail-toolbar .p-button {
+  margin-right: 2px;
+  margin-bottom: 1px; }
+
 @media (max-width: 600px) {
   .l-panel {
     flex-direction: column; }

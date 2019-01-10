@@ -14,6 +14,7 @@ import {InputText} from 'primereact/inputtext';
 import {debounce} from "./LinoUtils";
 
 import LinoComponents from "./LinoComponents";
+import LinoBbar from "./LinoBbar";
 
 export class LinoGrid extends Component {
 
@@ -58,7 +59,6 @@ export class LinoGrid extends Component {
         this.columnTemplate = this.columnTemplate.bind(this);
         this.expand = this.expand.bind(this);
         this.quickFilter = this.quickFilter.bind(this);
-        this.runAction = this.runAction.bind(this);
 
     }
 
@@ -102,26 +102,6 @@ export class LinoGrid extends Component {
             status: status
         })
 
-    }
-
-    /**
-     * Passed to toolbar and context menu
-     *
-     * * @param an: string, action name of action to be run
-     */
-
-    runAction(an) {
-        //https://jane.saffre-rumma.net/api/working/Sessions/11119?_dc=1546445609030&sr=11119&an=end_session
-
-        let sr = this.state.selectedRows.map((row) => row[this.props.actorData.pk_index]);
-
-        window.App.runAction({
-            an: an,
-            actorId: `${this.props.packId}.${this.props.actorId}`,
-            rp: this,
-            status: status,
-            sr: sr
-        });
     }
 
 
@@ -269,15 +249,11 @@ export class LinoGrid extends Component {
                     icon="pi pi-external-link"
                     style={{'float': 'right'}}/>}</div>
             {!this.props.inDetail && <div className={"p-col-12"} style={{"text-align": "left"}}>
-                <Button icon={"pi pi-refresh"} onClick={this.reload}/>
-                {this.props.actorData.toolbarActions.map((an) => {
-                    return <Button label={an} key={an}
-                                   disabled={this.props.actorData.ba[an].select_rows && this.state.selectedRows.length === 0}
-                                   onClick={() => this.runAction(an)}/>
 
-                })}
-                {/*<LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows}*/}
-                {/*runAction={this.runAction}/>*/}
+                <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
+                          srMap={(row) => row[this.props.actorData.pk_index]}
+                          rp={this}
+                          runAction={this.runAction}/>
             </div>}
         </div>;
 

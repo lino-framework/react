@@ -11,6 +11,7 @@ import {AutoComplete} from 'primereact/autocomplete';
 
 import LinoComponents from "./LinoComponents"
 import {debounce} from "./LinoUtils";
+import LinoBbar from "./LinoBbar";
 
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
@@ -163,7 +164,7 @@ export class LinoDetail extends Component {
             <React.Fragment>
                 <h1 className={"l-detail-header"}> {this.state.title || "\u00a0"} </h1>
 
-                {!this.props.noToolbar && <Toolbar>
+                {!this.props.noToolbar && <Toolbar className={"l-detail-toolbar"}>
                     <AutoComplete placeholder={"Quick Search"}
                                   value={this.state.quickSearchQuery}
                                   onChange={(e) => this.setState({quickSearchQuery: e.value})}
@@ -196,6 +197,8 @@ export class LinoDetail extends Component {
                             className="l-nav-last"
                             icon="pi pi-angle-double-right"
                             onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+                    <br/>
+                    <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}/>
                 </Toolbar>}
                 <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
             </React.Fragment>
