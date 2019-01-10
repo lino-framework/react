@@ -8,6 +8,7 @@ import key from "weak-key";
 import {Toolbar} from 'primereact/toolbar';
 import {Button} from 'primereact/button';
 import {AutoComplete} from 'primereact/autocomplete';
+import {ToggleButton} from 'primereact/togglebutton';
 
 import LinoComponents from "./LinoComponents"
 import {debounce} from "./LinoUtils";
@@ -197,6 +198,11 @@ export class LinoDetail extends Component {
                             className="l-nav-last"
                             icon="pi pi-angle-double-right"
                             onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+                    <ToggleButton style={{"float": "right"}}
+                                  checked={this.state.editing_mode}
+                                  onChange={(e) => this.setState({editing_mode: e.value})}
+                                  onLabel="Save" offLabel="Edit" onIcon="pi pi-save" offIcon="pi pi-pencil"
+                    />
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}/>
                 </Toolbar>}
