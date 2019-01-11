@@ -135,7 +135,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/api/**').as('getData');
         cy.visit("http://127.0.0.1:8000/#/api/tickets/AllTickets/10").wait("@getData");
         // cy.get("")
-        cy.log("Start session").get('.l-panel-vertical > :nth-child(3) > div > span > a:nth-child(1)').click().wait("@getData").wait("@getData")
+        cy.log("Start session").get('.l-panel-vertical > :nth-child(3) > div > span > a:nth-child(1)').click().wait("@getData")
         // cy.log("Change State to talk and back to working").get('.l-panel-vertical > :nth-child(3) > div > span > a:nth-child(5)').click().wait("@getData").wait("@getData")
         // cy.get('.l-panel-vertical > :nth-child(3) > div > span > a:nth-child(4)').click().wait("@getData").wait("@getData")
 

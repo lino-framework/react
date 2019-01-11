@@ -12,8 +12,9 @@ import {LinoGrid} from "./LinoGrid";
 import {SiteContext} from "./SiteContext"
 
 import classNames from 'classnames';
+import {ForeignKeyElement} from "./ForeignKeyElement";
 
-const Labeled = (props) => {
+export const Labeled = (props) => {
     return <React.Fragment>
         {!props.hide_label && props.elem.label && <React.Fragment>
             <label className={classNames(
@@ -224,41 +225,7 @@ const LinoComponents = {
 
     },
 
-    ForeignKeyElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
-        return <SiteContext.Consumer>{(siteData) => (
-            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                <div className="l-ForeignKeyElement">
-                    <div
-                        dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-                    {value &&
-                    <Button icon="pi pi-external-link" className="p-button-secondary l-button-fk"
-                            onClick={(e) => {
-                                let {match} = props.prop_bundle,
-                                    actor = siteData.actors[props.elem.field_options.related_actor_id],
-                                    // detail_action = actor.ba[actor.detail_action],
-                                    // insert_action = actor.ba[actor.insert_action],
-                                    // [packId, actorId] = props.elem.field_options.related_actor_id.split("."),
-                                    pk = props.in_grid ? props.data[props.elem.fields_index + 1]
-                                        : props.data[props.elem.name + 'Hidden'],
-                                    status = {record_id: pk};
-
-                                if (actor.slave) {
-                                    status.mk = props.prop_bundle.mk;
-                                    status.mt = props.prop_bundle.mt;
-                                }
-                                // console.log(props.elem, detail_action);
-                                window.App.runAction({
-                                    an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
-                                    rp: null, status: status
-                                });
-                                // match.history.push(`/api/${packId}/${actorId}/${pk}`);
-                            }}
-                    />}
-                </div>
-            </Labeled>)}</SiteContext.Consumer>
-
-    },
+    ForeignKeyElement: ForeignKeyElement,
 
     GridElement: (props) => {
         // https://jane.saffre-rumma.net/api/contacts/RolesByPerson?_dc=1545239958036&limit=15&start=0&fmt=json&rp=ext-comp-1353&mt=8&mk=316

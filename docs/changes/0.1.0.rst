@@ -62,6 +62,7 @@ The basic order of completion ought to be:
 #. Simple Actions
    Working with refresh
 #. FK chooser elem
+   Working choices lookup and data update
 #. Choice list elem
 #. Dialog system
 #. yes / no dialogs

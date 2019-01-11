@@ -486,7 +486,7 @@ a {
   display: flex;
   flex-direction: row;
   align-items: center; }
-  .layout-main .l-ForeignKeyElement button {
+  .layout-main .l-ForeignKeyElement .l-button-fk {
     margin-left: 1em;
     height: 1.5em;
     width: 1.5em;

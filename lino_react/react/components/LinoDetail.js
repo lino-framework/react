@@ -56,8 +56,8 @@ export class LinoDetail extends Component {
 
     /**
      * Method for updating data values.
-     * Is passed down to each Elem, takes a dict of keyboard:value pairs.
-     * Only merges the data object of this.state
+     * Is passed down to each Elem, takes an object of keyboard:value pairs.
+     * Only merges the data object of this.state which is a copy of the original values.
      **/
     update_value(values) {
         // console.log(arguments);
@@ -151,9 +151,9 @@ export class LinoDetail extends Component {
         const MainComp = LinoComponents._GetComponent(layout.main.react_name);
         let prop_bundle = {
             data: this.state.data,
+            actorId: `${this.props.packId}.${this.props.actorId}`,
             disabled_fields: this.state.disabled_fields,
             update_value: this.update_value,
-            // editing_mode: true, // keep detail as editing mode only for now, untill beautifying things/
             editing_mode: this.state.editing_mode, // keep detail as editing mode only for now, untill beautifying things/
             mk: this.props.pk,
             mt: this.props.actorData.content_type,
