@@ -7,6 +7,7 @@ import {InputText} from 'primereact/inputtext';
 import {Checkbox} from 'primereact/checkbox';
 import {Editor} from 'primereact/editor';
 import {Button} from 'primereact/button';
+import {Dropdown} from 'primereact/dropdown';
 
 import {LinoGrid} from "./LinoGrid";
 import {SiteContext} from "./SiteContext"
@@ -138,6 +139,20 @@ const LinoComponents = {
             </Panel>
         }
 
+
+    },
+
+    ChoiceListFieldElement: (props) => {
+        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        return <SiteContext.Consumer>{(siteData) => (<Dropdown
+            optionLabel={"text"} value={value}
+            datakey={"value"}
+            options={siteData.choicelists[props.elem.field_options.store.replace("Lino.", "")]}
+            onChange={(e) => {
+                // this.setState({city: e.value})
+            }}
+            placeholder="Select a City"
+        />)}</SiteContext.Consumer>
 
     },
 

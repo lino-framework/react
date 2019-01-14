@@ -28,9 +28,11 @@ from lino.core.actions import (ShowEmptyTable, ShowDetail,
                                ShowInsert, ShowTable, SubmitDetail,
                                SubmitInsert)
 from lino.core.boundaction import BoundAction
+from lino.core.choicelists import ChoiceListMeta
 from lino.core.actors import Actor
 from lino.core.layouts import LayoutHandle
 from lino.core.elems import LayoutElement, ComboFieldElement
+from lino.core import kernel
 
 from etgen.html import E
 
@@ -77,8 +79,13 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :return: 1
         """
         self.serialise_js_code = True
+        choicelists_data = {
+            ID: [{"value": py2js(c[0]).strip('"'), "text": py2js(c[1]).strip('"')} for c in cl.get_choices()] for
+            ID, cl in
+            kernel.CHOICELISTS.items()}
         f.write(py2js(dict(actors={a.actor_id: a for a in self.actors_list},
-                           menu=settings.SITE.get_site_menu(get_user_profile())),
+                           menu=settings.SITE.get_site_menu(get_user_profile()),
+                           choicelists=choicelists_data),
                       compact=not settings.SITE.is_demo_site))
         self.serialise_js_code = False
         return 1
