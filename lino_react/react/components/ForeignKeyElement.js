@@ -79,7 +79,8 @@ export class ForeignKeyElement extends Component {
             {update_value} = props.prop_bundle;
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
-        if (typeof value === "object") value = value['text'];
+
+        if (value && typeof value === "object") value = value['text'];
         let {editing_mode} = props;
 
         // props.prop_bundle.update_value({[props.elem.name]: e.value})
@@ -87,7 +88,7 @@ export class ForeignKeyElement extends Component {
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
-                        <AutoComplete value={value} onChange={(e) => update_value({[props.elem.name]: e.value})}
+                        <AutoComplete value={value || "\u00a0"} onChange={(e) => update_value({[props.elem.name]: e.value})}
                                       suggestions={this.state.rows}
                                       dropdown={true}
                                       onFocus={(e)=>e.target.select()}

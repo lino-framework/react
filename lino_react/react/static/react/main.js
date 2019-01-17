@@ -46712,7 +46712,7 @@ function (_Component) {
           update_value = props.prop_bundle.update_value; // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
 
       var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
-      if (_typeof(value) === "object") value = value['text'];
+      if (value && _typeof(value) === "object") value = value['text'];
       var editing_mode = props.editing_mode; // props.prop_bundle.update_value({[props.elem.name]: e.value})
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_2__["SiteContext"].Consumer, null, function (siteData) {
@@ -46723,7 +46723,7 @@ function (_Component) {
         }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           className: "l-ForeignKeyElement"
         }, editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_autocomplete__WEBPACK_IMPORTED_MODULE_5__["AutoComplete"], {
-          value: value,
+          value: value || "\xA0",
           onChange: function onChange(e) {
             return update_value(_defineProperty({}, props.elem.name, e.value));
           },

@@ -294,7 +294,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             return result
         if isclass(v) and issubclass(v, Actor):
             result = dict(id=v.actor_id,
-                          ba=v.actions,
+                          ba=v._actions_dict,
                           label=v.get_actor_label(),
                           slave=bool(v.master)
                           # [py2js(b) for b in v.actions.items()]
@@ -316,7 +316,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result.update(obj2dict(v.get_handle().store, "pk_index"))  # Data index which is the PK
             result.update(obj2dict(v, "preview_limit"))  # number of rows to render
             # mt + slave-tables
-            if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None:
+            if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None and hasattr(v.model, "_meta"):
                 # Perhaps I should have the model also be py2js'd?
                 result.update(content_type=ContentType.objects.get_for_model(v.model).pk)
             for a in "detail_action insert_action default_action".split(" "):
