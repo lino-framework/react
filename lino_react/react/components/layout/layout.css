@@ -474,10 +474,10 @@ a {
   display: flex; }
   .l-panel .l-component {
     padding: .25em; }
-    .l-panel .l-component label {
+    .l-panel .l-component .l-label {
       font-weight: lighter;
       border-bottom: dotted 1px; }
-      .l-panel .l-component label.l-label--unfilled {
+      .l-panel .l-component .l-label.l-label--unfilled {
         color: grey; }
     .l-panel .l-component .p-checkbox.p-component {
       padding-top: .5ch; }

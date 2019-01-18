@@ -88,7 +88,7 @@ export class ForeignKeyElement extends Component {
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
-                        <AutoComplete value={value || "\u00a0"} onChange={(e) => update_value({[props.elem.name]: e.value})}
+                        <AutoComplete value={value} onChange={(e) => update_value({[props.elem.name]: e.value})}
                                       suggestions={this.state.rows}
                                       dropdown={true}
                                       onFocus={(e)=>e.target.select()}

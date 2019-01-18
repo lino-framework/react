@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import key from "weak-key";
 
-import {TabView, TabPanel} from 'primereact/tabview';
+import {TabPanel, TabView} from 'primereact/tabview';
 import {Panel} from 'primereact/panel';
 import {InputText} from 'primereact/inputtext';
 import {Checkbox} from 'primereact/checkbox';
@@ -19,7 +19,8 @@ export const Labeled = (props) => {
     return <React.Fragment>
         {!props.hide_label && props.elem.label && <React.Fragment>
             <label className={classNames(
-                {"l-label--unfilled": !props.isFilled}
+                "l-label",
+                {"l-label--unfilled": !props.isFilled},
             )}> {props.elem.label}:</label>
             <br/>
         </React.Fragment>}
@@ -144,16 +145,54 @@ const LinoComponents = {
 
     ChoiceListFieldElement: (props) => {
         let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
-        return <SiteContext.Consumer>{(siteData) => (<Dropdown
-            optionLabel={"text"} value={value}
-            datakey={"value"}
-            options={siteData.choicelists[props.elem.field_options.store.replace("Lino.", "")]}
-            onChange={(e) => {
-                // this.setState({city: e.value})
-            }}
-            placeholder="Select a City"
-        />)}</SiteContext.Consumer>
+        let hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
+        return <SiteContext.Consumer>{(siteData) => {
+            let options = siteData.choicelists[props.elem.field_options.store];
+            console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+            return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.prop_bundle.editing_mode ?
+                    <Dropdown
+                        optionLabel={"text"} value={{text: value, value: hidden_value}}
+                        datakey={"value"}
+                        //Todo clear tied to props.elem.field_options.blank
+                        showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
+                        options={options}
+                        onChange={(e) => {
+                            console.log(e);
+                            let v = e.target.value === null ? "" : e.target.value['text'],
+                                h = e.target.value === null ? "" : e.target.value['value'];
+                            props.prop_bundle.update_value({ // also works for grid
+                                [props.elem.name]: v,
+                                [props.elem.name + "Hidden"]: h,
+                            })
+                        }}
+                        // placeholder={""}
+                    /> :
+                    <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
+                }</Labeled>
+        }}
+        </SiteContext.Consumer>
 
+    },
+
+    URLFieldElement: (props) => {
+        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+            {props.prop_bundle.editing_mode ?
+                <InputText style={{width: "100%"}}
+                           value={value || ""}
+                           onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                :
+                <div className={"l-ellipsis"} style={{
+                    "display": "block",
+                    "text-overflow": "ellipsis",
+                    "overflow": "hidden",
+                    "white-space": "nowrap",
+                    "max-width": "290px"
+                }}><a href={value} title={value}>{value || "\u00a0"}</a></div>
+
+            }
+        </Labeled>
     },
 
     DisplayElement: (props) => {
@@ -176,7 +215,7 @@ const LinoComponents = {
 
             {props.prop_bundle.editing_mode ?
                 <InputText style={{width: "100%"}}
-                           value={value || "\u00a0"}
+                           value={value || ""}
                            onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
                 :
                 <div
@@ -192,7 +231,7 @@ const LinoComponents = {
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.prop_bundle.editing_mode ?
                     <InputText style={{width: "100%"}} type="text" keyfilter="pint"
-                               value={value || "\u00a0"}
+                               value={value || ""}
                                onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
                     : <div
                         dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
@@ -216,7 +255,7 @@ const LinoComponents = {
     },
 
     TextFieldElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || "\u00a0",
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]),
             style = {
                 height: "100%",
                 display: "flex",
@@ -233,7 +272,7 @@ const LinoComponents = {
                             value={value}
                             onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
                     /> :
-                    <div dangerouslySetInnerHTML={{__html: value}}/>
+                    <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                 }
             </Panel>
         </React.Fragment>

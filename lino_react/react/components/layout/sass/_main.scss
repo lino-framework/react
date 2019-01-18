@@ -485,7 +485,7 @@ a {
     .l-component {
         padding: .25em;
 
-        label {
+        .l-label {
             font-weight: lighter;
             border-bottom: dotted 1px;
 
@@ -497,7 +497,6 @@ a {
             padding-top: .5ch;
         }
     }
-
 }
 
 .layout-main .l-ForeignKeyElement {
@@ -509,6 +508,9 @@ a {
         height: 1.5em;
         width: 1.5em;
         margin-top: 3px;
+    }
+    .p-autocomplete {
+        display: inherit; //stops dropdown button from wrapping.
     }
 }
 

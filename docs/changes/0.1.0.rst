@@ -64,6 +64,7 @@ The basic order of completion ought to be:
 #. FK chooser elem
    Working choices lookup and data update
 #. Choice list elem
+   Working
 #. Dialog system
 #. yes / no dialogs
 #. Param Actions
