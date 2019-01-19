@@ -93,7 +93,7 @@ export class LinoDetail extends Component {
             (res) => (res.json())
         ).then(
             (data) => {
-                console.log("detail GET", data);
+                // console.log("detail GET", data);
                 let df = data.data.disabled_fields;
                 delete data.data.disabled_fields;
                 this.setState({
@@ -111,7 +111,7 @@ export class LinoDetail extends Component {
 
     componentDidMount() {
         this.reload();
-        console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
+        // console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
     };
 
     onNavClick(pk) {
@@ -176,7 +176,7 @@ export class LinoDetail extends Component {
                                   completeMethod={(e) => this.quickSearch(e.query)}
                                   className={"l-detail-quicksearch"}
                                   onSelect={(e) => {
-                                      console.log("Search selection onSelect", e);
+                                      // console.log("Search selection onSelect", e);
                                       this.setState({quickSearchQuery: ""});
                                       this.onNavClick(e.value.value)
                                   }

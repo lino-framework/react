@@ -15,6 +15,7 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {SignInDialog} from './SignInDialog'
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
+import {LinoDialog} from './LinoDialog'
 
 
 import {Sidebar} from 'primereact/sidebar';
@@ -22,7 +23,6 @@ import {PanelMenu} from 'primereact/panelmenu';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {ProgressSpinner} from 'primereact/progressspinner';
-import {Dialog} from 'primereact/dialog';
 import {Growl} from 'primereact/growl';
 
 import 'primereact/resources/themes/nova-light/theme.css';
@@ -46,8 +46,7 @@ import {SiteContext} from "./SiteContext"
 
 class App extends React.Component {
 
-    constructor() {
-        super();
+    constructor() {super();
         this.state = {
             visible: true,
             layoutMode: 'static',
@@ -63,6 +62,7 @@ class App extends React.Component {
 
             logging_in: false,
 
+            dialogs: [],
             // Topbar states // Disabled until global search api documentation is found.
             // searchValue: "",
             // searchSuggestions: []
@@ -264,8 +264,8 @@ class App extends React.Component {
      */
     runAction = ({an, actorId, rp, status, sr} = {}) => {
 
-        // console.log(an, actorId, rp, status);
-
+        const action = this.state.site_data.actors[actorId].ba[an];
+        console.log("runAction",action, an, actorId, rp, status, sr);
         // Grid show and detail actions change url to correct page.
         if (an === "grid" || an === "show" || an === "detail") {
             let history_conf = {
@@ -284,6 +284,18 @@ class App extends React.Component {
 
             this.router.history.push(history_conf);
 
+        }
+        else if (action.window_action) {
+            // dialog action:
+            this.setState((old) => {return {dialogs: [{
+                an:an,
+                action:action,
+                actorId:actorId,
+                data: status.data_record.data,
+                title:status.data_record.title,
+                onClose: () => {console.log("Action Dialog Closed Callback")},
+                onOk: () => {console.log("Action Dialog OK Callback")},
+            }].concat(old.dialogs)}})
         }
         // Other actions require an ajax call
         else {
@@ -309,7 +321,7 @@ class App extends React.Component {
     };
 
     handleActionResponce = ({response, rp = undefined}) => {
-        console.log(response, rp);
+        // console.log(response, rp);
         if (response.eval_js) {
             eval(response.eval_js);
         }
@@ -379,7 +391,7 @@ class App extends React.Component {
             return menu;
         };
         let result = layout.map(mi => convert(mi));
-        console.log(result);
+        // console.log(result);
         return result
     };
 
@@ -392,7 +404,7 @@ class App extends React.Component {
             'layout-mobile-sidebar-active': this.state.mobileMenuActive
         });
         let sidebarClassName = classNames("layout-sidebar", {'layout-sidebar-dark': this.state.layoutColorMode === 'dark'});
-        console.log("app_re-render");
+        // console.log("app_re-render");
         return (
             <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick}>
@@ -454,7 +466,7 @@ class App extends React.Component {
                                     <Route path="/api/:packId/:actorId" render={(route) => {
                                         let key = route.match.params.packId + "." + route.match.params.actorId;
                                         let parms = new URLSearchParams(route.location.search);
-                                        console.log(key);
+                                        // console.log(key);
                                         return <Actor match={route}
                                                       actorId={route.match.params.actorId}
                                                       packId={route.match.params.packId}
@@ -476,6 +488,13 @@ class App extends React.Component {
                     <div className="layout-mask"/>
                     <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
                                   onSignIn={this.onSignIn}/>
+                    {this.state.dialogs.map((d) => {
+
+                        return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
+                                onClose={d.onClose} onOk={d.onOk} title={d.title} router={this.router}/>
+
+                    })}
+
                 </div>
             </HashRouter>
         )

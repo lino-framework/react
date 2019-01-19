@@ -31,7 +31,7 @@ export class Actor extends Component {
     // method() {return this.props.}
 
     componentDidMount() {
-        console.log("Actor mount");
+        // console.log("Actor mount");
     };
 
     componentWillReceiveProps(nextProps) {
@@ -40,7 +40,7 @@ export class Actor extends Component {
                 ? result
                 : result.concat(key)
         }, []);
-        console.log('changedProps: ', changedProps)
+        // console.log('changedProps: ', changedProps)
     }
 
     render() {
