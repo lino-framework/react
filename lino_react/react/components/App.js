@@ -287,15 +287,24 @@ class App extends React.Component {
         }
         else if (action.window_action) {
             // dialog action:
-            this.setState((old) => {return {dialogs: [{
+	    let diag_props = {
                 an:an,
                 action:action,
                 actorId:actorId,
-                data: status.data_record.data,
-                title:status.data_record.title,
+                data: dr_data
+                title: title,
                 onClose: () => {console.log("Action Dialog Closed Callback")},
                 onOk: () => {console.log("Action Dialog OK Callback")},
-            }].concat(old.dialogs)}})
+            };
+	    if (status.data_record){
+		let dr_data = status.data_record.data,
+		    title = status.data_record.title
+	    } else{
+		// fetch( default data for action url, for both insert + actions)
+		// .then( req => req.json()).
+		//  then(
+	    }
+            this.setState((old) => {return {dialogs: [diag_props].concat(old.dialogs)}})
         }
         // Other actions require an ajax call
         else {
