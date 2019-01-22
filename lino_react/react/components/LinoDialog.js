@@ -19,35 +19,24 @@ export class LinoDialog extends Component {
         action: PropTypes.object, // action object from siteData
         onClose: PropTypes.func,   // Some sort of callback
         onOk: PropTypes.func,   // Some sort of callback
-        baseData: PropTypes.object,
+        // baseData: PropTypes.object,
         actorId: PropTypes.string, // Full id, with . ie: tickets.Alltickets
         title: PropTypes.string,
         router: PropTypes.object, // router
+        data: PropTypes.object,
+        update_value: PropTypes.func
     };
     static defaultProps = {
-        baseData: {},
+        data: {},
     };
 
     constructor(props) {
         super();
         this.state = {
             visible: true,
-            data: Object.assign({}, props.data)
-        }
+            // data: Object.assign({}, props.data)
+        };
     };
-
-
-    componentDidMount() {
-
-    };
-
-    update_value(values) {
-        // console.log(arguments);
-        this.setState((prevState) => (
-                {data: Object.assign(prevState.data, {...values})}
-            )
-        ) // copy and replace values
-    }
 
 
     render() {
@@ -56,10 +45,12 @@ export class LinoDialog extends Component {
             const layout = this.props.action.window_layout;
             const MainComp = LinoComponents._GetComponent(layout.main.react_name);
             let prop_bundle = {
-                data: this.state.data,
+                data: this.props.data,
                 actorId: this.props.actorId,
+                action: this.props.action,
+                action_dialog: layout.main.react_name === "ActionParamsPanel",
                 // disabled_fields: this.state.disabled_fields,
-                update_value: this.update_value,
+                update_value: (v) => this.props.update_value(v, this._reactInternalFiber.key),
                 editing_mode: true,
                 match: this.props.router,
             };
@@ -70,10 +61,10 @@ export class LinoDialog extends Component {
                 this.setState({visible: false});
                 this.props.onClose(this);
             }} visible={this.state.visible}
-                           title={this.props.title}>
+                           header={this.props.title}>
                 <MainComp {...prop_bundle} elem={layout.main} main={true}/>
             </Dialog>
         }}</SiteContext.Consumer>
 
-    }
+    };
 }

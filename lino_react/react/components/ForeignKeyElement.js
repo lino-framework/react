@@ -40,7 +40,7 @@ export class ForeignKeyElement extends Component {
             //todo have pageing / some sort of max amount
         };
 
-        fetchPolyfill(`/choices/${this.props.prop_bundle.actorId.replace(".","/")}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
+        fetchPolyfill(`/${this.props.prop_bundle.action_dialog? "apchoices" : "choices"}/${this.props.prop_bundle.actorId.replace(".","/")}${this.props.prop_bundle.action_dialog? `/${this.props.prop_bundle.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
         ).then(
             (data => this.setState({

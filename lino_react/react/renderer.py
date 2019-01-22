@@ -276,7 +276,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
             # todo include all aux info
             # todo include grid info
             # todo refactor this into a all_actions object and have the bound actions ref it to reduse json size
-            result = dict(an=v.action.get_label(), # todo fix this, this is a readable action, not ID for the action
+            result = dict(an=v.action.action_name,
+                          label=v.action.get_label(), # todo fix this, this is a readable action, not ID for the action
                           window_action=v.action.is_window_action(),
                           window_layout=v.get_layout_handel(),
                           )

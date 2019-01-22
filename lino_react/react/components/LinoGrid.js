@@ -68,7 +68,7 @@ export class LinoGrid extends Component {
      * @param col : json Lino site data, the col value.
      */
     columnTemplate(col) {
-        console.log(col);
+        // console.log(col);
         let Template = LinoComponents._GetComponent(col.react_name);
         return (rowData, column) => {
             const prop_bundle = {
@@ -114,7 +114,7 @@ export class LinoGrid extends Component {
      * @param type ``"radio" | "checkbox" | "row"` ``
      */
     onRowSelect({originalEvent, data, type}) {
-        console.log("onRowSelect", originalEvent, data, type);
+        // console.log("onRowSelect", originalEvent, data, type);
         originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
         if (type === "checkbox" || type === "radio") {
             return // We only want selection, no nav.
@@ -181,7 +181,7 @@ export class LinoGrid extends Component {
             (res) => (res.json())
         ).then(
             (data) => {
-                console.log("table GET", data);
+                // console.log("table GET", data);
                 let rows = data.rows;
                 delete data.rows;
                 this.setState({
@@ -210,7 +210,7 @@ export class LinoGrid extends Component {
 
     componentDidMount() {
         this.reload();
-        console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
+        // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
 
     render() {

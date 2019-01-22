@@ -46,7 +46,8 @@ import {SiteContext} from "./SiteContext"
 
 class App extends React.Component {
 
-    constructor() {super();
+    constructor() {
+        super();
         this.state = {
             visible: true,
             layoutMode: 'static',
@@ -264,8 +265,18 @@ class App extends React.Component {
      */
     runAction = ({an, actorId, rp, status, sr} = {}) => {
 
+        // have rp be the key for the rp
+        // have rp_obj be the instance
+        // the rp argument can be either,
+        let rp_obj;
+        if (typeof rp === "string") {
+            rp_obj = this.rps[rp];
+        } else if (rp) { // if required as rp can be undefined or null
+            rp_obj = rp;
+            rp = key(rp_obj);
+        }
         const action = this.state.site_data.actors[actorId].ba[an];
-        console.log("runAction",action, an, actorId, rp, status, sr);
+        console.log("runAction", action, an, actorId, rp, status, sr);
         // Grid show and detail actions change url to correct page.
         if (an === "grid" || an === "show" || an === "detail") {
             let history_conf = {
@@ -287,24 +298,55 @@ class App extends React.Component {
         }
         else if (action.window_action) {
             // dialog action:
-	    let diag_props = {
-                an:an,
-                action:action,
-                actorId:actorId,
-                data: dr_data
-                title: title,
-                onClose: () => {console.log("Action Dialog Closed Callback")},
-                onOk: () => {console.log("Action Dialog OK Callback")},
+            let diag_props = {
+                an: an,
+                action: action,
+                actorId: actorId,
+                data: {},
+                title: "",
+                onClose: () => {
+                    console.log("Action Dialog Closed Callback")
+                },
+                onOk: () => {
+                    console.log("Action Dialog OK Callback")
+                },
             };
-	    if (status.data_record){
-		let dr_data = status.data_record.data,
-		    title = status.data_record.title
-	    } else{
-		// fetch( default data for action url, for both insert + actions)
-		// .then( req => req.json()).
-		//  then(
-	    }
-            this.setState((old) => {return {dialogs: [diag_props].concat(old.dialogs)}})
+
+            if (status.data_record) {
+                diag_props.data = status.data_record.data;
+                diag_props.title = status.data_record.title;
+            }
+            else if (an === "insert") { // no default data and insert action,
+                // fetch default data
+                // Might be only for insert,
+                let url_args = queryString.parse(this.router.history.location.search),
+                    args = {an: an, fmt: "json", rp: rp};
+                if (url_args.mk) args.mk = url_args.mk; // in the case of expanded slave-grid or detail
+                if (url_args.mt) args.mt = url_args.mt;
+                // I wonder if we should call on rp to get the mt / mk...
+
+                // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
+                fetchPolyfill(`/api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then((req) => req.json()).then(
+                    (data) => {
+                        // console.log(data);
+                        this.setState(old => {
+                            let dialogs = old.dialogs,
+                                dialog = dialogs.find(e => e === diag_props); // find dialog
+                            dialogs = [...dialogs]; // make copy of array, as to triger a refresh of data.
+                            // Object.assign(prevState.data, {...values}
+                            dialog.data = data.data;
+                            dialog.title = data.title;
+                            return {dialogs: dialogs}
+                        })
+                    }
+                )
+            }
+            // fetch( default data for action url, for both insert + actions)
+            // .then( req => req.json()).
+            //  then(
+            this.setState((old) => {
+                return {dialogs: [diag_props].concat(old.dialogs)}
+            })
         }
         // Other actions require an ajax call
         else {
@@ -315,7 +357,7 @@ class App extends React.Component {
                     sr: sr,
 
                 };
-            rp && (args.rp = typeof rp === "string" ? rp : key(rp)); // rp can be null / undefined, in that case don't pass
+            rp && (args.rp = rp);
             fetchPolyfill(`api/${actorId.split(".").join("/")}/${urlSr}?${queryString.stringify(args)}`).then(
                 (req) => {
                     //Todo error handeling.
@@ -494,15 +536,25 @@ class App extends React.Component {
                             <ProgressSpinner/>
                         }
                     </div>
-                    <div className="layout-mask"/>
-                    <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
-                                  onSignIn={this.onSignIn}/>
-                    {this.state.dialogs.map((d) => {
+                    <SiteContext.Provider value={this.state.site_data}>
+
+                        <div className="layout-mask"/>
+                        <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
+                                      onSignIn={this.onSignIn}/>
+                        {this.state.dialogs.map((d) => {
 
                         return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
-                                onClose={d.onClose} onOk={d.onOk} title={d.title} router={this.router}/>
+                                onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title} router={this.router}
+                        update_value={(values, id) => {this.setState(previous => {
+                            const dia = previous.dialogs.find(e => key(e) === id),
 
-                    })}
+                                dialogs = [...previous.dialogs];
+                                Object.assign(dia.data, values);
+                                return {dialogs:dialogs}
+                        })}} />
+
+                        })}
+                    </SiteContext.Provider>
 
                 </div>
             </HashRouter>

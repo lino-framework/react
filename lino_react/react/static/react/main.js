@@ -145,6 +145,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SiteContext__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(212);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -246,6 +254,19 @@ function (_React$Component) {
           status = _ref.status,
           sr = _ref.sr;
 
+      // have rp be the key for the rp
+      // have rp_obj be the instance
+      // the rp argument can be either,
+      var rp_obj;
+
+      if (typeof rp === "string") {
+        rp_obj = _this.rps[rp];
+      } else if (rp) {
+        // if required as rp can be undefined or null
+        rp_obj = rp;
+        rp = weak_key__WEBPACK_IMPORTED_MODULE_2___default()(rp_obj);
+      }
+
       var action = _this.state.site_data.actors[actorId].ba[an];
       console.log("runAction", action, an, actorId, rp, status, sr); // Grid show and detail actions change url to correct page.
 
@@ -267,31 +288,77 @@ function (_React$Component) {
         _this.router.history.push(history_conf);
       } else if (action.window_action) {
         // dialog action:
-        _this.setState(function (old) {
-          dialogs: [{
+        var diag_props = {
+          an: an,
+          action: action,
+          actorId: actorId,
+          data: {},
+          title: "",
+          onClose: function onClose() {
+            console.log("Action Dialog Closed Callback");
+          },
+          onOk: function onOk() {
+            console.log("Action Dialog OK Callback");
+          }
+        };
+
+        if (status.data_record) {
+          diag_props.data = status.data_record.data;
+          diag_props.title = status.data_record.title;
+        } else if (an === "insert") {
+          // no default data and insert action,
+          // fetch default data
+          // Might be only for insert,
+          var url_args = query_string__WEBPACK_IMPORTED_MODULE_4___default.a.parse(_this.router.history.location.search),
+              args = {
             an: an,
-            action: action,
-            actorId: actorId,
-            data: status.data_record.data,
-            title: status.data_record.title,
-            onClose: function onClose() {
-              console.log("Action Dialog Closed Callback");
-            },
-            onOk: function onOk() {
-              console.log("Action Dialog OK Callback");
-            }
-          }].concat(old.dialogs);
+            fmt: "json",
+            rp: rp
+          };
+          if (url_args.mk) args.mk = url_args.mk; // in the case of expanded slave-grid or detail
+
+          if (url_args.mt) args.mt = url_args.mt; // I wonder if we should call on rp to get the mt / mk...
+          // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
+
+          Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_26__["fetch"])("/api/".concat(actorId.replace(".", "/"), "/-99999?").concat(query_string__WEBPACK_IMPORTED_MODULE_4___default.a.stringify(args))).then(function (req) {
+            return req.json();
+          }).then(function (data) {
+            // console.log(data);
+            _this.setState(function (old) {
+              var dialogs = old.dialogs,
+                  dialog = dialogs.find(function (e) {
+                return e === diag_props;
+              }); // find dialog
+
+              dialogs = _toConsumableArray(dialogs); // make copy of array, as to triger a refresh of data.
+              // Object.assign(prevState.data, {...values}
+
+              dialog.data = data.data;
+              dialog.title = data.title;
+              return {
+                dialogs: dialogs
+              };
+            });
+          });
+        } // fetch( default data for action url, for both insert + actions)
+        // .then( req => req.json()).
+        //  then(
+
+
+        _this.setState(function (old) {
+          return {
+            dialogs: [diag_props].concat(old.dialogs)
+          };
         });
       } // Other actions require an ajax call
       else {
           var urlSr = Array.isArray(sr) ? sr[0] : sr,
-              args = {
+              _args = {
             an: an,
             sr: sr
           };
-          rp && (args.rp = typeof rp === "string" ? rp : weak_key__WEBPACK_IMPORTED_MODULE_2___default()(rp)); // rp can be null / undefined, in that case don't pass
-
-          Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_26__["fetch"])("api/".concat(actorId.split(".").join("/"), "/").concat(urlSr, "?").concat(query_string__WEBPACK_IMPORTED_MODULE_4___default.a.stringify(args))).then(function (req) {
+          rp && (_args.rp = rp);
+          Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_26__["fetch"])("api/".concat(actorId.split(".").join("/"), "/").concat(urlSr, "?").concat(query_string__WEBPACK_IMPORTED_MODULE_4___default.a.stringify(_args))).then(function (req) {
             //Todo error handeling.
             return req.json();
           }).then(function (data) {
@@ -651,7 +718,9 @@ function (_React$Component) {
             actorData: _this5.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]
           });
         }
-      }))) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_progressspinner__WEBPACK_IMPORTED_MODULE_17__["ProgressSpinner"], null)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }))) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_progressspinner__WEBPACK_IMPORTED_MODULE_17__["ProgressSpinner"], null)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_27__["SiteContext"].Provider, {
+        value: this.state.site_data
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "layout-mask"
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SignInDialog__WEBPACK_IMPORTED_MODULE_11__["SignInDialog"], {
         visible: this.state.logging_in,
@@ -668,10 +737,24 @@ function (_React$Component) {
           key: weak_key__WEBPACK_IMPORTED_MODULE_2___default()(d),
           onClose: d.onClose,
           onOk: d.onOk,
+          data: d.data,
           title: d.title,
-          router: _this5.router
+          router: _this5.router,
+          update_value: function update_value(values, id) {
+            _this5.setState(function (previous) {
+              var dia = previous.dialogs.find(function (e) {
+                return weak_key__WEBPACK_IMPORTED_MODULE_2___default()(e) === id;
+              }),
+                  dialogs = _toConsumableArray(previous.dialogs);
+
+              Object.assign(dia.data, values);
+              return {
+                dialogs: dialogs
+              };
+            });
+          }
         });
-      })));
+      }))));
     }
   }]);
 
@@ -26588,8 +26671,7 @@ function (_Component) {
     value: function columnTemplate(col) {
       var _this2 = this;
 
-      console.log(col);
-
+      // console.log(col);
       var Template = _LinoComponents__WEBPACK_IMPORTED_MODULE_11__["default"]._GetComponent(col.react_name);
 
       return function (rowData, column) {
@@ -26644,7 +26726,7 @@ function (_Component) {
       var originalEvent = _ref.originalEvent,
           data = _ref.data,
           type = _ref.type;
-      console.log("onRowSelect", originalEvent, data, type);
+      // console.log("onRowSelect", originalEvent, data, type);
       originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
 
       if (type === "checkbox" || type === "radio") {
@@ -26725,7 +26807,7 @@ function (_Component) {
       Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_4__["fetch"])("/api/".concat(this.props.packId, "/").concat(this.props.actorId, "?").concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(ajax_query))).then(function (res) {
         return res.json();
       }).then(function (data) {
-        console.log("table GET", data);
+        // console.log("table GET", data);
         var rows = data.rows;
         delete data.rows;
 
@@ -26753,8 +26835,7 @@ function (_Component) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.reload();
-      console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
+      this.reload(); // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
   }, {
     key: "render",
@@ -27089,10 +27170,12 @@ var LinoComponents = {
         icon: "pi pi-external-link",
         onClick: function onClick() {
           var status = {
-            mk: props.prop_bundle.mk,
-            // No need to test for if-slave as it's a slave-summary
-            mt: props.prop_bundle.mt // We always know we need mk/mt be
+            base_params: {
+              mk: props.prop_bundle.mk,
+              // No need to test for if-slave as it's a slave-summary
+              mt: props.prop_bundle.mt // We always know we need mk/mt be
 
+            }
           }; // console.log(props.elem, detail_action);
 
           window.App.runAction({
@@ -27111,8 +27194,8 @@ var LinoComponents = {
     var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
     var hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_10__["SiteContext"].Consumer, null, function (siteData) {
-      var options = siteData.choicelists[props.elem.field_options.store];
-      console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+      var options = siteData.choicelists[props.elem.field_options.store]; // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
         elem: props.elem,
         labeled: props.labeled,
@@ -27131,7 +27214,7 @@ var LinoComponents = {
         onChange: function onChange(e) {
           var _props$prop_bundle$up;
 
-          console.log(e);
+          // console.log(e);
           var v = e.target.value === null ? "" : e.target.value['text'],
               h = e.target.value === null ? "" : e.target.value['value'];
           props.prop_bundle.update_value((_props$prop_bundle$up = {}, _defineProperty(_props$prop_bundle$up, props.elem.name, v), _defineProperty(_props$prop_bundle$up, props.elem.name + "Hidden", h), _props$prop_bundle$up));
@@ -27327,6 +27410,7 @@ var LinoComponents = {
 LinoComponents.Panel.defaultProps = {
   header: true
 };
+LinoComponents.ActionParamsPanel = LinoComponents.Panel;
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 /* harmony default export */ __webpack_exports__["default"] = (LinoComponents);
 
@@ -46746,7 +46830,7 @@ function (_Component) {
         start: 0 //todo have pageing / some sort of max amount
 
       };
-      Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_7__["fetch"])("/choices/".concat(this.props.prop_bundle.actorId.replace(".", "/"), "/").concat(this.props.elem.name, "?").concat(query_string__WEBPACK_IMPORTED_MODULE_6___default.a.stringify(ajaxQuery))).then(function (res) {
+      Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_7__["fetch"])("/".concat(this.props.prop_bundle.action_dialog ? "apchoices" : "choices", "/").concat(this.props.prop_bundle.actorId.replace(".", "/")).concat(this.props.prop_bundle.action_dialog ? "/".concat(this.props.prop_bundle.action.an) : "", "/").concat(this.props.elem.name, "?").concat(query_string__WEBPACK_IMPORTED_MODULE_6___default.a.stringify(ajaxQuery))).then(function (res) {
         return res.json();
       }).then(function (data) {
         return _this2.setState({
@@ -57112,10 +57196,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -57156,26 +57236,13 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(LinoDialog).call(this));
     _this.state = {
-      visible: true,
-      data: Object.assign({}, props.data)
+      visible: true // data: Object.assign({}, props.data)
+
     };
     return _this;
   }
 
   _createClass(LinoDialog, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {}
-  }, {
-    key: "update_value",
-    value: function update_value(values) {
-      // console.log(arguments);
-      this.setState(function (prevState) {
-        return {
-          data: Object.assign(prevState.data, _objectSpread({}, values))
-        };
-      }); // copy and replace values
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -57186,10 +57253,14 @@ function (_Component) {
         var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_4__["default"]._GetComponent(layout.main.react_name);
 
         var prop_bundle = {
-          data: _this2.state.data,
+          data: _this2.props.data,
           actorId: _this2.props.actorId,
+          action: _this2.props.action,
+          action_dialog: layout.main.react_name === "ActionParamsPanel",
           // disabled_fields: this.state.disabled_fields,
-          update_value: _this2.update_value,
+          update_value: function update_value(v) {
+            return _this2.props.update_value(v, _this2._reactInternalFiber.key);
+          },
           editing_mode: true,
           match: _this2.props.router
         };
@@ -57203,7 +57274,7 @@ function (_Component) {
             _this2.props.onClose(_this2);
           },
           visible: _this2.state.visible,
-          title: _this2.props.title
+          header: _this2.props.title
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
           elem: layout.main,
           main: true
@@ -57221,15 +57292,17 @@ LinoDialog.propTypes = {
   // Some sort of callback
   onOk: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
   // Some sort of callback
-  baseData: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  // baseData: PropTypes.object,
   actorId: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
   // Full id, with . ie: tickets.Alltickets
   title: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string,
-  router: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object // router
-
+  router: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  // router
+  data: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
+  update_value: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
 };
 LinoDialog.defaultProps = {
-  baseData: {}
+  data: {}
 };
 
 /***/ }),

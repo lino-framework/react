@@ -125,10 +125,10 @@ const LinoComponents = {
                           header={props.elem.label} style={style}>
                 <Button className="l-slave-summary-expand-button p-button-secondary" icon="pi pi-external-link"
                         onClick={() => {
-                            let status = {
+                            let status = {base_params:{
                                 mk: props.prop_bundle.mk, // No need to test for if-slave as it's a slave-summary
                                 mt: props.prop_bundle.mt // We always know we need mk/mt be
-                            };
+                            }};
                             // console.log(props.elem, detail_action);
                             window.App.runAction({
                                 an: "grid", // use default_action ??
@@ -148,7 +148,7 @@ const LinoComponents = {
         let hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
         return <SiteContext.Consumer>{(siteData) => {
             let options = siteData.choicelists[props.elem.field_options.store];
-            console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+            // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
             return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.prop_bundle.editing_mode ?
                     <Dropdown
@@ -158,7 +158,7 @@ const LinoComponents = {
                         showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
                         options={options}
                         onChange={(e) => {
-                            console.log(e);
+                            // console.log(e);
                             let v = e.target.value === null ? "" : e.target.value['text'],
                                 h = e.target.value === null ? "" : e.target.value['value'];
                             props.prop_bundle.update_value({ // also works for grid
@@ -330,6 +330,7 @@ const LinoComponents = {
 };
 
 LinoComponents.Panel.defaultProps = {header: true};
+LinoComponents.ActionParamsPanel = LinoComponents.Panel
 
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 
