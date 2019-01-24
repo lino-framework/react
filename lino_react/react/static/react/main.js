@@ -252,7 +252,8 @@ function (_React$Component) {
           actorId = _ref.actorId,
           rp = _ref.rp,
           status = _ref.status,
-          sr = _ref.sr;
+          sr = _ref.sr,
+          responce_callback = _ref.responce_callback;
 
       // have rp be the key for the rp
       // have rp_obj be the instance
@@ -293,7 +294,6 @@ function (_React$Component) {
           action: action,
           actorId: actorId,
           data: {},
-          title: "",
           onClose: function onClose() {
             console.log("Action Dialog Closed Callback");
           },
@@ -319,6 +319,7 @@ function (_React$Component) {
 
           if (url_args.mt) args.mt = url_args.mt; // I wonder if we should call on rp to get the mt / mk...
           // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
+          // gets default values for this insert
 
           Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_26__["fetch"])("/api/".concat(actorId.replace(".", "/"), "/-99999?").concat(query_string__WEBPACK_IMPORTED_MODULE_4___default.a.stringify(args))).then(function (req) {
             return req.json();
@@ -355,16 +356,34 @@ function (_React$Component) {
           var urlSr = Array.isArray(sr) ? sr[0] : sr,
               _args = {
             an: an,
-            sr: sr
+            sr: sr // not needed for submit_detail, but non breaking, so leave it.
+
           };
-          rp && (_args.rp = rp);
-          Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_26__["fetch"])("api/".concat(actorId.split(".").join("/"), "/").concat(urlSr, "?").concat(query_string__WEBPACK_IMPORTED_MODULE_4___default.a.stringify(_args))).then(function (req) {
+          rp && (_args.rp = rp); // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
+
+          var changes = Object.keys(rp_obj.state.data).filter(function (value, index) {
+            return rp_obj.state.original_data[value] !== rp_obj.state.data[value];
+          }).reduce(function (result, item, index, array) {
+            result[item] = rp_obj.state.data[item];
+            return result;
+          }, {});
+          if (action.submit_form_data) Object.assign(_args, changes);
+          var url = "api/".concat(actorId.split(".").join("/"), "/").concat(urlSr);
+          if (action.http_method === "GET") url += "?".concat(query_string__WEBPACK_IMPORTED_MODULE_4___default.a.stringify(_args));
+          Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_26__["fetch"])(url, {
+            method: action.http_method,
+            body: ['POST', "PUT"].includes(action.http_method) ? JSON.stringify(_args) : undefined,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(function (req) {
             //Todo error handeling.
             return req.json();
           }).then(function (data) {
             _this.handleActionResponce({
               response: data,
-              rp: typeof rp === "string" ? window.App.rps[rp] : rp
+              rp: rp_obj || rp,
+              responce_callback: responce_callback
             });
           }); // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
         }
@@ -373,9 +392,15 @@ function (_React$Component) {
     _this.handleActionResponce = function (_ref2) {
       var response = _ref2.response,
           _ref2$rp = _ref2.rp,
-          rp = _ref2$rp === void 0 ? undefined : _ref2$rp;
+          rp = _ref2$rp === void 0 ? undefined : _ref2$rp,
+          _ref2$responce_callba = _ref2.responce_callback,
+          responce_callback = _ref2$responce_callba === void 0 ? undefined : _ref2$responce_callba;
 
       // console.log(response, rp);
+      if (responce_callback) {
+        responce_callback(response);
+      }
+
       if (response.eval_js) {
         eval(response.eval_js);
       }
@@ -383,8 +408,8 @@ function (_React$Component) {
       if (response.message) {
         _this.growl.show({
           // severity: "error",
-          severity: response.alert.toLowerCase(),
-          summary: response.alert,
+          severity: response.alert ? response.alert.toLowerCase() : response.success ? "success" : "info",
+          summary: response.alert || response.success ? "Success" : "Info",
           detail: response.message
         });
       }
@@ -26984,6 +27009,9 @@ module.exports = __webpack_require__(99);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deepCompare", function() { return deepCompare; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
@@ -27006,6 +27034,113 @@ function debounce(func, wait, immediate) {
   };
 }
 ;
+function deepCompare() {
+  var i, l, leftChain, rightChain;
+
+  function compare2Objects(x, y) {
+    var p; // remember that NaN === NaN returns false
+    // and isNaN(undefined) returns true
+
+    if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number') {
+      return true;
+    } // Compare primitives and functions.
+    // Check if both arguments link to the same object.
+    // Especially useful on the step where we compare prototypes
+
+
+    if (x === y) {
+      return true;
+    } // Works in case when functions are created in constructor.
+    // Comparing dates is a common scenario. Another built-ins?
+    // We can even handle functions passed across iframes
+
+
+    if (typeof x === 'function' && typeof y === 'function' || x instanceof Date && y instanceof Date || x instanceof RegExp && y instanceof RegExp || x instanceof String && y instanceof String || x instanceof Number && y instanceof Number) {
+      return x.toString() === y.toString();
+    } // At last checking prototypes as good as we can
+
+
+    if (!(x instanceof Object && y instanceof Object)) {
+      return false;
+    }
+
+    if (x.isPrototypeOf(y) || y.isPrototypeOf(x)) {
+      return false;
+    }
+
+    if (x.constructor !== y.constructor) {
+      return false;
+    }
+
+    if (x.prototype !== y.prototype) {
+      return false;
+    } // Check for infinitive linking loops
+
+
+    if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
+      return false;
+    } // Quick checking of one object being a subset of another.
+    // todo: cache the structure of arguments[0] for performance
+
+
+    for (p in y) {
+      if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+        return false;
+      } else if (_typeof(y[p]) !== _typeof(x[p])) {
+        return false;
+      }
+    }
+
+    for (p in x) {
+      if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+        return false;
+      } else if (_typeof(y[p]) !== _typeof(x[p])) {
+        return false;
+      }
+
+      switch (_typeof(x[p])) {
+        case 'object':
+        case 'function':
+          leftChain.push(x);
+          rightChain.push(y);
+
+          if (!compare2Objects(x[p], y[p])) {
+            return false;
+          }
+
+          leftChain.pop();
+          rightChain.pop();
+          break;
+
+        default:
+          if (x[p] !== y[p]) {
+            return false;
+          }
+
+          break;
+      }
+    }
+
+    return true;
+  }
+
+  if (arguments.length < 1) {
+    return true; //Die silently? Don't know how to handle such case, please help...
+    // throw "Need two or more arguments to compare";
+  }
+
+  for (i = 1, l = arguments.length; i < l; i++) {
+    leftChain = []; //Todo: this can be cached
+
+    rightChain = [];
+
+    if (!compare2Objects(arguments[0], arguments[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 /***/ }),
 /* 190 */
@@ -47128,6 +47263,7 @@ function (_Component) {
     _this.reload = _this.reload.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.update_value = _this.update_value.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     _this.quickSearch = Object(_LinoUtils__WEBPACK_IMPORTED_MODULE_9__["debounce"])(_this.quickSearch.bind(_assertThisInitialized(_assertThisInitialized(_this))));
+    _this.consume_server_responce = _this.consume_server_responce.bind(_assertThisInitialized(_assertThisInitialized(_this)));
     return _this;
   }
   /**
@@ -47177,20 +47313,24 @@ function (_Component) {
       Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_11__["fetch"])("/api/".concat(this.props.packId, "/").concat(this.props.actorId) + "/".concat(this.props.pk) + "?".concat(query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(query))).then(function (res) {
         return res.json();
       }).then(function (data) {
-        // console.log("detail GET", data);
-        var df = data.data.disabled_fields;
-        delete data.data.disabled_fields;
+        _this2.consume_server_responce(data);
+      });
+    }
+  }, {
+    key: "consume_server_responce",
+    value: function consume_server_responce(data) {
+      // console.log("detail GET", data);
+      var df = data.data.disabled_fields;
+      delete data.data.disabled_fields;
+      this.setState({
+        data: data.data,
+        original_data: JSON.parse(JSON.stringify(data.data)),
+        // Copy of data for diff test
+        disabled_fields: df,
+        id: data.id,
+        title: data.title,
+        navinfo: data.navinfo // loading:false,
 
-        _this2.setState({
-          data: data.data,
-          original_data: JSON.parse(JSON.stringify(data.data)),
-          // Copy of data for diff test
-          disabled_fields: df,
-          id: data.id,
-          title: data.title,
-          navinfo: data.navinfo // loading:false,
-
-        });
       });
     }
   }, {
@@ -47322,14 +47462,41 @@ function (_Component) {
         },
         checked: this.state.editing_mode,
         onChange: function onChange(e) {
-          return _this4.setState({
-            editing_mode: e.value
-          });
+          if (_this4.state.editing_mode && !Object(_LinoUtils__WEBPACK_IMPORTED_MODULE_9__["deepCompare"])(_this4.state.original_data, _this4.state.data)) {
+            window.App.runAction({
+              rp: _this4,
+              an: "submit_detail",
+              actorId: "".concat(_this4.props.packId, ".").concat(_this4.props.actorId),
+              sr: _this4.props.pk,
+              responce_callback: function responce_callback(data) {
+                _this4.setState({
+                  editing_mode: false
+                });
+
+                _this4.consume_server_responce(data.data_record);
+              }
+            });
+          } else {
+            _this4.setState({
+              editing_mode: e.value
+            });
+          }
         },
         onLabel: "Save",
         offLabel: "Edit",
         onIcon: "pi pi-save",
         offIcon: "pi pi-pencil"
+      }), this.state.editing_mode && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_5__["Button"], {
+        style: {
+          "float": "right"
+        },
+        label: "Cancel",
+        onClick: function onClick() {
+          _this4.setState({
+            data: Object.assign({}, _this4.state.original_data),
+            editing_mode: false
+          });
+        }
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_LinoBbar__WEBPACK_IMPORTED_MODULE_10__["default"], {
         sr: [this.props.pk],
         reload: this.reload,
@@ -57277,7 +57444,7 @@ function (_Component) {
             _this2.props.onClose(_this2);
           },
           visible: _this2.state.visible,
-          header: _this2.props.title
+          header: _this2.props.title || _this2.props.action.label
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
           elem: layout.main,
           main: true

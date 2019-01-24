@@ -11,7 +11,7 @@ import {AutoComplete} from 'primereact/autocomplete';
 import {ToggleButton} from 'primereact/togglebutton';
 
 import LinoComponents from "./LinoComponents"
-import {debounce} from "./LinoUtils";
+import {debounce, deepCompare} from "./LinoUtils";
 import LinoBbar from "./LinoBbar";
 
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
@@ -50,7 +50,9 @@ export class LinoDetail extends Component {
         };
         this.reload = this.reload.bind(this);
         this.update_value = this.update_value.bind(this);
-        this.quickSearch = debounce(this.quickSearch.bind(this))
+        this.quickSearch = debounce(this.quickSearch.bind(this));
+        this.consume_server_responce = this.consume_server_responce.bind(this);
+
 
     }
 
@@ -93,20 +95,25 @@ export class LinoDetail extends Component {
             (res) => (res.json())
         ).then(
             (data) => {
-                // console.log("detail GET", data);
-                let df = data.data.disabled_fields;
-                delete data.data.disabled_fields;
-                this.setState({
-                    data: data.data,
-                    original_data: JSON.parse(JSON.stringify(data.data)), // Copy of data for diff test
-                    disabled_fields: df,
-                    id: data.id,
-                    title: data.title,
-                    navinfo: data.navinfo,
-                    // loading:false,
-                });
+                this.consume_server_responce(data)
             }
         )
+    }
+
+    consume_server_responce(data) {
+        // console.log("detail GET", data);
+        let df = data.data.disabled_fields;
+        delete data.data.disabled_fields;
+        this.setState({
+            data: data.data,
+            original_data: JSON.parse(JSON.stringify(data.data)), // Copy of data for diff test
+            disabled_fields: df,
+            id: data.id,
+            title: data.title,
+            navinfo: data.navinfo,
+            // loading:false,
+        });
+
     }
 
     componentDidMount() {
@@ -201,9 +208,30 @@ export class LinoDetail extends Component {
                             onClick={() => this.onNavClick(this.state.navinfo.last)}/>
                     <ToggleButton style={{"float": "right"}}
                                   checked={this.state.editing_mode}
-                                  onChange={(e) => this.setState({editing_mode: e.value})}
+                                  onChange={(e) => {
+                                      if (this.state.editing_mode && !deepCompare(this.state.original_data, this.state.data)) {
+                                          window.App.runAction({
+                                              rp: this,
+                                              an: "submit_detail",
+                                              actorId: `${this.props.packId}.${this.props.actorId}`, sr: this.props.pk,
+                                              responce_callback: (data) => {
+                                                  this.setState({editing_mode: false});
+                                                  this.consume_server_responce(data.data_record);
+                                              }
+                                          });
+                                      }
+                                      else {
+                                          this.setState({editing_mode: e.value})
+                                      }
+                                  }}
                                   onLabel="Save" offLabel="Edit" onIcon="pi pi-save" offIcon="pi pi-pencil"
                     />
+                    {this.state.editing_mode && <Button style={{"float": "right"}} label={"Cancel"} onClick={() => {
+                        this.setState({
+                            data: Object.assign({}, this.state.original_data),
+                            editing_mode: false
+                        })
+                    }}/>}
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
                               an={'detail'}/>

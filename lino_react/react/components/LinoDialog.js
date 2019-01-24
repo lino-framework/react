@@ -61,7 +61,7 @@ export class LinoDialog extends Component {
                 this.setState({visible: false});
                 this.props.onClose(this);
             }} visible={this.state.visible}
-                           header={this.props.title}>
+                           header={this.props.title || this.props.action.label}>
                 <MainComp {...prop_bundle} elem={layout.main} main={true}/>
             </Dialog>
         }}</SiteContext.Consumer>

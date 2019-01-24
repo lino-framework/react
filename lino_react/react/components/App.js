@@ -263,7 +263,7 @@ class App extends React.Component {
      * @param rp instance that's running the action, grid / detail component
      * @param status uses keys: record_id, mk and mt for navigation data,
      */
-    runAction = ({an, actorId, rp, status, sr} = {}) => {
+    runAction = ({an, actorId, rp, status, sr, responce_callback} = {}) => {
 
         // have rp be the key for the rp
         // have rp_obj be the instance
@@ -303,7 +303,6 @@ class App extends React.Component {
                 action: action,
                 actorId: actorId,
                 data: {},
-                title: "",
                 onClose: () => {
                     console.log("Action Dialog Closed Callback")
                 },
@@ -326,6 +325,7 @@ class App extends React.Component {
                 // I wonder if we should call on rp to get the mt / mk...
 
                 // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
+                // gets default values for this insert
                 fetchPolyfill(`/api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then((req) => req.json()).then(
                     (data) => {
                         // console.log(data);
@@ -354,25 +354,49 @@ class App extends React.Component {
             let urlSr = Array.isArray(sr) ? sr[0] : sr,
                 args = {
                     an: an,
-                    sr: sr,
-
+                    sr: sr, // not needed for submit_detail, but non breaking, so leave it.
                 };
             rp && (args.rp = rp);
-            fetchPolyfill(`api/${actorId.split(".").join("/")}/${urlSr}?${queryString.stringify(args)}`).then(
+            // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
+            let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
+                result[item] = rp_obj.state.data[item];
+                return result
+            }, {});
+            if (action.submit_form_data) Object.assign(args, changes);
+
+            let url = `api/${actorId.split(".").join("/")}/${urlSr}`;
+            if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
+
+            fetchPolyfill(url, {
+                method: action.http_method,
+                body: ['POST', "PUT"].includes(action.http_method) ? JSON.stringify(args) : undefined,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(
                 (req) => {
                     //Todo error handeling.
                     return req.json()
                 }
             ).then((data) => {
-                    this.handleActionResponce({response: data, rp: typeof rp === "string" ? window.App.rps[rp] : rp});
+                    this.handleActionResponce({
+                        response: data,
+                        rp: rp_obj || rp,
+                        responce_callback: responce_callback
+                    });
                 }
             );
             // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
         }
     };
 
-    handleActionResponce = ({response, rp = undefined}) => {
+    handleActionResponce = ({response, rp = undefined, responce_callback = undefined}) => {
         // console.log(response, rp);
+
+        if (responce_callback) {
+            responce_callback(response);
+        }
+
         if (response.eval_js) {
             eval(response.eval_js);
         }
@@ -380,8 +404,8 @@ class App extends React.Component {
         if (response.message) {
             this.growl.show({
                 // severity: "error",
-                severity: response.alert.toLowerCase(),
-                summary: response.alert,
+                severity: response.alert ? response.alert.toLowerCase() : response.success ? "success" : "info",
+                summary: response.alert || response.success ? "Success" : "Info",
                 detail: response.message
             })
         }
@@ -543,15 +567,18 @@ class App extends React.Component {
                                       onSignIn={this.onSignIn}/>
                         {this.state.dialogs.map((d) => {
 
-                        return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
-                                onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title} router={this.router}
-                        update_value={(values, id) => {this.setState(previous => {
-                            const dia = previous.dialogs.find(e => key(e) === id),
+                            return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
+                                               onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title}
+                                               router={this.router}
+                                               update_value={(values, id) => {
+                                                   this.setState(previous => {
+                                                       const dia = previous.dialogs.find(e => key(e) === id),
 
-                                dialogs = [...previous.dialogs];
-                                Object.assign(dia.data, values);
-                                return {dialogs:dialogs}
-                        })}} />
+                                                           dialogs = [...previous.dialogs];
+                                                       Object.assign(dia.data, values);
+                                                       return {dialogs: dialogs}
+                                                   })
+                                               }}/>
 
                         })}
                     </SiteContext.Provider>
