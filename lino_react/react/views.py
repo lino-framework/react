@@ -170,7 +170,7 @@ class ApiElement(View):
     def post(self, request, app_label=None, actor=None, pk=None):
         ar = action_request(
             app_label, actor, request, request.POST, True,
-            renderer=settings.SITE.kernel.extjs_renderer)
+            renderer=settings.SITE.plugins.react.renderer)
         if pk == '-99998':
             elem = ar.create_instance()
             ar.selected_rows = [elem]
@@ -185,7 +185,7 @@ class ApiElement(View):
 
         ar = action_request(
             app_label, actor, request, data, False,
-            renderer=settings.SITE.kernel.extjs_renderer)
+            renderer=settings.SITE.plugins.react.renderer)
         ar.set_selected_pks(pk)
         return settings.SITE.kernel.run_action(ar)
 
@@ -193,7 +193,7 @@ class ApiElement(View):
         data = http.QueryDict(request.body)
         ar = action_request(
             app_label, actor, request, data, False,
-            renderer=settings.SITE.kernel.extjs_renderer)
+            renderer=settings.SITE.plugins.react.renderer)
         ar.set_selected_pks(pk)
         return settings.SITE.kernel.run_action(ar)
 
