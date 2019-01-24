@@ -280,11 +280,16 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           label=v.action.get_label(), # todo fix this, this is a readable action, not ID for the action
                           window_action=v.action.is_window_action(),
                           window_layout=v.get_layout_handel(),
+                          http_method=v.action.http_method,
                           )
 
             # if v.action.show_in_bbar: result["bbar"] = True # not needed
             if v.action.combo_group: result["combo_group"] = v.action.combo_group
             if v.action.select_rows: result['select_rows'] = v.action.select_rows
+
+            if v.action.window_type: result["toolbarActions"] = [ba.action.action_name for ba in
+                                                                                v.actor.get_toolbar_actions(
+                                                                                    v.action)]
 
             return result
         if isclass(v) and issubclass(v, Actor):
@@ -294,9 +299,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           slave=bool(v.master)
                           # [py2js(b) for b in v.actions.items()]
                           )
-            if v.default_action.action.window_type: result["toolbarActions"] = [ba.action.action_name for ba in
-                                                                                v.get_toolbar_actions(
-                                                                                    v.default_action.action)]
             # grids
             if hasattr(v.get_handle(), "get_columns"):
                 result['col'] = v.get_handle().get_columns()

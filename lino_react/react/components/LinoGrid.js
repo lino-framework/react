@@ -252,7 +252,7 @@ export class LinoGrid extends Component {
 
                 <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
                           srMap={(row) => row[this.props.actorData.pk_index]}
-                          rp={this}
+                          rp={this} an={'grid'}
                           runAction={this.runAction}/>
             </div>}
         </div>;

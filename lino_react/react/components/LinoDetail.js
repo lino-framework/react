@@ -205,7 +205,8 @@ export class LinoDetail extends Component {
                                   onLabel="Save" offLabel="Edit" onIcon="pi pi-save" offIcon="pi pi-pencil"
                     />
                     <br/>
-                    <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}/>
+                    <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
+                              an={'detail'}/>
                 </Toolbar>}
                 <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
             </React.Fragment>

@@ -13,6 +13,7 @@ class LinoBbar extends Component {
 
     static propTypes = {
         actorData: PropTypes.object,
+        an: PropTypes.string,
         sr: PropTypes.array,
         rp: PropTypes.any,
         reload: PropTypes.func,
@@ -57,7 +58,7 @@ class LinoBbar extends Component {
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         return <React.Fragment>
             <Button icon={"pi pi-refresh"} onClick={this.props.reload}/>
-            {actorData.toolbarActions.map((an) => {
+            {actorData.ba[this.props.an].toolbarActions.map((an) => {
                 return <Button label={an} key={an}
                                disabled={actorData.ba[an].select_rows && this.props.sr.length === 0}
                                onClick={() => this.runAction(an)}/>

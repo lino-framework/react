@@ -491,6 +491,8 @@ a {
     height: 1.5em;
     width: 1.5em;
     margin-top: 3px; }
+  .layout-main .l-ForeignKeyElement .p-autocomplete {
+    display: inherit; }
 
 .l-panel-vertical {
   flex-direction: column; }
