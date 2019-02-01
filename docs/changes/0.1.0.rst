@@ -68,7 +68,9 @@ The basic order of completion ought to be:
 #. Dialog system
    Dialogs open with correct elems, along with editable data, however no ajax hooks installed yet.
 #. save Ajax
+   Working,
 #. Dialog ajax
+
 #. yes / no dialogs
 #. Param Actions
 #. Editable Grid

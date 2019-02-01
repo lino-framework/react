@@ -11,6 +11,7 @@ import PropTypes from "prop-types";
 import {Dialog} from 'primereact/dialog';
 import {SiteContext} from "./SiteContext";
 import LinoComponents from "./LinoComponents";
+import LinoBbar from "./LinoBbar";
 
 
 export class LinoDialog extends Component {
@@ -36,14 +37,25 @@ export class LinoDialog extends Component {
             visible: true,
             // data: Object.assign({}, props.data)
         };
+
+        this.onClose = this.onClose.bind(this);
     };
 
+    onClose() {
+        this.setState({visible: false});
+        this.props.onClose(this);
+
+    };
 
     render() {
 
         return <SiteContext.Consumer>{(siteData) => {
             const layout = this.props.action.window_layout;
             const MainComp = LinoComponents._GetComponent(layout.main.react_name);
+
+            const footer = <div><LinoBbar rp={this} actorData={siteData.actors[this.props.actorId]}
+                                          an={this.props.action.an} sr={[-99998]}/></div>
+
             let prop_bundle = {
                 data: this.props.data,
                 actorId: this.props.actorId,
@@ -57,11 +69,9 @@ export class LinoDialog extends Component {
             prop_bundle.prop_bundle = prop_bundle;
 
 
-            return <Dialog onHide={() => {
-                this.setState({visible: false});
-                this.props.onClose(this);
-            }} visible={this.state.visible}
-                           header={this.props.title || this.props.action.label}>
+            return <Dialog onHide={this.onClose} visible={this.state.visible}
+                           header={this.props.title || this.props.action.label}
+                           footer={footer}>
                 <MainComp {...prop_bundle} elem={layout.main} main={true}/>
             </Dialog>
         }}</SiteContext.Consumer>

@@ -358,11 +358,19 @@ class App extends React.Component {
                 };
             rp && (args.rp = rp);
             // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
-            let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
-                result[item] = rp_obj.state.data[item];
-                return result
-            }, {});
-            if (action.submit_form_data) Object.assign(args, changes);
+
+            if (action.submit_form_data) {
+                let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
+                    result[item] = rp_obj.state.data[item];
+                    return result
+                }, {});
+                Object.assign(args, changes);
+            }
+
+            if (an === "submit_insert") {
+                Object.assign(args, rp_obj.props.data)
+            } // is a dialog object.
+
 
             let url = `api/${actorId.split(".").join("/")}/${urlSr}`;
             if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
@@ -401,11 +409,26 @@ class App extends React.Component {
             eval(response.eval_js);
         }
 
+        if (response.close_window) {
+            if (this.state.dialogs){
+                this.state.dialogs[this.state.dialogs.length-1].onClose();
+
+                this.setState((old) => {
+                    old.dialogs.pop();  // remove last item, use shift for first
+                    return {dialogs: [...old.dialogs]}
+                })
+            }
+        }
+
+        if (response.goto_url) {
+            this.router.history.push(response.goto_url);
+        }
+
         if (response.message) {
             this.growl.show({
                 // severity: "error",
                 severity: response.alert ? response.alert.toLowerCase() : response.success ? "success" : "info",
-                summary: response.alert || response.success ? "Success" : "Info",
+                summary: response.alert || (response.success ? "Success" : "Info"),
                 detail: response.message
             })
         }

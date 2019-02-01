@@ -168,8 +168,9 @@ class ApiElement(View):
         return settings.SITE.kernel.run_action(ar)
 
     def post(self, request, app_label=None, actor=None, pk=None):
+        data = json.loads(request.body)
         ar = action_request(
-            app_label, actor, request, request.POST, True,
+            app_label, actor, request, data, True,
             renderer=settings.SITE.plugins.react.renderer)
         if pk == '-99998':
             elem = ar.create_instance()
@@ -208,7 +209,7 @@ class ApiElement(View):
 class ApiList(View):
     def post(self, request, app_label=None, actor=None):
         ar = action_request(app_label, actor, request, request.POST, True)
-        ar.renderer = settings.SITE.kernel.extjs_renderer
+        ar.renderer = settings.SITE.kernel.default_renderer
         return settings.SITE.kernel.run_action(ar)
 
     def get(self, request, app_label=None, actor=None):

@@ -21,6 +21,7 @@ class LinoBbar extends Component {
     };
     static defaultProps = {
         srMap: sr => sr,
+        sr: [],
     };
 
     constructor(props) {
@@ -57,9 +58,10 @@ class LinoBbar extends Component {
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         return <React.Fragment>
-            <Button icon={"pi pi-refresh"} onClick={this.props.reload}/>
-            {actorData.ba[this.props.an].toolbarActions.map((an) => {
-                return <Button label={an} key={an}
+            {this.props.reload && <Button icon={"pi pi-refresh"} onClick={this.props.reload}/>}
+            {actorData.ba[this.props.an].toolbarActions && actorData.ba[this.props.an].toolbarActions.map((an) => {
+                let action = this.props.actorData.ba[an];
+                return <Button label={action.label} key={an}
                                disabled={actorData.ba[an].select_rows && this.props.sr.length === 0}
                                onClick={() => this.runAction(an)}/>
 

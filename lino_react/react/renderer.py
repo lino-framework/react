@@ -328,6 +328,20 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
         return v
 
+    def goto_instance(self, ar, obj, detail_action=None, **kw):
+        """Ask the client to display a :term:`detail window` on the given
+        record. The client might ignore this if Lino does not know a
+        detail window.
+
+        This calls :meth:`obj.get_detail_action
+        <lino.core.model.Model.get_detail_action>`.
+
+        """
+        js = self.instance_handler(ar, obj, detail_action)
+        kw.update(eval_js=js)
+        ar.set_response(**kw)
+
+
     def handler_item(self, mi, handler, help_text):
         """"""
         # ~ handler = "function(){%s}" % handler
