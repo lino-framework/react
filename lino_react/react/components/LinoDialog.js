@@ -21,6 +21,7 @@ export class LinoDialog extends Component {
         onClose: PropTypes.func,   // Some sort of callback
         onOk: PropTypes.func,   // Some sort of callback
         // baseData: PropTypes.object,
+        footer: PropTypes.element,
         actorId: PropTypes.string, // Full id, with . ie: tickets.Alltickets
         title: PropTypes.string,
         router: PropTypes.object, // router
@@ -53,7 +54,7 @@ export class LinoDialog extends Component {
             const layout = this.props.action.window_layout;
             const MainComp = LinoComponents._GetComponent(layout.main.react_name);
 
-            const footer = <div><LinoBbar rp={this} actorData={siteData.actors[this.props.actorId]}
+            const footer = this.props.footer || <div><LinoBbar rp={this} actorData={siteData.actors[this.props.actorId]}
                                           an={this.props.action.an} sr={[-99998]}/></div>
 
             let prop_bundle = {

@@ -63,6 +63,7 @@ The basic order of completion ought to be:
    Working with refresh
 #. FK chooser elem
    Working choices lookup and data update
+   !! Warning !! doesn't work correctly needs fixing.
 #. Choice list elem
    Working
 #. Dialog system
@@ -70,7 +71,9 @@ The basic order of completion ought to be:
 #. save Ajax
    Working,
 #. Dialog ajax
-
+   dialog action works,
+   !! Needs sign-in dialog to reload site-data on success !!
+   
 #. yes / no dialogs
 #. Param Actions
 #. Editable Grid

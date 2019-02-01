@@ -169,6 +169,7 @@ class ApiElement(View):
 
     def post(self, request, app_label=None, actor=None, pk=None):
         data = json.loads(request.body)
+        print(data)
         ar = action_request(
             app_label, actor, request, data, True,
             renderer=settings.SITE.plugins.react.renderer)

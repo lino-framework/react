@@ -16,10 +16,12 @@ import {SignInDialog} from './SignInDialog'
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
+import LinoBbar from "./LinoBbar";
 
 
 import {Sidebar} from 'primereact/sidebar';
 import {PanelMenu} from 'primereact/panelmenu';
+import {Button} from 'primereact/button';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {ProgressSpinner} from 'primereact/progressspinner';
@@ -268,6 +270,7 @@ class App extends React.Component {
         // have rp be the key for the rp
         // have rp_obj be the instance
         // the rp argument can be either,
+
         let rp_obj;
         if (typeof rp === "string") {
             rp_obj = this.rps[rp];
@@ -278,6 +281,20 @@ class App extends React.Component {
         const action = this.state.site_data.actors[actorId].ba[an];
         console.log("runAction", action, an, actorId, rp, status, sr);
         // Grid show and detail actions change url to correct page.
+
+        let excecute_args = {
+            an: an,
+            action: action,
+            actorId: actorId,
+            rp: rp,
+            rp_obj: rp_obj,
+            status: status,
+            sr: sr,
+            responce_callback: responce_callback,
+            data: {},
+        };
+
+
         if (an === "grid" || an === "show" || an === "detail") {
             let history_conf = {
                 pathname: `/api/${actorId.split(".").join("/")}/`,
@@ -304,11 +321,22 @@ class App extends React.Component {
                 actorId: actorId,
                 data: {},
                 onClose: () => {
-                    console.log("Action Dialog Closed Callback")
+                    console.log("Action Dialog Closed Callback");
+                    // todo remove this obj from app.state.dialogs.
                 },
-                onOk: () => {
-                    console.log("Action Dialog OK Callback")
-                },
+                // onOk: () => {
+                //     console.log("Action Dialog OK Callback")
+                // },
+                footer: <div>
+                    <Button label={"Cancel"} onClick={() => {
+                        //todo 
+                    }}/>
+                    <Button label={"OK"} onClick={() => {
+                        console.log("Dialog OK", diag_props.data);
+                        excecute_args.data = diag_props.data;
+                        this.excuteAction(excecute_args);
+                    }}/>
+                </div>
             };
 
             if (status.data_record) {
@@ -319,6 +347,9 @@ class App extends React.Component {
                 diag_props.data = status.field_values;
             }
             else if (an === "insert") { // no default data and insert action,
+
+                diag_props.footer = undefined; // LinoDialog defines a default footer using linoBbar for insert
+
                 // fetch default data
                 // Might be only for insert,
                 let url_args = queryString.parse(this.router.history.location.search),
@@ -353,52 +384,61 @@ class App extends React.Component {
         }
         // Other actions require an ajax call
         else {
-
-            let urlSr = Array.isArray(sr) ? sr[0] : sr,
-                args = {
-                    an: an,
-                    sr: sr, // not needed for submit_detail, but non breaking, so leave it.
-                };
-            rp && (args.rp = rp);
-            // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
-
-            if (action.submit_form_data) {
-                let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
-                    result[item] = rp_obj.state.data[item];
-                    return result
-                }, {});
-                Object.assign(args, changes);
-            }
-
-            if (an === "submit_insert") {
-                Object.assign(args, rp_obj.props.data)
-            } // is a dialog object.
-
-
-            let url = `api/${actorId.split(".").join("/")}/${urlSr}`;
-            if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
-
-            fetchPolyfill(url, {
-                method: action.http_method,
-                body: ['POST', "PUT"].includes(action.http_method) ? JSON.stringify(args) : undefined,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(
-                (req) => {
-                    //Todo error handeling.
-                    return req.json()
-                }
-            ).then((data) => {
-                    this.handleActionResponse({
-                        response: data,
-                        rp: rp_obj || rp,
-                        response_callback: responce_callback
-                    });
-                }
-            );
-            // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
+            this.excuteAction(excecute_args);
+            ;
         }
+    };
+
+    excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, responce_callback, data} = {}) => {
+        let urlSr = Array.isArray(sr) ? sr[0] : sr,
+            args = {
+                an: an,
+                sr: sr, // not needed for submit_detail, but non breaking, so leave it.
+                fmt: 'json'
+            };
+        rp && (args.rp = rp);
+        // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
+
+        if (action.submit_form_data) {
+            let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
+                result[item] = rp_obj.state.data[item];
+                return result
+            }, {});
+            Object.assign(args, changes);
+        }
+
+        if (an === "submit_insert") {
+            Object.assign(args, rp_obj.props.data)
+        }
+
+        if (data) { // dialog submission
+            Object.assign(args, data)
+        } // is a dialog object.
+
+
+        let url = `api/${actorId.split(".").join("/")}/${urlSr}`;
+        if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
+
+        fetchPolyfill(url, {
+            method: action.http_method,
+            body: ['POST', "PUT"].includes(action.http_method) ? JSON.stringify(args) : undefined,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(
+            (req) => {
+                //Todo error handeling.
+                return req.json()
+            }
+        ).then((data) => {
+                this.handleActionResponse({
+                    response: data,
+                    rp: rp_obj || rp,
+                    response_callback: responce_callback
+                });
+            }
+        );
+        // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
     };
 
     handleActionResponse = ({response, rp = undefined, response_callback = undefined}) => {
@@ -413,8 +453,8 @@ class App extends React.Component {
         }
 
         if (response.close_window) {
-            if (this.state.dialogs){
-                this.state.dialogs[this.state.dialogs.length-1].onClose();
+            if (this.state.dialogs) {
+                this.state.dialogs[this.state.dialogs.length - 1].onClose();
 
                 this.setState((old) => {
                     old.dialogs.pop();  // remove last item, use shift for first
@@ -595,6 +635,7 @@ class App extends React.Component {
 
                             return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
                                                onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title}
+                                               footer={d.footer}
                                                router={this.router}
                                                update_value={(values, id) => {
                                                    this.setState(previous => {

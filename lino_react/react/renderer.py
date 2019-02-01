@@ -188,7 +188,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 "an": ba.action.action_name,
                 "onMain": ar.is_on_main_actor,
                 "actorId": ba.actor.actor_id,
-                "sr": obj.pk if obj is not None else None,
+                "sr": obj.pk if obj is not None else "-99998", # -99998 might be wrong for many commands... need to know what logic is used to determn it,
                 "status": params
             }))
         # bound_action.a)
