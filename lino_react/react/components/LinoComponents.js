@@ -8,6 +8,7 @@ import {Checkbox} from 'primereact/checkbox';
 import {Editor} from 'primereact/editor';
 import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
+import {Password} from 'primereact/password';
 
 import {LinoGrid} from "./LinoGrid";
 import {SiteContext} from "./SiteContext"
@@ -125,10 +126,12 @@ const LinoComponents = {
                           header={props.elem.label} style={style}>
                 <Button className="l-slave-summary-expand-button p-button-secondary" icon="pi pi-external-link"
                         onClick={() => {
-                            let status = {base_params:{
-                                mk: props.prop_bundle.mk, // No need to test for if-slave as it's a slave-summary
-                                mt: props.prop_bundle.mt // We always know we need mk/mt be
-                            }};
+                            let status = {
+                                base_params: {
+                                    mk: props.prop_bundle.mk, // No need to test for if-slave as it's a slave-summary
+                                    mt: props.prop_bundle.mt // We always know we need mk/mt be
+                                }
+                            };
                             // console.log(props.elem, detail_action);
                             window.App.runAction({
                                 an: "grid", // use default_action ??
@@ -222,6 +225,14 @@ const LinoComponents = {
                     dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
 
             }
+        </Labeled>
+    },
+
+    PasswordFieldElement: (props) => {
+        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+            <Password value={value} onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}
+            feedback={false} promptLabel={""}/>
         </Labeled>
     },
 

@@ -80,7 +80,7 @@ class App extends React.Component {
         this.onSignOutIn = this.onSignOutIn.bind(this);
         this.onSignIn = this.onSignIn.bind(this);
 
-        this.handleActionResponce = this.handleActionResponce.bind(this);
+        this.handleActionResponse = this.handleActionResponse.bind(this);
         this.runAction = this.runAction.bind(this);
 
         // this.searchMethod = this.searchMethod.bind(this);
@@ -315,6 +315,9 @@ class App extends React.Component {
                 diag_props.data = status.data_record.data;
                 diag_props.title = status.data_record.title;
             }
+            else if (status.field_values) {
+                diag_props.data = status.field_values;
+            }
             else if (an === "insert") { // no default data and insert action,
                 // fetch default data
                 // Might be only for insert,
@@ -387,10 +390,10 @@ class App extends React.Component {
                     return req.json()
                 }
             ).then((data) => {
-                    this.handleActionResponce({
+                    this.handleActionResponse({
                         response: data,
                         rp: rp_obj || rp,
-                        responce_callback: responce_callback
+                        response_callback: responce_callback
                     });
                 }
             );
@@ -398,11 +401,11 @@ class App extends React.Component {
         }
     };
 
-    handleActionResponce = ({response, rp = undefined, responce_callback = undefined}) => {
+    handleActionResponse = ({response, rp = undefined, response_callback = undefined}) => {
         // console.log(response, rp);
 
-        if (responce_callback) {
-            responce_callback(response);
+        if (response_callback) {
+            response_callback(response);
         }
 
         if (response.eval_js) {
