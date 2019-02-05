@@ -21,7 +21,7 @@ export class ForeignKeyElement extends Component {
     constructor(props) {
         super();
         this.state = {
-            rows:[],
+            rows: [],
         };
     }
 
@@ -40,7 +40,7 @@ export class ForeignKeyElement extends Component {
             //todo have pageing / some sort of max amount
         };
 
-        fetchPolyfill(`/${this.props.prop_bundle.action_dialog? "apchoices" : "choices"}/${this.props.prop_bundle.actorId.replace(".","/")}${this.props.prop_bundle.action_dialog? `/${this.props.prop_bundle.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
+        fetchPolyfill(`/${this.props.prop_bundle.action_dialog ? "apchoices" : "choices"}/${this.props.prop_bundle.actorId.replace(".", "/")}${this.props.prop_bundle.action_dialog ? `/${this.props.prop_bundle.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
         ).then(
             (data => this.setState({
@@ -88,10 +88,13 @@ export class ForeignKeyElement extends Component {
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
-                        <AutoComplete value={value} onChange={(e) => update_value({[props.elem.name]: e.value})}
+                        <AutoComplete value={value} onChange={(e) => update_value({
+                            [props.elem.name]: e.value.text,
+                            [props.elem.name+"Hidden"]: e.value.value,
+                        })}
                                       suggestions={this.state.rows}
                                       dropdown={true}
-                                      onFocus={(e)=>e.target.select()}
+                                      onFocus={(e) => e.target.select()}
                                       field={"text"}
                                       completeMethod={(e) => this.getChoices(e.query, siteData)}
                         />

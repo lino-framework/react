@@ -97,7 +97,7 @@ export class LinoDetail extends Component {
             (data) => {
                 this.consume_server_responce(data)
             }
-        )
+        ).catch(error => console.error(error));
     }
 
     consume_server_responce(data) {
@@ -216,7 +216,8 @@ export class LinoDetail extends Component {
                                               actorId: `${this.props.packId}.${this.props.actorId}`, sr: this.props.pk,
                                               responce_callback: (data) => {
                                                   this.setState({editing_mode: false});
-                                                  this.consume_server_responce(data.data_record);
+                                                  // this.consume_server_responce(data.data_record);
+                                                  this.reload();
                                               }
                                           });
                                       }

@@ -168,7 +168,8 @@ class ApiElement(View):
         return settings.SITE.kernel.run_action(ar)
 
     def post(self, request, app_label=None, actor=None, pk=None):
-        data = json.loads(request.body)
+        # data = json.loads(request.body)
+        data = http.QueryDict(request.body)
         print(data)
         ar = action_request(
             app_label, actor, request, data, True,
@@ -181,8 +182,8 @@ class ApiElement(View):
         return settings.SITE.kernel.run_action(ar)
 
     def put(self, request, app_label=None, actor=None, pk=None):
-        # data = http.QueryDict(request.body)  # raw_post_data before Django 1.4
-        data = json.loads(request.body)
+        data = http.QueryDict(request.body)  # raw_post_data before Django 1.4
+        # data = json.loads(request.body)
         logger.info("20150130 %s", data)
 
         ar = action_request(

@@ -17,6 +17,7 @@ import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
 import LinoBbar from "./LinoBbar";
+// import {objectToFormData} from "./LinoUtils"
 
 
 import {Sidebar} from 'primereact/sidebar';
@@ -252,7 +253,7 @@ class App extends React.Component {
                     site_data: data,
                     site_loaded: true
                 });
-            })
+            }).catch(error => console.error(error));
     };
 
     /**
@@ -323,6 +324,11 @@ class App extends React.Component {
                 onClose: () => {
                     console.log("Action Dialog Closed Callback");
                     // todo remove this obj from app.state.dialogs.
+                    this.setState((old) => {
+                        let d = old.dialogs.findIndex;
+                        // splice d out
+                        //return {dialogs: [...ds]
+                    });
                 },
                 // onOk: () => {
                 //     console.log("Action Dialog OK Callback")
@@ -400,6 +406,7 @@ class App extends React.Component {
         // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
 
         if (action.submit_form_data) {
+            // save action button
             let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
                 result[item] = rp_obj.state.data[item];
                 return result
@@ -408,6 +415,7 @@ class App extends React.Component {
         }
 
         if (an === "submit_insert") {
+            //called from an action button rather than OK / cancel buttons
             Object.assign(args, rp_obj.props.data)
         }
 
@@ -421,9 +429,10 @@ class App extends React.Component {
 
         fetchPolyfill(url, {
             method: action.http_method,
-            body: ['POST', "PUT"].includes(action.http_method) ? JSON.stringify(args) : undefined,
+            body: ['POST', "PUT"].includes(action.http_method) ? new URLSearchParams(queryString.stringify(args))/* objectToFormData(args)  *//*JSON.stringify(args)*/ : undefined,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',// 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         }).then(
             (req) => {
@@ -437,7 +446,7 @@ class App extends React.Component {
                     response_callback: responce_callback
                 });
             }
-        );
+        ).catch(error => console.error(error));
         // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
     };
 
@@ -482,6 +491,11 @@ class App extends React.Component {
 
         }
 
+        if (response.success && response.goto_url === "/" && response.close_window){
+            // Sign-in action success
+            this.fetch_user_settings();
+            this.dashboard.reloadData();
+        }
 
     };
 
