@@ -322,10 +322,10 @@ class App extends React.Component {
                 actorId: actorId,
                 data: {},
                 onClose: () => {
-                    console.log("Action Dialog Closed Callback");
-                    // todo remove this obj from app.state.dialogs.
+                    // console.log("Action Dialog Closed Callback");
                     this.setState((old) => {
-                        let d = old.dialogs.findIndex;
+                        let diags = old.dialogs.filter((x) => x !== diag_props );
+                        return {dialogs:diags};
                         // splice d out
                         //return {dialogs: [...ds]
                     });
@@ -335,10 +335,10 @@ class App extends React.Component {
                 // },
                 footer: <div>
                     <Button label={"Cancel"} onClick={() => {
-                        //todo 
+                        diag_props.onClose();
                     }}/>
                     <Button label={"OK"} onClick={() => {
-                        console.log("Dialog OK", diag_props.data);
+                        // console.log("Dialog OK", diag_props.data);
                         excecute_args.data = diag_props.data;
                         this.excuteAction(excecute_args);
                     }}/>
@@ -391,7 +391,6 @@ class App extends React.Component {
         // Other actions require an ajax call
         else {
             this.excuteAction(excecute_args);
-            ;
         }
     };
 
