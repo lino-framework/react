@@ -315,10 +315,14 @@ function (_React$Component) {
           actorId: actorId,
           data: {},
           onClose: function onClose() {
-            console.log("Action Dialog Closed Callback"); // todo remove this obj from app.state.dialogs.
-
+            // console.log("Action Dialog Closed Callback");
             _this.setState(function (old) {
-              var d = old.dialogs.findIndex; // splice d out
+              var diags = old.dialogs.filter(function (x) {
+                return x !== diag_props;
+              });
+              return {
+                dialogs: diags
+              }; // splice d out
               //return {dialogs: [...ds]
             });
           },
@@ -327,12 +331,13 @@ function (_React$Component) {
           // },
           footer: react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_17__["Button"], {
             label: "Cancel",
-            onClick: function onClick() {//todo 
+            onClick: function onClick() {
+              diag_props.onClose();
             }
           }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_17__["Button"], {
             label: "OK",
             onClick: function onClick() {
-              console.log("Dialog OK", diag_props.data);
+              // console.log("Dialog OK", diag_props.data);
               excecute_args.data = diag_props.data;
 
               _this.excuteAction(excecute_args);
@@ -396,8 +401,6 @@ function (_React$Component) {
       } // Other actions require an ajax call
       else {
           _this.excuteAction(excecute_args);
-
-          ;
         }
     };
 
@@ -482,6 +485,71 @@ function (_React$Component) {
       // console.log(response, rp);
       if (response_callback) {
         response_callback(response);
+      }
+
+      if (response.xcallback) {
+        // yes/no Dialog
+        var _response$xcallback = response.xcallback,
+            id = _response$xcallback.id,
+            title = _response$xcallback.title,
+            url = "/callbacks/".concat(id, "/"),
+            diag_props = {
+          onClose: function onClose() {
+            _this.setState(function (old) {
+              var diags = old.dialogs.filter(function (x) {
+                return x !== diag_props;
+              });
+              return {
+                dialogs: diags
+              };
+            });
+          },
+          closable: false,
+          footer: react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_17__["Button"], {
+            label: response.xcallback.buttons.no,
+            onClick: function onClick() {
+              diag_props.onClose();
+              Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_28__["fetch"])(url + "no").then(function (req) {
+                return req.json();
+              }).then(function (data) {}).catch(function (error) {
+                return console.error(error);
+              });
+            }
+          }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_17__["Button"], {
+            label: response.xcallback.buttons.yes,
+            onClick: function onClick() {
+              // console.log("Dialog OK", diag_props.data);
+              diag_props.onClose();
+              Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_28__["fetch"])(url + "yes").then(function (req) {
+                return req.json();
+              }).then(function (data) {
+                if (data.record_deleted && data.success) {
+                  _this.growl.show({
+                    // severity: "error",
+                    severity: "success",
+                    summary: "Success",
+                    detail: "Record Deleted"
+                  });
+
+                  _this.router.history.goBack(); // looking at empty recrod, go back!
+
+                }
+              }).catch(function (error) {
+                return console.error(error);
+              });
+            }
+          })),
+          title: title,
+          content: react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, response.message)
+        }; // push to dialog buffer
+
+        _this.setState(function (old) {
+          return {
+            dialogs: [diag_props].concat(old.dialogs)
+          };
+        });
+
+        return; // Dont want any further responce handeling
       }
 
       if (response.eval_js) {
@@ -872,6 +940,8 @@ function (_React$Component) {
           onOk: d.onOk,
           data: d.data,
           title: d.title,
+          content: d.content,
+          closable: d.closable,
           footer: d.footer,
           router: _this5.router,
           update_value: function update_value(values, id) {
@@ -57604,35 +57674,41 @@ function (_Component) {
       var _this2 = this;
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_3__["SiteContext"].Consumer, null, function (siteData) {
-        var layout = _this2.props.action.window_layout;
-
-        var MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_4__["default"]._GetComponent(layout.main.react_name);
-
         var footer = _this2.props.footer || react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_LinoBbar__WEBPACK_IMPORTED_MODULE_5__["default"], {
           rp: _this2,
           actorData: siteData.actors[_this2.props.actorId],
           an: _this2.props.action.an,
           sr: [-99998]
-        }));
-        var prop_bundle = {
-          data: _this2.props.data,
-          actorId: _this2.props.actorId,
-          action: _this2.props.action,
-          action_dialog: layout.main.react_name === "ActionParamsPanel",
-          // disabled_fields: this.state.disabled_fields,
-          update_value: function update_value(v) {
-            return _this2.props.update_value(v, _this2._reactInternalFiber.key);
-          },
-          editing_mode: true,
-          match: _this2.props.router
-        };
-        prop_bundle.prop_bundle = prop_bundle;
+        })); // webpack wants theres decerations here, not in the if, otherwise unassigned var error in return
+
+        var MainComp, layout, prop_bundle;
+
+        if (!_this2.props.content) {
+          // To allow same system to be used for yes/no dialogs
+          layout = _this2.props.action.window_layout;
+          MainComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_4__["default"]._GetComponent(layout.main.react_name);
+          prop_bundle = {
+            data: _this2.props.data,
+            actorId: _this2.props.actorId,
+            action: _this2.props.action,
+            action_dialog: layout.main.react_name === "ActionParamsPanel",
+            // disabled_fields: this.state.disabled_fields,
+            update_value: function update_value(v) {
+              return _this2.props.update_value(v, _this2._reactInternalFiber.key);
+            },
+            editing_mode: true,
+            match: _this2.props.router
+          };
+          prop_bundle.prop_bundle = prop_bundle;
+        }
+
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dialog__WEBPACK_IMPORTED_MODULE_2__["Dialog"], {
           onHide: _this2.onClose,
           visible: _this2.state.visible,
           header: _this2.props.title || _this2.props.action.label,
-          footer: footer
-        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
+          footer: footer,
+          closable: _this2.props.closable
+        }, _this2.props.content || react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(MainComp, _extends({}, prop_bundle, {
           elem: layout.main,
           main: true
         })));
@@ -57657,10 +57733,13 @@ LinoDialog.propTypes = {
   router: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
   // router
   data: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.object,
-  update_value: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
+  update_value: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func,
+  closable: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool,
+  content: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.any
 };
 LinoDialog.defaultProps = {
-  data: {}
+  data: {},
+  closable: true
 };
 
 /***/ }),

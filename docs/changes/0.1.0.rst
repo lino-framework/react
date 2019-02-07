@@ -74,6 +74,7 @@ The basic order of completion ought to be:
    dialog action works, including sign-in
     !! Needs some sort of visual feedback that it's success and loading !!
 #. yes / no dialogs
+    Working, but not perfect for on record delete.
 #. Param values
 #. Editable Grid
 #. Grid optimizations

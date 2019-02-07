@@ -324,8 +324,8 @@ class App extends React.Component {
                 onClose: () => {
                     // console.log("Action Dialog Closed Callback");
                     this.setState((old) => {
-                        let diags = old.dialogs.filter((x) => x !== diag_props );
-                        return {dialogs:diags};
+                        let diags = old.dialogs.filter((x) => x !== diag_props);
+                        return {dialogs: diags};
                         // splice d out
                         //return {dialogs: [...ds]
                     });
@@ -449,11 +449,63 @@ class App extends React.Component {
         // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
     };
 
-    handleActionResponse = ({response, rp = undefined, response_callback = undefined}) => {
+    handleActionResponse = ({response, rp = undefined, response_callback = undefined,}) => {
         // console.log(response, rp);
 
         if (response_callback) {
             response_callback(response);
+        }
+
+        if (response.xcallback) {
+            // yes/no Dialog
+            let {id, title} = response.xcallback,
+                url = `/callbacks/${id}/`,
+
+                diag_props = {
+                    onClose: () => {
+                        this.setState((old) => {
+                            let diags = old.dialogs.filter((x) => x !== diag_props);
+                            return {dialogs: diags};
+                        });
+                    },
+                    closable: false,
+                    footer: <div>
+                        <Button label={response.xcallback.buttons.no} onClick={() => {
+                            diag_props.onClose();
+                            fetchPolyfill(url + "no").then((req) => req.json()).then(
+                                (data) => {
+                                }
+                            ).catch(error => console.error(error));
+
+                        }}/>
+                        <Button label={response.xcallback.buttons.yes} onClick={() => {
+                            // console.log("Dialog OK", diag_props.data);
+                            diag_props.onClose();
+                            fetchPolyfill(url + "yes").then((req) => req.json()).then(
+                                (data) => {
+                                    if (data.record_deleted && data.success) {
+                                        this.growl.show({
+                                            // severity: "error",
+                                            severity: "success",
+                                            summary: "Success",
+                                            detail: "Record Deleted"
+                                        });
+                                        this.router.history.goBack(); // looking at empty recrod, go back!
+                                    }
+                                }
+                            ).catch(error => console.error(error));
+                        }}/>
+                    </div>,
+                    title: title,
+                    content: <p>{response.message}</p>
+                };
+
+
+            // push to dialog buffer
+            this.setState((old) => {
+                return {dialogs: [diag_props].concat(old.dialogs)}
+            });
+            return // Dont want any further responce handeling
         }
 
         if (response.eval_js) {
@@ -490,7 +542,7 @@ class App extends React.Component {
 
         }
 
-        if (response.success && response.goto_url === "/" && response.close_window){
+        if (response.success && response.goto_url === "/" && response.close_window) {
             // Sign-in action success
             this.fetch_user_settings();
             this.dashboard.reloadData();
@@ -648,6 +700,8 @@ class App extends React.Component {
 
                             return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
                                                onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title}
+                                               content={d.content}
+                                               closable={d.closable}
                                                footer={d.footer}
                                                router={this.router}
                                                update_value={(values, id) => {
