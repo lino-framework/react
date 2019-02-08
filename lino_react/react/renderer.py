@@ -320,6 +320,12 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 if hasattr(v, a) and getattr(v, a) is not None:
                     result.update({a: getattr(v, a).action.action_name})
 
+            if v.params_layout is not None:
+                # Param field array and layout struct
+                result.update(
+                    pv_layout=v.params_layout.get_layout_handle(),
+                    pv_fields=[f.name for f in v.params_layout.params_store.param_fields],
+                )
             return result
 
         if isinstance(v, js_code) and self.serialise_js_code:
