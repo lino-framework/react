@@ -64,8 +64,8 @@ export class LinoGrid extends Component {
         this.expand = this.expand.bind(this);
         this.quickFilter = this.quickFilter.bind(this);
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
-        this.update_pv_values= this.update_pv_values.bind(this);
-
+        this.update_pv_values = this.update_pv_values.bind(this);
+        this.pvObj2array = this.pvObj2array.bind(this);
     }
 
     /**
@@ -165,13 +165,25 @@ export class LinoGrid extends Component {
 
 //    log(s){console.log(s)}
 
-    reload({page = undefined, query = undefined} = {}) {
+    pvArray2Obj(ar) {
+
+    }
+
+    pvObj2array(obj) {
+        return this.props.actorData.pv_fields.map((f_name) => {
+            let value = this.state.pv_values[f_name + "Hidden"] || this.state.pv_values[f_name];
+            if (value === undefined) value = null;
+            return value
+        })
+    }
+
+    reload({page = undefined, query = undefined, pv = undefined} = {}) {
         let state = {
             // data: null,
             // rows: [],
             loading: true,
         };
-        query !== undefined && (state.query = query); // update state if query passed to method
+        query !== undefined && (state.query = query); // update state if query passed to method // QuickSearch string
         page && (state.page = page);
         page = page || this.state.page;
 
@@ -183,6 +195,21 @@ export class LinoGrid extends Component {
             // todo pv
             query: query !== undefined ? query : this.state.query // use given query or state-query
         };
+
+        if (this.props.actorData.pv_layout) {
+            let search = queryString.parse(this.props.match.history.location.search);
+            // use either, pv passed with reload method, current state, or failing all, in url
+
+            if (pv === undefined && this.state.pv_values === {}) {
+                ajax_query.pv  = search.pv
+            }
+            else {
+                ajax_query.pv = this.pvObj2array(pv || this.state.pv_values);
+            }
+            // convert pv values from obj to array and add to ajax call
+
+        }
+
         if (this.props.actorData.slave) {
             this.props.mk && (ajax_query.mk = this.props.mk);
             this.props.mt && (ajax_query.mt = this.props.mt);
@@ -206,7 +233,7 @@ export class LinoGrid extends Component {
                     topRow: (page || this.state.page) * this.state.rowsPerPage,
                     loading: false,
                     title: data.title,
-                    pv_values: pv_values
+                    pv_values: pv_values, // This might cause race conditions with editing may PV's quickly.
                     // page: page
                 });
             }
@@ -229,8 +256,14 @@ export class LinoGrid extends Component {
 
     update_pv_values(values) {
         // console.log(v);
-        this.setState((prevState) => ({pv_values: Object.assign(prevState.pv_values, {...values})})
-        );
+        this.setState((prevState) => {
+            let search = queryString.parse(this.props.match.history.location.search);
+            let pv = Object.assign(prevState.pv_values, {...values});
+            search.pv = this.pvObj2array(pv);
+            this.props.match.history.replace({search: queryString.stringify(search)});
+            return {pv_values: pv};
+        });
+        this.reload();
     }
 
     render() {
@@ -259,7 +292,10 @@ export class LinoGrid extends Component {
                     <InputText className="l-grid-quickfilter"
                                placeholder="QuickSearch" /*value={this.state.query}*/
                                onChange={(e) => this.quickFilter(e.target.value)}/>
+
+                    {this.props.actorData.pv_layout &&
                     <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
+                    }
                 </React.Fragment>}
 
 
@@ -279,7 +315,11 @@ export class LinoGrid extends Component {
                           runAction={this.runAction}/>
             </div>}
         </div>;
-        let MainPVComp = LinoComponents._GetComponent(this.props.actorData.pv_layout.main.react_name),
+        let MainPVComp,
+            prop_bundle;
+
+        if (this.props.actorData.pv_layout) {
+            MainPVComp = LinoComponents._GetComponent(this.props.actorData.pv_layout.main.react_name);
             prop_bundle = {
                 data: this.state.pv_values,
                 actorId: `${this.props.packId}.${this.props.actorId}`,
@@ -291,8 +331,8 @@ export class LinoGrid extends Component {
                 match: this.props.match,
                 // in_grid == false, as data is object not array.
             };
-        prop_bundle.prop_bundle = prop_bundle;
-
+            prop_bundle.prop_bundle = prop_bundle;
+        }
 
         return <React.Fragment>
             <div className={"l-grid"}>
@@ -328,10 +368,11 @@ export class LinoGrid extends Component {
                     }
                 </DataTable>
             </div>
-            <Dialog header="PV Values" visible={this.state.showPVDialog} modal={true}
-                    onHide={(e) => this.setState({showPVDialog: false})}>
+            {this.props.actorData.pv_layout && <Dialog header="PV Values" visible={this.state.showPVDialog} modal={true}
+                                                       onHide={(e) => this.setState({showPVDialog: false})}>
                 <MainPVComp {...prop_bundle} elem={this.props.actorData.pv_layout.main} main={true}/>
-            </Dialog>
+            </Dialog>}
+
         </React.Fragment>
 
     }
