@@ -494,6 +494,9 @@ a {
   .layout-main .l-ForeignKeyElement .p-autocomplete {
     display: inherit; }
 
+.layout-main .l-ChoiceListFieldElement .p-hidden-accessible > label {
+  margin-right: 15px; }
+
 .l-panel-vertical {
   flex-direction: column; }
 

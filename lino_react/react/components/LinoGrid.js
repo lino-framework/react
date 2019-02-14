@@ -11,6 +11,8 @@ import {Paginator} from 'primereact/paginator';
 import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
 
+import {Dialog} from 'primereact/dialog';
+
 import {debounce} from "./LinoUtils";
 
 import LinoComponents from "./LinoComponents";
@@ -49,7 +51,9 @@ export class LinoGrid extends Component {
 
             selectedRows: [],
             title: "", // defaults to actor label?
-            loading: true
+            loading: true,
+
+            pv_values: {}
 
         };
         this.reload = debounce(this.reload.bind(this), 200);
@@ -59,6 +63,8 @@ export class LinoGrid extends Component {
         this.columnTemplate = this.columnTemplate.bind(this);
         this.expand = this.expand.bind(this);
         this.quickFilter = this.quickFilter.bind(this);
+        this.showParamValueDialog = this.showParamValueDialog.bind(this);
+        this.update_pv_values= this.update_pv_values.bind(this);
 
     }
 
@@ -143,6 +149,12 @@ export class LinoGrid extends Component {
         // console.log(data);
     }
 
+    /**
+     * Opens PV dialog for filtering rows server-side
+     */
+    showParamValueDialog(e) {
+        this.setState({showPVDialog: true})
+    }
 
     quickFilter(query) {
         // in own method so we can use it as a debouce
@@ -184,16 +196,18 @@ export class LinoGrid extends Component {
                 // console.log("table GET", data);
                 let rows = data.rows;
                 delete data.rows;
+                let pv_values = data.param_values;
+                delete data.param_values;
+
                 this.setState({
                     data: data,
                     rows: rows,
                     totalRecords: data.count,
                     topRow: (page || this.state.page) * this.state.rowsPerPage,
                     loading: false,
-                    title: data.title
+                    title: data.title,
+                    pv_values: pv_values
                     // page: page
-                    // beware race conditions
-                    // pv: data.paramValues
                 });
             }
         )
@@ -211,6 +225,12 @@ export class LinoGrid extends Component {
     componentDidMount() {
         this.reload();
         // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
+    }
+
+    update_pv_values(values) {
+        // console.log(v);
+        this.setState((prevState) => ({pv_values: Object.assign(prevState.pv_values, {...values})})
+        );
     }
 
     render() {
@@ -235,9 +255,12 @@ export class LinoGrid extends Component {
             // style={{'lineHeight': '1.87em'}}
         >
             <div className={"p-col p-justify-end"} style={{"text-align": "left"}}>
-                {!this.props.inDetail && <InputText className="l-grid-quickfilter"
-                                                    placeholder="QuickSearch" /*value={this.state.query}*/
-                                                    onChange={(e) => this.quickFilter(e.target.value)}/>}
+                {!this.props.inDetail && <React.Fragment>
+                    <InputText className="l-grid-quickfilter"
+                               placeholder="QuickSearch" /*value={this.state.query}*/
+                               onChange={(e) => this.quickFilter(e.target.value)}/>
+                    <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
+                </React.Fragment>}
 
 
             </div>
@@ -256,35 +279,60 @@ export class LinoGrid extends Component {
                           runAction={this.runAction}/>
             </div>}
         </div>;
+        let MainPVComp = LinoComponents._GetComponent(this.props.actorData.pv_layout.main.react_name),
+            prop_bundle = {
+                data: this.state.pv_values,
+                actorId: `${this.props.packId}.${this.props.actorId}`,
+                // disabled_fields: this.state.disabled_fields,
+                update_value: this.update_pv_values,
+                editing_mode: true, // keep detail as editing mode only for now, untill beautifying things/
+                mk: this.props.pk,
+                mt: this.props.actorData.content_type,
+                match: this.props.match,
+                // in_grid == false, as data is object not array.
+            };
+        prop_bundle.prop_bundle = prop_bundle;
 
-        return <div className={"l-grid"}>
-            <DataTable
-                header={header}
-                footer={paginator}
-                responsive={true}
-                resizableColumns={true}
-                value={rows} paginator={false}
-                // selectionMode="single"
-                selectionMode="multiple"
-                onSelectionChange={e => this.setState({selectedRows: e.value})}
-                onRowSelect={this.onRowSelect} // Todo: allow multi-selection
-                selection={this.state.selectedRows}
-                loading={this.state.loading}
-            >
 
-                {["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
-                        col === "SelectCol" ? <Column selectionMode="multiple"
-                                                      style={{width: '2em', "padding": "unset", "text-align": "center"}}/> :
-                            <Column field={String(col.fields_index)}
-                                    body={this.columnTemplate(col)}
-                                    header={col.label}
-                                    key={key(col)}
-                                    style={{width: `${col.width || col.preferred_width}ch`}}
-                                    className={`l-grid-col-${col.name}`}/>
+        return <React.Fragment>
+            <div className={"l-grid"}>
+                <DataTable
+                    header={header}
+                    footer={paginator}
+                    responsive={true}
+                    resizableColumns={true}
+                    value={rows} paginator={false}
+                    // selectionMode="single"
+                    selectionMode="multiple"
+                    onSelectionChange={e => this.setState({selectedRows: e.value})}
+                    onRowSelect={this.onRowSelect} // Todo: allow multi-selection
+                    selection={this.state.selectedRows}
+                    loading={this.state.loading}
+                >
+
+                    {["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
+                            col === "SelectCol" ? <Column selectionMode="multiple"
+                                                          style={{
+                                                              width: '2em',
+                                                              "padding": "unset",
+                                                              "text-align": "center"
+                                                          }}/> :
+                                <Column field={String(col.fields_index)}
+                                        body={this.columnTemplate(col)}
+                                        header={col.label}
+                                        key={key(col)}
+                                        style={{width: `${col.width || col.preferred_width}ch`}}
+                                        className={`l-grid-col-${col.name}`}/>
+                        )
                     )
-                )
-                }
-            </DataTable>
-        </div>
+                    }
+                </DataTable>
+            </div>
+            <Dialog header="PV Values" visible={this.state.showPVDialog} modal={true}
+                    onHide={(e) => this.setState({showPVDialog: false})}>
+                <MainPVComp {...prop_bundle} elem={this.props.actorData.pv_layout.main} main={true}/>
+            </Dialog>
+        </React.Fragment>
+
     }
 };

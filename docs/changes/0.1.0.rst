@@ -72,10 +72,11 @@ The basic order of completion ought to be:
    Working,
 #. Dialog ajax
    dialog action works, including sign-in
-    !! Needs some sort of visual feedback that it's success and loading !!
+   !! Needs some sort of visual feedback that it's success and loading !!
 #. yes / no dialogs
-    Working, but not perfect for on record delete.
-#. Param values
+   Working, but not perfect for on record delete.
+#. Param values 
+   rendered but not hooked into data get API   
 #. Editable Grid
 #. Grid optimizations
 

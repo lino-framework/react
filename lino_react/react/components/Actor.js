@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {BrowserRouter as Router, HashRouter, Route, Link} from "react-router-dom";
 import {LinoGrid} from "./LinoGrid";
 import {LinoDetail} from "./LinoDetail";
+import queryString from "query-string"
 
 import key from "weak-key";
 
@@ -21,10 +22,11 @@ export class Actor extends Component {
     };
     static defaultProps = {};
 
-    constructor() {
+    constructor(props) {
         super();
         this.state = {};
         // this.method = this.method.bind(this);
+        console.log(props.match.location.search)
 
     }
 

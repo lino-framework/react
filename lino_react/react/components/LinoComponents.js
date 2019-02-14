@@ -154,23 +154,27 @@ const LinoComponents = {
             // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
             return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.prop_bundle.editing_mode ?
-                    <Dropdown
-                        optionLabel={"text"} value={{text: value, value: hidden_value}}
-                        datakey={"value"}
-                        //Todo clear tied to props.elem.field_options.blank
-                        showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
-                        options={options}
-                        onChange={(e) => {
-                            // console.log(e);
-                            let v = e.target.value === null ? "" : e.target.value['text'],
-                                h = e.target.value === null ? "" : e.target.value['value'];
-                            props.prop_bundle.update_value({ // also works for grid
-                                [props.elem.name]: v,
-                                [props.elem.name + "Hidden"]: h,
-                            })
-                        }}
-                        // placeholder={""}
-                    /> :
+                    <div className="l-ChoiceListFieldElement">
+                        <Dropdown
+                            // autoWidth={false}
+                            style={{width:"100%"}}
+                            optionLabel={"text"} value={{text: value, value: hidden_value}}
+                            datakey={"value"}
+                            //Todo clear tied to props.elem.field_options.blank
+                            showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
+                            options={options}
+                            onChange={(e) => {
+                                // console.log(e);
+                                let v = e.target.value === null ? "" : e.target.value['text'],
+                                    h = e.target.value === null ? "" : e.target.value['value'];
+                                props.prop_bundle.update_value({ // also works for grid
+                                    [props.elem.name]: v,
+                                    [props.elem.name + "Hidden"]: h,
+                                })
+                            }}
+                            // placeholder={""}
+                        />
+                    </div> :
                     <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
                 }</Labeled>
         }}
@@ -231,8 +235,9 @@ const LinoComponents = {
     PasswordFieldElement: (props) => {
         let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            <Password value={value} onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}
-            feedback={false} promptLabel={""}/>
+            <Password value={value}
+                      onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}
+                      feedback={false} promptLabel={""}/>
         </Labeled>
     },
 
@@ -341,7 +346,8 @@ const LinoComponents = {
 };
 
 LinoComponents.Panel.defaultProps = {header: true};
-LinoComponents.ActionParamsPanel = LinoComponents.Panel
+LinoComponents.ActionParamsPanel = LinoComponents.Panel;
+LinoComponents.ParamsPanel = LinoComponents.Panel;
 
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 

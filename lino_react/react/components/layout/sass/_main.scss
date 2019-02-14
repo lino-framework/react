@@ -514,6 +514,18 @@ a {
     }
 }
 
+.layout-main .l-ChoiceListFieldElement {
+    //    display: flex;
+    //    flex-direction: row;
+    //    align-items: center;
+    //    .p-dropdown {
+    //        display: inherit; //stops dropdown button from wrapping.
+    //    }
+    .p-dropdown-clearable > label {
+        margin-right: 16px;
+    }
+}
+
 .l-panel-vertical {
     flex-direction: column;
 }
