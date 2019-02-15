@@ -170,13 +170,14 @@ export class LinoGrid extends Component {
     }
 
     pvObj2array(obj) {
-        let fields = Object.keys(this.state.pv_values)
+        //this.state.pv_values is used in this method
+        let fields = Object.keys(obj);
         return this.props.actorData.pv_fields.map((f_name) => {
             // Only give hidden value if the key is in pv_values.
             // Previously used || assignement, which caused FK filter values being sent as PVs
             let value;
-            if (fields.includes(f_name + "Hidden")) value = this.state.pv_values[f_name + "Hidden"];
-            else value = this.state.pv_values[f_name];
+            if (fields.includes(f_name + "Hidden")) value = obj[f_name + "Hidden"];
+            else value = obj[f_name];
 
             if (value === undefined) value = null;
             return value
@@ -314,8 +315,10 @@ export class LinoGrid extends Component {
                                placeholder="QuickSearch" /*value={this.state.query}*/
                                onChange={(e) => this.quickFilter(e.target.value)}/>
 
-                    {this.props.actorData.pv_layout &&
-                    <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
+                    {this.props.actorData.pv_layout && <React.Fragment>
+                        <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
+                        <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>
+                    </React.Fragment>
                     }
                 </React.Fragment>}
 
@@ -389,8 +392,15 @@ export class LinoGrid extends Component {
                     }
                 </DataTable>
             </div>
-            {this.props.actorData.pv_layout && <Dialog header="PV Values" visible={this.state.showPVDialog} modal={true}
-                                                       onHide={(e) => this.setState({showPVDialog: false})}>
+            {this.props.actorData.pv_layout &&
+            <Dialog header="PV Values"
+                    footer={<div>
+                        <Button style={{width: "33px"}} icon={"pi pi-times-circle"}
+                                onClick={() => this.reload({pv: {}})}/>
+                        <Button style={{width: "33px"}} icon={"pi pi-check"} onClick={(e) => this.setState({showPVDialog: false})}/>
+                    </div>}
+                    visible={this.state.showPVDialog} modal={true}
+                    onHide={(e) => this.setState({showPVDialog: false})}>
                 <MainPVComp {...prop_bundle} elem={this.props.actorData.pv_layout.main} main={true}/>
             </Dialog>}
 

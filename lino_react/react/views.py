@@ -126,7 +126,7 @@ class ApiElement(View):
             constants.URL_PARAM_FORMAT, ba.action.default_format)
 
         if ba.action.opens_a_window:
-
+            print("15022019", action_name)
             if fmt == constants.URL_FORMAT_JSON:
                 if pk == '-99999':
                     elem = ar.create_instance()
@@ -229,6 +229,12 @@ class ApiList(View):
         fmt = request.GET.get(
             constants.URL_PARAM_FORMAT,
             ar.bound_action.action.default_format)
+
+        action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME)
+
+        if action_name:
+            return settings.SITE.kernel.run_action(ar)
+
 
         if fmt == constants.URL_FORMAT_JSON:
             rows = [rh.store.row2list(ar, row)

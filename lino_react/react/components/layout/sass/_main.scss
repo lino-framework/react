@@ -511,6 +511,9 @@ a {
     }
     .p-autocomplete {
         display: inherit; //stops dropdown button from wrapping.
+        .p-autocomplete-items > li {
+            min-height: 32px; // Makes blank choices same height as others
+        }
     }
 }
 

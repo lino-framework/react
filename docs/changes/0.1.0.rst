@@ -76,7 +76,11 @@ The basic order of completion ought to be:
 #. yes / no dialogs
    Working, but not perfect for on record delete.
 #. Param values 
-   rendered but not hooked into data get API   
+   Fully working in grid view, but not in detail view's quick-filter.
+    There's some design issues with including the PV values in the detail view, if the detail view is a separate view,
+    in a stateless app.
+#. Date + Date time + Time choosers
+#. Sending grid data with as_pdf actions
 #. Editable Grid
 #. Grid optimizations
 

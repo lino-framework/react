@@ -395,7 +395,7 @@ class App extends React.Component {
     };
 
     excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, responce_callback, data} = {}) => {
-        let urlSr = Array.isArray(sr) ? sr[0] : sr,
+        let urlSr = Array.isArray(sr) ? sr[0] : sr === undefined ? "" : sr, // if array, first item, if undefined, blank
             args = {
                 an: an,
                 sr: sr, // not needed for submit_detail, but non breaking, so leave it.
@@ -423,7 +423,8 @@ class App extends React.Component {
         } // is a dialog object.
 
 
-        let url = `api/${actorId.split(".").join("/")}/${urlSr}`;
+        let url = `api/${actorId.split(".").join("/")}`;
+        if (urlSr !== undefined) url += `/${urlSr}`;
         if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
 
         fetchPolyfill(url, {
@@ -493,7 +494,11 @@ class App extends React.Component {
 
                                     }
                                     else {
-                                        this.handleActionResponse({response:data, rp:rp, response_callback:response_callback})
+                                        this.handleActionResponse({
+                                            response: data,
+                                            rp: rp,
+                                            response_callback: response_callback
+                                        })
                                     }
 
                                 }
@@ -529,6 +534,10 @@ class App extends React.Component {
 
         if (response.goto_url) {
             this.router.history.push(response.goto_url);
+        }
+
+        if (response.open_url) {
+            window.open(response.open_url, 'foo', ""); // From extjs, unsure why `"foo", ""`
         }
 
         if (response.message) {
