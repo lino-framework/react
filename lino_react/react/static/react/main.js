@@ -462,7 +462,6 @@ function (_React$Component) {
           'X-Requested-With': 'XMLHttpRequest'
         }
       }).then(function (req) {
-        //Todo error handeling.
         return req.json();
       }).then(function (data) {
         _this.handleActionResponse({
@@ -533,6 +532,12 @@ function (_React$Component) {
 
                   _this.router.history.goBack(); // looking at empty recrod, go back!
 
+                } else {
+                  _this.handleActionResponse({
+                    response: data,
+                    rp: rp,
+                    response_callback: response_callback
+                  });
                 }
               }).catch(function (error) {
                 return console.error(error);
@@ -27005,8 +27010,12 @@ function (_Component) {
     value: function pvObj2array(obj) {
       var _this3 = this;
 
+      var fields = Object.keys(this.state.pv_values);
       return this.props.actorData.pv_fields.map(function (f_name) {
-        var value = _this3.state.pv_values[f_name + "Hidden"] || _this3.state.pv_values[f_name];
+        // Only give hidden value if the key is in pv_values.
+        // Previously used || assignement, which caused FK filter values being sent as PVs
+        var value;
+        if (fields.includes(f_name + "Hidden")) value = _this3.state.pv_values[f_name + "Hidden"];else value = _this3.state.pv_values[f_name];
         if (value === undefined) value = null;
         return value;
       });
@@ -27030,9 +27039,14 @@ function (_Component) {
         loading: true
       };
       query !== undefined && (state.query = query); // update state if query passed to method // QuickSearch string
+      // Allow setting of page via reload method params, (requried for paginator)
 
-      page && (state.page = page);
-      page = page || this.state.page;
+      if (page !== undefined) {
+        state.page = page;
+      } else {
+        page = this.state.page;
+      }
+
       this.setState(state);
       var ajax_query = {
         fmt: "json",
@@ -27047,7 +27061,7 @@ function (_Component) {
       if (this.props.actorData.pv_layout) {
         var search = query_string__WEBPACK_IMPORTED_MODULE_2___default.a.parse(this.props.match.history.location.search); // use either, pv passed with reload method, current state, or failing all, in url
 
-        if (pv === undefined && this.state.pv_values === {}) {
+        if (pv === undefined && Object.keys(this.state.pv_values).length === 0) {
           ajax_query.pv = search.pv;
         } else {
           ajax_query.pv = this.pvObj2array(pv || this.state.pv_values);
@@ -27070,16 +27084,18 @@ function (_Component) {
         var pv_values = data.param_values;
         delete data.param_values;
 
-        _this4.setState({
-          data: data,
-          rows: rows,
-          totalRecords: data.count,
-          topRow: (page || _this4.state.page) * _this4.state.rowsPerPage,
-          loading: false,
-          title: data.title,
-          pv_values: pv_values // This might cause race conditions with editing may PV's quickly.
-          // page: page
+        _this4.setState(function (prevState) {
+          return {
+            data: data,
+            rows: rows,
+            totalRecords: data.count,
+            topRow: page * _this4.state.rowsPerPage,
+            loading: false,
+            title: data.title,
+            pv_values: pv_values // This might cause race conditions with editing may PV's quickly.
+            // page: page
 
+          };
         });
       });
     }
@@ -27103,19 +27119,29 @@ function (_Component) {
 
       // console.log(v);
       this.setState(function (prevState) {
-        var search = query_string__WEBPACK_IMPORTED_MODULE_2___default.a.parse(_this5.props.match.history.location.search);
-        var pv = Object.assign(prevState.pv_values, _objectSpread({}, values));
-        search.pv = _this5.pvObj2array(pv);
+        var old_pv_values = _this5.pvObj2array(prevState.pv_values);
 
-        _this5.props.match.history.replace({
-          search: query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(search)
-        });
+        var updated_pv = Object.assign(prevState.pv_values, _objectSpread({}, values));
 
-        return {
-          pv_values: pv
-        };
+        var updated_array_pv = _this5.pvObj2array(updated_pv);
+
+        if (query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(old_pv_values) !== query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(updated_array_pv)) {
+          // There's a change in the hidden values of PV's
+          // Update url query params
+          var search = query_string__WEBPACK_IMPORTED_MODULE_2___default.a.parse(_this5.props.match.history.location.search);
+          search.pv = updated_array_pv;
+
+          _this5.props.match.history.replace({
+            search: query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(search)
+          });
+
+          _this5.reload();
+
+          return {
+            pv_values: updated_pv
+          };
+        }
       });
-      this.reload();
     }
   }, {
     key: "render",
@@ -47377,9 +47403,9 @@ function (_Component) {
         }, editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_autocomplete__WEBPACK_IMPORTED_MODULE_5__["AutoComplete"], {
           value: value,
           onChange: function onChange(e) {
-            var _update_value;
+            var _ref2;
 
-            return update_value((_update_value = {}, _defineProperty(_update_value, props.elem.name, e.value.text), _defineProperty(_update_value, props.elem.name + "Hidden", e.value.value), _update_value));
+            return update_value(typeof e.value === "string" ? _defineProperty({}, props.elem.name, e.value) : (_ref2 = {}, _defineProperty(_ref2, props.elem.name, e.value.text), _defineProperty(_ref2, props.elem.name + "Hidden", e.value.value), _ref2));
           },
           suggestions: _this3.state.rows,
           dropdown: true,

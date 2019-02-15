@@ -170,8 +170,14 @@ export class LinoGrid extends Component {
     }
 
     pvObj2array(obj) {
+        let fields = Object.keys(this.state.pv_values)
         return this.props.actorData.pv_fields.map((f_name) => {
-            let value = this.state.pv_values[f_name + "Hidden"] || this.state.pv_values[f_name];
+            // Only give hidden value if the key is in pv_values.
+            // Previously used || assignement, which caused FK filter values being sent as PVs
+            let value;
+            if (fields.includes(f_name + "Hidden")) value = this.state.pv_values[f_name + "Hidden"];
+            else value = this.state.pv_values[f_name];
+
             if (value === undefined) value = null;
             return value
         })
@@ -184,9 +190,15 @@ export class LinoGrid extends Component {
             loading: true,
         };
         query !== undefined && (state.query = query); // update state if query passed to method // QuickSearch string
-        page && (state.page = page);
-        page = page || this.state.page;
 
+        // Allow setting of page via reload method params, (requried for paginator)
+        if (page !== undefined) {
+            state.page = page;
+        }
+        else {
+            page = this.state.page;
+
+        }
         this.setState(state);
         let ajax_query = {
             fmt: "json",
@@ -199,9 +211,8 @@ export class LinoGrid extends Component {
         if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
             // use either, pv passed with reload method, current state, or failing all, in url
-
-            if (pv === undefined && this.state.pv_values === {}) {
-                ajax_query.pv  = search.pv
+            if (pv === undefined && Object.keys(this.state.pv_values).length === 0) {
+                ajax_query.pv = search.pv
             }
             else {
                 ajax_query.pv = this.pvObj2array(pv || this.state.pv_values);
@@ -226,16 +237,16 @@ export class LinoGrid extends Component {
                 let pv_values = data.param_values;
                 delete data.param_values;
 
-                this.setState({
+                this.setState((prevState) => ({
                     data: data,
                     rows: rows,
                     totalRecords: data.count,
-                    topRow: (page || this.state.page) * this.state.rowsPerPage,
+                    topRow: (page) * this.state.rowsPerPage,
                     loading: false,
                     title: data.title,
-                    pv_values: pv_values, // This might cause race conditions with editing may PV's quickly.
+                    pv_values: pv_values// This might cause race conditions with editing may PV's quickly.
                     // page: page
-                });
+                }));
             }
         )
     }
@@ -257,13 +268,23 @@ export class LinoGrid extends Component {
     update_pv_values(values) {
         // console.log(v);
         this.setState((prevState) => {
-            let search = queryString.parse(this.props.match.history.location.search);
-            let pv = Object.assign(prevState.pv_values, {...values});
-            search.pv = this.pvObj2array(pv);
-            this.props.match.history.replace({search: queryString.stringify(search)});
-            return {pv_values: pv};
+            let old_pv_values = this.pvObj2array(prevState.pv_values);
+            let updated_pv = Object.assign(prevState.pv_values, {...values});
+            let updated_array_pv = this.pvObj2array(updated_pv);
+
+            if (queryString.stringify(old_pv_values) !== queryString.stringify(updated_array_pv)) {
+                // There's a change in the hidden values of PV's
+
+                // Update url query params
+                let search = queryString.parse(this.props.match.history.location.search);
+                search.pv = updated_array_pv;
+                this.props.match.history.replace({search: queryString.stringify(search)});
+
+
+                this.reload();
+                return {pv_values: updated_pv};
+            }
         });
-        this.reload();
     }
 
     render() {

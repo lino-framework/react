@@ -435,7 +435,6 @@ class App extends React.Component {
             }
         }).then(
             (req) => {
-                //Todo error handeling.
                 return req.json()
             }
         ).then((data) => {
@@ -491,7 +490,12 @@ class App extends React.Component {
                                             detail: "Record Deleted"
                                         });
                                         this.router.history.goBack(); // looking at empty recrod, go back!
+
                                     }
+                                    else {
+                                        this.handleActionResponse({response:data, rp:rp, response_callback:response_callback})
+                                    }
+
                                 }
                             ).catch(error => console.error(error));
                         }}/>
