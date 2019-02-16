@@ -282,6 +282,7 @@ class App extends React.Component {
         const action = this.state.site_data.actors[actorId].ba[an];
         console.log("runAction", action, an, actorId, rp, status, sr);
         // Grid show and detail actions change url to correct page.
+        let url_args = queryString.parse(this.router.history.location.search);
 
         let excecute_args = {
             an: an,
@@ -325,6 +326,7 @@ class App extends React.Component {
                     // console.log("Action Dialog Closed Callback");
                     this.setState((old) => {
                         let diags = old.dialogs.filter((x) => x !== diag_props);
+                        if (diags.length === 0 && rp_obj && rp_obj.reload) rp_obj.reload();
                         return {dialogs: diags};
                         // splice d out
                         //return {dialogs: [...ds]
@@ -333,7 +335,8 @@ class App extends React.Component {
                 // onOk: () => {
                 //     console.log("Action Dialog OK Callback")
                 // },
-                footer: <div>
+                //LinoDialog defines a default footer using linoBbar for insert
+                footer: an === "insert" ? undefined : <div>
                     <Button label={"Cancel"} onClick={() => {
                         diag_props.onClose();
                     }}/>
@@ -354,12 +357,9 @@ class App extends React.Component {
             }
             else if (an === "insert") { // no default data and insert action,
 
-                diag_props.footer = undefined; // LinoDialog defines a default footer using linoBbar for insert
-
                 // fetch default data
                 // Might be only for insert,
-                let url_args = queryString.parse(this.router.history.location.search),
-                    args = {an: an, fmt: "json", rp: rp};
+                let args = {an: an, fmt: "json", rp: rp};
                 if (url_args.mk) args.mk = url_args.mk; // in the case of expanded slave-grid or detail
                 if (url_args.mt) args.mt = url_args.mt;
                 // I wonder if we should call on rp to get the mt / mk...
@@ -374,6 +374,8 @@ class App extends React.Component {
                                 dialog = dialogs.find(e => e === diag_props); // find dialog
                             dialogs = [...dialogs]; // make copy of array, as to triger a refresh of data.
                             // Object.assign(prevState.data, {...values}
+                            if (dialog.data.mk) data.data = dialog.data.mk;
+                            if (dialog.data.mt) data.data = dialog.data.mt;
                             dialog.data = data.data;
                             dialog.title = data.title;
                             return {dialogs: dialogs}
@@ -381,6 +383,15 @@ class App extends React.Component {
                     }
                 )
             }
+
+            if (url_args.mk) diag_props.data.mk = url_args.mk; // in the case of expanded slave-grid or detail
+            if (url_args.mt) diag_props.data.mt = url_args.mt;
+            if (status.base_params) {
+                status.base_params.mt && (diag_props.data.mk = status.base_params.mk);
+                status.base_params.mk && (diag_props.data.mt = status.base_params.mt);
+
+            }
+
             // fetch( default data for action url, for both insert + actions)
             // .then( req => req.json()).
             //  then(
@@ -514,7 +525,7 @@ class App extends React.Component {
             this.setState((old) => {
                 return {dialogs: [diag_props].concat(old.dialogs)}
             });
-            return // Dont want any further responce handeling
+            return // Dont want any further response handeling
         }
 
         if (response.eval_js) {
@@ -523,10 +534,11 @@ class App extends React.Component {
 
         if (response.close_window) {
             if (this.state.dialogs) {
-                this.state.dialogs[this.state.dialogs.length - 1].onClose();
+                this.state.dialogs[this.state.dialogs.length - 1] && this.state.dialogs[this.state.dialogs.length - 1].onClose();
 
                 this.setState((old) => {
                     old.dialogs.pop();  // remove last item, use shift for first
+                    if (rp && rp.reload && old.dialogs.length === 0) rp.reload();
                     return {dialogs: [...old.dialogs]}
                 })
             }

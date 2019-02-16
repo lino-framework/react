@@ -55,7 +55,7 @@ export class LinoDialog extends Component {
 
         return <SiteContext.Consumer>{(siteData) => {
             const footer = this.props.footer || <div><LinoBbar rp={this} actorData={siteData.actors[this.props.actorId]}
-                                                               an={this.props.action.an} sr={[-99998]}/></div>
+                                                               an={this.props.action.an} sr={[undefined]}/></div>
             // webpack wants theres decerations here, not in the if, otherwise unassigned var error in return
             let MainComp,
                 layout,

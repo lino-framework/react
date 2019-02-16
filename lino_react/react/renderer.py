@@ -182,15 +182,21 @@ class Renderer(JsRenderer, JsCacheRenderer):
             status.update(self.get_action_status(ar, ba, obj))
             params.update(status)
         params.update(self.get_action_params(ar, ba, obj))
-        return "window.App.runAction(%s)" % (
-            py2js({
+
+        js_obj = {
                 "rp": rp,
                 "an": ba.action.action_name,
                 "onMain": ar.is_on_main_actor,
                 "actorId": ba.actor.actor_id,
-                "sr": obj.pk if obj is not None else "-99998", # -99998 might be wrong for many commands... need to know what logic is used to determn it,
                 "status": params
-            }))
+            }
+        if obj is not None:
+            js_obj["sr"] = obj.pk# else "-99998",
+            #  -99998 might be wrong for many commands... need to know what logic is used to determn it,
+
+
+        return "window.App.runAction(%s)" % (
+            py2js(js_obj))
         # bound_action.a)
 
     def py2js_converter(self, v):
