@@ -46,7 +46,7 @@ export class ForeignKeyElement extends Component {
             (data => this.setState({
                 rows: data.rows,
             }))
-        ).catch(error => this.window.App.handleAjaxException(error));;
+        ).catch(error => window.App.handleAjaxException(error));;
     }
 
     openExternalLink(siteData) {

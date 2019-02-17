@@ -135,7 +135,7 @@ class App extends React.Component {
                 this.dashboard.reloadData();
 
             }
-        }).catch(error => this.window.App.handleAjaxException(error));
+        }).catch(error => window.App.handleAjaxException(error));
 
     }
 
@@ -245,7 +245,7 @@ class App extends React.Component {
                 this.setState({user_settings: data});
                 return this.fetch_site_data(data.site_data);
             }
-        ).catch(error => this.window.App.handleAjaxException(error));
+        ).catch(error => window.App.handleAjaxException(error));
     };
 
     fetch_site_data = (uri) => {
@@ -254,7 +254,7 @@ class App extends React.Component {
                 if (response.status !== 200) {
                     return this.setState({placeholder: "Something went wrong"});
                 }
-                return response.json();
+                return this.handleAjaxResponse(response);
             })
             .then(data => {
 
@@ -266,9 +266,16 @@ class App extends React.Component {
                     site_loaded: true
                 });
             }).catch(error => {
-                this.window.App.handleAjaxException(error)
+                this.handleAjaxException(error)
             });
     };
+
+    handleAjaxResponse = (resp) => {
+        // Todo have this method run for all ajax calls,
+        // Todo have this method check for code 500 / 401 / 404 etc...
+        return resp.json();
+    };
+
     handleAjaxException = (error) => {
         console.error(error);
         this.growl.show({
@@ -402,7 +409,7 @@ class App extends React.Component {
                             return {dialogs: dialogs}
                         })
                     }
-                ).catch(error => this.window.App.handleAjaxException(error));
+                ).catch(error => window.App.handleAjaxException(error));
             }
 
             if (url_args.mk) diag_props.data.mk = url_args.mk; // in the case of expanded slave-grid or detail
@@ -477,7 +484,7 @@ class App extends React.Component {
                     response_callback: responce_callback
                 });
             }
-        ).catch(error => this.window.App.handleAjaxException(error));
+        ).catch(error => window.App.handleAjaxException(error));
         // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
     };
 
@@ -507,7 +514,7 @@ class App extends React.Component {
                             fetchPolyfill(url + "no").then((req) => req.json()).then(
                                 (data) => {
                                 }
-                            ).catch(error => this.window.App.handleAjaxException(error));
+                            ).catch(error => window.App.handleAjaxException(error));
 
                         }}/>
                         <Button label={response.xcallback.buttons.yes} onClick={() => {
@@ -534,7 +541,7 @@ class App extends React.Component {
                                     }
 
                                 }
-                            ).catch(error => this.window.App.handleAjaxException(error));
+                            ).catch(error => window.App.handleAjaxException(error));
                         }}/>
                     </div>,
                     title: title,
