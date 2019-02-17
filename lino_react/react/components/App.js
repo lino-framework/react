@@ -374,8 +374,8 @@ class App extends React.Component {
                                 dialog = dialogs.find(e => e === diag_props); // find dialog
                             dialogs = [...dialogs]; // make copy of array, as to triger a refresh of data.
                             // Object.assign(prevState.data, {...values}
-                            if (dialog.data.mk) data.data = dialog.data.mk;
-                            if (dialog.data.mt) data.data = dialog.data.mt;
+                            if (dialog.data.mk) data.data.mk = dialog.data.mk;
+                            if (dialog.data.mt) data.data.mt = dialog.data.mt;
                             dialog.data = data.data;
                             dialog.title = data.title;
                             return {dialogs: dialogs}
