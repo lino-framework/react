@@ -45,7 +45,8 @@ export class LinoDetail extends Component {
             title: "",
             navinfo: {},
             searchSuggestions: [],
-            quickSearchQuery: ""
+            quickSearchQuery: "",
+            reload_timestamp: 0 //Date.now() // 0 used to prevent reload after mount // used to propgate down to cause reloading of slave-grids on realod.
             // loading: true
         };
         this.reload = this.reload.bind(this);
@@ -111,6 +112,7 @@ export class LinoDetail extends Component {
             id: data.id,
             title: data.title,
             navinfo: data.navinfo,
+            reload_timestamp: Date.now()
             // loading:false,
         });
 
@@ -165,6 +167,7 @@ export class LinoDetail extends Component {
             mk: this.props.pk,
             mt: this.props.actorData.content_type,
             match: this.props.match,
+            reload_timestamp: this.state.reload_timestamp
         };
         prop_bundle.prop_bundle = prop_bundle;
 

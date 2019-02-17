@@ -303,6 +303,7 @@ const LinoComponents = {
         let [packId, actorId] = props.elem.actor_id.split("."); // "contacts.RolesByPerson"
 
         return <SiteContext.Consumer>{(siteData) => (<LinoGrid
+            reload_timestamp={props.prop_bundle.reload_timestamp}
             ref={window.App.setRpRef}
             inDetail={true}
             match={props.prop_bundle.match} // todo

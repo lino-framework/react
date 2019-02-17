@@ -27,7 +27,9 @@ export class LinoGrid extends Component {
         packId: PropTypes.string,
         actorData: PropTypes.object,
         mt: PropTypes.int,
-        mk: PropTypes.string // we want to allow str / slug pks
+        mk: PropTypes.string, // we want to allow str / slug pks
+        reload_timestamp: PropTypes.int, // used to propogate a reload
+
         // todo: in_detail : PropTypes.bool
     };
 
@@ -238,16 +240,20 @@ export class LinoGrid extends Component {
                 let pv_values = data.param_values;
                 delete data.param_values;
 
-                this.setState((prevState) => ({
-                    data: data,
-                    rows: rows,
-                    totalRecords: data.count,
-                    topRow: (page) * this.state.rowsPerPage,
-                    loading: false,
-                    title: data.title,
-                    pv_values: pv_values// This might cause race conditions with editing may PV's quickly.
-                    // page: page
-                }));
+                this.setState((prevState) => {
+                    let state = {
+                        data: data,
+                        rows: rows,
+                        totalRecords: data.count,
+                        topRow: (page) * this.state.rowsPerPage,
+                        loading: false,
+                        title: data.title,
+                        // page: page
+                    };
+                    // condition because we only want to use default PV values inside of detail views.
+                    if (!this.props.inDetail) state.pv_values = pv_values; // This might cause race conditions with editing may PV's quickly.
+                    return state;
+                });
             }
         )
     }
@@ -256,12 +262,17 @@ export class LinoGrid extends Component {
         // console.log("Detail compDidUpdate")
         if (this.props.pk !== prevProps.pk ||
             this.props.mk !== prevProps.mk ||
-            this.props.mt !== prevProps.mt) {
+            this.props.mt !== prevProps.mt ||
+            (prevProps.reload_timestamp !== 0 && this.props.reload_timestamp !== prevProps.reload_timestamp)
+        ) {
+            console.log("Reload from DidUpdate method")
+
             this.reload();
         }
     }
 
     componentDidMount() {
+        console.log("Reload from DidUpdate method")
         this.reload();
         // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
@@ -397,7 +408,8 @@ export class LinoGrid extends Component {
                     footer={<div>
                         <Button style={{width: "33px"}} icon={"pi pi-times-circle"}
                                 onClick={() => this.reload({pv: {}})}/>
-                        <Button style={{width: "33px"}} icon={"pi pi-check"} onClick={(e) => this.setState({showPVDialog: false})}/>
+                        <Button style={{width: "33px"}} icon={"pi pi-check"}
+                                onClick={(e) => this.setState({showPVDialog: false})}/>
                     </div>}
                     visible={this.state.showPVDialog} modal={true}
                     onHide={(e) => this.setState({showPVDialog: false})}>
