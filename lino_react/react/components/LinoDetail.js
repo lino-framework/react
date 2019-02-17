@@ -98,7 +98,7 @@ export class LinoDetail extends Component {
             (data) => {
                 this.consume_server_responce(data)
             }
-        ).catch(error => console.error(error));
+        ).catch(error => this.window.App.handleAjaxException(error));
     }
 
     consume_server_responce(data) {
@@ -150,7 +150,7 @@ export class LinoDetail extends Component {
             (data => this.setState({
                 searchSuggestions: data.rows,
             }))
-        );
+        ).catch(error => this.window.App.handleAjaxException(error));
     }
 
     render() {

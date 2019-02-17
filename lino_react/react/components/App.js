@@ -80,6 +80,8 @@ class App extends React.Component {
         this.onSidebarClick = this.onSidebarClick.bind(this);
         this.onMenuItemClick = this.onMenuItemClick.bind(this);
 
+        this.onHomeButton = this.onHomeButton.bind(this);
+
         this.onSignOutIn = this.onSignOutIn.bind(this);
         this.onSignIn = this.onSignIn.bind(this);
 
@@ -133,7 +135,7 @@ class App extends React.Component {
                 this.dashboard.reloadData();
 
             }
-        });
+        }).catch(error => this.window.App.handleAjaxException(error));
 
     }
 
@@ -157,6 +159,16 @@ class App extends React.Component {
         }
 
         this.menuClick = false;
+    }
+
+    onHomeButton(event) {
+        if (this.router.history.location.pathname !== "/") {
+            this.router.history.push("/");
+        }
+        else {
+            this.dashboard.reloadData()
+        }
+
     }
 
     onToggleMenu(event) {
@@ -233,7 +245,7 @@ class App extends React.Component {
                 this.setState({user_settings: data});
                 return this.fetch_site_data(data.site_data);
             }
-        )
+        ).catch(error => this.window.App.handleAjaxException(error));
     };
 
     fetch_site_data = (uri) => {
@@ -253,9 +265,18 @@ class App extends React.Component {
                     site_data: data,
                     site_loaded: true
                 });
-            }).catch(error => console.error(error));
+            }).catch(error => {
+                this.window.App.handleAjaxException(error)
+            });
     };
-
+    handleAjaxException = (error) => {
+        console.error(error);
+        this.growl.show({
+            severity: "error",
+            summary: "Error",
+            detail: error.message,
+        });
+    };
     /**
      * Slighly hacky solution for running actions.
      * Called by eval'd js from the server in html elems, as well as internall for navigation.
@@ -381,7 +402,7 @@ class App extends React.Component {
                             return {dialogs: dialogs}
                         })
                     }
-                )
+                ).catch(error => this.window.App.handleAjaxException(error));
             }
 
             if (url_args.mk) diag_props.data.mk = url_args.mk; // in the case of expanded slave-grid or detail
@@ -456,7 +477,7 @@ class App extends React.Component {
                     response_callback: responce_callback
                 });
             }
-        ).catch(error => console.error(error));
+        ).catch(error => this.window.App.handleAjaxException(error));
         // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
     };
 
@@ -486,7 +507,7 @@ class App extends React.Component {
                             fetchPolyfill(url + "no").then((req) => req.json()).then(
                                 (data) => {
                                 }
-                            ).catch(error => console.error(error));
+                            ).catch(error => this.window.App.handleAjaxException(error));
 
                         }}/>
                         <Button label={response.xcallback.buttons.yes} onClick={() => {
@@ -513,7 +534,7 @@ class App extends React.Component {
                                     }
 
                                 }
-                            ).catch(error => console.error(error));
+                            ).catch(error => this.window.App.handleAjaxException(error));
                         }}/>
                     </div>,
                     title: title,
@@ -639,7 +660,7 @@ class App extends React.Component {
         return (
             <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick}>
-                    <AppTopbar onToggleMenu={this.onToggleMenu}
+                    <AppTopbar onToggleMenu={this.onToggleMenu} onHomeButton={this.onHomeButton}
                         // searchValue={this.state.searchValue}
                         // searchMethod={}
                         // searchSuggestions={}
@@ -690,31 +711,26 @@ class App extends React.Component {
                                 render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
                             />
                         )}/>
-                        {this.state.site_loaded ?
-                            <SiteContext.Provider value={this.state.site_data}>
-                                <React.Fragment>
-                                    {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
-                                    <Route path="/api/:packId/:actorId" render={(route) => {
-                                        let key = route.match.params.packId + "." + route.match.params.actorId;
-                                        let parms = new URLSearchParams(route.location.search);
-                                        // console.log(key);
-                                        return <Actor match={route}
-                                                      actorId={route.match.params.actorId}
-                                                      packId={route.match.params.packId}
-                                                      mk={parms.get("mk")}
-                                                      mt={parms.get("mt")}
-                                            // makes react recreate the LinoGrid instance
-                                                      key={key}
+                        <SiteContext.Provider value={this.state.site_data}>
+                            {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
+                            <Route path="/api/:packId/:actorId" render={(route) => {
+                                let key = route.match.params.packId + "." + route.match.params.actorId;
+                                let parms = new URLSearchParams(route.location.search);
+                                // console.log(key);
 
-                                            // Should it look at SiteContext?
-                                                      actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>
-                                    }}
-                                    />
-                                </React.Fragment>
-                            </SiteContext.Provider>
-                            :
-                            <ProgressSpinner/>
-                        }
+                                return this.state.site_loaded ? <Actor match={route}
+                                                                       actorId={route.match.params.actorId}
+                                                                       packId={route.match.params.packId}
+                                                                       mk={parms.get("mk")}
+                                                                       mt={parms.get("mt")}
+                                        // makes react recreate the LinoGrid instance
+                                                                       key={key}
+
+                                        // Should it look at SiteContext?
+                                                                       actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>
+                                    : <ProgressSpinner/>
+                            }}/>
+                        </SiteContext.Provider>
                     </div>
                     <SiteContext.Provider value={this.state.site_data}>
 

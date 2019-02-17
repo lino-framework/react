@@ -1,5 +1,6 @@
 const autoprefixer = require('autoprefixer');
 module.exports = {
+    // entry: ["./lino_react/react/index.js"],
     module: {
         rules: [
             // {

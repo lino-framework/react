@@ -255,7 +255,7 @@ export class LinoGrid extends Component {
                     return state;
                 });
             }
-        )
+        ).catch(error => this.window.App.handleAjaxException(error));
     }
 
     componentDidUpdate(prevProps) {

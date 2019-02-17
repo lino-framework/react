@@ -50,7 +50,7 @@ class DataProvider extends Component {
     const { data, loaded, placeholder } = this.state;
     // const Comp = "Table";
     // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-    return loaded ? this.props.render(data) : <div/> ;
+    return loaded ? this.props.render(data) :<ProgressSpinner/> ;
   }
 }
 

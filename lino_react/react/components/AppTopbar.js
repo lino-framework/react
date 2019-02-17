@@ -12,6 +12,7 @@ export class AppTopbar extends Component {
 
     static propTypes = {
         onToggleMenu: PropTypes.func.isRequired,
+        onHomeButton: PropTypes.func.isRequired,
         // searchValue: PropTypes.func.isRequired,
         // searchMethod: PropTypes.func.isRequired,
         // searchSuggestions: PropTypes.func.isRequired,
@@ -23,9 +24,9 @@ export class AppTopbar extends Component {
                 <a className="layout-menu-button" onClick={this.props.onToggleMenu}>
                     <span className="pi pi-bars"/>
                 </a>
-                <Link className="layout-home-button" to="/">
+                <a className="layout-home-button" onClick={this.props.onHomeButton}>
                     <span className="pi pi-home"/>
-                </Link>
+                </a>
                 <div className="layout-topbar-icons">
                     {/*<span className="layout-topbar-search">*/}
                         {/*<AutoComplete type="text" placeholder="Search"*/}
