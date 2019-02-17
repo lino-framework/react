@@ -91,6 +91,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
         return 1
 
     # working, but shouldn't be used, as it clears the app history
+
+    def reload_js(self):
+        return "window.App.dashboard.reload();"
+
     def get_detail_url(self, actor, pk, *args, **kw):
         """Opens detail however clears the app's history"""
         return self.plugin.build_plain_url(
