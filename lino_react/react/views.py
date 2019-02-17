@@ -126,7 +126,7 @@ class ApiElement(View):
             constants.URL_PARAM_FORMAT, ba.action.default_format)
 
         if ba.action.opens_a_window:
-            print("15022019", action_name)
+            # print("15022019", action_name)
             if fmt == constants.URL_FORMAT_JSON:
                 if pk == '-99999':
                     elem = ar.create_instance()
@@ -168,9 +168,7 @@ class ApiElement(View):
         return settings.SITE.kernel.run_action(ar)
 
     def post(self, request, app_label=None, actor=None, pk=None):
-        # data = json.loads(request.body)
         data = http.QueryDict(request.body)
-        print(data)
         ar = action_request(
             app_label, actor, request, data, True,
             renderer=settings.SITE.plugins.react.renderer)
@@ -184,7 +182,7 @@ class ApiElement(View):
     def put(self, request, app_label=None, actor=None, pk=None):
         data = http.QueryDict(request.body)  # raw_post_data before Django 1.4
         # data = json.loads(request.body)
-        logger.info("20150130 %s", data)
+        # logger.info("20150130 %s", data)
 
         ar = action_request(
             app_label, actor, request, data, False,
@@ -758,7 +756,7 @@ class Authenticate(View):
         """logs the user in and builds the linoweb.js file for the logged in user"""
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(username, password)
+        # print(username, password)
         user = auth.authenticate(
             request, username=username, password=password)
         auth.login(request, user, backend=u'lino.core.auth.backends.ModelBackend')

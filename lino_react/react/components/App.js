@@ -406,7 +406,7 @@ class App extends React.Component {
     };
 
     excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, responce_callback, data} = {}) => {
-        let urlSr = Array.isArray(sr) ? sr[0] : sr === undefined ? "" : sr, // if array, first item, if undefined, blank
+        let urlSr = Array.isArray(sr) ? sr[0] : sr, // if array, first item, if undefined, blank
             args = {
                 an: an,
                 sr: sr, // not needed for submit_detail, but non breaking, so leave it.
@@ -435,7 +435,7 @@ class App extends React.Component {
 
 
         let url = `api/${actorId.split(".").join("/")}`;
-        if (urlSr !== undefined) url += `/${urlSr}`;
+        if (urlSr !== undefined && urlSr !== null) url += `/${urlSr}`;
         if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
 
         fetchPolyfill(url, {
