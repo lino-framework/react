@@ -7,7 +7,7 @@ import queryString from "query-string"
 
 import key from "weak-key";
 
-import _ from 'lodash';
+// import _ from 'lodash';
 
 export class Actor extends Component {
 
@@ -37,11 +37,11 @@ export class Actor extends Component {
     };
 
     componentWillReceiveProps(nextProps) {
-        const changedProps = _.reduce(this.props, function (result, value, key) {
-            return _.isEqual(value, nextProps[key])
-                ? result
-                : result.concat(key)
-        }, []);
+        // const changedProps = _.reduce(this.props, function (result, value, key) {
+        //     return _.isEqual(value, nextProps[key])
+        //         ? result
+        //         : result.concat(key)
+        // }, []);
         // console.log('changedProps: ', changedProps)
     }
 
