@@ -331,7 +331,8 @@ class App extends React.Component {
                 search: {}
             };
             if (an === "detail") {
-                history_conf.pathname += `${status.record_id ? status.record_id : ""}`
+
+                history_conf.pathname += `${status.record_id ? status.record_id : sr[0]}`
             }
 
 

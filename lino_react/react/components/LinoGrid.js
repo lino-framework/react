@@ -207,8 +207,8 @@ export class LinoGrid extends Component {
             fmt: "json",
             limit: this.state.rowsPerPage,
             start: page * this.state.rowsPerPage, // Needed due to race condition when setting-state
-            // todo pv
-            query: query !== undefined ? query : this.state.query // use given query or state-query
+            query: query !== undefined ? query : this.state.query, // use given query or state-query
+            rp: this.rp
         };
 
         if (this.props.actorData.pv_layout) {
