@@ -318,6 +318,19 @@ const LinoComponents = {
 
     },
 
+    ActionParamsPanel: (props ) => {
+      let Panel = LinoComponents.Panel,
+          {prop_bundle, elem} = props;
+        return (
+          <form target={prop_bundle.action.an === "sign_in"?"temp":undefined}
+                id={prop_bundle.action.an === "sign_in"?"sign_in_submit":undefined}
+                action={prop_bundle.action.an === "sign_in"?"/null/":undefined}
+                method={prop_bundle.action.http_method}>
+              <Panel {...prop_bundle} elem={elem} main={true}/>
+          </form>
+      )
+
+    },
 
     UnknownElement: (props) => {
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
@@ -347,7 +360,6 @@ const LinoComponents = {
 };
 
 LinoComponents.Panel.defaultProps = {header: true};
-LinoComponents.ActionParamsPanel = LinoComponents.Panel;
 LinoComponents.ParamsPanel = LinoComponents.Panel;
 
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;

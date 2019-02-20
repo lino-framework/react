@@ -734,6 +734,13 @@ class MainHtml(View):
         return json_response(ar.response, ar.content_type)
 
 
+class Null(View):
+    """Just returns 200, used in an iframe to cause the browser to trigger "Do you want to remember this pw" dialog"""
+    def post(self, request):
+        return http.HttpResponse()
+    def get(self, request):
+        return http.HttpResponse()
+
 class Authenticate(View):
     def get(self, request, *args, **kw):
         action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME)
@@ -801,8 +808,8 @@ class App(View):
         def getit():
 
             ui = settings.SITE.plugins.react
-            if not settings.SITE.build_js_cache_on_startup:
-                ui.renderer.build_js_cache(False)
+            # if not settings.SITE.build_js_cache_on_startup:
+            #     ui.renderer.build_js_cache(False)
 
             ar = BaseRequest(
                 # user=user,
@@ -833,6 +840,8 @@ class UserSettings(View):
         u = request.user
         anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
         def getit():
+            if not settings.SITE.build_js_cache_on_startup:
+                settings.SITE.plugins.react.renderer.build_js_cache(False)
             return json_response(dict(
                 user_type=u.user_type,
                 lang=u.language,

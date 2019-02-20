@@ -12,7 +12,7 @@ import Menu from "./Menu";
 import {AppMenu} from './AppMenu';
 import {AppTopbar} from './AppTopbar';
 import {AppInlineProfile} from "./AppInlineProfile"
-import {SignInDialog} from './SignInDialog'
+// import {SignInDialog} from './SignInDialog'
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
@@ -83,7 +83,7 @@ class App extends React.Component {
         this.onHomeButton = this.onHomeButton.bind(this);
 
         this.onSignOutIn = this.onSignOutIn.bind(this);
-        this.onSignIn = this.onSignIn.bind(this);
+        // this.onSignIn = this.onSignIn.bind(this);
 
         this.handleActionResponse = this.handleActionResponse.bind(this);
         this.runAction = this.runAction.bind(this);
@@ -98,9 +98,20 @@ class App extends React.Component {
 
     onSignOutIn(event) {
         if (!this.state.user_settings.logged_in) {
-            this.setState({logging_in: true})
+            // this.setState({logging_in: true})
+            this.runAction({
+                "actorId": "users.UsersOverview",
+                "an": "sign_in",
+                "onMain": true,
+                "rp": null,
+                "status": {
+                    "field_values": {"password": "", "username": ""},
+                    "fv": ["", ""],
+                }
+            })
         }
         else {
+            // log_out
             fetchPolyfill("/auth").then((req) => {
                 this.setState({logging_in: false});
                 this.fetch_user_settings();
@@ -111,33 +122,33 @@ class App extends React.Component {
 
     }
 
-    onSignIn(payload) {
-        // event.preventDefault();
-        // let payload = {
-        //     username: this.state.username,
-        //     password: this.state.password
-        // };
-        let data = Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&');
-        // let data = new FormData();
-        // data.append("json", JSON.stringify(payload));
-        // Object.entries(payload).map((k,v) => data.append(k,v));
-        this.setState({logging_in: false});
-        fetchPolyfill("/auth",
-            {
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                method: "POST",
-                body: data
-            }
-        ).then((res) => (res.json())
-        ).then((data) => {
-            if (data.success) {
-                this.fetch_user_settings();
-                this.dashboard.reloadData();
-
-            }
-        }).catch(error => window.App.handleAjaxException(error));
-
-    }
+    // onSignIn(payload) {
+    //     // event.preventDefault();
+    //     // let payload = {
+    //     //     username: this.state.username,
+    //     //     password: this.state.password
+    //     // };
+    //     let data = Object.keys(payload).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(payload[key])).join('&');
+    //     // let data = new FormData();
+    //     // data.append("json", JSON.stringify(payload));
+    //     // Object.entries(payload).map((k,v) => data.append(k,v));
+    //     this.setState({logging_in: false});
+    //     fetchPolyfill("/auth",
+    //         {
+    //             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    //             method: "POST",
+    //             body: data
+    //         }
+    //     ).then((res) => (res.json())
+    //     ).then((data) => {
+    //         if (data.success) {
+    //             this.fetch_user_settings();
+    //             this.dashboard.reloadData();
+    //
+    //         }
+    //     }).catch(error => window.App.handleAjaxException(error));
+    //
+    // }
 
     setRpRef(el) {
         if (el) {
@@ -546,7 +557,7 @@ class App extends React.Component {
                         }}/>
                     </div>,
                     title: title,
-                    content: <p>{response.message}</p>
+                    content: <div dangerouslySetInnerHTML={response.message}></div>
                 };
 
 
@@ -559,6 +570,15 @@ class App extends React.Component {
 
         if (response.eval_js) {
             eval(response.eval_js);
+        }
+
+        if (response.success && response.goto_url === "/" && response.close_window) {
+            // Sign-in action success
+            document.querySelector('#sign_in_submit').submit();
+            // sign_in_submit
+            // window.location.reload();
+            this.fetch_user_settings();
+            this.dashboard && this.dashboard.reloadData();
         }
 
         if (response.close_window) {
@@ -596,11 +616,6 @@ class App extends React.Component {
 
         }
 
-        if (response.success && response.goto_url === "/" && response.close_window) {
-            // Sign-in action success
-            this.fetch_user_settings();
-            this.dashboard.reloadData();
-        }
 
     };
 
@@ -743,8 +758,10 @@ class App extends React.Component {
                     <SiteContext.Provider value={this.state.site_data}>
 
                         <div className="layout-mask"/>
-                        <SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}
-                                      onSignIn={this.onSignIn}/>
+                        {/*this is for auth*/}
+                        <iframe id="temp" name="temp" style={{display: "none"}}/>
+                        {/*<SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}*/}
+                                      {/*onSignIn={this.onSignIn}/>*/}
                         {this.state.dialogs.map((d) => {
 
                             return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
