@@ -372,18 +372,18 @@ class App extends React.Component {
                         //return {dialogs: [...ds]
                     });
                 },
-                // onOk: () => {
-                //     console.log("Action Dialog OK Callback")
-                // },
+                onOk: () => {
+                    excecute_args.data = diag_props.data;
+                    this.excuteAction(excecute_args);
+                    // console.log("Action Dialog OK Callback")
+                },
                 //LinoDialog defines a default footer using linoBbar for insert
                 footer: an === "insert" ? undefined : <div>
-                    <Button label={"Cancel"} onClick={() => {
-                        diag_props.onClose();
-                    }}/>
                     <Button label={"OK"} onClick={() => {
-                        // console.log("Dialog OK", diag_props.data);
-                        excecute_args.data = diag_props.data;
-                        this.excuteAction(excecute_args);
+                        diag_props.onOk();
+                    }}/>
+                    <Button label={"Cancel"} className={"p-button-secondary"}  onClick={() => {
+                        diag_props.onClose();
                     }}/>
                 </div>
             };
@@ -521,14 +521,6 @@ class App extends React.Component {
                     },
                     closable: false,
                     footer: <div>
-                        <Button label={response.xcallback.buttons.no} onClick={() => {
-                            diag_props.onClose();
-                            fetchPolyfill(url + "no").then((req) => req.json()).then(
-                                (data) => {
-                                }
-                            ).catch(error => window.App.handleAjaxException(error));
-
-                        }}/>
                         <Button label={response.xcallback.buttons.yes} onClick={() => {
                             // console.log("Dialog OK", diag_props.data);
                             diag_props.onClose();
@@ -555,9 +547,17 @@ class App extends React.Component {
                                 }
                             ).catch(error => window.App.handleAjaxException(error));
                         }}/>
+                        <Button className={"p-button-secondary"} label={response.xcallback.buttons.no} onClick={() => {
+                            diag_props.onClose();
+                            fetchPolyfill(url + "no").then((req) => req.json()).then(
+                                (data) => {
+                                }
+                            ).catch(error => window.App.handleAjaxException(error));
+
+                        }}/>
                     </div>,
                     title: title,
-                    content: <div dangerouslySetInnerHTML={response.message}></div>
+                    content: <div dangerouslySetInnerHTML={{__html: response.message}}></div>
                 };
 
 
@@ -761,7 +761,7 @@ class App extends React.Component {
                         {/*this is for auth*/}
                         <iframe id="temp" name="temp" style={{display: "none"}}/>
                         {/*<SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}*/}
-                                      {/*onSignIn={this.onSignIn}/>*/}
+                        {/*onSignIn={this.onSignIn}/>*/}
                         {this.state.dialogs.map((d) => {
 
                             return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}

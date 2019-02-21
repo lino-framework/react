@@ -157,7 +157,7 @@ const LinoComponents = {
                     <div className="l-ChoiceListFieldElement">
                         <Dropdown
                             // autoWidth={false}
-                            style={{width:"100%"}}
+                            style={{width: "100%"}}
                             optionLabel={"text"} value={{text: value, value: hidden_value}}
                             datakey={"value"}
                             //Todo clear tied to props.elem.field_options.blank
@@ -318,17 +318,26 @@ const LinoComponents = {
 
     },
 
-    ActionParamsPanel: (props ) => {
-      let Panel = LinoComponents.Panel,
-          {prop_bundle, elem} = props;
+    ActionParamsPanel: (props) => {
+        let Panel = LinoComponents.Panel,
+            {prop_bundle, elem, onSubmit} = props,
+            is_sign_in = prop_bundle.action.an === "sign_in";
         return (
-          <form target={prop_bundle.action.an === "sign_in"?"temp":undefined}
-                id={prop_bundle.action.an === "sign_in"?"sign_in_submit":undefined}
-                action={prop_bundle.action.an === "sign_in"?"/null/":undefined}
-                method={prop_bundle.action.http_method}>
-              <Panel {...prop_bundle} elem={elem} main={true}/>
-          </form>
-      )
+            <form target={is_sign_in ? "temp" : undefined}
+                  id={is_sign_in ? "sign_in_submit" : undefined}
+                  action={is_sign_in ? "/null/" : undefined}
+                  method={prop_bundle.action.http_method}>
+                <Panel {...prop_bundle} elem={elem} main={true}/>
+                <input type="submit"
+                       style={{"position": "absolute", "left": "-9999px", "width": "1px", "height": "1px"}}
+                       tabIndex="-1"
+                       onClick={(e) => {
+                           e.preventDefault();
+                           onSubmit();
+                       }}
+                />
+            </form>
+        )
 
     },
 

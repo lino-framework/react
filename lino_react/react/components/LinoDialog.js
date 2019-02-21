@@ -19,7 +19,7 @@ export class LinoDialog extends Component {
     static propTypes = {
         action: PropTypes.object, // action object from siteData
         onClose: PropTypes.func,   // Some sort of callback
-        onOk: PropTypes.func,   // Some sort of callback
+        onOk: PropTypes.func,   // callback for submitting forms. Only for action panel form, not insert.
         // baseData: PropTypes.object,
         footer: PropTypes.element,
         actorId: PropTypes.string, // Full id, with . ie: tickets.Alltickets
@@ -76,6 +76,7 @@ export class LinoDialog extends Component {
                     update_value: (v) => this.props.update_value(v, this._reactInternalFiber.key),
                     editing_mode: true,
                     match: this.props.router,
+                    onSubmit:this.props.onOk,
                 };
                 prop_bundle.prop_bundle = prop_bundle;
             }
