@@ -382,7 +382,7 @@ class App extends React.Component {
                     <Button label={"OK"} onClick={() => {
                         diag_props.onOk();
                     }}/>
-                    <Button label={"Cancel"} className={"p-button-secondary"}  onClick={() => {
+                    <Button label={"Cancel"} className={"p-button-secondary"} onClick={() => {
                         diag_props.onClose();
                     }}/>
                 </div>
@@ -450,15 +450,17 @@ class App extends React.Component {
             args = {
                 an: an,
                 sr: sr, // not needed for submit_detail, but non breaking, so leave it.
-                fmt: 'json'
             };
         rp && (args.rp = rp);
         // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
 
         if (action.submit_form_data) {
+            // delete args.fmt; // fmt:"json" causes parseing error for DateFieldElements
             // save action button
             let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
-                result[item] = rp_obj.state.data[item];
+                let value = rp_obj.state.data[item];
+                if (value.toJSON) value = value.toJSON(); // Date Objects
+                result[item] = value;
                 return result
             }, {});
             Object.assign(args, changes);
@@ -473,6 +475,7 @@ class App extends React.Component {
             Object.assign(args, data)
         } // is a dialog object.
 
+        if (action.http_method === "GET") args.fmt = 'json';
 
         let url = `api/${actorId.split(".").join("/")}`;
         if (urlSr !== undefined && urlSr !== null) url += `/${urlSr}`;

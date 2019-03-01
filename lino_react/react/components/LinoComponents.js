@@ -9,6 +9,7 @@ import {Editor} from 'primereact/editor';
 import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
+import {Calendar} from 'primereact/calendar';
 
 import {LinoGrid} from "./LinoGrid";
 import {SiteContext} from "./SiteContext"
@@ -295,6 +296,72 @@ const LinoComponents = {
 
     },
 
+    DateFieldElement: (props) => {
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+            {props.prop_bundle.editing_mode ?
+                <Calendar style={{width: "100%"}}
+                          value={value}
+                          dateFormat="dd.mm.yy"
+                          onChange={(e) => {
+                              let formatedDate;
+                              if (e.value instanceof Date) {
+                                  formatedDate = ("0" + e.value.getDate()).slice(-2) + "." +
+                                      ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
+                                      e.value.getFullYear();
+                              }
+                              props.prop_bundle.update_value({[props.elem.name]: formatedDate || e.value})
+                          }
+                          }
+                    // showIcon={true}
+                          viewDate={new Date()}
+                />
+                :
+                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
+        </Labeled>
+    },
+
+    // DateTimeFieldElement: (props) => {
+    //
+    // },
+    //
+    TimeFieldElement: (props) => {
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        let viewDate = new Date();
+        let regex = /(^\d?\d)[:.]?(\d?\d)$/g;
+        if (value && value.match(regex)) {
+            let m = regex.exec(value);
+            viewDate.setHours(m[1]);
+            viewDate.setMinutes(m[2]);
+        }
+        // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+            {props.prop_bundle.editing_mode ?
+                <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
+                          value={value}
+                    // dateFormat="dd.mm.yy"
+                          onChange={(e) => {
+                              let time;
+                              if (e.value instanceof Date) {
+                                  time = ("0" + e.value.getHours()).slice(-2) + ":" +
+                                      ("0" + e.value.getMinutes()).slice(-2);
+                              }
+                              props.prop_bundle.update_value({[props.elem.name]: time || e.value})
+                          }}
+                          onBlur={(e) => {
+                              props.prop_bundle.update_value({[props.elem.name]: e.target.value.replace(/\./g, ':')})
+                          }}
+                    // showIcon={true}
+                          onViewDateChange={(e) => {
+                          }}
+                          viewDate={viewDate}
+                />
+                :
+                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
+        </Labeled>
+    },
+
     ForeignKeyElement: ForeignKeyElement,
 
     GridElement: (props) => {
@@ -371,6 +438,7 @@ const LinoComponents = {
 LinoComponents.Panel.defaultProps = {header: true};
 LinoComponents.ParamsPanel = LinoComponents.Panel;
 
+LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 
 export default LinoComponents;
