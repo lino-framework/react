@@ -70,10 +70,10 @@ describe("Basic tests for TeamReact", () => {
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
 
         // Test nav arrows
-        cy.get('.l-nav-last > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-first > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-next > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-prev > .pi').click().wait("@getData").wait(100);
+        cy.get('.l-nav-last:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
+        cy.get('.l-nav-first:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
+        cy.get('.l-nav-next:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
+        cy.get('.l-nav-prev:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
 
         // test detail -> other detail
         cy.get('.l-button-fk:first').click(); // opens Site
