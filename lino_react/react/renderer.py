@@ -338,7 +338,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 )
             return result
 
-        if isinstance(v, js_code) and self.serialise_js_code:
+        if isinstance(v, js_code) and getattr(self, "serialise_js_code", False):
             # Convert js_code into strings so they are serialised. rather than displayed w/o quotes
             return str(v.s)
 
