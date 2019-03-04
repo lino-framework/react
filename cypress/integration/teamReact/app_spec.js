@@ -3,14 +3,17 @@ describe("Basic tests for TeamReact", () => {
         cy.server();
         cy.route("POST", '/auth').as('logIn');
         cy.route('/auth').as('logOut');
+        cy.route("/media/cache/json/*.json").as("SiteData");
         cy.visit("/");
+        cy.wait("@SiteData",{timeout:30000}); // Wait 30sec max for siteData gen
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
-        cy.get("#signin-username").type("robin");
-        cy.get("#signin-password").type("1234");
+        cy.get(":nth-child(1) > .p-inputtext").type("robin"); // username field
+        cy.get(":nth-child(2) > .p-inputtext").type("1234");  // pw field
         cy.get(":nth-child(1) > .p-button-text").click();
         // logged in
-        cy.wait("@logIn");
+        // cy.wait("@logIn");
+        cy.wait("@SiteData",{timeout:30000}); // Wait 30sec max for siteData gen
     });
 
 //    it("Test gen menu function", () => {
@@ -44,7 +47,7 @@ describe("Basic tests for TeamReact", () => {
         // cy.wait(2000);
         // For some reason I can't pinpoint the height of the side-menu gets messed up on this portion
         // Only happens in test env, not going to dig too deep rn.
-        cy.get(".active-menuitem > ul > li > a > span").click();
+        cy.get(".active-menuitem > ul > :nth-child(1) > a > span").click();
         // cy.wait(400);
         cy.get(".layout-menu-button > .pi").click();
         cy.get(".layout-mask").click();
@@ -63,10 +66,8 @@ describe("Basic tests for TeamReact", () => {
     it("Should be possible to log in again and navigate around ", () => {
         cy.route('/api/**').as('getData');
 
-        cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click(); // goto allTickets via html
-        cy.wait("@getData"); // wait to load...
-        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click(); // 3ed row, 3ed cell
-        cy.wait("@getData"); // wait to load...
+        cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click().wait("@getData"); // goto allTickets via html
+        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
 
         // Test nav arrows
         cy.get('.l-nav-last > .pi').click().wait("@getData").wait(100);

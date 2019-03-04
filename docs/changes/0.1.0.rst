@@ -80,6 +80,7 @@ The basic order of completion ought to be:
     There's some design issues with including the PV values in the detail view, if the detail view is a separate view,
     in a stateless app.
 #. Date + Date time + Time choosers
+   Working
 #. Sending grid data with as_pdf actions
 #. Editable Grid
 #. Grid optimizations
