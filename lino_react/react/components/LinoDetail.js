@@ -209,6 +209,7 @@ export class LinoDetail extends Component {
                             className="l-nav-last"
                             icon="pi pi-angle-double-right"
                             onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+                    {this.props.actorData.editable && <React.Fragment>
                     <ToggleButton style={{"float": "right"}}
                                   checked={this.state.editing_mode}
                                   onChange={(e) => {
@@ -216,7 +217,8 @@ export class LinoDetail extends Component {
                                           window.App.runAction({
                                               rp: this,
                                               an: "submit_detail",
-                                              actorId: `${this.props.packId}.${this.props.actorId}`, sr: this.props.pk,
+                                              actorId: `${this.props.packId}.${this.props.actorId}`,
+                                              sr: this.props.pk,
                                               responce_callback: (data) => {
                                                   this.setState({editing_mode: false});
                                                   // this.consume_server_responce(data.data_record);
@@ -228,7 +230,8 @@ export class LinoDetail extends Component {
                                           this.setState({editing_mode: e.value})
                                       }
                                   }}
-                                  onLabel="Save" offLabel="Edit" onIcon="pi pi-save" offIcon="pi pi-pencil"
+                                  onLabel="Save" offLabel="Edit" onIcon="pi pi-save"
+                                  offIcon="pi pi-pencil"
                     />
                     {this.state.editing_mode && <Button style={{"float": "right"}} label={"Cancel"} onClick={() => {
                         this.setState({
@@ -236,6 +239,8 @@ export class LinoDetail extends Component {
                             editing_mode: false
                         })
                     }}/>}
+                    </React.Fragment>
+                    }
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
                               an={'detail'}/>

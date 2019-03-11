@@ -306,7 +306,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result = dict(id=v.actor_id,
                           ba=v._actions_dict,
                           label=v.get_actor_label(),
-                          slave=bool(v.master)
+                          slave=bool(v.master),
+                          editable=v.editable,
                           # [py2js(b) for b in v.actions.items()]
                           )
             # grids

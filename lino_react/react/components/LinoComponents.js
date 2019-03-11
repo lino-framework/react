@@ -278,10 +278,7 @@ const LinoComponents = {
                 display: "flex",
                 flexDirection: "column"
             };
-        return <React.Fragment>
-            <Panel header={props.elem.label} style={style}>
-
-                {props.prop_bundle.editing_mode ?
+        let elem = props.prop_bundle.editing_mode ?
                     <Editor style={{
                         // width: "100%",
                         // height: '100%'
@@ -290,8 +287,11 @@ const LinoComponents = {
                             onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
                     /> :
                     <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-                }
-            </Panel>
+
+        return <React.Fragment>
+            {props.in_grid ? elem : <Panel header={props.elem.label} style={style}>
+                {elem}
+            </Panel>}
         </React.Fragment>
 
     },
@@ -438,7 +438,11 @@ const LinoComponents = {
 LinoComponents.Panel.defaultProps = {header: true};
 LinoComponents.ParamsPanel = LinoComponents.Panel;
 
+LinoComponents.ComplexRemoteComboFieldElement = LinoComponents.ForeignKeyElement;
+
 LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
+
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
+LinoComponents.GenericForeignKeyElement = LinoComponents.DisplayElement;
 
 export default LinoComponents;
