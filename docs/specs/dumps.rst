@@ -63,7 +63,7 @@ Test py > json for Actors.
               "repr": "<ConstantElement about_html in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
               "value": {
                 "flex": 25,
-                "html": ...
+                "html": "..."
               },
               "vflex": true,
               "width": null
@@ -137,7 +137,7 @@ Test py > json for Actors.
               "repr": "<ConstantElement about_html in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
               "value": {
                 "flex": 25,
-                "html": ...
+                "html": "..."
               },
               "vflex": true,
               "width": null
@@ -211,7 +211,7 @@ Test py > json for Actors.
               "repr": "<ConstantElement about_html in lino.core.layouts.DetailLayout on lino.modlib.about.models.About>",
               "value": {
                 "flex": 25,
-                "html": ...
+                "html": "..."
               },
               "vflex": true,
               "width": null
@@ -262,6 +262,7 @@ Test py > json for Actors.
   },
   "default_action": "show",
   "detail_action": "show",
+  "editable": false,
   "id": "about.About",
   "label": "About",
   "preview_limit": null,
