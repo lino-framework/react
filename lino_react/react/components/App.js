@@ -613,7 +613,7 @@ class App extends React.Component {
             })
         }
 
-        if (response.refresh) {
+        if (response.refresh || response.refresh_all) {
             rp && rp.reload();
             if (rp === null) this.dashboard.reloadData();
 
