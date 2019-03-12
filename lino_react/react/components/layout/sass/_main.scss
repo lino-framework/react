@@ -562,8 +562,28 @@ a {
 .p-editor-container {
     // Todo have the editor fill all vertical space correctly...
     height: 100%;
-    padding-bottom: 90px;
+    padding-bottom: 42px;
     padding-top: .5ch;
+}
+
+.p-dialog {
+    transition: top 0.5s;
+    .p-dialog-content {
+        max-height: 78vh;
+    }
+}
+
+@media (max-height: 570px) {
+    .p-dialog {
+        top: 0px !important;
+        .p-dialog-content {
+            max-height: 90vh;
+        }
+        .p-dialog-titlebar {
+            padding: .25em;
+        }
+
+    }
 }
 
 .p-panel-content {

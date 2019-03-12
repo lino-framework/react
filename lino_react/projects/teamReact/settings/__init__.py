@@ -25,3 +25,5 @@ class Site(Site):
         yield super(Site, self).get_installed_apps()
         # Add the stars plugin because it gives a repeatable action for testing.
         # yield 'lino_xl.lib.stars'
+
+ALLOWED_HOSTS = ['*']

@@ -271,7 +271,7 @@ const LinoComponents = {
         </div>
     },
 
-    TextFieldElement: (props) => {
+    /*TextFieldElement: (props) => {
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]),
             style = {
                 height: "100%",
@@ -294,6 +294,37 @@ const LinoComponents = {
             </Panel>}
         </React.Fragment>
 
+    },*/
+    TextFieldElement: (props) => {
+        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]),
+            style = {
+                height: "100%",
+                display: "flex",
+                flexDirection: "column"
+            };
+
+        let elem = props.prop_bundle.editing_mode ?
+            <div className={"l-editor-wrapper"} style={ {"padding-bottom": "42px", "display":"flex", "height":"100%"} }>
+            <Editor //style={ {{/!*height: '100%'*!/}} }
+                value={value}
+                onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}/>
+            </div>
+            :
+            <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
+
+        if (props.in_grid) return elem; // No wrapping needed
+
+        if (props.prop_bundle.editing_mode) {
+            elem = <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}
+                            isFilled={true} // either 1 or 0, can't be unfilled
+            > {elem} </Labeled>
+        } else {
+            elem = <Panel header={props.elem.label} style={style}>
+                {elem}
+            </Panel>
+        }
+
+        return elem
     },
 
     DateFieldElement: (props) => {
