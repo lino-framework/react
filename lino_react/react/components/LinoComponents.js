@@ -307,7 +307,7 @@ const LinoComponents = {
             <div className={"l-editor-wrapper"} style={ {"padding-bottom": "42px", "display":"flex", "height":"100%"} }>
             <Editor //style={ {{/!*height: '100%'*!/}} }
                 value={value}
-                onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}/>
+                onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue || ""})}/>
             </div>
             :
             <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
@@ -342,7 +342,7 @@ const LinoComponents = {
                                       ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
                                       e.value.getFullYear();
                               }
-                              props.prop_bundle.update_value({[props.elem.name]: formatedDate || e.value})
+                              props.prop_bundle.update_value({[props.elem.name]: formatedDate || e.value || ""});
                           }
                           }
                     // showIcon={true}
@@ -378,7 +378,7 @@ const LinoComponents = {
                                   time = ("0" + e.value.getHours()).slice(-2) + ":" +
                                       ("0" + e.value.getMinutes()).slice(-2);
                               }
-                              props.prop_bundle.update_value({[props.elem.name]: time || e.value})
+                              props.prop_bundle.update_value({[props.elem.name]: time || e.value || ""})
                           }}
                           onBlur={(e) => {
                               props.prop_bundle.update_value({[props.elem.name]: e.target.value.replace(/\./g, ':')})

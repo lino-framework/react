@@ -459,6 +459,7 @@ class App extends React.Component {
             // save action button
             let changes = Object.keys(rp_obj.state.data).filter((value, index) => rp_obj.state.original_data[value] !== rp_obj.state.data[value]).reduce((result, item, index, array) => {
                 let value = rp_obj.state.data[item];
+                if (value === null) value = "";
                 if (value.toJSON) value = value.toJSON(); // Date Objects
                 result[item] = value;
                 return result
