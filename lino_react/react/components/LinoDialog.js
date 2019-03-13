@@ -84,6 +84,7 @@ export class LinoDialog extends Component {
             return <Dialog onHide={this.onClose} visible={this.state.visible}
                            header={this.props.title || this.props.action.label}
                            footer={footer}
+                           maximizable={true}
                            closable={this.props.closable}>
                 {this.props.content || <MainComp {...prop_bundle} elem={layout.main} main={true}/>}
             </Dialog>
