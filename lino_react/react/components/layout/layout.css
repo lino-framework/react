@@ -472,6 +472,8 @@ a {
   height: 100%;
   flex: auto;
   display: flex; }
+  .l-panel .p-panel-content-wrapper {
+    max-height: unset; }
   .l-panel .l-component {
     padding: .25em; }
     .l-panel .l-component .l-label {
