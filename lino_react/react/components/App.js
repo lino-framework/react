@@ -745,6 +745,10 @@ class App extends React.Component {
                                 let key = route.match.params.packId + "." + route.match.params.actorId;
                                 let parms = new URLSearchParams(route.location.search);
                                 // console.log(key);
+                                if (this.state.site_loaded && this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")] === undefined)
+                                {
+                                    return <div><h1>Not found</h1><p>The Actor you have requested does not exist.</p></div>;
+                                }
 
                                 return this.state.site_loaded ? <Actor match={route}
                                                                        actorId={route.match.params.actorId}
