@@ -13,7 +13,7 @@ import {InputText} from 'primereact/inputtext';
 
 import {Dialog} from 'primereact/dialog';
 
-import {debounce} from "./LinoUtils";
+import {debounce, pvObj2array} from "./LinoUtils";
 
 import LinoComponents from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
@@ -67,7 +67,6 @@ export class LinoGrid extends Component {
         this.quickFilter = this.quickFilter.bind(this);
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
         this.update_pv_values = this.update_pv_values.bind(this);
-        this.pvObj2array = this.pvObj2array.bind(this);
     }
 
     /**
@@ -165,26 +164,6 @@ export class LinoGrid extends Component {
 //        this.log(query);
     }
 
-//    log(s){console.log(s)}
-
-    pvArray2Obj(ar) {
-
-    }
-
-    pvObj2array(obj) {
-        //this.state.pv_values is used in this method
-        let fields = Object.keys(obj);
-        return this.props.actorData.pv_fields.map((f_name) => {
-            // Only give hidden value if the key is in pv_values.
-            // Previously used || assignement, which caused FK filter values being sent as PVs
-            let value;
-            if (fields.includes(f_name + "Hidden")) value = obj[f_name + "Hidden"];
-            else value = obj[f_name];
-
-            if (value === undefined) value = null;
-            return value
-        })
-    }
 
     reload({page = undefined, query = undefined, pv = undefined} = {}) {
         let state = {
@@ -218,7 +197,7 @@ export class LinoGrid extends Component {
                 ajax_query.pv = search.pv
             }
             else {
-                ajax_query.pv = this.pvObj2array(pv || this.state.pv_values);
+                ajax_query.pv = pvObj2array(pv || this.state.pv_values, this.props.actorData.pv_fields);
             }
             // convert pv values from obj to array and add to ajax call
 
@@ -280,9 +259,9 @@ export class LinoGrid extends Component {
     update_pv_values(values) {
         // console.log(v);
         this.setState((prevState) => {
-            let old_pv_values = this.pvObj2array(prevState.pv_values);
+            let old_pv_values = pvObj2array(prevState.pv_values, this.props.actorData.pv_fields);
             let updated_pv = Object.assign(prevState.pv_values, {...values});
-            let updated_array_pv = this.pvObj2array(updated_pv);
+            let updated_array_pv = pvObj2array(updated_pv, this.props.actorData.pv_fields);
 
             if (queryString.stringify(old_pv_values) !== queryString.stringify(updated_array_pv)) {
                 // There's a change in the hidden values of PV's

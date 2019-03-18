@@ -17,7 +17,7 @@ import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
 import LinoBbar from "./LinoBbar";
-// import {objectToFormData} from "./LinoUtils"
+import {pvObj2array} from "./LinoUtils"
 
 
 import {Sidebar} from 'primereact/sidebar';
@@ -339,16 +339,17 @@ class App extends React.Component {
         if (an === "grid" || an === "show" || an === "detail") {
             let history_conf = {
                 pathname: `/api/${actorId.split(".").join("/")}/`,
-                search: {}
+                search: {} // url params
             };
             if (an === "detail") {
 
-                history_conf.pathname += `${status.record_id ? status.record_id : sr[0]}`
+                history_conf.pathname += `${status.record_id !== undefined ? status.record_id : sr[0]}`
             }
-
 
             status.base_params && status.base_params.mk && (history_conf.search.mk = status.base_params.mk);
             status.base_params && status.base_params.mt && (history_conf.search.mt = status.base_params.mt);
+
+            status.param_values && ( history_conf.search.pv = pvObj2array(status.param_values, this.state.site_data.actors[actorId].pv_fields));
             // Convert to string (Needed for array style PV values)
             history_conf.search = queryString.stringify(history_conf.search);
 

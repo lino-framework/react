@@ -17,6 +17,26 @@ export function debounce(func, wait, immediate) {
 	};
 };
 
+/**
+ *
+ * @param obj: obj of pvkey:val pairs
+ * @param pv_fields: actor's list of pv fields in the correct order, found in sitedata.actors.[actorID].pv_fields
+ * @returns Array of PVs for url inputing.
+ */
+export function pvObj2array(obj, pv_fields) {
+        //this.state.pv_values is used in this method
+        let fields = Object.keys(obj);
+        return pv_fields.map((f_name) => {
+            // Only give hidden value if the key is in pv_values.
+            // Previously used || assignement, which caused FK filter values being sent as PVs
+            let value;
+            if (fields.includes(f_name + "Hidden")) value = obj[f_name + "Hidden"];
+            else value = obj[f_name];
+
+            if (value === undefined) value = null;
+            return value
+        })
+    }
 
 export function deepCompare () {
   var i, l, leftChain, rightChain;
