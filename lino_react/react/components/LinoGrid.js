@@ -23,8 +23,8 @@ export class LinoGrid extends Component {
     static propTypes = {
         inDetail: PropTypes.bool,
         match: PropTypes.object,
-        actorId: PropTypes.string,
-        packId: PropTypes.string,
+        actorId: PropTypes.string, // AllTickets
+        packId: PropTypes.string,  // tickets
         actorData: PropTypes.object,
         mt: PropTypes.int,
         mk: PropTypes.string, // we want to allow str / slug pks
@@ -37,8 +37,14 @@ export class LinoGrid extends Component {
         inDetail: false,
     };
 
+    get_full_id(){
+        return `${this.props.packId}.${this.props.actorId}`
+    }
+
     constructor(props) {
         super(props);
+        let search = queryString.parse(this.props.match.history.location.search);
+        let page_key = `${this.props.inDetail ? this.get_full_id() + ".": ""}page`;
         this.state = {
             data: null,
             rows: [],
@@ -46,7 +52,7 @@ export class LinoGrid extends Component {
             // for pager
             totalRecords: 0,
             rowsPerPage: props.actorData.preview_limit,
-            page: 0,
+            page: search[page_key] ? search[page_key] -1 : 0,
             topRow: 0,
             // todo pvs: paramValues: [],
             query: "",
@@ -67,6 +73,9 @@ export class LinoGrid extends Component {
         this.quickFilter = this.quickFilter.bind(this);
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
         this.update_pv_values = this.update_pv_values.bind(this);
+        this.update_url_values = this.update_url_values.bind(this);
+        this.get_full_id = this.get_full_id.bind(this);
+
     }
 
     /**
@@ -164,6 +173,11 @@ export class LinoGrid extends Component {
 //        this.log(query);
     }
 
+    update_url_values(vals, router){
+        let search = queryString.parse(router.history.location.search);
+        Object.assign(search,{...vals});
+        router.history.replace({search: queryString.stringify(search)});
+    }
 
     reload({page = undefined, query = undefined, pv = undefined} = {}) {
         let state = {
@@ -179,8 +193,10 @@ export class LinoGrid extends Component {
         }
         else {
             page = this.state.page;
-
         }
+
+        this.update_url_values({[`${this.props.inDetail ? this.get_full_id() + ".": ""}page`]:page+1}, this.props.match);
+
         this.setState(state);
         let ajax_query = {
             fmt: "json",
