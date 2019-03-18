@@ -249,9 +249,8 @@ class App extends React.Component {
     }
 
     fetch_user_settings = () => {
-        fetchPolyfill("/user/settings/").then(response => {
-                return response.json();
-            }
+        fetchPolyfill("/user/settings/").then(
+                this.handleAjaxResponse
         ).then((data) => {
                 this.setState({user_settings: data});
                 return this.fetch_site_data(data.site_data);
@@ -284,7 +283,44 @@ class App extends React.Component {
     handleAjaxResponse = (resp) => {
         // Todo have this method run for all ajax calls,
         // Todo have this method check for code 500 / 401 / 404 etc...
-        return resp.json();
+        let result;
+        switch (resp.status) {
+            case 200:
+                result = resp.json();
+                break;
+            case 401:
+            case 403:
+                if (resp.headers.map['content-type'].startsWith("aplication/json")) {
+                    result = resp.json();
+                } else  {
+                    result = {
+                        success: false,
+                        message: "Permission denied"
+                    };
+                }
+                this.growl.show({
+                    severity: "error",
+                    summary: "Permission denied",
+                    detail: "You have no permission to see this resource."
+                });
+                break;
+            case 500:
+                if (resp.headers.map['content-type'].startsWith("aplication/json")) {
+                    result = resp.json();
+                } else  {
+                    result = {
+                        success: false,
+                        message: "Internal Error"
+                    };}
+                this.growl.show({
+                    severity: "error",
+                    summary: "Internal Error",
+                    detail: "Lino has experienced an internal server error, please contact the system administer if" +
+                    "the problem persists after reloading the page.",
+                    sticky: true,
+                });
+        }
+        return result
     };
 
     handleAjaxException = (error) => {
@@ -349,7 +385,7 @@ class App extends React.Component {
             status.base_params && status.base_params.mk && (history_conf.search.mk = status.base_params.mk);
             status.base_params && status.base_params.mt && (history_conf.search.mt = status.base_params.mt);
 
-            status.param_values && ( history_conf.search.pv = pvObj2array(status.param_values, this.state.site_data.actors[actorId].pv_fields));
+            status.param_values && (history_conf.search.pv = pvObj2array(status.param_values, this.state.site_data.actors[actorId].pv_fields));
             // Convert to string (Needed for array style PV values)
             history_conf.search = queryString.stringify(history_conf.search);
 
@@ -407,7 +443,8 @@ class App extends React.Component {
 
                 // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
                 // gets default values for this insert
-                fetchPolyfill(`/api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then((req) => req.json()).then(
+                fetchPolyfill(`/api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then(
+                    handleAjaxResponse).then(
                     (data) => {
                         // console.log(data);
                         this.setState(old => {
@@ -491,9 +528,7 @@ class App extends React.Component {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         }).then(
-            (req) => {
-                return req.json()
-            }
+            this.handleAjaxResponse
         ).then((data) => {
                 this.handleActionResponse({
                     response: data,
@@ -529,7 +564,7 @@ class App extends React.Component {
                         <Button label={response.xcallback.buttons.yes} onClick={() => {
                             // console.log("Dialog OK", diag_props.data);
                             diag_props.onClose();
-                            fetchPolyfill(url + "yes").then((req) => req.json()).then(
+                            fetchPolyfill(url + "yes").then(this.handleAjaxResponse).then(
                                 (data) => {
                                     if (data.record_deleted && data.success) {
                                         this.growl.show({
@@ -554,10 +589,10 @@ class App extends React.Component {
                         }}/>
                         <Button className={"p-button-secondary"} label={response.xcallback.buttons.no} onClick={() => {
                             diag_props.onClose();
-                            fetchPolyfill(url + "no").then((req) => req.json()).then(
+                            fetchPolyfill(url + "no").then(window.App.handleAjaxResponse).then(
                                 (data) => {
                                 }
-                            ).catch(error => window.App.handleAjaxException(error));
+                            ).catch(window.App.handleAjaxException);
 
                         }}/>
                     </div>,
@@ -745,9 +780,9 @@ class App extends React.Component {
                                 let key = route.match.params.packId + "." + route.match.params.actorId;
                                 let parms = new URLSearchParams(route.location.search);
                                 // console.log(key);
-                                if (this.state.site_loaded && this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")] === undefined)
-                                {
-                                    return <div><h1>Not found</h1><p>The Actor you have requested does not exist.</p></div>;
+                                if (this.state.site_loaded && this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")] === undefined) {
+                                    return <div><h1>Not found</h1><p>The Actor you have requested does not exist.</p>
+                                    </div>;
                                 }
 
                                 return this.state.site_loaded ? <Actor match={route}

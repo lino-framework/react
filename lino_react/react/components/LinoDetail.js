@@ -93,16 +93,17 @@ export class LinoDetail extends Component {
             this.props.mk && (query.mk = this.props.mk);
         }
         fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify(query)}`).then(
-            (res) => (res.json())
+            window.App.handleAjaxResponse
         ).then(
-            (data) => {
-                this.consume_server_responce(data)
-            }
+            this.consume_server_responce
         ).catch(error => window.App.handleAjaxException(error));
     }
 
     consume_server_responce(data) {
         // console.log("detail GET", data);
+        if (data.success === false /* either false or undefined*/) {
+            return
+        }
         let df = data.data.disabled_fields;
         delete data.data.disabled_fields;
         this.setState({
@@ -145,11 +146,14 @@ export class LinoDetail extends Component {
         };
 
         fetchPolyfill(`/choices/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajaxQuery)}`).then(
-            (res) => (res.json())
+            window.App.handleAjaxResponse
         ).then(
-            (data => this.setState({
-                searchSuggestions: data.rows,
-            }))
+            (data => {
+                if (data.success === false) return;
+                this.setState({
+                    searchSuggestions: data.rows,
+                })
+            })
         ).catch(error => window.App.handleAjaxException(error));
     }
 
@@ -210,35 +214,35 @@ export class LinoDetail extends Component {
                             icon="pi pi-angle-double-right"
                             onClick={() => this.onNavClick(this.state.navinfo.last)}/>
                     {this.props.actorData.editable && <React.Fragment>
-                    <ToggleButton style={{"float": "right"}}
-                                  checked={this.state.editing_mode}
-                                  onChange={(e) => {
-                                      if (this.state.editing_mode && !deepCompare(this.state.original_data, this.state.data)) {
-                                          window.App.runAction({
-                                              rp: this,
-                                              an: "submit_detail",
-                                              actorId: `${this.props.packId}.${this.props.actorId}`,
-                                              sr: this.props.pk,
-                                              responce_callback: (data) => {
-                                                  this.setState({editing_mode: false});
-                                                  // this.consume_server_responce(data.data_record);
-                                                  this.reload();
-                                              }
-                                          });
-                                      }
-                                      else {
-                                          this.setState({editing_mode: e.value})
-                                      }
-                                  }}
-                                  onLabel="Save" offLabel="Edit" onIcon="pi pi-save"
-                                  offIcon="pi pi-pencil"
-                    />
-                    {this.state.editing_mode && <Button style={{"float": "right"}} label={"Cancel"} onClick={() => {
-                        this.setState({
-                            data: Object.assign({}, this.state.original_data),
-                            editing_mode: false
-                        })
-                    }}/>}
+                        <ToggleButton style={{"float": "right"}}
+                                      checked={this.state.editing_mode}
+                                      onChange={(e) => {
+                                          if (this.state.editing_mode && !deepCompare(this.state.original_data, this.state.data)) {
+                                              window.App.runAction({
+                                                  rp: this,
+                                                  an: "submit_detail",
+                                                  actorId: `${this.props.packId}.${this.props.actorId}`,
+                                                  sr: this.props.pk,
+                                                  responce_callback: (data) => {
+                                                      this.setState({editing_mode: false});
+                                                      // this.consume_server_responce(data.data_record);
+                                                      this.reload();
+                                                  }
+                                              });
+                                          }
+                                          else {
+                                              this.setState({editing_mode: e.value})
+                                          }
+                                      }}
+                                      onLabel="Save" offLabel="Edit" onIcon="pi pi-save"
+                                      offIcon="pi pi-pencil"
+                        />
+                        {this.state.editing_mode && <Button style={{"float": "right"}} label={"Cancel"} onClick={() => {
+                            this.setState({
+                                data: Object.assign({}, this.state.original_data),
+                                editing_mode: false
+                            })
+                        }}/>}
                     </React.Fragment>
                     }
                     <br/>

@@ -226,9 +226,21 @@ export class LinoGrid extends Component {
         // console.log("table pre-GET", ajax_query, this.state);
 
         fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
-            (res) => (res.json())
+            window.App.handleAjaxResponse
         ).then(
             (data) => {
+                if (!data.success) {
+                    // failed for some reason.
+                    this.setState({
+                        loading:false,
+                        data: null,
+                        rows: [],
+                        show_columns: {}, // Used to override hidden value for columns
+                        // for pager
+                        totalRecords: 0,
+                    });
+                    return
+                }
                 // console.log("table GET", data);
                 let rows = data.rows;
                 delete data.rows;
@@ -378,6 +390,7 @@ export class LinoGrid extends Component {
                     onRowSelect={this.onRowSelect} // Todo: allow multi-selection
                     selection={this.state.selectedRows}
                     loading={this.state.loading}
+                    emptyMessage={this.state.emptyMessage}
                 >
 
                     {["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
