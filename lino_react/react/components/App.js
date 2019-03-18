@@ -444,7 +444,7 @@ class App extends React.Component {
                 // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
                 // gets default values for this insert
                 fetchPolyfill(`/api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then(
-                    handleAjaxResponse).then(
+                    this.handleAjaxResponse).then(
                     (data) => {
                         // console.log(data);
                         this.setState(old => {
@@ -459,7 +459,7 @@ class App extends React.Component {
                             return {dialogs: dialogs}
                         })
                     }
-                ).catch(error => window.App.handleAjaxException(error));
+                ).catch(error => this.handleAjaxException(error));
             }
 
             if (url_args.mk) diag_props.data.mk = url_args.mk; // in the case of expanded slave-grid or detail
