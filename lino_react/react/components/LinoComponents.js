@@ -226,9 +226,7 @@ const LinoComponents = {
                            value={value || ""}
                            onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
                 :
-                <div
-                    dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
-
+                <div>{value || "\u00a0"}</div>
             }
         </Labeled>
     },
