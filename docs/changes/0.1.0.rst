@@ -1,8 +1,8 @@
 .. _react.0.1.0:
 
-==========================
-0.1.0 a editable lino site
-==========================
+============================
+0.1.0  an editable lino site
+============================
 
 Goal of 0.1.0 is to have a fairly usable lino front-end. Which allows for CRUD actions.
 

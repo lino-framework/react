@@ -148,9 +148,9 @@ class ApiElement(View):
                 after_show.update(active_tab=tab)
 
             return http.HttpResponse(
-                ui.extjs_renderer.html_page(
+                ui.default_renderer.html_page(
                     request, ba.action.label,
-                    on_ready=ui.extjs_renderer.action_call(
+                    on_ready=ui.default_renderer.action_call(
                         request, ba, after_show)))
 
         # if isinstance(ba.action, actions.RedirectAction):
