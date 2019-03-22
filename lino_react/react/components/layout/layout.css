@@ -468,6 +468,9 @@ a {
     display: flex;
     flex-direction: column;
 }*/
+.dashboard-item-closed {
+  display: none; }
+
 .l-panel {
   height: 100%;
   flex: auto;
