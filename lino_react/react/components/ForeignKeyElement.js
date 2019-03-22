@@ -39,6 +39,7 @@ export class ForeignKeyElement extends Component {
             start: 0,
             //todo have pageing / some sort of max amount
         };
+        Object.assign(ajaxQuery, this.props.data); // for choice chooser.
 
         fetchPolyfill(`/${this.props.prop_bundle.action_dialog ? "apchoices" : "choices"}/${this.props.prop_bundle.actorId.replace(".", "/")}${this.props.prop_bundle.action_dialog ? `/${this.props.prop_bundle.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
@@ -46,7 +47,7 @@ export class ForeignKeyElement extends Component {
             (data => this.setState({
                 rows: data.rows,
             }))
-        ).catch(error => window.App.handleAjaxException(error));;
+        ).catch(error => window.App.handleAjaxException(error));
     }
 
     openExternalLink(siteData) {
