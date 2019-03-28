@@ -324,21 +324,21 @@ class ApiList(View):
 # Should we Refactor into lino.modlib.extjs.choicees_views.py and import?
 #
 # choices_for_field is copied line-for-line from lino.modlib.extjs.views.choices_for_field
-def choices_for_field(request, holder, field):
-    """Return the choices for the given field and the given HTTP request
-    whose `holder` is either a Model, an Actor or an Action.
-
+def choices_for_field(ar, holder, field):
     """
-    if not holder.get_view_permission(request.user.user_type):
+    Return the choices for the given field and the given HTTP request
+    whose `holder` is either a Model, an Actor or an Action.
+    """
+    if not holder.get_view_permission(ar.request.user.user_type):
         raise Exception(
             "{user} has no permission for {holder}".format(
-                user=request.user, holder=holder))
+                user=ar.request.user, holder=holder))
     # model = holder.get_chooser_model()
     chooser = holder.get_chooser_for_field(field.name)
     # logger.info('20140822 choices_for_field(%s.%s) --> %s',
     #             holder, field.name, chooser)
     if chooser:
-        qs = chooser.get_request_choices(request, holder)
+        qs = chooser.get_request_choices(ar, holder)
         if not isiterable(qs):
             raise Exception("%s.%s_choices() returned non-iterable %r" % (
                 holder.model, field.name, qs))
@@ -351,7 +351,7 @@ def choices_for_field(request, holder, field):
             # same code as for ForeignKey
             def row2dict(obj, d):
                 d[constants.CHOICES_TEXT_FIELD] = holder.get_choices_text(
-                    obj, request, field)
+                    obj, ar.request, field)
                 d[constants.CHOICES_VALUE_FIELD] = obj.pk
                 return d
         else:  # values are (value, text) tuples
@@ -370,7 +370,7 @@ def choices_for_field(request, holder, field):
                 d[constants.CHOICES_VALUE_FIELD] = obj[0]
             else:
                 d[constants.CHOICES_TEXT_FIELD] = holder.get_choices_text(
-                    obj, request, field)
+                    obj, ar.request, field)
                 d[constants.CHOICES_VALUE_FIELD] = str(obj)
             return d
 
@@ -379,16 +379,19 @@ def choices_for_field(request, holder, field):
     if isinstance(field, fields.VirtualField):
         field = field.return_type
 
+    if isinstance(field, fields.RemoteField):
+        field = field.field
+
     if isinstance(field, models.ForeignKey):
         m = field.remote_field.model
         t = m.get_default_table()
-        qs = t.request(request=request).data_iterator
+        qs = t.request(request=ar.request).data_iterator
 
         # logger.info('20120710 choices_view(FK) %s --> %s', t, qs.query)
 
         def row2dict(obj, d):
             d[constants.CHOICES_TEXT_FIELD] = holder.get_choices_text(
-                obj, request, field)
+                obj, ar.request, field)
             d[constants.CHOICES_VALUE_FIELD] = obj.pk
             return d
     else:
@@ -506,7 +509,7 @@ class Choices(View):
             if field.blank:
                 # logger.info("views.Choices: %r is blank",field)
                 emptyValue = ''
-            qs, row2dict = choices_for_field(request, rpt, field)
+            qs, row2dict = choices_for_field(rpt.request(request=request), rpt, field)
 
         return choices_response(rpt, request, qs, row2dict, emptyValue)
 
@@ -520,7 +523,7 @@ class ActionParamChoices(View):
         if ba is None:
             raise Exception("Unknown action %r for %s" % (an, actor))
         field = ba.action.get_param_elem(field)
-        qs, row2dict = choices_for_field(request, ba.action, field)
+        qs, row2dict = choices_for_field(ba.request(request=request), ba.action, field)
         if field.blank:
             emptyValue = '<br/>'
         else:
