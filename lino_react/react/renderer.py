@@ -324,6 +324,13 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result.update(obj2dict(v.get_handle().store, "pk_index"))  # Data index which is the PK
             result.update(obj2dict(v, "preview_limit"))  # number of rows to render
             # mt + slave-tables
+
+            chooser_dict = getattr(v.model, "_choosers_dict", {})
+            if chooser_dict:
+                result.update(chooser_dict={fn: [cf.name for cf in c.context_fields]
+                                            for fn, c in chooser_dict.items()})
+
+
             if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None and hasattr(v.model, "_meta"):
                 # Perhaps I should have the model also be py2js'd?
                 result.update(content_type=ContentType.objects.get_for_model(v.model).pk)

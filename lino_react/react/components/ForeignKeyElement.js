@@ -33,18 +33,18 @@ export class ForeignKeyElement extends Component {
     getChoices(query, siteData) {
         // if (query.length < 3) return;
         // let actor = siteData.actors[this.props.elem.field_options.related_actor_id];
-
+        let actor_data = siteData.actors[this.props.prop_bundle.actorId];
+        let {data} = this.props;
         let ajaxQuery = {
             query: query,
             start: 0,
             //todo have pageing / some sort of max amount
         };
-        let chooser_data = Object.assign({}, this.props.data); // for choice chooser.
-        Object.keys(chooser_data).forEach((k) => {
-            if (k.endsWith("Hidden") && k !== "Hidden"){
-                chooser_data[k.replace("Hidden", "")] = chooser_data[k];
-                delete chooser_data[k];
-            }
+        let chooser_data = {},
+            context_fields = actor_data.chooser_dict? actor_data.chooser_dict[this.props.elem.name] : [];
+        context_fields && context_fields.forEach((cf) => {
+            // todo have work with grid's array indexed data
+            chooser_data[cf] = data[cf+"Hidden"] === undefined ? data[cf] : data[cf+"Hidden"];
         });
         Object.assign(ajaxQuery, chooser_data);
 
