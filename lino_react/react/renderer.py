@@ -99,8 +99,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
         """Opens detail however clears the app's history"""
         return self.plugin.build_plain_url(
             "#",
-            "detail",
-            actor.actor_id,
+            "api",
+            actor.actor_id.replace(".", "/"),
             str(pk), *args, **kw)
 
     def get_request_url(self, ar, *args, **kw):
@@ -395,7 +395,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
     def action_call(self, request, bound_action, status):
 
         a = bound_action.action
-        # fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
+        fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
         actorId, an = bound_action.full_name().rsplit(".", 1)  # moves action name to first arg,
 
         if a.opens_a_window or (a.parameters and not a.no_params_window):
