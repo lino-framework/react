@@ -288,6 +288,8 @@ class App extends React.Component {
             case 200:
                 result = resp.json();
                 break;
+
+            case 400:
             case 401:
             case 403:
                 if (resp.headers.map['content-type'].startsWith("aplication/json")) {
@@ -319,6 +321,10 @@ class App extends React.Component {
                     "the problem persists after reloading the page.",
                     sticky: true,
                 });
+                break;
+            default:
+                console.log("Unknown status code");
+                result = resp.json();
         }
         return result
     };
@@ -540,7 +546,7 @@ class App extends React.Component {
         // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
     };
 
-    handleActionResponse = ({response, rp = undefined, response_callback = undefined,}) => {
+    handleActionResponse = ({response = response, rp = undefined, response_callback = undefined,}) => {
         // console.log(response, rp);
 
         if (response_callback) {

@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+    import React, {Component} from "react";
 import key from "weak-key";
 
 import {TabPanel, TabView} from 'primereact/tabview';

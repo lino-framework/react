@@ -551,6 +551,9 @@ a {
   float: right;
   margin-top: -44px; }
 
+body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing {
+  overflow: unset; }
+
 body .l-grid .p-datatable .p-datatable-header {
   padding: 0.15em 0.25em; }
   body .l-grid .p-datatable .p-datatable-header .p-button {

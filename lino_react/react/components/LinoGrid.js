@@ -10,6 +10,7 @@ import {Column} from 'primereact/column';
 import {Paginator} from 'primereact/paginator';
 import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
+import {Dropdown} from 'primereact/dropdown';
 
 import {Dialog} from 'primereact/dialog';
 
@@ -88,6 +89,7 @@ export class LinoGrid extends Component {
         let Template = LinoComponents._GetComponent(col.react_name);
         return (rowData, column) => {
             const prop_bundle = {
+                actorId: this.get_full_id(),
                 data: rowData,
                 disabled_fields: this.state.disabled_fields,
                 // update_value: this.update_value // No editable yet
@@ -101,6 +103,38 @@ export class LinoGrid extends Component {
             prop_bundle.prop_bundle = prop_bundle;
             return <Template {...prop_bundle} elem={col}/>;
         }
+    }/**
+     * Editor function generator for grid data.
+     * Looks up the correct template and passes in correct data.
+     * @param col : json Lino site data, the col value.
+     */
+    columnEditor(col) {
+        // console.log(col);
+        let Editor = LinoComponents._GetComponent(col.react_name);
+        return (rowData, column) => {
+            const prop_bundle = {
+                actorId: this.get_full_id(),
+                data: rowData.rowData,
+                disabled_fields: this.state.disabled_fields,
+                update_value: this.update_col_value,
+                hide_label: true,
+                in_grid: true,
+                column: column,
+                editing_mode: true,
+                match: this.props.match
+            };
+            prop_bundle.prop_bundle = prop_bundle;
+            return <Editor {...prop_bundle} elem={col}/>;
+        }
+    }
+
+    update_col_value(v) {
+        this.setState((state => {
+
+            Object.assign(state.data,{...v})
+
+        } ))
+        console.log(v);
     }
 
     expand(e) {
@@ -131,6 +165,9 @@ export class LinoGrid extends Component {
      */
     onRowSelect({originalEvent, data, type}) {
         // console.log("onRowSelect", originalEvent, data, type);
+        return;
+        // todo: Have selection on a slight delay, to check for double-click, which should open cell...
+        // First thing is to determine which cell was selected, as opposed to row.
         originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
         if (type === "checkbox" || type === "radio") {
             return // We only want selection, no nav.
@@ -385,6 +422,7 @@ export class LinoGrid extends Component {
                     resizableColumns={true}
                     value={rows} paginator={false}
                     // selectionMode="single"
+                    editable={true}
                     selectionMode="multiple"
                     onSelectionChange={e => this.setState({selectedRows: e.value})}
                     onRowSelect={this.onRowSelect} // Todo: allow multi-selection
@@ -399,9 +437,13 @@ export class LinoGrid extends Component {
                                                               width: '2em',
                                                               "padding": "unset",
                                                               "text-align": "center"
-                                                          }}/> :
+                                                          }}
+                                                          // editor={this.columnEditor(col)}
+
+                                /> :
                                 <Column field={String(col.fields_index)}
                                         body={this.columnTemplate(col)}
+                                        editor={this.columnEditor(col)}
                                         header={col.label}
                                         key={key(col)}
                                         style={{width: `${col.width || col.preferred_width}ch`}}
