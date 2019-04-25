@@ -14,10 +14,12 @@ import {Dropdown} from 'primereact/dropdown';
 
 import {Dialog} from 'primereact/dialog';
 
-import {debounce, pvObj2array} from "./LinoUtils";
+import {debounce, pvObj2array, find_cellIndex} from "./LinoUtils";
 
 import LinoComponents from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
+
+
 
 export class LinoGrid extends Component {
 
@@ -57,12 +59,14 @@ export class LinoGrid extends Component {
             topRow: 0,
             // todo pvs: paramValues: [],
             query: "",
-
             selectedRows: [],
             title: "", // defaults to actor label?
             loading: true,
 
-            pv_values: {}
+            pv_values: {},
+            editingCellIndex: undefined,
+            editingPK: undefined,
+            editingValues: {},
 
         };
         this.reload = debounce(this.reload.bind(this), 200);
@@ -75,6 +79,7 @@ export class LinoGrid extends Component {
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
         this.update_pv_values = this.update_pv_values.bind(this);
         this.update_url_values = this.update_url_values.bind(this);
+        this.update_col_value = this.update_col_value.bind(this);
         this.get_full_id = this.get_full_id.bind(this);
 
     }
@@ -88,22 +93,28 @@ export class LinoGrid extends Component {
         // console.log(col);
         let Template = LinoComponents._GetComponent(col.react_name);
         return (rowData, column) => {
+            let pk = rowData[this.props.actorData.pk_index];
+            let cellIndex = column.cellIndex;
+            let {editingCellIndex, editingPK} = this.state;
+            let editing = pk == editingPK && cellIndex == editingCellIndex;
+
             const prop_bundle = {
                 actorId: this.get_full_id(),
                 data: rowData,
                 disabled_fields: this.state.disabled_fields,
-                // update_value: this.update_value // No editable yet
-                edit_mode: false,
+                update_value: this.update_col_value, // No editable yet
+                editing_mode: editing,
                 hide_label: true,
                 in_grid: true,
                 column: column,
-                editing_mode: false,
                 match: this.props.match
             };
             prop_bundle.prop_bundle = prop_bundle;
             return <Template {...prop_bundle} elem={col}/>;
         }
-    }/**
+    }
+
+    /**
      * Editor function generator for grid data.
      * Looks up the correct template and passes in correct data.
      * @param col : json Lino site data, the col value.
@@ -128,12 +139,12 @@ export class LinoGrid extends Component {
         }
     }
 
-    update_col_value(v) {
+    update_col_value(v, elem, col ) {
         this.setState((state => {
-
-            Object.assign(state.data,{...v})
-
-        } ))
+            Object.assign(state.rows[col.rowIndex],{...v});
+            return {rows:[...state.rows],
+                    editingValues:v}
+        }))
         console.log(v);
     }
 
@@ -164,16 +175,21 @@ export class LinoGrid extends Component {
      * @param type ``"radio" | "checkbox" | "row"` ``
      */
     onRowSelect({originalEvent, data, type}) {
-        // console.log("onRowSelect", originalEvent, data, type);
-        return;
         // todo: Have selection on a slight delay, to check for double-click, which should open cell...
+        let pk = data[this.props.actorData.pk_index];
+        // console.log("onRowSelect", originalEvent, data, type);
+        let cellIndex = find_cellIndex(originalEvent.target);
+
         // First thing is to determine which cell was selected, as opposed to row.
         originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
         if (type === "checkbox" || type === "radio") {
             return // We only want selection, no nav.
         }
-        let pk = data[this.props.actorData.pk_index];
-        if (data[this.props.actorData.pk_index]) {
+        this.setState({
+            editingCellIndex:cellIndex,
+            editingPK:pk,
+        })
+        if (false && pk != undefined) {
             let status = {
                 record_id: pk,
                 base_params: {}
@@ -397,7 +413,7 @@ export class LinoGrid extends Component {
         let MainPVComp,
             prop_bundle;
 
-        if (this.props.actorData.pv_layout) {
+        if (this.props.actorData.pv_layout && this.state.showPVDialog) {
             MainPVComp = LinoComponents._GetComponent(this.props.actorData.pv_layout.main.react_name);
             prop_bundle = {
                 data: this.state.pv_values,
@@ -441,19 +457,20 @@ export class LinoGrid extends Component {
                                                           // editor={this.columnEditor(col)}
 
                                 /> :
-                                <Column field={String(col.fields_index)}
+                                <Column cellIndex={i}
+                                        field={String(col.fields_index)}
                                         body={this.columnTemplate(col)}
-                                        editor={this.columnEditor(col)}
+                                        // editor={this.columnEditor(col)}
                                         header={col.label}
                                         key={key(col)}
                                         style={{width: `${col.width || col.preferred_width}ch`}}
-                                        className={`l-grid-col-${col.name}`}/>
+                                        className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i?'p-cell-editing':''}`}/>
                         )
                     )
                     }
                 </DataTable>
             </div>
-            {this.props.actorData.pv_layout &&
+            {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="PV Values"
                     footer={<div>
                         <Button style={{width: "33px"}} icon={"pi pi-times-circle"}

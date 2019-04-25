@@ -38,6 +38,13 @@ export function pvObj2array(obj, pv_fields) {
         })
     }
 
+
+export function find_cellIndex(target) {
+    if (target.cellIndex !== undefined) return target.cellIndex;
+    if (target.parentElement) return find_cellIndex(target.parentElement);
+}
+
+
 export function deepCompare () {
   var i, l, leftChain, rightChain;
 

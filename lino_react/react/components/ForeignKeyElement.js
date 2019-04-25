@@ -98,12 +98,13 @@ export class ForeignKeyElement extends Component {
                     {editing_mode ?
                         <AutoComplete value={value} onChange={(e) => update_value(
                             typeof(e.value) === "string" ?
-                                {[props.elem.name]: e.value} : // When filtering, we want the typed value to appear.
+                                {[props.in_grid ? props.elem.fields_index : props.elem.name]: e.value} : // When filtering, we want the typed value to appear.
                                 {
-                                    [props.elem.name]: e.value.text,
-                                    [props.elem.name + "Hidden"]: e.value.value,
-                                }
-                        )}
+                                    [props.in_grid ? props.elem.fields_index : props.elem.name]: e.value.text,
+                                    [props.in_grid ? props.elem.fields_index +1 : props.elem.name + "Hidden"]: e.value.value,
+                                },
+                            props.elem, props.column
+                                )}
                                       suggestions={this.state.rows}
                                       dropdown={true}
                                       onFocus={(e) => e.target.select()}

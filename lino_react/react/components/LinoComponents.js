@@ -1,4 +1,4 @@
-    import React, {Component} from "react";
+import React, {Component} from "react";
 import key from "weak-key";
 
 import {TabPanel, TabView} from 'primereact/tabview';
@@ -168,11 +168,14 @@ const LinoComponents = {
                                 // console.log(e);
                                 let v = e.target.value === null ? "" : e.target.value['text'],
                                     h = e.target.value === null ? "" : e.target.value['value'];
-                                props.prop_bundle.update_value({ // also works for grid
-                                    [props.elem.name]: v,
-                                    [props.elem.name + "Hidden"]: h,
-                                })
+                                props.prop_bundle.update_value({
+                                        [props.in_grid ? props.elem.fields_index : props.elem.name]: v,
+                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                    },
+                                    props.elem,
+                                    props.column)
                             }}
+                            autoFocus
                             // placeholder={""}
                         />
                     </div> :
@@ -189,7 +192,10 @@ const LinoComponents = {
             {props.prop_bundle.editing_mode ?
                 <InputText style={{width: "100%"}}
                            value={value || ""}
-                           onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                           onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                               props.elem,
+                               props.column)
+                           }/>
                 :
                 <div className={"l-ellipsis"} style={{
                     "display": "block",
@@ -224,7 +230,10 @@ const LinoComponents = {
             {props.prop_bundle.editing_mode ?
                 <InputText style={{width: "100%"}}
                            value={value || ""}
-                           onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                           onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                                props.elem,
+                                props.column)}
+                           autoFocus={props.in_grid ? 'true': undefined}/>
                 :
                 <div>{value || "\u00a0"}</div>
             }
@@ -235,7 +244,9 @@ const LinoComponents = {
         let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <Password value={value}
-                      onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}
+                      onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                                props.elem,
+                                props.column)}
                       feedback={false} promptLabel={""}/>
         </Labeled>
     },
@@ -247,7 +258,9 @@ const LinoComponents = {
                 {props.prop_bundle.editing_mode ?
                     <InputText style={{width: "100%"}} type="text" keyfilter="pint"
                                value={value || ""}
-                               onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.target.value})}/>
+                               onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                                props.elem,
+                                props.column)}/>
                     : <div
                         dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                 }
@@ -261,7 +274,9 @@ const LinoComponents = {
                      isFilled={true} // either 1 or 0, can't be unfilled
             >
                 <Checkbox readOnly={!props.prop_bundle.editing_mode}
-                          onChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.checked})}
+                          onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.checked},
+                                props.elem,
+                                props.column)}
                           checked={
                               (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name])
                               || false}/>
@@ -282,7 +297,9 @@ const LinoComponents = {
                         // height: '100%'
                     }}
                             value={value}
-                            onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
+                            onTextChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index:props.elem.name]: e.htmlValue},
+                                props.elem,
+                                props.column)}
                     /> :
                     <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
 
@@ -302,10 +319,12 @@ const LinoComponents = {
             };
 
         let elem = props.prop_bundle.editing_mode ?
-            <div className={"l-editor-wrapper"} style={ {"padding-bottom": "42px", "display":"flex", "height":"100%"} }>
-            <Editor //style={ {{/!*height: '100%'*!/}} }
-                value={value}
-                onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue || ""})}/>
+            <div className={"l-editor-wrapper"} style={{"padding-bottom": "42px", "display": "flex", "height": "100%"}}>
+                <Editor //style={ {{/!*height: '100%'*!/}} }
+                    value={value}
+                    onTextChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.htmlValue || ""},
+                                props.elem,
+                                props.column)}/>
             </div>
             :
             <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
@@ -340,7 +359,9 @@ const LinoComponents = {
                                       ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
                                       e.value.getFullYear();
                               }
-                              props.prop_bundle.update_value({[props.elem.name]: formatedDate || e.value || ""});
+                              props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: formatedDate || e.value || ""},
+                                props.elem,
+                                props.column);
                           }
                           }
                     // showIcon={true}
@@ -376,10 +397,14 @@ const LinoComponents = {
                                   time = ("0" + e.value.getHours()).slice(-2) + ":" +
                                       ("0" + e.value.getMinutes()).slice(-2);
                               }
-                              props.prop_bundle.update_value({[props.elem.name]: time || e.value || ""})
+                              props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: time || e.value || ""},
+                                props.elem,
+                                props.column)
                           }}
                           onBlur={(e) => {
-                              props.prop_bundle.update_value({[props.elem.name]: e.target.value.replace(/\./g, ':')})
+                              props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value.replace(/\./g, ':')},
+                                props.elem,
+                                props.column)
                           }}
                     // showIcon={true}
                           onViewDateChange={(e) => {

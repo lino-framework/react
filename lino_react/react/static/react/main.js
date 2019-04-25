@@ -948,8 +948,8 @@ function (_React$Component) {
       });
       var sidebarClassName = classnames__WEBPACK_IMPORTED_MODULE_3___default()("layout-sidebar", {
         'layout-sidebar-dark': this.state.layoutColorMode === 'dark'
-      }); // console.log("app_re-render");
-
+      });
+      console.log("app_re-render");
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_27__["HashRouter"], {
         ref: function ref(el) {
           return _this4.router = el;
@@ -26161,6 +26161,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LinoBbar__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(214);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -26235,7 +26243,10 @@ function (_Component) {
       title: "",
       // defaults to actor label?
       loading: true,
-      pv_values: {}
+      pv_values: {},
+      editingCellIndex: undefined,
+      editingPK: undefined,
+      editingValues: {}
     };
     _this.reload = Object(_LinoUtils__WEBPACK_IMPORTED_MODULE_12__["debounce"])(_this.reload.bind(_assertThisInitialized(_this)), 200);
     _this.refresh = _this.reload; //        this.log = debounce(this.log.bind(this), 200);
@@ -26247,6 +26258,7 @@ function (_Component) {
     _this.showParamValueDialog = _this.showParamValueDialog.bind(_assertThisInitialized(_this));
     _this.update_pv_values = _this.update_pv_values.bind(_assertThisInitialized(_this));
     _this.update_url_values = _this.update_url_values.bind(_assertThisInitialized(_this));
+    _this.update_col_value = _this.update_col_value.bind(_assertThisInitialized(_this));
     _this.get_full_id = _this.get_full_id.bind(_assertThisInitialized(_this));
     return _this;
   }
@@ -26266,16 +26278,22 @@ function (_Component) {
       var Template = _LinoComponents__WEBPACK_IMPORTED_MODULE_13__["default"]._GetComponent(col.react_name);
 
       return function (rowData, column) {
+        var pk = rowData[_this2.props.actorData.pk_index];
+        var cellIndex = column.cellIndex;
+        var _this2$state = _this2.state,
+            editingCellIndex = _this2$state.editingCellIndex,
+            editingPK = _this2$state.editingPK;
+        var editing = pk == editingPK && cellIndex == editingCellIndex;
         var prop_bundle = {
           actorId: _this2.get_full_id(),
           data: rowData,
           disabled_fields: _this2.state.disabled_fields,
-          // update_value: this.update_value // No editable yet
-          edit_mode: false,
+          update_value: _this2.update_col_value,
+          // No editable yet
+          editing_mode: editing,
           hide_label: true,
           in_grid: true,
           column: column,
-          editing_mode: false,
           match: _this2.props.match
         };
         prop_bundle.prop_bundle = prop_bundle;
@@ -26285,10 +26303,10 @@ function (_Component) {
       };
     }
     /**
-    * Editor function generator for grid data.
-    * Looks up the correct template and passes in correct data.
-    * @param col : json Lino site data, the col value.
-    */
+     * Editor function generator for grid data.
+     * Looks up the correct template and passes in correct data.
+     * @param col : json Lino site data, the col value.
+     */
 
   }, {
     key: "columnEditor",
@@ -26318,7 +26336,14 @@ function (_Component) {
     }
   }, {
     key: "update_col_value",
-    value: function update_col_value(v) {
+    value: function update_col_value(v, elem, col) {
+      this.setState(function (state) {
+        Object.assign(state.rows[col.rowIndex], _objectSpread({}, v));
+        return {
+          rows: _toConsumableArray(state.rows),
+          editingValues: v
+        };
+      });
       console.log(v);
     }
   }, {
@@ -26355,34 +26380,23 @@ function (_Component) {
       var originalEvent = _ref.originalEvent,
           data = _ref.data,
           type = _ref.type;
-      // console.log("onRowSelect", originalEvent, data, type);
-      return;
+      // todo: Have selection on a slight delay, to check for double-click, which should open cell...
+      var pk = data[this.props.actorData.pk_index]; // console.log("onRowSelect", originalEvent, data, type);
+
+      var cellIndex = Object(_LinoUtils__WEBPACK_IMPORTED_MODULE_12__["find_cellIndex"])(originalEvent.target); // First thing is to determine which cell was selected, as opposed to row.
+
       originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
 
       if (type === "checkbox" || type === "radio") {
         return; // We only want selection, no nav.
       }
 
-      var pk = data[this.props.actorData.pk_index];
+      this.setState({
+        editingCellIndex: cellIndex,
+        editingPK: pk
+      });
 
-      if (data[this.props.actorData.pk_index]) {
-        var status = {
-          record_id: pk,
-          base_params: {}
-        };
-
-        if (this.props.actorData.slave) {
-          this.props.mt && (status.base_params.mt = this.props.mt);
-          this.props.mk && (status.base_params.mk = this.props.mk);
-        }
-
-        window.App.runAction({
-          an: this.props.actorData.detail_action,
-          actorId: "".concat(this.props.packId, ".").concat(this.props.actorId),
-          rp: this,
-          status: status
-        }); // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
-      } // console.log(data);
+      if (false) { var status; } // console.log(data);
 
     }
     /**
@@ -26638,7 +26652,7 @@ function (_Component) {
       })));
       var MainPVComp, prop_bundle;
 
-      if (this.props.actorData.pv_layout) {
+      if (this.props.actorData.pv_layout && this.state.showPVDialog) {
         MainPVComp = _LinoComponents__WEBPACK_IMPORTED_MODULE_13__["default"]._GetComponent(this.props.actorData.pv_layout.main.react_name);
         prop_bundle = {
           data: this.state.pv_values,
@@ -26689,17 +26703,18 @@ function (_Component) {
           } // editor={this.columnEditor(col)}
 
         }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_6__["Column"], {
+          cellIndex: i,
           field: String(col.fields_index),
-          body: _this6.columnTemplate(col),
-          editor: _this6.columnEditor(col),
+          body: _this6.columnTemplate(col) // editor={this.columnEditor(col)}
+          ,
           header: col.label,
           key: weak_key__WEBPACK_IMPORTED_MODULE_3___default()(col),
           style: {
             width: "".concat(col.width || col.preferred_width, "ch")
           },
-          className: "l-grid-col-".concat(col.name)
+          className: "l-grid-col-".concat(col.name, " ").concat(_this6.state.editingCellIndex === i ? 'p-cell-editing' : '')
         });
-      }))), this.props.actorData.pv_layout && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dialog__WEBPACK_IMPORTED_MODULE_11__["Dialog"], {
+      }))), this.props.actorData.pv_layout && this.state.showPVDialog && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dialog__WEBPACK_IMPORTED_MODULE_11__["Dialog"], {
         header: "PV Values",
         footer: react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_8__["Button"], {
           style: {
@@ -27630,6 +27645,7 @@ var lastId = 0;
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pvObj2array", function() { return pvObj2array; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "find_cellIndex", function() { return find_cellIndex; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deepCompare", function() { return deepCompare; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "objectToFormData", function() { return objectToFormData; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -27674,6 +27690,10 @@ function pvObj2array(obj, pv_fields) {
     if (value === undefined) value = null;
     return value;
   });
+}
+function find_cellIndex(target) {
+  if (target.cellIndex !== undefined) return target.cellIndex;
+  if (target.parentElement) return find_cellIndex(target.parentElement);
 }
 function deepCompare() {
   var i, l, leftChain, rightChain;
@@ -28046,8 +28066,9 @@ var LinoComponents = {
           // console.log(e);
           var v = e.target.value === null ? "" : e.target.value['text'],
               h = e.target.value === null ? "" : e.target.value['value'];
-          props.prop_bundle.update_value((_props$prop_bundle$up = {}, _defineProperty(_props$prop_bundle$up, props.elem.name, v), _defineProperty(_props$prop_bundle$up, props.elem.name + "Hidden", h), _props$prop_bundle$up));
-        } // placeholder={""}
+          props.prop_bundle.update_value((_props$prop_bundle$up = {}, _defineProperty(_props$prop_bundle$up, props.in_grid ? props.elem.fields_index : props.elem.name, v), _defineProperty(_props$prop_bundle$up, props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden", h), _props$prop_bundle$up), props.elem, props.column);
+        },
+        autoFocus: true // placeholder={""}
 
       })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         dangerouslySetInnerHTML: {
@@ -28068,7 +28089,7 @@ var LinoComponents = {
       },
       value: value || "",
       onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
+        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value), props.elem, props.column);
       }
     }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       className: "l-ellipsis",
@@ -28116,8 +28137,9 @@ var LinoComponents = {
       },
       value: value || "",
       onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
-      }
+        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value), props.elem, props.column);
+      },
+      autoFocus: props.in_grid ? 'true' : undefined
     }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, value || "\xA0"));
   },
   PasswordFieldElement: function PasswordFieldElement(props) {
@@ -28129,7 +28151,7 @@ var LinoComponents = {
     }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_password__WEBPACK_IMPORTED_MODULE_9__["Password"], {
       value: value,
       onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
+        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value), props.elem, props.column);
       },
       feedback: false,
       promptLabel: ""
@@ -28149,7 +28171,7 @@ var LinoComponents = {
       keyfilter: "pint",
       value: value || "",
       onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value));
+        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value), props.elem, props.column);
       }
     }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       dangerouslySetInnerHTML: {
@@ -28166,7 +28188,7 @@ var LinoComponents = {
     }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_checkbox__WEBPACK_IMPORTED_MODULE_5__["Checkbox"], {
       readOnly: !props.prop_bundle.editing_mode,
       onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.checked));
+        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.checked), props.elem, props.column);
       },
       checked: (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]) || false
     })));
@@ -28185,7 +28207,9 @@ var LinoComponents = {
                       // height: '100%'
                   }}
                           value={value}
-                          onTextChange={(e) => props.prop_bundle.update_value({[props.elem.name]: e.htmlValue})}
+                          onTextChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index:props.elem.name]: e.htmlValue},
+                              props.elem,
+                              props.column)}
                   /> :
                   <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
        return <React.Fragment>
@@ -28212,7 +28236,7 @@ var LinoComponents = {
     , {
       value: value,
       onTextChange: function onTextChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.htmlValue || ""));
+        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.htmlValue || ""), props.elem, props.column);
       }
     })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
       dangerouslySetInnerHTML: {
@@ -28257,7 +28281,7 @@ var LinoComponents = {
           formatedDate = ("0" + e.value.getDate()).slice(-2) + "." + ("0" + (e.value.getMonth() + 1)).slice(-2) + "." + e.value.getFullYear();
         }
 
-        props.prop_bundle.update_value(_defineProperty({}, props.elem.name, formatedDate || e.value || ""));
+        props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, formatedDate || e.value || ""), props.elem, props.column);
       } // showIcon={true}
       ,
       viewDate: new Date()
@@ -28302,10 +28326,10 @@ var LinoComponents = {
           time = ("0" + e.value.getHours()).slice(-2) + ":" + ("0" + e.value.getMinutes()).slice(-2);
         }
 
-        props.prop_bundle.update_value(_defineProperty({}, props.elem.name, time || e.value || ""));
+        props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, time || e.value || ""), props.elem, props.column);
       },
       onBlur: function onBlur(e) {
-        props.prop_bundle.update_value(_defineProperty({}, props.elem.name, e.target.value.replace(/\./g, ':')));
+        props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value.replace(/\./g, ':')), props.elem, props.column);
       } // showIcon={true}
       ,
       onViewDateChange: function onViewDateChange(e) {},
@@ -50607,7 +50631,7 @@ function (_Component) {
           onChange: function onChange(e) {
             var _ref2;
 
-            return update_value(typeof e.value === "string" ? _defineProperty({}, props.elem.name, e.value) : (_ref2 = {}, _defineProperty(_ref2, props.elem.name, e.value.text), _defineProperty(_ref2, props.elem.name + "Hidden", e.value.value), _ref2));
+            return update_value(typeof e.value === "string" ? _defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.value) : (_ref2 = {}, _defineProperty(_ref2, props.in_grid ? props.elem.fields_index : props.elem.name, e.value.text), _defineProperty(_ref2, props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden", e.value.value), _ref2), props.elem, props.column);
           },
           suggestions: _this3.state.rows,
           dropdown: true,
