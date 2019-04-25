@@ -25,6 +25,12 @@ export class ForeignKeyElement extends Component {
         };
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        let {props} = this,
+            value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+            next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+        return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
+    }
 
     componentDidMount() {
 

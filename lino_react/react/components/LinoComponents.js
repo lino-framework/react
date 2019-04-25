@@ -147,43 +147,54 @@ const LinoComponents = {
 
     },
 
-    ChoiceListFieldElement: (props) => {
-        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
-        let hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
-        return <SiteContext.Consumer>{(siteData) => {
-            let options = siteData.choicelists[props.elem.field_options.store];
-            // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
-            return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.prop_bundle.editing_mode ?
-                    <div className="l-ChoiceListFieldElement">
-                        <Dropdown
-                            // autoWidth={false}
-                            style={{width: "100%"}}
-                            optionLabel={"text"} value={{text: value, value: hidden_value}}
-                            datakey={"value"}
-                            //Todo clear tied to props.elem.field_options.blank
-                            showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
-                            options={options}
-                            onChange={(e) => {
-                                // console.log(e);
-                                let v = e.target.value === null ? "" : e.target.value['text'],
-                                    h = e.target.value === null ? "" : e.target.value['value'];
-                                props.prop_bundle.update_value({
-                                        [props.in_grid ? props.elem.fields_index : props.elem.name]: v,
-                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
-                                    },
-                                    props.elem,
-                                    props.column)
-                            }}
-                            autoFocus
-                            // placeholder={""}
-                        />
-                    </div> :
-                    <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
-                }</Labeled>
-        }}
-        </SiteContext.Consumer>
+    ChoiceListFieldElement: class ChoiceListFieldElement extends React.Component {
+        shouldComponentUpdate(nextProps, nextState) {
+            let {props} = this,
+                value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+                next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+            return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
+        }
 
+        render() {
+            console.log("choice render")
+            let {props} = this
+            let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+            let hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
+            return <SiteContext.Consumer>{(siteData) => {
+                let options = siteData.choicelists[props.elem.field_options.store];
+                // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+                return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                    {props.prop_bundle.editing_mode ?
+                        <div className="l-ChoiceListFieldElement">
+                            <Dropdown
+                                // autoWidth={false}
+                                style={{width: "100%"}}
+                                optionLabel={"text"} value={{text: value, value: hidden_value}}
+                                datakey={"value"}
+                                //Todo clear tied to props.elem.field_options.blank
+                                showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
+                                options={options}
+                                onChange={(e) => {
+                                    // console.log(e);
+                                    let v = e.target.value === null ? "" : e.target.value['text'],
+                                        h = e.target.value === null ? "" : e.target.value['value'];
+                                    props.prop_bundle.update_value({
+                                            [props.in_grid ? props.elem.fields_index : props.elem.name]: v,
+                                            [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                        },
+                                        props.elem,
+                                        props.column)
+                                }}
+                                autoFocus
+                                // placeholder={""}
+                            />
+                        </div> :
+                        <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
+                    }</Labeled>
+            }}
+            </SiteContext.Consumer>
+
+        }
     },
 
     URLFieldElement: (props) => {
@@ -223,7 +234,15 @@ const LinoComponents = {
             dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
     },
 
-    CharFieldElement: (props) => {
+    CharFieldElement: class CharFieldElement extends React.Component {
+        shouldComponentUpdate(nextProps, nextState) {
+            let {props} = this,
+                value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+                next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+            return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
+        }
+        render(){
+            let {props} = this
         let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
@@ -231,22 +250,22 @@ const LinoComponents = {
                 <InputText style={{width: "100%"}}
                            value={value || ""}
                            onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
-                                props.elem,
-                                props.column)}
-                           autoFocus={props.in_grid ? 'true': undefined}/>
+                               props.elem,
+                               props.column)}
+                           autoFocus={props.in_grid ? 'true' : undefined}/>
                 :
                 <div>{value || "\u00a0"}</div>
             }
         </Labeled>
-    },
+    }},
 
     PasswordFieldElement: (props) => {
         let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <Password value={value}
                       onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
-                                props.elem,
-                                props.column)}
+                          props.elem,
+                          props.column)}
                       feedback={false} promptLabel={""}/>
         </Labeled>
     },
@@ -259,8 +278,8 @@ const LinoComponents = {
                     <InputText style={{width: "100%"}} type="text" keyfilter="pint"
                                value={value || ""}
                                onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
-                                props.elem,
-                                props.column)}/>
+                                   props.elem,
+                                   props.column)}/>
                     : <div
                         dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                 }
@@ -275,8 +294,8 @@ const LinoComponents = {
             >
                 <Checkbox readOnly={!props.prop_bundle.editing_mode}
                           onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.checked},
-                                props.elem,
-                                props.column)}
+                              props.elem,
+                              props.column)}
                           checked={
                               (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name])
                               || false}/>
@@ -323,8 +342,8 @@ const LinoComponents = {
                 <Editor //style={ {{/!*height: '100%'*!/}} }
                     value={value}
                     onTextChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.htmlValue || ""},
-                                props.elem,
-                                props.column)}/>
+                        props.elem,
+                        props.column)}/>
             </div>
             :
             <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
@@ -360,8 +379,8 @@ const LinoComponents = {
                                       e.value.getFullYear();
                               }
                               props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: formatedDate || e.value || ""},
-                                props.elem,
-                                props.column);
+                                  props.elem,
+                                  props.column);
                           }
                           }
                     // showIcon={true}
@@ -398,13 +417,13 @@ const LinoComponents = {
                                       ("0" + e.value.getMinutes()).slice(-2);
                               }
                               props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: time || e.value || ""},
-                                props.elem,
-                                props.column)
+                                  props.elem,
+                                  props.column)
                           }}
                           onBlur={(e) => {
                               props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value.replace(/\./g, ':')},
-                                props.elem,
-                                props.column)
+                                  props.elem,
+                                  props.column)
                           }}
                     // showIcon={true}
                           onViewDateChange={(e) => {

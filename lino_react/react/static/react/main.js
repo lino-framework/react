@@ -26161,14 +26161,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LinoBbar__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(214);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -26260,6 +26252,7 @@ function (_Component) {
     _this.update_url_values = _this.update_url_values.bind(_assertThisInitialized(_this));
     _this.update_col_value = _this.update_col_value.bind(_assertThisInitialized(_this));
     _this.get_full_id = _this.get_full_id.bind(_assertThisInitialized(_this));
+    _this.get_cols = _this.get_cols.bind(_assertThisInitialized(_this));
     return _this;
   }
   /**
@@ -26316,10 +26309,10 @@ function (_Component) {
       // console.log(col);
       var Editor = _LinoComponents__WEBPACK_IMPORTED_MODULE_13__["default"]._GetComponent(col.react_name);
 
-      return function (rowData, column) {
+      return function (column) {
         var prop_bundle = {
           actorId: _this3.get_full_id(),
-          data: rowData.rowData,
+          data: _this3.state.editingValues,
           disabled_fields: _this3.state.disabled_fields,
           update_value: _this3.update_col_value,
           hide_label: true,
@@ -26338,9 +26331,9 @@ function (_Component) {
     key: "update_col_value",
     value: function update_col_value(v, elem, col) {
       this.setState(function (state) {
-        Object.assign(state.rows[col.rowIndex], _objectSpread({}, v));
+        // Object.assign(state.rows[col.rowIndex],{...v});
         return {
-          rows: _toConsumableArray(state.rows),
+          // rows:state.rows,
           editingValues: v
         };
       });
@@ -26389,12 +26382,11 @@ function (_Component) {
 
       if (type === "checkbox" || type === "radio") {
         return; // We only want selection, no nav.
-      }
+      } // this.setState({
+      //     editingCellIndex:cellIndex,
+      //     editingPK:pk,
+      // })
 
-      this.setState({
-        editingCellIndex: cellIndex,
-        editingPK: pk
-      });
 
       if (false) { var status; } // console.log(data);
 
@@ -26540,6 +26532,7 @@ function (_Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       console.log("Reload from DidUpdate method");
+      this.cols = undefined;
       this.reload(); // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
   }, {
@@ -26572,9 +26565,40 @@ function (_Component) {
       });
     }
   }, {
+    key: "get_cols",
+    value: function get_cols() {
+      var _this6 = this;
+
+      if (this.cols === undefined) this.cols = ["SelectCol"].concat(this.props.actorData.col.filter(function (col) {
+        return !col.hidden || _this6.state.show_columns[col.name];
+      })).map(function (col, i) {
+        return col === "SelectCol" ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_6__["Column"], {
+          selectionMode: "multiple",
+          style: {
+            width: '2em',
+            "padding": "unset",
+            "text-align": "center"
+          } // editor={this.columnEditor(col)}
+
+        }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_6__["Column"], {
+          cellIndex: i,
+          field: String(col.fields_index),
+          body: _this6.columnTemplate(col),
+          editor: _this6.columnEditor(col),
+          header: col.label,
+          key: weak_key__WEBPACK_IMPORTED_MODULE_3___default()(col),
+          style: {
+            width: "".concat(col.width || col.preferred_width, "ch")
+          },
+          className: "l-grid-col-".concat(col.name, " ").concat(_this6.state.editingCellIndex === i ? 'p-cell-editing' : '')
+        });
+      });
+      return this.cols;
+    }
+  }, {
     key: "render",
     value: function render() {
-      var _this6 = this;
+      var _this7 = this;
 
       var rows = this.state.rows; // const Comp = "Table";
       // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
@@ -26590,7 +26614,7 @@ function (_Component) {
         onPageChange: function onPageChange(e) {
           /*Can't be set via set-state, as we need to
             do an ajax call to change the data not state*/
-          _this6.reload({
+          _this7.reload({
             page: e.page
           });
         }
@@ -26609,7 +26633,7 @@ function (_Component) {
         /*value={this.state.query}*/
         ,
         onChange: function onChange(e) {
-          return _this6.quickFilter(e.target.value);
+          return _this7.quickFilter(e.target.value);
         }
       }), this.props.actorData.pv_layout && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         icon: "pi pi-filter",
@@ -26617,7 +26641,7 @@ function (_Component) {
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         icon: "pi pi-times-circle",
         onClick: function onClick() {
-          return _this6.reload({
+          return _this7.reload({
             pv: {}
           });
         }
@@ -26644,7 +26668,7 @@ function (_Component) {
         sr: this.state.selectedRows,
         reload: this.reload,
         srMap: function srMap(row) {
-          return row[_this6.props.actorData.pk_index];
+          return row[_this7.props.actorData.pk_index];
         },
         rp: this,
         an: 'grid',
@@ -26682,7 +26706,7 @@ function (_Component) {
         editable: true,
         selectionMode: "multiple",
         onSelectionChange: function onSelectionChange(e) {
-          return _this6.setState({
+          return _this7.setState({
             selectedRows: e.value
           });
         },
@@ -26691,30 +26715,7 @@ function (_Component) {
         selection: this.state.selectedRows,
         loading: this.state.loading,
         emptyMessage: this.state.emptyMessage
-      }, ["SelectCol"].concat(this.props.actorData.col.filter(function (col) {
-        return !col.hidden || _this6.state.show_columns[col.name];
-      })).map(function (col, i) {
-        return col === "SelectCol" ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_6__["Column"], {
-          selectionMode: "multiple",
-          style: {
-            width: '2em',
-            "padding": "unset",
-            "text-align": "center"
-          } // editor={this.columnEditor(col)}
-
-        }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_6__["Column"], {
-          cellIndex: i,
-          field: String(col.fields_index),
-          body: _this6.columnTemplate(col) // editor={this.columnEditor(col)}
-          ,
-          header: col.label,
-          key: weak_key__WEBPACK_IMPORTED_MODULE_3___default()(col),
-          style: {
-            width: "".concat(col.width || col.preferred_width, "ch")
-          },
-          className: "l-grid-col-".concat(col.name, " ").concat(_this6.state.editingCellIndex === i ? 'p-cell-editing' : '')
-        });
-      }))), this.props.actorData.pv_layout && this.state.showPVDialog && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dialog__WEBPACK_IMPORTED_MODULE_11__["Dialog"], {
+      }, this.get_cols())), this.props.actorData.pv_layout && this.state.showPVDialog && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dialog__WEBPACK_IMPORTED_MODULE_11__["Dialog"], {
         header: "PV Values",
         footer: react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_8__["Button"], {
           style: {
@@ -26722,7 +26723,7 @@ function (_Component) {
           },
           icon: "pi pi-times-circle",
           onClick: function onClick() {
-            return _this6.reload({
+            return _this7.reload({
               pv: {}
             });
           }
@@ -26732,7 +26733,7 @@ function (_Component) {
           },
           icon: "pi pi-check",
           onClick: function onClick(e) {
-            return _this6.setState({
+            return _this7.setState({
               showPVDialog: false
             });
           }
@@ -26740,7 +26741,7 @@ function (_Component) {
         visible: this.state.showPVDialog,
         modal: true,
         onHide: function onHide(e) {
-          return _this6.setState({
+          return _this7.setState({
             showPVDialog: false
           });
         }
@@ -27877,6 +27878,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(86);
 /* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var _ForeignKeyElement__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(213);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -27886,6 +27889,22 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -28033,50 +28052,77 @@ var LinoComponents = {
       }), summary);
     }
   },
-  ChoiceListFieldElement: function ChoiceListFieldElement(props) {
-    var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
-    var hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_12__["SiteContext"].Consumer, null, function (siteData) {
-      var options = siteData.choicelists[props.elem.field_options.store]; // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+  ChoiceListFieldElement:
+  /*#__PURE__*/
+  function (_React$Component) {
+    _inherits(ChoiceListFieldElement, _React$Component);
 
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
-        elem: props.elem,
-        labeled: props.labeled,
-        isFilled: value
-      }), props.prop_bundle.editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "l-ChoiceListFieldElement"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dropdown__WEBPACK_IMPORTED_MODULE_8__["Dropdown"] // autoWidth={false}
-      , {
-        style: {
-          width: "100%"
-        },
-        optionLabel: "text",
-        value: {
-          text: value,
-          value: hidden_value
-        },
-        datakey: "value" //Todo clear tied to props.elem.field_options.blank
-        ,
-        showClear: props.elem.field_options.blank // no need to include a blank option, if we allow for a clear button.
-        ,
-        options: options,
-        onChange: function onChange(e) {
-          var _props$prop_bundle$up;
+    function ChoiceListFieldElement() {
+      _classCallCheck(this, ChoiceListFieldElement);
 
-          // console.log(e);
-          var v = e.target.value === null ? "" : e.target.value['text'],
-              h = e.target.value === null ? "" : e.target.value['value'];
-          props.prop_bundle.update_value((_props$prop_bundle$up = {}, _defineProperty(_props$prop_bundle$up, props.in_grid ? props.elem.fields_index : props.elem.name, v), _defineProperty(_props$prop_bundle$up, props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden", h), _props$prop_bundle$up), props.elem, props.column);
-        },
-        autoFocus: true // placeholder={""}
+      return _possibleConstructorReturn(this, _getPrototypeOf(ChoiceListFieldElement).apply(this, arguments));
+    }
 
-      })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        dangerouslySetInnerHTML: {
-          __html: value || "\xA0"
-        }
-      }));
-    });
-  },
+    _createClass(ChoiceListFieldElement, [{
+      key: "shouldComponentUpdate",
+      value: function shouldComponentUpdate(nextProps, nextState) {
+        var props = this.props,
+            value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+            next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+        return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode;
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        console.log("choice render");
+        var props = this.props;
+        var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        var hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_SiteContext__WEBPACK_IMPORTED_MODULE_12__["SiteContext"].Consumer, null, function (siteData) {
+          var options = siteData.choicelists[props.elem.field_options.store]; // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+
+          return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+            elem: props.elem,
+            labeled: props.labeled,
+            isFilled: value
+          }), props.prop_bundle.editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+            className: "l-ChoiceListFieldElement"
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dropdown__WEBPACK_IMPORTED_MODULE_8__["Dropdown"] // autoWidth={false}
+          , {
+            style: {
+              width: "100%"
+            },
+            optionLabel: "text",
+            value: {
+              text: value,
+              value: hidden_value
+            },
+            datakey: "value" //Todo clear tied to props.elem.field_options.blank
+            ,
+            showClear: props.elem.field_options.blank // no need to include a blank option, if we allow for a clear button.
+            ,
+            options: options,
+            onChange: function onChange(e) {
+              var _props$prop_bundle$up;
+
+              // console.log(e);
+              var v = e.target.value === null ? "" : e.target.value['text'],
+                  h = e.target.value === null ? "" : e.target.value['value'];
+              props.prop_bundle.update_value((_props$prop_bundle$up = {}, _defineProperty(_props$prop_bundle$up, props.in_grid ? props.elem.fields_index : props.elem.name, v), _defineProperty(_props$prop_bundle$up, props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden", h), _props$prop_bundle$up), props.elem, props.column);
+            },
+            autoFocus: true // placeholder={""}
+
+          })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+            dangerouslySetInnerHTML: {
+              __html: value || "\xA0"
+            }
+          }));
+        });
+      }
+    }]);
+
+    return ChoiceListFieldElement;
+  }(react__WEBPACK_IMPORTED_MODULE_0___default.a.Component),
   URLFieldElement: function URLFieldElement(props) {
     var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
@@ -28125,23 +28171,49 @@ var LinoComponents = {
       }
     });
   },
-  CharFieldElement: function CharFieldElement(props) {
-    var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
-    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
-      elem: props.elem,
-      labeled: props.labeled,
-      isFilled: value
-    }), props.prop_bundle.editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
-      style: {
-        width: "100%"
-      },
-      value: value || "",
-      onChange: function onChange(e) {
-        return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value), props.elem, props.column);
-      },
-      autoFocus: props.in_grid ? 'true' : undefined
-    }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, value || "\xA0"));
-  },
+  CharFieldElement:
+  /*#__PURE__*/
+  function (_React$Component2) {
+    _inherits(CharFieldElement, _React$Component2);
+
+    function CharFieldElement() {
+      _classCallCheck(this, CharFieldElement);
+
+      return _possibleConstructorReturn(this, _getPrototypeOf(CharFieldElement).apply(this, arguments));
+    }
+
+    _createClass(CharFieldElement, [{
+      key: "shouldComponentUpdate",
+      value: function shouldComponentUpdate(nextProps, nextState) {
+        var props = this.props,
+            value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+            next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+        return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode;
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var props = this.props;
+        var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
+          elem: props.elem,
+          labeled: props.labeled,
+          isFilled: value
+        }), props.prop_bundle.editing_mode ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_inputtext__WEBPACK_IMPORTED_MODULE_4__["InputText"], {
+          style: {
+            width: "100%"
+          },
+          value: value || "",
+          onChange: function onChange(e) {
+            return props.prop_bundle.update_value(_defineProperty({}, props.in_grid ? props.elem.fields_index : props.elem.name, e.target.value), props.elem, props.column);
+          },
+          autoFocus: props.in_grid ? 'true' : undefined
+        }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, value || "\xA0"));
+      }
+    }]);
+
+    return CharFieldElement;
+  }(react__WEBPACK_IMPORTED_MODULE_0___default.a.Component),
   PasswordFieldElement: function PasswordFieldElement(props) {
     var value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
     return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Labeled, _extends({}, props.prop_bundle, {
@@ -50548,6 +50620,14 @@ function (_Component) {
   }
 
   _createClass(ForeignKeyElement, [{
+    key: "shouldComponentUpdate",
+    value: function shouldComponentUpdate(nextProps, nextState) {
+      var props = this.props,
+          value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+          next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+      return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode;
+    }
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {}
   }, {

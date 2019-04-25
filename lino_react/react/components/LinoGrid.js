@@ -81,6 +81,7 @@ export class LinoGrid extends Component {
         this.update_url_values = this.update_url_values.bind(this);
         this.update_col_value = this.update_col_value.bind(this);
         this.get_full_id = this.get_full_id.bind(this);
+        this.get_cols = this.get_cols.bind(this);
 
     }
 
@@ -122,10 +123,10 @@ export class LinoGrid extends Component {
     columnEditor(col) {
         // console.log(col);
         let Editor = LinoComponents._GetComponent(col.react_name);
-        return (rowData, column) => {
+        return (column) => {
             const prop_bundle = {
                 actorId: this.get_full_id(),
-                data: rowData.rowData,
+                data: this.state.editingValues,
                 disabled_fields: this.state.disabled_fields,
                 update_value: this.update_col_value,
                 hide_label: true,
@@ -141,8 +142,9 @@ export class LinoGrid extends Component {
 
     update_col_value(v, elem, col ) {
         this.setState((state => {
-            Object.assign(state.rows[col.rowIndex],{...v});
-            return {rows:[...state.rows],
+            // Object.assign(state.rows[col.rowIndex],{...v});
+            return {
+                // rows:state.rows,
                     editingValues:v}
         }))
         console.log(v);
@@ -185,10 +187,10 @@ export class LinoGrid extends Component {
         if (type === "checkbox" || type === "radio") {
             return // We only want selection, no nav.
         }
-        this.setState({
-            editingCellIndex:cellIndex,
-            editingPK:pk,
-        })
+        // this.setState({
+        //     editingCellIndex:cellIndex,
+        //     editingPK:pk,
+        // })
         if (false && pk != undefined) {
             let status = {
                 record_id: pk,
@@ -333,6 +335,7 @@ export class LinoGrid extends Component {
 
     componentDidMount() {
         console.log("Reload from DidUpdate method")
+        this.cols = undefined;
         this.reload();
         // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
@@ -357,6 +360,30 @@ export class LinoGrid extends Component {
                 return {pv_values: updated_pv};
             }
         });
+    }
+    get_cols() {
+
+        if (this.cols === undefined) this.cols = ["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
+                            col === "SelectCol" ? <Column selectionMode="multiple"
+                                                          style={{
+                                                              width: '2em',
+                                                              "padding": "unset",
+                                                              "text-align": "center"
+                                                          }}
+                                                          // editor={this.columnEditor(col)}
+
+                                /> :
+                                <Column cellIndex={i}
+                                        field={String(col.fields_index)}
+                                        body={this.columnTemplate(col)}
+                                        editor={this.columnEditor(col)}
+                                        header={col.label}
+                                        key={key(col)}
+                                        style={{width: `${col.width || col.preferred_width}ch`}}
+                                        className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i?'p-cell-editing':''}`}/>
+                        )
+                    )
+        return this.cols
     }
 
     render() {
@@ -447,27 +474,7 @@ export class LinoGrid extends Component {
                     emptyMessage={this.state.emptyMessage}
                 >
 
-                    {["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
-                            col === "SelectCol" ? <Column selectionMode="multiple"
-                                                          style={{
-                                                              width: '2em',
-                                                              "padding": "unset",
-                                                              "text-align": "center"
-                                                          }}
-                                                          // editor={this.columnEditor(col)}
-
-                                /> :
-                                <Column cellIndex={i}
-                                        field={String(col.fields_index)}
-                                        body={this.columnTemplate(col)}
-                                        // editor={this.columnEditor(col)}
-                                        header={col.label}
-                                        key={key(col)}
-                                        style={{width: `${col.width || col.preferred_width}ch`}}
-                                        className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i?'p-cell-editing':''}`}/>
-                        )
-                    )
-                    }
+                    {this.get_cols()}
                 </DataTable>
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
