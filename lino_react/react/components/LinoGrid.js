@@ -20,7 +20,6 @@ import LinoComponents from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
 
 
-
 export class LinoGrid extends Component {
 
     static propTypes = {
@@ -40,14 +39,14 @@ export class LinoGrid extends Component {
         inDetail: false,
     };
 
-    get_full_id(){
+    get_full_id() {
         return `${this.props.packId}.${this.props.actorId}`
     }
 
     constructor(props) {
         super(props);
         let search = queryString.parse(this.props.match.history.location.search);
-        let page_key = `${this.props.inDetail ? this.get_full_id() + ".": ""}page`;
+        let page_key = `${this.props.inDetail ? this.get_full_id() + "." : ""}page`;
         this.state = {
             data: null,
             rows: [],
@@ -55,7 +54,7 @@ export class LinoGrid extends Component {
             // for pager
             totalRecords: 0,
             rowsPerPage: props.actorData.preview_limit,
-            page: search[page_key] ? search[page_key] -1 : 0,
+            page: search[page_key] ? search[page_key] - 1 : 0,
             topRow: 0,
             // todo pvs: paramValues: [],
             query: "",
@@ -73,6 +72,7 @@ export class LinoGrid extends Component {
         this.refresh = this.reload;
 //        this.log = debounce(this.log.bind(this), 200);
         this.onRowSelect = this.onRowSelect.bind(this);
+        this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
         this.expand = this.expand.bind(this);
         this.quickFilter = this.quickFilter.bind(this);
@@ -82,6 +82,8 @@ export class LinoGrid extends Component {
         this.update_col_value = this.update_col_value.bind(this);
         this.get_full_id = this.get_full_id.bind(this);
         this.get_cols = this.get_cols.bind(this);
+        this.handelKeydown = this.handelKeydown.bind(this);
+
 
     }
 
@@ -140,13 +142,14 @@ export class LinoGrid extends Component {
         }
     }
 
-    update_col_value(v, elem, col ) {
+    update_col_value(v, elem, col) {
         this.setState((state => {
             // Object.assign(state.rows[col.rowIndex],{...v});
             return {
                 // rows:state.rows,
-                    editingValues:v}
-        }))
+                editingValues: v
+            }
+        }));
         console.log(v);
     }
 
@@ -177,21 +180,25 @@ export class LinoGrid extends Component {
      * @param type ``"radio" | "checkbox" | "row"` ``
      */
     onRowSelect({originalEvent, data, type}) {
-        // todo: Have selection on a slight delay, to check for double-click, which should open cell...
-        let pk = data[this.props.actorData.pk_index];
-        // console.log("onRowSelect", originalEvent, data, type);
+        console.log("onRowSelect", originalEvent, data, type);
         let cellIndex = find_cellIndex(originalEvent.target);
-
         // First thing is to determine which cell was selected, as opposed to row.
         originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
+
         if (type === "checkbox" || type === "radio") {
             return // We only want selection, no nav.
         }
-        // this.setState({
-        //     editingCellIndex:cellIndex,
-        //     editingPK:pk,
-        // })
-        if (false && pk != undefined) {
+        this.setState({
+            // editingCellIndex:cellIndex,
+            //     editingPK:pk,
+            editingValues: Object.assign({}, {...data}) // made copy of all row data
+        })
+    }
+    // todo: Have selection on a slight delay, to check for double-click, which should open cell...
+
+    onRowDoubleClick({originalEvent, data, type}) {
+        let pk = data[this.props.actorData.pk_index];
+        if (pk != undefined) {
             let status = {
                 record_id: pk,
                 base_params: {}
@@ -228,9 +235,9 @@ export class LinoGrid extends Component {
 //        this.log(query);
     }
 
-    update_url_values(vals, router){
+    update_url_values(vals, router) {
         let search = queryString.parse(router.history.location.search);
-        Object.assign(search,{...vals});
+        Object.assign(search, {...vals});
         router.history.replace({search: queryString.stringify(search)});
     }
 
@@ -250,7 +257,7 @@ export class LinoGrid extends Component {
             page = this.state.page;
         }
 
-        this.update_url_values({[`${this.props.inDetail ? this.get_full_id() + ".": ""}page`]:page+1}, this.props.match);
+        this.update_url_values({[`${this.props.inDetail ? this.get_full_id() + "." : ""}page`]: page + 1}, this.props.match);
 
         this.setState(state);
         let ajax_query = {
@@ -287,7 +294,7 @@ export class LinoGrid extends Component {
                 if (!data.success) {
                     // failed for some reason.
                     this.setState({
-                        loading:false,
+                        loading: false,
                         data: null,
                         rows: [],
                         show_columns: {}, // Used to override hidden value for columns
@@ -336,8 +343,29 @@ export class LinoGrid extends Component {
     componentDidMount() {
         console.log("Reload from DidUpdate method")
         this.cols = undefined;
+        document.addEventListener("keydown", this.handelKeydown, false);
         this.reload();
         // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.handelKeydown, false);
+    }
+
+    handelKeydown(event) {
+        switch (event.key) {
+            case "Escape":
+                // cancel editing, close editor and clear editing values.
+                // this.dataTable.closeEditingCell(); // Doesn't exist in local version,
+                document.body.click(); // What closeEditingCell actually does.
+                this.setState({editingValues: {}});
+                break;
+            case "Enter":
+                if (Object.keys(this.state.editingValues).length){
+                    console.log("submittion")
+                };
+
+        }
     }
 
     update_pv_values(values) {
@@ -361,28 +389,34 @@ export class LinoGrid extends Component {
             }
         });
     }
+
+    /**
+     * An attempt at cacheing the column data to improve performance during re-rending when editing a cell.
+     * Unclear how much faster it is.
+     * @returns {JSX columns for PR's DataTable}
+     */
     get_cols() {
 
         if (this.cols === undefined) this.cols = ["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
-                            col === "SelectCol" ? <Column selectionMode="multiple"
-                                                          style={{
-                                                              width: '2em',
-                                                              "padding": "unset",
-                                                              "text-align": "center"
-                                                          }}
-                                                          // editor={this.columnEditor(col)}
+                col === "SelectCol" ? <Column selectionMode="multiple"
+                                              style={{
+                                                  width: '2em',
+                                                  "padding": "unset",
+                                                  "text-align": "center"
+                                              }}
+                        editor={this.columnEditor(col)}
 
-                                /> :
-                                <Column cellIndex={i}
-                                        field={String(col.fields_index)}
-                                        body={this.columnTemplate(col)}
-                                        editor={this.columnEditor(col)}
-                                        header={col.label}
-                                        key={key(col)}
-                                        style={{width: `${col.width || col.preferred_width}ch`}}
-                                        className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i?'p-cell-editing':''}`}/>
-                        )
-                    )
+                    /> :
+                    <Column cellIndex={i}
+                            field={String(col.fields_index)}
+                            body={this.columnTemplate(col)}
+                            editor={this.columnEditor(col)}
+                            header={col.label}
+                            key={key(col)}
+                            style={{width: `${col.width || col.preferred_width}ch`}}
+                            className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i ? 'p-cell-editing' : ''}`}/>
+            )
+        )
         return this.cols
     }
 
@@ -472,6 +506,8 @@ export class LinoGrid extends Component {
                     selection={this.state.selectedRows}
                     loading={this.state.loading}
                     emptyMessage={this.state.emptyMessage}
+                    ref={(ref) => this.dataTable = ref}
+                    onRowDoubleClick={this.onRowDoubleClick}
                 >
 
                     {this.get_cols()}

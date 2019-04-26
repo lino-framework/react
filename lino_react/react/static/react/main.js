@@ -26244,6 +26244,7 @@ function (_Component) {
     _this.refresh = _this.reload; //        this.log = debounce(this.log.bind(this), 200);
 
     _this.onRowSelect = _this.onRowSelect.bind(_assertThisInitialized(_this));
+    _this.onRowDoubleClick = _this.onRowDoubleClick.bind(_assertThisInitialized(_this));
     _this.columnTemplate = _this.columnTemplate.bind(_assertThisInitialized(_this));
     _this.expand = _this.expand.bind(_assertThisInitialized(_this));
     _this.quickFilter = _this.quickFilter.bind(_assertThisInitialized(_this));
@@ -26253,6 +26254,7 @@ function (_Component) {
     _this.update_col_value = _this.update_col_value.bind(_assertThisInitialized(_this));
     _this.get_full_id = _this.get_full_id.bind(_assertThisInitialized(_this));
     _this.get_cols = _this.get_cols.bind(_assertThisInitialized(_this));
+    _this.handelKeydown = _this.handelKeydown.bind(_assertThisInitialized(_this));
     return _this;
   }
   /**
@@ -26373,22 +26375,49 @@ function (_Component) {
       var originalEvent = _ref.originalEvent,
           data = _ref.data,
           type = _ref.type;
-      // todo: Have selection on a slight delay, to check for double-click, which should open cell...
-      var pk = data[this.props.actorData.pk_index]; // console.log("onRowSelect", originalEvent, data, type);
-
+      console.log("onRowSelect", originalEvent, data, type);
       var cellIndex = Object(_LinoUtils__WEBPACK_IMPORTED_MODULE_12__["find_cellIndex"])(originalEvent.target); // First thing is to determine which cell was selected, as opposed to row.
 
       originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
 
       if (type === "checkbox" || type === "radio") {
         return; // We only want selection, no nav.
-      } // this.setState({
-      //     editingCellIndex:cellIndex,
-      //     editingPK:pk,
-      // })
+      }
 
+      this.setState({
+        // editingCellIndex:cellIndex,
+        //     editingPK:pk,
+        editingValues: Object.assign({}, _objectSpread({}, data)) // made copy of all row data
 
-      if (false) { var status; } // console.log(data);
+      });
+    } // todo: Have selection on a slight delay, to check for double-click, which should open cell...
+
+  }, {
+    key: "onRowDoubleClick",
+    value: function onRowDoubleClick(_ref2) {
+      var originalEvent = _ref2.originalEvent,
+          data = _ref2.data,
+          type = _ref2.type;
+      var pk = data[this.props.actorData.pk_index];
+
+      if (pk != undefined) {
+        var status = {
+          record_id: pk,
+          base_params: {}
+        };
+
+        if (this.props.actorData.slave) {
+          this.props.mt && (status.base_params.mt = this.props.mt);
+          this.props.mk && (status.base_params.mk = this.props.mk);
+        }
+
+        window.App.runAction({
+          an: this.props.actorData.detail_action,
+          actorId: "".concat(this.props.packId, ".").concat(this.props.actorId),
+          rp: this,
+          status: status
+        }); // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
+      } // console.log(data);
 
     }
     /**
@@ -26427,13 +26456,13 @@ function (_Component) {
     value: function reload() {
       var _this4 = this;
 
-      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref2$page = _ref2.page,
-          page = _ref2$page === void 0 ? undefined : _ref2$page,
-          _ref2$query = _ref2.query,
-          query = _ref2$query === void 0 ? undefined : _ref2$query,
-          _ref2$pv = _ref2.pv,
-          pv = _ref2$pv === void 0 ? undefined : _ref2$pv;
+      var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref3$page = _ref3.page,
+          page = _ref3$page === void 0 ? undefined : _ref3$page,
+          _ref3$query = _ref3.query,
+          query = _ref3$query === void 0 ? undefined : _ref3$query,
+          _ref3$pv = _ref3.pv,
+          pv = _ref3$pv === void 0 ? undefined : _ref3$pv;
 
       var state = {
         // data: null,
@@ -26533,7 +26562,35 @@ function (_Component) {
     value: function componentDidMount() {
       console.log("Reload from DidUpdate method");
       this.cols = undefined;
+      document.addEventListener("keydown", this.handelKeydown, false);
       this.reload(); // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      document.removeEventListener("keydown", this.handelKeydown, false);
+    }
+  }, {
+    key: "handelKeydown",
+    value: function handelKeydown(event) {
+      switch (event.key) {
+        case "Escape":
+          // cancel editing, close editor and clear editing values.
+          // this.dataTable.closeEditingCell(); // Doesn't exist in local version,
+          document.body.click(); // What closeEditingCell actually does.
+
+          this.setState({
+            editingValues: {}
+          });
+          break;
+
+        case "Enter":
+          if (Object.keys(this.state.editingValues).length) {
+            console.log("submittion");
+          }
+
+          ;
+      }
     }
   }, {
     key: "update_pv_values",
@@ -26564,6 +26621,12 @@ function (_Component) {
         }
       });
     }
+    /**
+     * An attempt at cacheing the column data to improve performance during re-rending when editing a cell.
+     * Unclear how much faster it is.
+     * @returns {JSX columns for PR's DataTable}
+     */
+
   }, {
     key: "get_cols",
     value: function get_cols() {
@@ -26578,8 +26641,8 @@ function (_Component) {
             width: '2em',
             "padding": "unset",
             "text-align": "center"
-          } // editor={this.columnEditor(col)}
-
+          },
+          editor: _this6.columnEditor(col)
         }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_column__WEBPACK_IMPORTED_MODULE_6__["Column"], {
           cellIndex: i,
           field: String(col.fields_index),
@@ -26714,7 +26777,11 @@ function (_Component) {
         ,
         selection: this.state.selectedRows,
         loading: this.state.loading,
-        emptyMessage: this.state.emptyMessage
+        emptyMessage: this.state.emptyMessage,
+        ref: function ref(_ref4) {
+          return _this7.dataTable = _ref4;
+        },
+        onRowDoubleClick: this.onRowDoubleClick
       }, this.get_cols())), this.props.actorData.pv_layout && this.state.showPVDialog && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_dialog__WEBPACK_IMPORTED_MODULE_11__["Dialog"], {
         header: "PV Values",
         footer: react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_button__WEBPACK_IMPORTED_MODULE_8__["Button"], {
