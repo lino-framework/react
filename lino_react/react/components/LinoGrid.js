@@ -83,7 +83,9 @@ export class LinoGrid extends Component {
         this.get_full_id = this.get_full_id.bind(this);
         this.get_cols = this.get_cols.bind(this);
         this.handelKeydown = this.handelKeydown.bind(this);
-
+        this.onCancel = this.onCancel.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.onEditorOpen = this.onEditorOpen.bind(this);
 
     }
 
@@ -142,12 +144,28 @@ export class LinoGrid extends Component {
         }
     }
 
+    onCancel(cellProps) {
+        console.log("onCancel");
+    }
+
+    onSubmit(cellProps){
+        console.log("onSubmit", cellProps, this.state.editingValues);
+    }
+    onEditorOpen(cellProps){
+        let {rowData, field} = cellProps;
+        // console.log("editor Open",cellProps);
+        this.setState({
+            // editingCellIndex:cellIndex,
+            //     editingPK:pk,
+            editingValues: Object.assign({}, {...rowData}) // made copy of all row data
+        })    }
+
     update_col_value(v, elem, col) {
         this.setState((state => {
             // Object.assign(state.rows[col.rowIndex],{...v});
             return {
                 // rows:state.rows,
-                editingValues: v
+                editingValues: Object.assign({}, {...v})
             }
         }));
         console.log(v);
@@ -180,21 +198,15 @@ export class LinoGrid extends Component {
      * @param type ``"radio" | "checkbox" | "row"` ``
      */
     onRowSelect({originalEvent, data, type}) {
-        console.log("onRowSelect", originalEvent, data, type);
-        let cellIndex = find_cellIndex(originalEvent.target);
+        // console.log("onRowSelect", originalEvent, data, type);
+        // let cellIndex = find_cellIndex(originalEvent.target);
         // First thing is to determine which cell was selected, as opposed to row.
         originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
 
         if (type === "checkbox" || type === "radio") {
             return // We only want selection, no nav.
         }
-        this.setState({
-            // editingCellIndex:cellIndex,
-            //     editingPK:pk,
-            editingValues: Object.assign({}, {...data}) // made copy of all row data
-        })
     }
-    // todo: Have selection on a slight delay, to check for double-click, which should open cell...
 
     onRowDoubleClick({originalEvent, data, type}) {
         let pk = data[this.props.actorData.pk_index];
@@ -341,7 +353,7 @@ export class LinoGrid extends Component {
     }
 
     componentDidMount() {
-        console.log("Reload from DidUpdate method")
+        // console.log("Reload from DidUpdate method")
         this.cols = undefined;
         document.addEventListener("keydown", this.handelKeydown, false);
         this.reload();
@@ -353,19 +365,19 @@ export class LinoGrid extends Component {
     }
 
     handelKeydown(event) {
-        switch (event.key) {
-            case "Escape":
-                // cancel editing, close editor and clear editing values.
-                // this.dataTable.closeEditingCell(); // Doesn't exist in local version,
-                document.body.click(); // What closeEditingCell actually does.
-                this.setState({editingValues: {}});
-                break;
-            case "Enter":
-                if (Object.keys(this.state.editingValues).length){
-                    console.log("submittion")
-                };
-
-        }
+        // switch (event.key) {
+        //     case "Escape":
+        //         // cancel editing, close editor and clear editing values.
+        //         // this.dataTable.closeEditingCell(); // Doesn't exist in local version,
+        //         document.body.click(); // What closeEditingCell actually does.
+        //         this.setState({editingValues: {}});
+        //         break;
+        //     case "Enter":
+        //         if (Object.keys(this.state.editingValues).length){
+        //             console.log("submittion")
+        //         };
+        //
+        // }
     }
 
     update_pv_values(values) {
@@ -414,7 +426,14 @@ export class LinoGrid extends Component {
                             header={col.label}
                             key={key(col)}
                             style={{width: `${col.width || col.preferred_width}ch`}}
-                            className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i ? 'p-cell-editing' : ''}`}/>
+                            className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i ? 'p-cell-editing' : ''}`}
+                            onEditorCancel={this.onCancel}
+                            onEditorSubmit={this.onSubmit}
+                            onEditorOpen={this.onEditorOpen}
+                            validaterEvent={"blur"}
+                            // editorValidator={() => {console.log("validate");
+                            //                         return false}}
+                    />
             )
         )
         return this.cols

@@ -616,6 +616,17 @@ body .l-grid .p-datatable {
 
     .p-datatable-tbody > tr > td.p-cell-editing {
         overflow: unset;
+
+        .p-datepicker {
+            min-width: max-content;
+            position: fixed;
+            left: unset !important;
+            top: unset !important;
+            width: auto;
+            table.p-datepicker-calendar {
+                display: block;
+            }
+        }
     }
 
     .p-datatable-header {
