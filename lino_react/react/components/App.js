@@ -511,6 +511,25 @@ class App extends React.Component {
             Object.assign(args, changes);
         }
 
+        if (an === "grid_put") {
+            let {editingValues} = rp_obj.state;
+            let values = {};22
+            let actor_data = this.state.site_data.actors[actorId];
+            // actor_data.col.forEach( (col) => {
+            //     let v = editingValues[col.fields_index];
+            //     if (v === undefined) return
+            //     values[col.name] = v;
+            // });
+            Object.keys(editingValues).sort().forEach(function(k, i) {
+                let col = actor_data.col.find(col => col.fields_index == k);
+                if (col === undefined)
+                    {col = actor_data.col.find(col => col.fields_index + 1 == k);}
+
+                values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
+            });
+            Object.assign(args, values)
+        }
+
         if (an === "submit_insert") {
             //called from an action button rather than OK / cancel buttons
             Object.assign(args, rp_obj.props.data)

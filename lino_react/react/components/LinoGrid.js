@@ -148,19 +148,44 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(cellProps){
+    onSubmit(cellProps) {
+        let {rowData, field, rowIndex  } = cellProps;
+        // check if new row
+        // save row index
+        // run ajax call on this.get_full_id url
+        // Objects.assign over this.state.rows[rowIndex]
         console.log("onSubmit", cellProps, this.state.editingValues);
+        if (!this.editorDirty) {return}
+        window.App.runAction({
+            rp: this,
+            an: "grid_put",
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            sr: this.state.editingPK,
+            responce_callback: (data) => {
+                // this.setState({editing_mode: false});
+                // this.consume_server_responce(data.data_record);
+                this.setState( (old) => {
+                    let rows = old.rows.slice(); // make copy
+                    rows[rowIndex] = data.rows[0];
+                    return {rows:rows}
+                } )
+            }
+        })
     }
-    onEditorOpen(cellProps){
+
+    onEditorOpen(cellProps) {
         let {rowData, field} = cellProps;
-        // console.log("editor Open",cellProps);
+        console.log("editor Open");
+        this.editorDirty = false;
         this.setState({
             // editingCellIndex:cellIndex,
-            //     editingPK:pk,
+            editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
             editingValues: Object.assign({}, {...rowData}) // made copy of all row data
-        })    }
+        })
+    }
 
     update_col_value(v, elem, col) {
+        this.editorDirty = true;
         this.setState((state => {
             // Object.assign(state.rows[col.rowIndex],{...v});
             return {
@@ -210,6 +235,7 @@ export class LinoGrid extends Component {
 
     onRowDoubleClick({originalEvent, data, type}) {
         let pk = data[this.props.actorData.pk_index];
+        // todo check orginalEvent.target to see if it's in an editing cell. if so return
         if (pk != undefined) {
             let status = {
                 record_id: pk,
@@ -416,7 +442,7 @@ export class LinoGrid extends Component {
                                                   "padding": "unset",
                                                   "text-align": "center"
                                               }}
-                        editor={this.columnEditor(col)}
+                                              editor={this.columnEditor(col)}
 
                     /> :
                     <Column cellIndex={i}
@@ -431,8 +457,8 @@ export class LinoGrid extends Component {
                             onEditorSubmit={this.onSubmit}
                             onEditorOpen={this.onEditorOpen}
                             validaterEvent={"blur"}
-                            // editorValidator={() => {console.log("validate");
-                            //                         return false}}
+                        // editorValidator={() => {console.log("validate");
+                        //                         return false}}
                     />
             )
         )
