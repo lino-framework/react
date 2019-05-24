@@ -513,7 +513,7 @@ class App extends React.Component {
 
         if (an === "grid_put") {
             let {editingValues} = rp_obj.state;
-            let values = {};22
+            let values = {};
             let actor_data = this.state.site_data.actors[actorId];
             // actor_data.col.forEach( (col) => {
             //     let v = editingValues[col.fields_index];

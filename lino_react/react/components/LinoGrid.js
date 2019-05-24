@@ -126,6 +126,7 @@ export class LinoGrid extends Component {
      */
     columnEditor(col) {
         // console.log(col);
+        if (!col.editable) return undefined;
         let Editor = LinoComponents._GetComponent(col.react_name);
         return (column) => {
             const prop_bundle = {
@@ -149,13 +150,15 @@ export class LinoGrid extends Component {
     }
 
     onSubmit(cellProps) {
-        let {rowData, field, rowIndex  } = cellProps;
+        let {rowData, field, rowIndex} = cellProps;
         // check if new row
         // save row index
         // run ajax call on this.get_full_id url
         // Objects.assign over this.state.rows[rowIndex]
         console.log("onSubmit", cellProps, this.state.editingValues);
-        if (!this.editorDirty) {return}
+        if (!this.editorDirty) {
+            return
+        }
         window.App.runAction({
             rp: this,
             an: "grid_put",
@@ -164,11 +167,11 @@ export class LinoGrid extends Component {
             responce_callback: (data) => {
                 // this.setState({editing_mode: false});
                 // this.consume_server_responce(data.data_record);
-                this.setState( (old) => {
-                    let rows = old.rows.slice(); // make copy
+                this.setState((old) => { // update just the row
+                    let rows = old.rows.slice(); // make data copy
                     rows[rowIndex] = data.rows[0];
-                    return {rows:rows}
-                } )
+                    return {rows: rows}
+                })
             }
         })
     }
@@ -184,7 +187,7 @@ export class LinoGrid extends Component {
         })
     }
 
-    update_col_value(v, elem, col) {
+    update_col_value(v, elem, col) { // on change method for cell editing.
         this.editorDirty = true;
         this.setState((state => {
             // Object.assign(state.rows[col.rowIndex],{...v});
@@ -193,6 +196,9 @@ export class LinoGrid extends Component {
                 editingValues: Object.assign({}, {...v})
             }
         }));
+        if (Object.keys(v).length > 1) {
+            setTimeout(() => document.body.click(), 100);
+        }
         console.log(v);
     }
 
@@ -442,7 +448,7 @@ export class LinoGrid extends Component {
                                                   "padding": "unset",
                                                   "text-align": "center"
                                               }}
-                                              editor={this.columnEditor(col)}
+                        // editor={this.columnEditor(col)}
 
                     /> :
                     <Column cellIndex={i}

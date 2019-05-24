@@ -24,13 +24,13 @@ export class ForeignKeyElement extends Component {
             rows: [],
         };
     }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        let {props} = this,
-            value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
-            next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
-        return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
-    }
+    // Causes errors with dropdown opening
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     let {props} = this,
+    //         value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
+    //         next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+    //     return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
+    // }
 
     componentDidMount() {
 
@@ -57,9 +57,9 @@ export class ForeignKeyElement extends Component {
         fetchPolyfill(`/${this.props.prop_bundle.action_dialog ? "apchoices" : "choices"}/${this.props.prop_bundle.actorId.replace(".", "/")}${this.props.prop_bundle.action_dialog ? `/${this.props.prop_bundle.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
         ).then(
-            (data => this.setState({
-                rows: data.rows,
-            }))
+            (data => this.setState( () => { return {
+                rows: data.rows.slice(),
+            }}))
         ).catch(error => window.App.handleAjaxException(error));
     }
 
@@ -113,7 +113,7 @@ export class ForeignKeyElement extends Component {
                                 )}
                                       suggestions={this.state.rows}
                                       dropdown={true}
-                                      onFocus={(e) => e.target.select()}
+                                      // onFocus={(e) => e.target.select()}
                                       field={"text"}
                                       completeMethod={(e) => this.getChoices(e.query, siteData)}
                         />

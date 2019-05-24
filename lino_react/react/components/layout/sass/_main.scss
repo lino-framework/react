@@ -611,7 +611,9 @@ a {
     float: right;
     margin-top: -44px;
 }
-
+body .p-datatable .p-datatable-tbody > tr.p-highlight a {
+    color: #333333;
+}
 body .l-grid .p-datatable {
 
     .p-datatable-tbody > tr > td.p-cell-editing {
