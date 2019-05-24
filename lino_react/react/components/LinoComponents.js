@@ -148,10 +148,11 @@ const LinoComponents = {
     },
 
     ChoiceListFieldElement: class ChoiceListFieldElement extends React.Component {
-        shouldComponentUpdate(nextProps, nextState) {
+        shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
             let {props} = this,
                 value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
                 next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+            if (!props.in_grid ) return true;
             return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
         }
 
@@ -239,6 +240,7 @@ const LinoComponents = {
             let {props} = this,
                 value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
                 next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+            if (!props.in_grid ) return true;
             return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
         }
         render(){
