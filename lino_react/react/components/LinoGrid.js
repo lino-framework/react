@@ -200,6 +200,7 @@ export class LinoGrid extends Component {
 
             }, 10)
         }
+        else {submit()}
     }
 
     onEditorOpen(cellProps) {
@@ -209,11 +210,12 @@ export class LinoGrid extends Component {
                 this.editorDirty = false;
                 this.setState((old) => {
                     if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK) {
+                        this.editorDirty = true; // we have old values so still dirty.
                         return {editingValues: Object.assign({}, {...old.editingValues})} // keep old editing values
                     }
                     else return {
                         // editingCellIndex:cellIndex,
-                        editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
+                    editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
                         editingValues: Object.assign({}, {...rowData}) // made copy of all row data
                     }
                 })
@@ -223,8 +225,15 @@ export class LinoGrid extends Component {
 
     update_col_value(v, elem, col) { // on change method for cell editing.
         this.editorDirty = true;
-        this.setState((state => {
+        this.setState((old => {
             // Object.assign(state.rows[col.rowIndex],{...v});
+            if (old.editingPK === null &&
+                        col.rowData[this.props.actorData.pk_index] === old.editingPK)
+            { return {
+                editingValues: Object.assign({...this.state.editingValues}, {...v})
+            }
+            }
+
             return {
                 // rows:state.rows,
                 editingValues: Object.assign({}, {...v})
