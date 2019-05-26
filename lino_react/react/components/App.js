@@ -524,7 +524,7 @@ class App extends React.Component {
             Object.assign(args, changes);
         }
 
-        if (an === "grid_put") {
+        if (an === "grid_put" || an === "grid_post") {
             let {editingValues} = rp_obj.state;
             let values = {};
             let actor_data = this.state.site_data.actors[actorId];
@@ -540,6 +540,10 @@ class App extends React.Component {
 
                 values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
             });
+            if (status.base_params) {
+                status.base_params.mt && (values.mk = status.base_params.mk);
+                status.base_params.mk && (values.mt = status.base_params.mt);
+            }
             Object.assign(args, values)
         }
 

@@ -101,14 +101,13 @@ export class LinoGrid extends Component {
             let pk = rowData[this.props.actorData.pk_index];
             let cellIndex = column.cellIndex;
             let {editingCellIndex, editingPK} = this.state;
-            let editing = pk == editingPK && cellIndex == editingCellIndex;
-
+            // let editing = pk == editingPK && cellIndex == editingCellIndex;
             const prop_bundle = {
                 actorId: this.get_full_id(),
-                data: rowData,
+                data: (pk === null && this.state.editingPK === null) ? this.state.editingValues : rowData,
                 disabled_fields: this.state.disabled_fields,
                 update_value: this.update_col_value, // No editable yet
-                editing_mode: editing,
+                // editing_mode: editing,
                 hide_label: true,
                 in_grid: true,
                 column: column,
@@ -156,37 +155,70 @@ export class LinoGrid extends Component {
         // run ajax call on this.get_full_id url
         // Objects.assign over this.state.rows[rowIndex]
         console.log("onSubmit", cellProps, this.state.editingValues);
+        let editingPK = this.state.editingPK;
         if (!this.editorDirty) {
             return
         }
-        window.App.runAction({
-            rp: this,
-            an: "grid_put",
-            actorId: `${this.props.packId}.${this.props.actorId}`,
-            sr: this.state.editingPK,
-            responce_callback: (data) => {
-                // this.setState({editing_mode: false});
-                // this.consume_server_responce(data.data_record);
-                data.rows && this.setState((old) => { // update just the row
-                    let rows = old.rows.slice(); // make data copy
-                    rows[rowIndex] = data.rows[0];
-                    return {rows: rows}
-                })
-            }
-        })
+        let submit = () => {
+            window.App.runAction({
+                rp: this,
+                an: editingPK === null? "grid_post" : "grid_put",
+                actorId: `${this.props.packId}.${this.props.actorId}`,
+                sr: editingPK === null? undefined : editingPK,
+                status: {
+                    base_params: {mk: this.props.mk, mt: this.props.mt}
+                },
+                responce_callback: (data) => {
+                    // this.setState({editing_mode: false});
+                    // this.consume_server_responce(data.data_record);
+                    data.rows && this.setState((old) => { // update just the row
+                        let state = {},
+                            rows = old.rows.slice(); // make data copy
+                        state.rows = rows;
+                        if (editingPK === null) {
+                            rows.push(rows[rowIndex].slice());
+                            state.editingPK = undefined;
+                        }
+                        rows[rowIndex] = data.rows[0];
+                        return state
+                    })
+                }
+            })
+        };
+        if (editingPK === null) {
+            setTimeout(() => {
+                if (editingPK === null && !this.editorDirty) {// we've opened a new editer in phantom row
+
+                } else {
+                    submit();
+                    // this.setState((old) => {
+                    //     let rows = old.rows.slice();
+                    //     rows.push(rows[rows.length-1].slice());
+                    //     return {rows:rows} // add new phantom rows, old will be overwriten by post callback.
+                    // } )
+                }
+
+            }, 10)
+        }
     }
 
     onEditorOpen(cellProps) {
         let {rowData, field} = cellProps;
         console.log("editor Open");
         setTimeout(() => {
-            this.editorDirty = false;
-            this.setState({
-                // editingCellIndex:cellIndex,
-                editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
-                editingValues: Object.assign({}, {...rowData}) // made copy of all row data
-            })},
-            10  )
+                this.editorDirty = false;
+                this.setState((old) => {
+                    if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK) {
+                        return {editingValues: Object.assign({}, {...old.editingValues})} // keep old editing values
+                    }
+                    else return {
+                        // editingCellIndex:cellIndex,
+                        editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
+                        editingValues: Object.assign({}, {...rowData}) // made copy of all row data
+                    }
+                })
+            },
+            5)
     }
 
     update_col_value(v, elem, col) { // on change method for cell editing.
@@ -463,18 +495,18 @@ export class LinoGrid extends Component {
                             style={{width: `${col.width || col.preferred_width}ch`}}
                             className={`l-grid-col-${col.name} ${
                                 this.state.editingCellIndex === i ? 'p-cell-editing' : ''
-                            }`}
+                                }`}
                             onEditorCancel={this.onCancel}
                             onEditorSubmit={this.onSubmit}
                             onEditorOpen={this.onEditorOpen}
-                            // validaterEvent={"blur"}
+                        // validaterEvent={"blur"}
                             isDisabled={
-                                (props) => (props.rowData[props.rowData.length-1] ||
-                                    (props.rowData[props.rowData.length-2] !== null
+                                (props) => (props.rowData[props.rowData.length - 1] ||
+                                    (props.rowData[props.rowData.length - 2] !== null
                                         && //if null / phantom row / not disabled
-                                     Object.keys(props.rowData[props.rowData.length-2]).find(
-                                         (e) => e === props.col.name
-                                     )
+                                        Object.keys(props.rowData[props.rowData.length - 2]).find(
+                                            (e) => e === props.col.name
+                                        )
                                     ))
                             }
                         // editorValidator={() => {console.log("validate");
