@@ -167,7 +167,7 @@ export class LinoGrid extends Component {
             responce_callback: (data) => {
                 // this.setState({editing_mode: false});
                 // this.consume_server_responce(data.data_record);
-                this.setState((old) => { // update just the row
+                data.rows && this.setState((old) => { // update just the row
                     let rows = old.rows.slice(); // make data copy
                     rows[rowIndex] = data.rows[0];
                     return {rows: rows}
@@ -179,12 +179,14 @@ export class LinoGrid extends Component {
     onEditorOpen(cellProps) {
         let {rowData, field} = cellProps;
         console.log("editor Open");
-        this.editorDirty = false;
-        this.setState({
-            // editingCellIndex:cellIndex,
-            editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
-            editingValues: Object.assign({}, {...rowData}) // made copy of all row data
-        })
+        setTimeout(() => {
+            this.editorDirty = false;
+            this.setState({
+                // editingCellIndex:cellIndex,
+                editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
+                editingValues: Object.assign({}, {...rowData}) // made copy of all row data
+            })},
+            10  )
     }
 
     update_col_value(v, elem, col) { // on change method for cell editing.
@@ -196,9 +198,9 @@ export class LinoGrid extends Component {
                 editingValues: Object.assign({}, {...v})
             }
         }));
-        if (Object.keys(v).length > 1) {
-            setTimeout(() => document.body.click(), 100);
-        }
+        // if (Object.keys(v).length > 1) {
+        //     setTimeout(() => document.body.click(), 100);
+        // }
         console.log(v);
     }
 
@@ -457,12 +459,24 @@ export class LinoGrid extends Component {
                             editor={this.columnEditor(col)}
                             header={col.label}
                             key={key(col)}
+                            col={col}
                             style={{width: `${col.width || col.preferred_width}ch`}}
-                            className={`l-grid-col-${col.name} ${this.state.editingCellIndex === i ? 'p-cell-editing' : ''}`}
+                            className={`l-grid-col-${col.name} ${
+                                this.state.editingCellIndex === i ? 'p-cell-editing' : ''
+                            }`}
                             onEditorCancel={this.onCancel}
                             onEditorSubmit={this.onSubmit}
                             onEditorOpen={this.onEditorOpen}
-                            validaterEvent={"blur"}
+                            // validaterEvent={"blur"}
+                            isDisabled={
+                                (props) => (props.rowData[props.rowData.length-1] ||
+                                    (props.rowData[props.rowData.length-2] !== null
+                                        && //if null / phantom row / not disabled
+                                     Object.keys(props.rowData[props.rowData.length-2]).find(
+                                         (e) => e === props.col.name
+                                     )
+                                    ))
+                            }
                         // editorValidator={() => {console.log("validate");
                         //                         return false}}
                     />

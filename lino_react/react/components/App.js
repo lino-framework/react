@@ -290,9 +290,22 @@ class App extends React.Component {
                 break;
 
             case 400:
+                if (resp.headers.map['content-type'].startsWith("application/json")) {
+                    result = resp.json();
+                } else  {
+                    result = {
+                        success: false,
+                    };
+                }
+                resp.text().then((text) => {this.growl.show({
+                    severity: "error",
+                    summary: "Bad Request",
+                    detail: text,
+                })});
+                break;
             case 401:
             case 403:
-                if (resp.headers.map['content-type'].startsWith("aplication/json")) {
+                if (resp.headers.map['content-type'].startsWith("application/json")) {
                     result = resp.json();
                 } else  {
                     result = {
@@ -307,7 +320,7 @@ class App extends React.Component {
                 });
                 break;
             case 500:
-                if (resp.headers.map['content-type'].startsWith("aplication/json")) {
+                if (resp.headers.map['content-type'].startsWith("application/json")) {
                     result = resp.json();
                 } else  {
                     result = {
