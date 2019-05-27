@@ -471,6 +471,13 @@ a {
 .dashboard-item-closed {
   display: none; }
 
+.p-panel {
+  height: inherit; }
+  .p-panel .p-panel-content {
+    height: inherit; }
+  .p-panel .p-toggleable-content {
+    height: inherit; }
+
 .l-panel {
   height: 100%;
   flex: auto;

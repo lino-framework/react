@@ -485,6 +485,17 @@ a {
 .dashboard-item {
 }
 
+// panel's have height 100% inline style from PR, have content match to fill v-space.
+.p-panel{
+    height: inherit;
+    .p-panel-content{
+        height: inherit;
+    }
+    .p-toggleable-content{
+        height: inherit;
+    }
+}
+
 .l-panel {
     height: 100%;
     flex: auto;
