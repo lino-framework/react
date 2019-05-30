@@ -56,8 +56,8 @@ class App extends React.Component {
             layoutMode: 'static',
             layoutColorMode: 'dark',
             staticMenuInactive: false,
-            overlayMenuActive: true,
-            mobileMenuActive: true,
+            overlayMenuActive: false,
+            mobileMenuActive: false,
 
             site_loaded: false,
             site_data: null,
