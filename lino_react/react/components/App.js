@@ -537,8 +537,9 @@ class App extends React.Component {
                 let col = actor_data.col.find(col => col.fields_index == k);
                 if (col === undefined)
                     {col = actor_data.col.find(col => col.fields_index + 1 == k);}
-
-                values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
+                if (col !== undefined) { // last two items are disabled fields and isEditable bool, without cols.
+                    values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
+                }
             });
             if (status.base_params) {
                 status.base_params.mt && (values.mk = status.base_params.mk);
