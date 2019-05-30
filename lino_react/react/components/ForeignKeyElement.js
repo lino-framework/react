@@ -61,6 +61,7 @@ export class ForeignKeyElement extends Component {
                 rows: data.rows.slice(),
             }}))
         ).catch(error => window.App.handleAjaxException(error));
+        return true
     }
 
     openExternalLink(siteData) {
@@ -114,6 +115,11 @@ export class ForeignKeyElement extends Component {
                                       suggestions={this.state.rows}
                                       dropdown={true}
                                       // onFocus={(e) => e.target.select()}
+                                      onFocus={(e) => {
+                                          if (!this.already_focused) {
+                                              this.getChoices("", siteData);
+                                              this.already_focused = true }}
+                                      }
                                       field={"text"}
                                       completeMethod={(e) => this.getChoices(e.query, siteData)}
                         />

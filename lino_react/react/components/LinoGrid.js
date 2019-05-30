@@ -86,7 +86,7 @@ export class LinoGrid extends Component {
         this.onCancel = this.onCancel.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onEditorOpen = this.onEditorOpen.bind(this);
-
+        this.onRowReorder = this.onRowReorder.bind(this);
     }
 
     /**
@@ -245,6 +245,35 @@ export class LinoGrid extends Component {
         console.log(v);
     }
 
+    onRowReorder(e) {
+        window.App.runAction({
+                rp: this,
+                an: "move_by_n",
+                actorId: `${this.props.packId}.${this.props.actorId}`,
+                sr: e.value[e.dropIndex - (e.dropIndex > e.dragIndex? 1:0)][this.props.actorData.pk_index],
+                status: {
+                    data:{seqno:(e.dropIndex - (e.dropIndex > e.dragIndex? 1:0) - e.dragIndex)},
+                    base_params: {mk: this.props.mk, mt: this.props.mt}
+                },
+                // response_callback: (data) => {
+                //     // this.setState({editing_mode: false});
+                //     // this.consume_server_responce(data.data_record);
+                //     data.rows && this.setState((old) => { // update just the row
+                //         let state = {},
+                //             rows = old.rows.slice(); // make data copy
+                //         state.rows = rows;
+                //         if (editingPK === null) {
+                //             rows.push(rows[rowIndex].slice());
+                //             state.editingPK = undefined;
+                //         }
+                //         rows[rowIndex] = data.rows[0];
+                //         return state
+                //     })
+                // }
+            })
+        this.setState({rows:e.value});
+    }
+    
     expand(e) {
         let status = {base_params: {}};
 
@@ -485,7 +514,7 @@ export class LinoGrid extends Component {
     get_cols() {
 
         if (this.cols === undefined) this.cols = ["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
-                col === "SelectCol" ? <Column selectionMode="multiple"
+                col === "SelectCol" ? <Column rowReorder={true}
                                               style={{
                                                   width: '2em',
                                                   "padding": "unset",
@@ -614,6 +643,8 @@ export class LinoGrid extends Component {
                     emptyMessage={this.state.emptyMessage}
                     ref={(ref) => this.dataTable = ref}
                     onRowDoubleClick={this.onRowDoubleClick}
+                    reorderableColumns={true}
+                    onRowReorder={this.onRowReorder}
                 >
 
                     {this.get_cols()}

@@ -387,7 +387,7 @@ class App extends React.Component {
             status: status,
             sr: sr,
             response_callback: response_callback,
-            data: {},
+            data: status.data? status.data : {},
         };
 
 
