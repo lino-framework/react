@@ -168,7 +168,7 @@ export class LinoGrid extends Component {
                 status: {
                     base_params: {mk: this.props.mk, mt: this.props.mt}
                 },
-                responce_callback: (data) => {
+                response_callback: (data) => {
                     // this.setState({editing_mode: false});
                     // this.consume_server_responce(data.data_record);
                     data.rows && this.setState((old) => { // update just the row

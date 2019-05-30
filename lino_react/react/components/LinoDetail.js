@@ -223,7 +223,7 @@ export class LinoDetail extends Component {
                                                   an: "submit_detail",
                                                   actorId: `${this.props.packId}.${this.props.actorId}`,
                                                   sr: this.props.pk,
-                                                  responce_callback: (data) => {
+                                                  response_callback: (data) => {
                                                       this.setState({editing_mode: false});
                                                       // this.consume_server_responce(data.data_record);
                                                       this.reload();

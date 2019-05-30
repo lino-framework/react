@@ -360,7 +360,7 @@ class App extends React.Component {
      * @param rp instance that's running the action, grid / detail component
      * @param status uses keys: record_id, mk and mt for navigation data,
      */
-    runAction = ({an, actorId, rp, status, sr, responce_callback} = {}) => {
+    runAction = ({an, actorId, rp, status, sr, response_callback} = {}) => {
 
         // have rp be the key for the rp
         // have rp_obj be the instance
@@ -386,7 +386,7 @@ class App extends React.Component {
             rp_obj: rp_obj,
             status: status,
             sr: sr,
-            responce_callback: responce_callback,
+            response_callback: response_callback,
             data: {},
         };
 
@@ -502,7 +502,7 @@ class App extends React.Component {
         }
     };
 
-    excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, responce_callback, data} = {}) => {
+    excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, response_callback, data} = {}) => {
         let urlSr = Array.isArray(sr) ? sr[0] : sr, // if array, first item, if undefined, blank
             args = {
                 an: an,
@@ -575,7 +575,7 @@ class App extends React.Component {
                 this.handleActionResponse({
                     response: data,
                     rp: rp_obj || rp,
-                    response_callback: responce_callback
+                    response_callback: response_callback
                 });
             }
         ).catch(error => window.App.handleAjaxException(error));
