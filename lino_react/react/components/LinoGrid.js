@@ -11,7 +11,7 @@ import {Paginator} from 'primereact/paginator';
 import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
 import {Dropdown} from 'primereact/dropdown';
-
+import {MultiSelect} from 'primereact/multiselect';
 import {Dialog} from 'primereact/dialog';
 
 import {debounce, pvObj2array, find_cellIndex} from "./LinoUtils";
@@ -50,7 +50,9 @@ export class LinoGrid extends Component {
         this.state = {
             data: null,
             rows: [],
-            show_columns: {}, // Used to override hidden value for columns
+            toggle_col: false, // show multiselect elem for thing
+            cols: undefined,
+            show_columns: undefined,
             // for pager
             totalRecords: 0,
             rowsPerPage: props.actorData.preview_limit,
@@ -68,6 +70,14 @@ export class LinoGrid extends Component {
             editingValues: {},
 
         };
+        this.state.cols = props.actorData.col.map((k, i) => (
+            {
+                label: k.label,
+                value: i + "",
+                col: k
+            }));
+        this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
+
         this.reload = debounce(this.reload.bind(this), 200);
         this.refresh = this.reload;
 //        this.log = debounce(this.log.bind(this), 200);
@@ -405,7 +415,6 @@ export class LinoGrid extends Component {
                         loading: false,
                         data: null,
                         rows: [],
-                        show_columns: {}, // Used to override hidden value for columns
                         // for pager
                         totalRecords: 0,
                     });
@@ -505,45 +514,49 @@ export class LinoGrid extends Component {
      */
     get_cols() {
 
-        if (this.cols === undefined) this.cols = ["SelectCol"].concat(this.props.actorData.col.filter((col) => !col.hidden || this.state.show_columns[col.name])).map((col, i) => (
-                col === "SelectCol" ? <Column selectionMode="multiple"
-                                              style={{
-                                                  width: '2em',
-                                                  "padding": "unset",
-                                                  "text-align": "center"
-                                              }}
-                        // editor={this.columnEditor(col)}
+        if (this.cols === undefined) {
+            this.cols = ["SelectCol"].concat(
+                this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
+            ).map((col, i) => (
+                    col === "SelectCol" ? <Column selectionMode="multiple"
+                                                  style={{
+                                                      width: '2em',
+                                                      "padding": "unset",
+                                                      "text-align": "center"
+                                                  }}
+                            // editor={this.columnEditor(col)}
 
-                    /> :
-                    <Column cellIndex={i}
-                            field={String(col.fields_index)}
-                            body={this.columnTemplate(col)}
-                            editor={this.columnEditor(col)}
-                            header={col.label}
-                            key={key(col)}
-                            col={col}
-                            style={{width: `${col.width || col.preferred_width}ch`}}
-                            className={`l-grid-col-${col.name} ${
-                                this.state.editingCellIndex === i ? 'p-cell-editing' : ''
-                                }`}
-                            onEditorCancel={this.onCancel}
-                            onEditorSubmit={this.onSubmit}
-                            onEditorOpen={this.onEditorOpen}
-                        // validaterEvent={"blur"}
-                            isDisabled={
-                                (props) => (props.rowData[props.rowData.length - 1] ||
-                                    (props.rowData[props.rowData.length - 2] !== null
-                                        && //if null / phantom row / not disabled
-                                        Object.keys(props.rowData[props.rowData.length - 2]).find(
-                                            (e) => e === props.col.name
-                                        )
-                                    ))
-                            }
-                        // editorValidator={() => {console.log("validate");
-                        //                         return false}}
-                    />
+                        /> :
+                        <Column cellIndex={i}
+                                field={String(col.fields_index)}
+                                body={this.columnTemplate(col)}
+                                editor={this.columnEditor(col)}
+                                header={col.label}
+                                key={key(col)}
+                                col={col}
+                                style={{width: `${col.width || col.preferred_width}ch`}}
+                                className={`l-grid-col-${col.name} ${
+                                    this.state.editingCellIndex === i ? 'p-cell-editing' : ''
+                                    }`}
+                                onEditorCancel={this.onCancel}
+                                onEditorSubmit={this.onSubmit}
+                                onEditorOpen={this.onEditorOpen}
+                            // validaterEvent={"blur"}
+                                isDisabled={
+                                    (props) => (props.rowData[props.rowData.length - 1] ||
+                                        (props.rowData[props.rowData.length - 2] !== null
+                                            && //if null / phantom row / not disabled
+                                            Object.keys(props.rowData[props.rowData.length - 2]).find(
+                                                (e) => e === props.col.name
+                                            )
+                                        ))
+                                }
+                            // editorValidator={() => {console.log("validate");
+                            //                         return false}}
+                        />
+                )
             )
-        )
+        }
         return this.cols
     }
 
@@ -577,8 +590,39 @@ export class LinoGrid extends Component {
                     {this.props.actorData.pv_layout && <React.Fragment>
                         <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
                         <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>
-                    </React.Fragment>
-                    }
+                    </React.Fragment>}
+                    {this.state.toggle_col ?
+                        <MultiSelect value={this.state.show_columns} options={this.state.cols}
+                                     ref={(el) => this.show_col_selector = el}
+                                     onChange={(e) => {
+                                         this.cols = undefined;
+                                         clearTimeout(this.show_col_timeout);
+                                         this.show_col_selector.focusInput.focus();
+                                         setTimeout(() => (this.show_col_selector.dont_blur = false), 400);
+                                         this.show_col_selector.dont_blur = true;
+                                         this.setState({show_columns: e.value});
+                                     }
+                                     }
+                                     onBlur={e => this.show_col_timeout = setTimeout(() => {
+                                             {
+                                                 if (this.show_col_selector && this.show_col_selector.dont_blur) {
+                                                     this.show_col_selector.focusInput.focus();
+                                                 } else {
+                                                     this.setState({toggle_col: false})
+                                                 }
+                                             }
+                                         },
+                                         200)
+                                     }
+                                     autoFocus={true}
+                        /> :
+                        <Button icon={"pi pi-list"} onClick={() => {
+                            this.setState({toggle_col: true})
+                            setTimeout(() => {this.show_col_selector.focusInput.focus();
+                                              this.show_col_selector.show();},
+                                25
+                                             )
+                        }}/>}
                 </React.Fragment>}
 
 
@@ -590,7 +634,7 @@ export class LinoGrid extends Component {
             <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                     icon="pi pi-external-link"
                     style={{'float': 'right'}}/>}</div>
-            {!this.props.inDetail && <div className={"p-col-12"} style={{"text-align": "left"}}>
+            {!this.props.inDetail && <div className={"p-col-12"} style={{"textAlign": "left"}}>
 
                 <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
                           srMap={(row) => row[this.props.actorData.pk_index]}
@@ -620,6 +664,7 @@ export class LinoGrid extends Component {
         return <React.Fragment>
             <div className={"l-grid"}>
                 <DataTable
+                    reorderableColumns={true}
                     header={header}
                     footer={paginator}
                     responsive={true}
