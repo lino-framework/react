@@ -181,6 +181,7 @@ const LinoComponents = {
                                 //Todo clear tied to props.elem.field_options.blank
                                 showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
                                 options={options}
+                                container={props.prop_bundle.container}
                                 onChange={(e) => {
                                     // console.log(e);
                                     let v = e.target.value === null ? "" : e.target.value['text'],
@@ -425,11 +426,11 @@ const LinoComponents = {
                                   props.elem,
                                   props.column)
                           }}
-                          onBlur={(e) => {
-                              props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value.replace(/\./g, ':')},
-                                  props.elem,
-                                  props.column)
-                          }}
+                          // onBlur={(e) => {
+                          //     props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value.replace(/\./g, ':')},
+                          //         props.elem,
+                          //         props.column)
+                          // }}
                     // showIcon={true}
                           onViewDateChange={(e) => {
                           }}

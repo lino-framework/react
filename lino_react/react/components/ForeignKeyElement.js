@@ -116,6 +116,7 @@ export class ForeignKeyElement extends Component {
                                       // onFocus={(e) => e.target.select()}
                                       field={"text"}
                                       completeMethod={(e) => this.getChoices(e.query, siteData)}
+                                      container={this.props.prop_bundle.container}
                         />
 
                         : <React.Fragment>

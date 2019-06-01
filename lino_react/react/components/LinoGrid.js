@@ -74,6 +74,7 @@ export class LinoGrid extends Component {
         this.onRowSelect = this.onRowSelect.bind(this);
         this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
+        this.columnEditor = this.columnEditor.bind(this);
         this.expand = this.expand.bind(this);
         this.quickFilter = this.quickFilter.bind(this);
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
@@ -86,6 +87,7 @@ export class LinoGrid extends Component {
         this.onCancel = this.onCancel.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onEditorOpen = this.onEditorOpen.bind(this);
+
 
     }
 
@@ -111,7 +113,8 @@ export class LinoGrid extends Component {
                 hide_label: true,
                 in_grid: true,
                 column: column,
-                match: this.props.match
+                match: this.props.match,
+                container: this.dataTable.table,
             };
             prop_bundle.prop_bundle = prop_bundle;
             return <Template {...prop_bundle} elem={col}/>;
@@ -135,6 +138,7 @@ export class LinoGrid extends Component {
                 update_value: this.update_col_value,
                 hide_label: true,
                 in_grid: true,
+                container: this.dataTable.table,
                 column: column,
                 editing_mode: true,
                 match: this.props.match
@@ -162,9 +166,9 @@ export class LinoGrid extends Component {
         let submit = () => {
             window.App.runAction({
                 rp: this,
-                an: editingPK === null? "grid_post" : "grid_put",
+                an: editingPK === null ? "grid_post" : "grid_put",
                 actorId: `${this.props.packId}.${this.props.actorId}`,
-                sr: editingPK === null? undefined : editingPK,
+                sr: editingPK === null ? undefined : editingPK,
                 status: {
                     base_params: {mk: this.props.mk, mt: this.props.mt}
                 },
@@ -186,7 +190,9 @@ export class LinoGrid extends Component {
             })
         };
         if (editingPK === null) {
-            setTimeout(() => {
+            this.phantomSubmit = setTimeout(() => {
+                console.log("on submit timeout");
+
                 if (editingPK === null && !this.editorDirty) {// we've opened a new editer in phantom row
 
                 } else {
@@ -200,23 +206,36 @@ export class LinoGrid extends Component {
 
             }, 10)
         }
-        else {submit()}
+        else {
+            submit()
+        }
     }
 
     onEditorOpen(cellProps) {
         let {rowData, field} = cellProps;
         console.log("editor Open");
-        setTimeout(() => {
+        let was_dirty = this.editorDirty;
+        setTimeout(() => { // delay as we should submit before claring editing values.
                 this.editorDirty = false;
+                console.log("editor Open timeout");
                 this.setState((old) => {
-                    if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK) {
+                    if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
                         this.editorDirty = true; // we have old values so still dirty.
+                        clearTimeout(this.phantomSubmit);
                         return {editingValues: Object.assign({}, {...old.editingValues})} // keep old editing values
                     }
-                    else return {
-                        // editingCellIndex:cellIndex,
-                    editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
-                        editingValues: Object.assign({}, {...rowData}) // made copy of all row data
+                    else if (rowData[this.props.actorData.pk_index] === null) {
+                        return {
+                            editingPK: null, // start editing a phantom with empty values not null values.
+                            editingValues: {}
+                        }
+                    }
+                    else {
+                        return {
+                            // editingCellIndex:cellIndex,
+                            editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
+                            editingValues: Object.assign({}, {...rowData}) // made copy of all row data
+                        }
                     }
                 })
             },
@@ -225,13 +244,16 @@ export class LinoGrid extends Component {
 
     update_col_value(v, elem, col) { // on change method for cell editing.
         this.editorDirty = true;
+        console.log("update_col_val");
+
         this.setState((old => {
             // Object.assign(state.rows[col.rowIndex],{...v});
+
             if (old.editingPK === null &&
-                        col.rowData[this.props.actorData.pk_index] === old.editingPK)
-            { return {
-                editingValues: Object.assign({...this.state.editingValues}, {...v})
-            }
+                col.rowData[this.props.actorData.pk_index] === old.editingPK) {
+                return {
+                    editingValues: Object.assign({...this.state.editingValues}, {...v})
+                }
             }
 
             return {
@@ -242,7 +264,6 @@ export class LinoGrid extends Component {
         // if (Object.keys(v).length > 1) {
         //     setTimeout(() => document.body.click(), 100);
         // }
-        console.log(v);
     }
 
     expand(e) {

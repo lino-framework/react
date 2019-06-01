@@ -630,15 +630,15 @@ body .l-grid .p-datatable {
     .p-datatable-tbody > tr > td.p-cell-editing {
         overflow: unset;
 
-        .p-autocomplete-panel {
-            min-width: max-content;
-            position: fixed;
-            left: unset !important;
-            top: unset !important;
-            width: auto;
-            margin-top: 32px; // Should be changed if we try to go for a more compact view.
-            max-height: unset !important;
-        }
+        //.p-autocomplete-panel {
+        //    min-width: max-content;
+        //    position: fixed;
+        //    left: unset !important;
+        //    top: unset !important;
+        //    width: auto;
+        //    margin-top: 32px; // Should be changed if we try to go for a more compact view.
+        //    max-height: unset !important;
+        //}
 
         .p-datepicker {
             min-width: max-content;
