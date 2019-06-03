@@ -10,6 +10,8 @@ from past.utils import old_div
 
 import logging
 
+import ast
+
 logger = logging.getLogger(__name__)
 
 from django import http
@@ -215,12 +217,12 @@ class ApiList(View):
     def get(self, request, app_label=None, actor=None):
         ar = action_request(app_label, actor, request, request.GET, True)
         # Add this hack to support the 'sort' param which is different in Extjs6.
-        if ar.order_by and ar.order_by[0]:
-            _sort = ast.literal_eval(ar.order_by[0])
-            sort = _sort[0]['property']
-            if _sort[0]['direction'] and _sort[0]['direction'] == 'DESC':
-                sort = '-' + sort
-            ar.order_by = [str(sort)]
+        # if ar.order_by and ar.order_by[0]:
+        #     _sort = ast.literal_eval(ar.order_by[0])
+        #     sort = _sort[0]['property']
+        #     if _sort[0]['direction'] and _sort[0]['direction'] == 'DESC':
+        #         sort = '-' + sort
+        #     ar.order_by = [str(sort)]
         ar.renderer = settings.SITE.kernel.default_renderer
         rh = ar.ah
 

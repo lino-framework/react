@@ -69,6 +69,11 @@ export class LinoGrid extends Component {
             editingPK: undefined,
             editingValues: {},
 
+            sortField: undefined, // Sort data index   (used in PR)
+            sortFieldName: undefined, // Sort col.name (used in Lino)
+            sortOrder: undefined
+
+
         };
         this.state.cols = props.actorData.col.map((k, i) => (
             {
@@ -97,6 +102,7 @@ export class LinoGrid extends Component {
         this.onCancel = this.onCancel.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onEditorOpen = this.onEditorOpen.bind(this);
+        this.onSort = this.onSort.bind(this);
 
 
     }
@@ -252,6 +258,12 @@ export class LinoGrid extends Component {
             5)
     }
 
+    onSort(e) {
+        let {sortField, sortOrder} = e,
+             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
+        this.reload({sortCol:col, sortOrder:sortOrder})
+    }
+
     update_col_value(v, elem, col) { // on change method for cell editing.
         this.editorDirty = true;
         console.log("update_col_val");
@@ -359,7 +371,9 @@ export class LinoGrid extends Component {
         router.history.replace({search: queryString.stringify(search)});
     }
 
-    reload({page = undefined, query = undefined, pv = undefined} = {}) {
+    reload({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder=undefined} = {}) {
+        let sortField;
+        let sortFieldName
         let state = {
             // data: null,
             // rows: [],
@@ -377,7 +391,6 @@ export class LinoGrid extends Component {
 
         this.update_url_values({[`${this.props.inDetail ? this.get_full_id() + "." : ""}page`]: page + 1}, this.props.match);
 
-        this.setState(state);
         let ajax_query = {
             fmt: "json",
             limit: this.state.rowsPerPage,
@@ -385,6 +398,29 @@ export class LinoGrid extends Component {
             query: query !== undefined ? query : this.state.query, // use given query or state-query
             rp: this.rp
         };
+
+        if (sortCol !== undefined) {
+            state.sortField = sortCol.fields_index;
+            state.sortFieldName = sortCol.name;
+            sortFieldName = sortCol.name;
+        } else if (this.state.sortField !== undefined) {
+            // sortField = this.state.sortField;
+            sortFieldName = this.state.sortFieldName
+        }
+        if (sortFieldName !== undefined) {
+            ajax_query.sort = sortFieldName;
+        }
+
+        if (sortOrder !== undefined) {
+            state.sortOrder = sortOrder;
+        } else if (this.state.sortOrder !== undefined) {
+            sortOrder = this.state.sortOrder;
+        }
+        if (sortOrder !== undefined) {
+            ajax_query.dir = sortOrder === 1? "ASC" : "DESC";
+        }
+
+        this.setState(state);
 
         if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
@@ -553,6 +589,9 @@ export class LinoGrid extends Component {
                                 }
                             // editorValidator={() => {console.log("validate");
                             //                         return false}}
+                            sortable={true}
+                                // sortFunction={(e)=> return }
+                            // columnSortFunction={() => 1}
                         />
                 )
             )
@@ -614,7 +653,6 @@ export class LinoGrid extends Component {
                                          },
                                          200)
                                      }
-                                     autoFocus={true}
                         /> :
                         <Button icon={"pi pi-list"} onClick={() => {
                             this.setState({toggle_col: true})
@@ -680,6 +718,14 @@ export class LinoGrid extends Component {
                     emptyMessage={this.state.emptyMessage}
                     ref={(ref) => this.dataTable = ref}
                     onRowDoubleClick={this.onRowDoubleClick}
+                    onSort={this.onSort}
+                    sortField={this.state.sortField}
+                    // sortMode={"multiple"}
+                    // multiSortMeta={multiSortMeta}
+                    sortField={this.state.sortField + ""}
+                    sortOrder={this.state.sortOrder}
+                                                lazy={true}
+
                 >
 
                     {this.get_cols()}
