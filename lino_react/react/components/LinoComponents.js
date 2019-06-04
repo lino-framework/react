@@ -12,6 +12,7 @@ import {Password} from 'primereact/password';
 import {Calendar} from 'primereact/calendar';
 
 import {LinoGrid} from "./LinoGrid";
+import {debounce} from "./LinoUtils";
 import {SiteContext} from "./SiteContext"
 
 import classNames from 'classnames';
@@ -30,12 +31,24 @@ export const Labeled = (props) => {
     </React.Fragment>
 };
 
+// Shortcut functions for getting the correct value from the props.
+function getValue(props) {
+    return props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]
+}
+function getHiddenValue(props) {
+    return props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"]
+}
+function getDataKey(props ) {
+    return props.in_grid ? props.elem.fields_index : props.elem.name
+}
+
 function shouldComponentUpdate(nextProps, nextState)
 { // requred for grid editing, otherwise it's very slow to type
     let {props} = this,
-        value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name],
-        next_value = nextProps.in_grid ? nextProps.data[props.elem.fields_index] : nextProps.data[props.elem.name];
+        value = getValue(props),
+        next_value = getValue(nextProps);
     if (!props.in_grid) return true;
+    if (nextState.value !== this.state.value) return true;
     return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
 }
 
@@ -165,8 +178,8 @@ const LinoComponents = {
         render() {
             console.log("choice render")
             let {props} = this
-            let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
-            let hidden_value = props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"];
+            let value = getValue(props);
+            let hidden_value = getHiddenValue(props);
             return <SiteContext.Consumer>{(siteData) => {
                 let options = siteData.choicelists[props.elem.field_options.store];
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
@@ -187,7 +200,7 @@ const LinoComponents = {
                                     let v = e.target.value === null ? "" : e.target.value['text'],
                                         h = e.target.value === null ? "" : e.target.value['value'];
                                     props.prop_bundle.update_value({
-                                            [props.in_grid ? props.elem.fields_index : props.elem.name]: v,
+                                            [getDataKey(props)]: v,
                                             [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
                                         },
                                         props.elem,
@@ -206,12 +219,12 @@ const LinoComponents = {
     },
 
     URLFieldElement: (props) => {
-        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        let value = getValue(props);
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             {props.prop_bundle.editing_mode ?
                 <InputText style={{width: "100%"}}
                            value={value || ""}
-                           onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                           onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.target.value},
                                props.elem,
                                props.column)
                            }/>
@@ -229,7 +242,7 @@ const LinoComponents = {
     },
 
     DisplayElement: (props) => {
-        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        let value = getValue(props);
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <div
                 dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
@@ -249,13 +262,13 @@ const LinoComponents = {
         }
         render(){
             let {props} = this
-        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        let value = getValue(props);
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
             {props.prop_bundle.editing_mode ?
                 <InputText style={{width: "100%"}}
                            value={value || ""}
-                           onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                           onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.target.value},
                                props.elem,
                                props.column)}
                            autoFocus={props.in_grid ? 'true' : undefined}/>
@@ -266,10 +279,10 @@ const LinoComponents = {
     }},
 
     PasswordFieldElement: (props) => {
-        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        let value = getValue(props);
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             <Password value={value}
-                      onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                      onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.target.value},
                           props.elem,
                           props.column)}
                       feedback={false} promptLabel={""}/>
@@ -277,13 +290,13 @@ const LinoComponents = {
     },
 
     AutoFieldElement: (props) => {
-        let value = props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name];
+        let value = getValue(props);
         return <React.Fragment>
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.prop_bundle.editing_mode ?
                     <InputText style={{width: "100%"}} type="text" keyfilter="pint"
                                value={value || ""}
-                               onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value},
+                               onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.target.value},
                                    props.elem,
                                    props.column)}/>
                     : <div
@@ -299,78 +312,74 @@ const LinoComponents = {
                      isFilled={true} // either 1 or 0, can't be unfilled
             >
                 <Checkbox readOnly={!props.prop_bundle.editing_mode}
-                          onChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.checked},
+                          onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.checked},
                               props.elem,
                               props.column)}
                           checked={
-                              (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name])
+                              (getValue(props))
                               || false}/>
             </Labeled>
         </div>
     },
 
-    /*TextFieldElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]),
-            style = {
-                height: "100%",
-                display: "flex",
-                flexDirection: "column"
+    TextFieldElement: class TextFieldElement extends React.Component {
+        constructor(props) {
+            super();
+            this.state = {
+                value:(getValue(props))
             };
-        let elem = props.prop_bundle.editing_mode ?
-                    <Editor style={{
-                        // width: "100%",
-                        // height: '100%'
-                    }}
-                            value={value}
-                            onTextChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index:props.elem.name]: e.htmlValue},
-                                props.elem,
-                                props.column)}
-                    /> :
-                    <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-
-        return <React.Fragment>
-            {props.in_grid ? elem : <Panel header={props.elem.label} style={style}>
-                {elem}
-            </Panel>}
-        </React.Fragment>
-
-    },*/
-    TextFieldElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]),
-            style = {
-                height: "100%",
-                display: "flex",
-                flexDirection: "column"
-            };
-
-        let elem = props.prop_bundle.editing_mode ?
-            <div className={"l-editor-wrapper"} style={{"padding-bottom": "42px", "display": "flex", "height": "100%"}}>
-                <Editor //style={ {{/!*height: '100%'*!/}} }
-                    value={value}
-                    onTextChange={(e) => props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.htmlValue || ""},
-                        props.elem,
-                        props.column)}/>
-            </div>
-            :
-            <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
-
-        if (props.in_grid) return elem; // No wrapping needed
-
-        if (props.prop_bundle.editing_mode) {
-            elem = <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}
-                            isFilled={true} // either 1 or 0, can't be unfilled
-            > {elem} </Labeled>
-        } else {
-            elem = <Panel header={props.elem.label} style={style}>
-                {elem}
-            </Panel>
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.onTextChange = this.onTextChange.bind(this);
+            this.props_update_value = debounce(props.prop_bundle.update_value, 150);
         }
 
-        return elem
+        onTextChange(e) {
+            let {props} = this,
+                value = e.htmlValue || "";
+            this.setState({value:value});
+            this.props_update_value({[getDataKey(props)]: value},
+                props.elem,
+                props.column)
+
+        }
+
+        render() {
+            let {props} = this,
+                {value} = this.state,
+                style = {
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column"
+                };
+
+            let elem = props.prop_bundle.editing_mode ?
+                <div className={"l-editor-wrapper"}
+                     style={{"padding-bottom": "42px", "display": "flex", "height": "100%"}}>
+                    <Editor //style={ {{/!*height: '100%'*!/}} }
+                        value={value}
+                        onTextChange={this.onTextChange}/>
+                </div>
+                :
+                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
+
+            if (props.in_grid) return elem; // No wrapping needed
+
+            if (props.prop_bundle.editing_mode) {
+                elem = <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled}
+                                isFilled={true} // either 1 or 0, can't be unfilled
+                > {elem} </Labeled>
+            } else {
+                elem = <Panel header={props.elem.label} style={style}>
+                    {elem}
+                </Panel>
+            }
+
+            return elem
+        }
     },
 
     DateFieldElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        let value = (getValue(props));
         // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
         return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
             {props.prop_bundle.editing_mode ?
@@ -384,7 +393,7 @@ const LinoComponents = {
                                       ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
                                       e.value.getFullYear();
                               }
-                              props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: formatedDate || e.value || ""},
+                              props.prop_bundle.update_value({[getDataKey(props)]: formatedDate || e.value || ""},
                                   props.elem,
                                   props.column);
                           }
@@ -402,7 +411,7 @@ const LinoComponents = {
     // },
     //
     TimeFieldElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        let value = (getValue(props));
         let viewDate = new Date();
         let regex = /(^\d?\d)[:.]?(\d?\d)$/g;
         if (value && value.match(regex)) {
@@ -422,12 +431,12 @@ const LinoComponents = {
                                   time = ("0" + e.value.getHours()).slice(-2) + ":" +
                                       ("0" + e.value.getMinutes()).slice(-2);
                               }
-                              props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: time || e.value || ""},
+                              props.prop_bundle.update_value({[getDataKey(props)]: time || e.value || ""},
                                   props.elem,
                                   props.column)
                           }}
                           // onBlur={(e) => {
-                          //     props.prop_bundle.update_value({[props.in_grid ? props.elem.fields_index : props.elem.name]: e.target.value.replace(/\./g, ':')},
+                          //     props.prop_bundle.update_value({[getDataKey(props]: e.target.value.replace(/\./g, ':')},
                           //         props.elem,
                           //         props.column)
                           // }}
@@ -488,7 +497,7 @@ const LinoComponents = {
     },
 
     UnknownElement: (props) => {
-        let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
+        let value = (getValue(props));
         // console.log(props); // Not needed, can get props via react debug tools in browser
         return (
             <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
