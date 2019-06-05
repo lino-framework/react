@@ -487,28 +487,42 @@ a {
     width: 100%; }
     .l-panel .l-component .l-label {
       font-weight: lighter;
-      border-bottom: dotted 1px; }
+      border-bottom: dotted 1px;
+      white-space: nowrap; }
       .l-panel .l-component .l-label.l-label--unfilled {
         color: grey; }
     .l-panel .l-component .p-checkbox.p-component {
       padding-top: .5ch; }
 
-.layout-main .l-ForeignKeyElement {
+body .l-ForeignKeyElement {
   display: flex;
   flex-direction: row;
-  align-items: center; }
-  .layout-main .l-ForeignKeyElement .l-button-fk {
+  align-items: center;
+  margin-right: 1ch; }
+  body .l-ForeignKeyElement > span {
+    width: 100%; }
+  body .l-ForeignKeyElement .l-button-fk {
     margin-left: 1em;
     height: 1.5em;
     width: 1.5em;
     margin-top: 3px; }
-  .layout-main .l-ForeignKeyElement .p-autocomplete {
+  body .l-ForeignKeyElement .p-autocomplete {
     display: inherit; }
-    .layout-main .l-ForeignKeyElement .p-autocomplete .p-autocomplete-items > li {
+    body .l-ForeignKeyElement .p-autocomplete .p-autocomplete-items > li {
       min-height: 32px; }
+  body .l-ForeignKeyElement input {
+    width: calc(100% - 2.357em); }
+  body .l-ForeignKeyElement label {
+    white-space: nowrap; }
+
+.p-calendar input {
+  width: 100%; }
 
 .layout-main .l-ChoiceListFieldElement .p-dropdown-clearable > label {
   margin-right: 16px; }
+
+.layout-main .l-ChoiceListFieldElement > div {
+  min-width: unset; }
 
 .l-panel-vertical {
   flex-direction: column; }
@@ -586,6 +600,11 @@ body .l-detail-toolbar .p-button {
     .l-panel .l-component {
       padding-left: unset;
       padding-right: unset; } }
+
+.p-dialog {
+  max-height: 100vh;
+  max-width: 100vw;
+  min-width: calc(100vw - 10ch); }
 
 /* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {
