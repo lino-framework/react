@@ -32,7 +32,8 @@ export const Labeled = (props) => {
 };
 
 // Shortcut functions for getting the correct value from the props.
-function getValue(props) {
+// in_grid wants fields index,
+function getValue(props){
     return props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]
 }
 function getHiddenValue(props) {
@@ -48,7 +49,8 @@ function shouldComponentUpdate(nextProps, nextState)
         value = getValue(props),
         next_value = getValue(nextProps);
     if (!props.in_grid) return true;
-    if (nextState.value !== this.state.value) return true;
+    if (nextState && //  for func components nestState === null
+        nextState.value !== this.state.value) return true;
     return value !== next_value || props.prop_bundle.editing_mode !== nextProps.prop_bundle.editing_mode
 }
 
@@ -119,21 +121,6 @@ const LinoComponents = {
             display: "flex",
             flexDirection: "column"
         };
-
-        // let status = {};
-        //
-        // if (props.actorData.slave) {
-        //     props.props_bundle.mt && (status.mt = props.props_bundle.mt);
-        //     props.props_bundle.mk && (status.mk = props.props_bundle.mk);
-        // }
-
-        // window.App.runAction({
-        //     an: "grid",
-        //     actorId: `${this.props.packId}.${this.props.actorId}`,
-        //     rp: null,
-        //     status: status
-        // })
-
 
         let summary = <div
             dangerouslySetInnerHTML={{
