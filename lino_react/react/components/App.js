@@ -46,6 +46,10 @@ import {fetch as fetchPolyfill} from 'whatwg-fetch'
 
 import {SiteContext} from "./SiteContext"
 
+let Lino = {}; // For action.preprocessing for appy mixins.
+Lino.get_current_grid_config = function (rp_obj, ajax_args) {
+    rp_obj.get_URL_PARAM_COLUMNS(ajax_args);
+};
 
 class App extends React.Component {
 
@@ -250,7 +254,7 @@ class App extends React.Component {
 
     fetch_user_settings = () => {
         fetchPolyfill("/user/settings/").then(
-                this.handleAjaxResponse
+            this.handleAjaxResponse
         ).then((data) => {
                 this.setState({user_settings: data});
                 return this.fetch_site_data(data.site_data);
@@ -292,22 +296,24 @@ class App extends React.Component {
             case 400:
                 if (resp.headers.map['content-type'].startsWith("application/json")) {
                     result = resp.json();
-                } else  {
+                } else {
                     result = {
                         success: false,
                     };
                 }
-                resp.text().then((text) => {this.growl.show({
-                    severity: "error",
-                    summary: "Bad Request",
-                    detail: text,
-                })});
+                resp.text().then((text) => {
+                    this.growl.show({
+                        severity: "error",
+                        summary: "Bad Request",
+                        detail: text,
+                    })
+                });
                 break;
             case 401:
             case 403:
                 if (resp.headers.map['content-type'].startsWith("application/json")) {
                     result = resp.json();
-                } else  {
+                } else {
                     result = {
                         success: false,
                         message: "Permission denied"
@@ -322,11 +328,12 @@ class App extends React.Component {
             case 500:
                 if (resp.headers.map['content-type'].startsWith("application/json")) {
                     result = resp.json();
-                } else  {
+                } else {
                     result = {
                         success: false,
                         message: "Internal Error"
-                    };}
+                    };
+                }
                 this.growl.show({
                     severity: "error",
                     summary: "Internal Error",
@@ -533,10 +540,11 @@ class App extends React.Component {
             //     if (v === undefined) return
             //     values[col.name] = v;
             // });
-            Object.keys(editingValues).sort().forEach(function(k, i) {
+            Object.keys(editingValues).sort().forEach(function (k, i) {
                 let col = actor_data.col.find(col => col.fields_index == k);
-                if (col === undefined)
-                    {col = actor_data.col.find(col => col.fields_index + 1 == k);}
+                if (col === undefined) {
+                    col = actor_data.col.find(col => col.fields_index + 1 == k);
+                }
                 if (col !== undefined) { // last two items are disabled fields and isEditable bool, without cols.
                     values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
                 }
@@ -558,6 +566,12 @@ class App extends React.Component {
         } // is a dialog object.
 
         if (action.http_method === "GET") args.fmt = 'json';
+
+        if (action.preprocessor) {
+            let func = eval(action.preprocessor);
+            func(rp_obj, args)
+        }
+
 
         let url = `api/${actorId.split(".").join("/")}`;
         if (urlSr !== undefined && urlSr !== null) url += `/${urlSr}`;

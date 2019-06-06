@@ -294,6 +294,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           )
 
             # if v.action.show_in_bbar: result["bbar"] = True # not needed
+            if v.action.preprocessor: result["preprocessor"] = v.action.preprocessor
             if v.action.combo_group: result["combo_group"] = v.action.combo_group
             if v.action.select_rows: result['select_rows'] = v.action.select_rows
             if v.action.submit_form_data: result['submit_form_data'] = True

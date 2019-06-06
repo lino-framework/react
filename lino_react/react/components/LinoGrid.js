@@ -75,11 +75,11 @@ export class LinoGrid extends Component {
 
 
         };
-        this.state.cols = props.actorData.col.map((k, i) => (
+        this.state.cols = props.actorData.col.map((column, i) => (
             {
-                label: k.label,
+                label: column.label,
                 value: i + "",
-                col: k
+                col: column
             }));
         this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
 
@@ -103,6 +103,7 @@ export class LinoGrid extends Component {
         this.onSubmit = this.onSubmit.bind(this);
         this.onEditorOpen = this.onEditorOpen.bind(this);
         this.onSort = this.onSort.bind(this);
+        this.get_URL_PARAM_COLUMNS = this.get_URL_PARAM_COLUMNS.bind(this);
 
 
     }
@@ -351,6 +352,33 @@ export class LinoGrid extends Component {
         // console.log(data);
     }
 
+    get_URL_PARAM_COLUMNS(ajaxArgs = {}) /* names */ {
+        // col ordering done inside DataTable
+        let orderedCols = this.dataTable.getColumns(); // get columns
+        orderedCols = orderedCols.filter(c => c.props.col).map((c) => (c.props.col)); // remove non lino columns, (selection box or reorder)
+        let unhiddenCols = orderedCols.length; // save number of visable columns
+        orderedCols = orderedCols.concat( // attach hidden columns.
+            this.props.actorData.col.filter(
+                allCols => orderedCols.find(c => c.name === allCols.name) === undefined)); // if col is not in ordercols add it
+        let cw = Array.prototype.map.call(
+            this.dataTable.table.querySelector("thead tr").getElementsByClassName("l-grid-col"), // get table headers
+            (e) => e.offsetWidth).concat( //get widths
+                Array.from({length: this.props.actorData.col.length - unhiddenCols}, c => 999) // pad with whatever to match length of all cols.
+        );
+
+        ajaxArgs.ci = orderedCols.map(c => c.name);
+        ajaxArgs.cw = cw ;
+        ajaxArgs.ch = orderedCols.map((c,i) => i>=unhiddenCols); // all cols after a point are hidden.
+
+        if (this.state.sortFieldName && this.state.sortOrder){ // if table is sorted add sort.
+            ajaxArgs.dir = this.state.sortOrder === 1? "ASC" : "DESC";
+            ajaxArgs.sort = this.state.sortFieldName;
+        }
+
+        return ajaxArgs
+
+    }
+
     /**
      * Opens PV dialog for filtering rows server-side
      */
@@ -571,7 +599,7 @@ export class LinoGrid extends Component {
                                 key={key(col)}
                                 col={col}
                                 style={{width: `${col.width || col.preferred_width}ch`}}
-                                className={`l-grid-col-${col.name} ${
+                                className={`l-grid-col l-grid-col-${col.name} ${
                                     this.state.editingCellIndex === i ? 'p-cell-editing' : ''
                                     }`}
                                 onEditorCancel={this.onCancel}
