@@ -10,6 +10,7 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
 import {Calendar} from 'primereact/calendar';
+import DomHandler from "primereact/domhandler";
 
 import {LinoGrid} from "./LinoGrid";
 import {debounce} from "./LinoUtils";
@@ -321,6 +322,15 @@ const LinoComponents = {
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
             this.onTextChange = this.onTextChange.bind(this);
             this.props_update_value = debounce(props.prop_bundle.update_value, 150);
+
+            if (DomHandler.getViewport().width <= 600) {
+                this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
+                <span className="ql-formats">
+                    <button className="ql-bold" aria-label="Bold"/>
+                    <button className="ql-italic" aria-label="Italic"/>
+                    <button className="ql-underline" aria-label="Underline"/>
+                </span>
+            );}
         }
 
         static getDerivedStateFromProps(props, state) {
@@ -331,6 +341,9 @@ const LinoComponents = {
             return null;
         }
 
+        renderHeader() {
+            return this.header ? this.header : undefined //
+        }
 
         onTextChange(e) {
             let {props} = this,
@@ -355,6 +368,7 @@ const LinoComponents = {
                 <div className={"l-editor-wrapper"}
                      style={{"padding-bottom": "42px", "display": "flex", "height": "100%"}}>
                     <Editor //style={ {{/!*height: '100%'*!/}} }
+                        headerTemplate={this.renderHeader()}
                         value={value}
                         onTextChange={this.onTextChange}/>
                 </div>

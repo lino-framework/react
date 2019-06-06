@@ -544,20 +544,16 @@ body .l-ForeignKeyElement {
 .p-editor-container {
   height: 100%;
   padding-bottom: 42px;
-  padding-top: .5ch; }
+  padding-top: .5ch;
+  width: 100%; }
 
 .p-dialog {
-  transition: top 0.5s; }
+  max-width: 100vw;
+  min-width: calc(100vw - 10ch); }
   .p-dialog .p-dialog-content {
-    max-height: 78vh; }
-
-@media (max-height: 570px) {
-  .p-dialog {
-    top: 0px !important; }
-    .p-dialog .p-dialog-content {
-      max-height: 90vh; }
-    .p-dialog .p-dialog-titlebar {
-      padding: .25em; } }
+    max-height: 78vh;
+    overflow: scroll;
+    width: 100%; }
 
 .p-panel-content {
   flex: auto; }
@@ -600,11 +596,6 @@ body .l-detail-toolbar .p-button {
     .l-panel .l-component {
       padding-left: unset;
       padding-right: unset; } }
-
-.p-dialog {
-  max-height: 100vh;
-  max-width: 100vw;
-  min-width: calc(100vw - 10ch); }
 
 /* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {
