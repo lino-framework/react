@@ -174,7 +174,8 @@ const LinoComponents = {
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
                 return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                     {props.prop_bundle.editing_mode ?
-                        <div className="l-ChoiceListFieldElement">
+                        <div className="l-ChoiceListFieldElement"
+                        style={{margin_top: "1px"}}>
                             <Dropdown
                                 // autoWidth={false}
                                 style={{width: "100%"}}
@@ -366,7 +367,7 @@ const LinoComponents = {
 
             let elem = props.prop_bundle.editing_mode ?
                 <div className={"l-editor-wrapper"}
-                     style={{"padding-bottom": "42px", "display": "flex", "height": "100%"}}>
+                     style={{"padding-bottom": "42px", "display": "flex", "height": "99%"}}>
                     <Editor //style={ {{/!*height: '100%'*!/}} }
                         headerTemplate={this.renderHeader()}
                         value={value}

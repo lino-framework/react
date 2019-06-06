@@ -486,12 +486,12 @@ a {
 }
 
 // panel's have height 100% inline style from PR, have content match to fill v-space.
-.p-panel{
+.p-panel {
     height: inherit;
-    .p-panel-content{
+    .p-panel-content {
         height: inherit;
     }
-    .p-toggleable-content{
+    .p-toggleable-content {
         height: inherit;
     }
 }
@@ -609,13 +609,20 @@ body .l-ForeignKeyElement {
     padding-bottom: 42px;
     padding-top: .5ch;
     width: 100%;
+    .l-editor-wrapper {
+        //height: 99%; //defined in react
+    }
+
 }
 
 .p-dialog {
     //transition: top 0.5s;
     .p-dialog-content {
         max-height: 78vh;
-        overflow: scroll;
+        @media (max-width: 600px) {
+            overflow: scroll;
+        }
+
         width: 100%;
     }
     //max-height: 100vh;
@@ -624,7 +631,6 @@ body .l-ForeignKeyElement {
     //min-height: calc(100vh - 10ch);
 
 }
-
 
 .p-panel-content {
     flex: auto;
@@ -639,9 +645,11 @@ body .l-ForeignKeyElement {
     float: right;
     margin-top: -44px;
 }
+
 body .p-datatable .p-datatable-tbody > tr.p-highlight a {
     color: #333333;
 }
+
 body .l-grid .p-datatable {
 
     .p-datatable-tbody > tr > td.p-cell-editing {
@@ -707,7 +715,6 @@ body .l-detail-toolbar .p-button {
         }
     }
 }
-
 
 /* Responsive  larger than 1025px*/
 @media (min-width: 1025px) {

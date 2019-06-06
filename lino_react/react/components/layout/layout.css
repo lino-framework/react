@@ -552,8 +552,10 @@ body .l-ForeignKeyElement {
   min-width: calc(100vw - 10ch); }
   .p-dialog .p-dialog-content {
     max-height: 78vh;
-    overflow: scroll;
     width: 100%; }
+    @media (max-width: 600px) {
+      .p-dialog .p-dialog-content {
+        overflow: scroll; } }
 
 .p-panel-content {
   flex: auto; }
