@@ -588,6 +588,14 @@ body .l-grid .p-datatable .p-datatable-header {
     margin-right: 2px;
     margin-bottom: 1px; }
 
+body .l-grid .p-datatable .p-paginator {
+  position: relative; }
+  body .l-grid .p-datatable .p-paginator .p-paginator-right-content {
+    position: absolute;
+    top: 50%;
+    right: 2ch;
+    transform: translateY(-50%); }
+
 body .l-detail-toolbar .p-button {
   margin-right: 2px;
   margin-bottom: 1px; }

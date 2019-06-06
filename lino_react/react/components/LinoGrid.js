@@ -58,6 +58,7 @@ export class LinoGrid extends Component {
             rowsPerPage: props.actorData.preview_limit,
             page: search[page_key] ? search[page_key] - 1 : 0,
             topRow: 0,
+            count: undefined,
             // todo pvs: paramValues: [],
             query: "",
             selectedRows: [],
@@ -498,6 +499,7 @@ export class LinoGrid extends Component {
                         topRow: (page) * this.state.rowsPerPage,
                         loading: false,
                         title: data.title,
+                        count: data.count
                         // page: page
                     };
                     // condition because we only want to use default PV values inside of detail views.
@@ -643,8 +645,11 @@ export class LinoGrid extends Component {
                 /*Can't be set via set-state, as we need to
                   do an ajax call to change the data not state*/
                 this.reload({page: e.page});
-
-            }}/>;
+            }}
+            rightContent={
+                this.state.count && <span className={"l-grid-count"}><span>{this.state.count}</span> rows</span>
+            }
+        />;
         const header = <div className="p-clearfix p-grid"
             // style={{'lineHeight': '1.87em'}}
         >

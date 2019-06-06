@@ -697,6 +697,17 @@ body .l-grid .p-datatable {
             //}
         }
     }
+
+    .p-paginator {
+        position: relative;
+        .p-paginator-right-content {
+            position: absolute;
+            top: 50%;
+            right: 2ch;
+            transform: translateY(-50%);
+        }
+    }
+
 }
 
 body .l-detail-toolbar .p-button {
