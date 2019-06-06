@@ -33,18 +33,19 @@ export const Labeled = (props) => {
 
 // Shortcut functions for getting the correct value from the props.
 // in_grid wants fields index,
-function getValue(props){
+function getValue(props) {
     return props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]
 }
+
 function getHiddenValue(props) {
     return props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"]
 }
-function getDataKey(props ) {
+
+function getDataKey(props) {
     return props.in_grid ? props.elem.fields_index : props.elem.name
 }
 
-function shouldComponentUpdate(nextProps, nextState)
-{ // requred for grid editing, otherwise it's very slow to type
+function shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
     let {props} = this,
         value = getValue(props),
         next_value = getValue(nextProps);
@@ -247,23 +248,25 @@ const LinoComponents = {
             super();
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
         }
-        render(){
-            let {props} = this
-        let value = getValue(props);
-        return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-            {props.prop_bundle.editing_mode ?
-                <InputText style={{width: "100%"}}
-                           value={value || ""}
-                           onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.target.value},
-                               props.elem,
-                               props.column)}
-                           autoFocus={props.in_grid ? 'true' : undefined}/>
-                :
-                <div>{value || "\u00a0"}</div>
-            }
-        </Labeled>
-    }},
+        render() {
+            let {props} = this
+            let value = getValue(props);
+            return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+
+                {props.prop_bundle.editing_mode ?
+                    <InputText style={{width: "100%"}}
+                               value={value || ""}
+                               onChange={(e) => props.prop_bundle.update_value({[getDataKey(props)]: e.target.value},
+                                   props.elem,
+                                   props.column)}
+                               autoFocus={props.in_grid ? 'true' : undefined}/>
+                    :
+                    <div>{value || "\u00a0"}</div>
+                }
+            </Labeled>
+        }
+    },
 
     PasswordFieldElement: (props) => {
         let value = getValue(props);
@@ -313,17 +316,26 @@ const LinoComponents = {
         constructor(props) {
             super();
             this.state = {
-                value:(getValue(props))
+                value: (getValue(props))
             };
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
             this.onTextChange = this.onTextChange.bind(this);
             this.props_update_value = debounce(props.prop_bundle.update_value, 150);
         }
 
+        static getDerivedStateFromProps(props, state) {
+            let newPropValue = getValue(props);
+            if (newPropValue !== state.value) {
+                return {value: newPropValue}
+            }
+            return null;
+        }
+
+
         onTextChange(e) {
             let {props} = this,
                 value = e.htmlValue || "";
-            this.setState({value:value});
+            this.setState({value: value});
             this.props_update_value({[getDataKey(props)]: value},
                 props.elem,
                 props.column)
@@ -422,11 +434,11 @@ const LinoComponents = {
                                   props.elem,
                                   props.column)
                           }}
-                          // onBlur={(e) => {
-                          //     props.prop_bundle.update_value({[getDataKey(props]: e.target.value.replace(/\./g, ':')},
-                          //         props.elem,
-                          //         props.column)
-                          // }}
+                    // onBlur={(e) => {
+                    //     props.prop_bundle.update_value({[getDataKey(props]: e.target.value.replace(/\./g, ':')},
+                    //         props.elem,
+                    //         props.column)
+                    // }}
                     // showIcon={true}
                           onViewDateChange={(e) => {
                           }}
