@@ -376,6 +376,8 @@ export class LinoGrid extends Component {
             ajaxArgs.sort = this.state.sortFieldName;
         }
 
+        if (this.state.pv_values) ajaxArgs.pv = pvObj2array(this.state.pv_values, this.props.actorData.pv_fields);
+
         return ajaxArgs
 
     }
