@@ -16,7 +16,7 @@ import {Dialog} from 'primereact/dialog';
 
 import {debounce, pvObj2array, find_cellIndex} from "./LinoUtils";
 
-import LinoComponents from "./LinoComponents";
+import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
 
 
@@ -116,7 +116,6 @@ export class LinoGrid extends Component {
      */
     columnTemplate(col) {
         // console.log(col);
-        let Template = LinoComponents._GetComponent(col.react_name);
         return (rowData, column) => {
             let pk = rowData[this.props.actorData.pk_index];
             let cellIndex = column.cellIndex;
@@ -127,15 +126,14 @@ export class LinoGrid extends Component {
                 data: (pk === null && this.state.editingPK === null) ? this.state.editingValues : rowData,
                 disabled_fields: this.state.disabled_fields,
                 update_value: this.update_col_value, // No editable yet
-                // editing_mode: editing,
+                editing_mode: false,
                 hide_label: true,
                 in_grid: true,
                 column: column,
                 match: this.props.match,
                 container: this.dataTable.table,
             };
-            prop_bundle.prop_bundle = prop_bundle;
-            return <Template {...prop_bundle} elem={col}/>;
+            return <LinoLayout {...prop_bundle} elem={col}/>;
         }
     }
 
@@ -147,7 +145,6 @@ export class LinoGrid extends Component {
     columnEditor(col) {
         // console.log(col);
         if (!col.editable) return undefined;
-        let Editor = LinoComponents._GetComponent(col.react_name);
         return (column) => {
             const prop_bundle = {
                 actorId: this.get_full_id(),
@@ -161,8 +158,7 @@ export class LinoGrid extends Component {
                 editing_mode: true,
                 match: this.props.match
             };
-            prop_bundle.prop_bundle = prop_bundle;
-            return <Editor {...prop_bundle} elem={col}/>;
+            return <LinoLayout {...prop_bundle} elem={col}/>;
         }
     }
 
@@ -262,8 +258,8 @@ export class LinoGrid extends Component {
 
     onSort(e) {
         let {sortField, sortOrder} = e,
-             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
-        this.reload({sortCol:col, sortOrder:sortOrder})
+            col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
+        this.reload({sortCol: col, sortOrder: sortOrder})
     }
 
     update_col_value(v, elem, col) { // on change method for cell editing.
@@ -364,15 +360,15 @@ export class LinoGrid extends Component {
         let cw = Array.prototype.map.call(
             this.dataTable.table.querySelector("thead tr").getElementsByClassName("l-grid-col"), // get table headers
             (e) => e.offsetWidth).concat( //get widths
-                Array.from({length: this.props.actorData.col.length - unhiddenCols}, c => 999) // pad with whatever to match length of all cols.
+            Array.from({length: this.props.actorData.col.length - unhiddenCols}, c => 999) // pad with whatever to match length of all cols.
         );
 
         ajaxArgs.ci = orderedCols.map(c => c.name);
-        ajaxArgs.cw = cw ;
-        ajaxArgs.ch = orderedCols.map((c,i) => i>=unhiddenCols); // all cols after a point are hidden.
+        ajaxArgs.cw = cw;
+        ajaxArgs.ch = orderedCols.map((c, i) => i >= unhiddenCols); // all cols after a point are hidden.
 
-        if (this.state.sortFieldName && this.state.sortOrder){ // if table is sorted add sort.
-            ajaxArgs.dir = this.state.sortOrder === 1? "ASC" : "DESC";
+        if (this.state.sortFieldName && this.state.sortOrder) { // if table is sorted add sort.
+            ajaxArgs.dir = this.state.sortOrder === 1 ? "ASC" : "DESC";
             ajaxArgs.sort = this.state.sortFieldName;
         }
 
@@ -402,7 +398,7 @@ export class LinoGrid extends Component {
         router.history.replace({search: queryString.stringify(search)});
     }
 
-    reload({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder=undefined} = {}) {
+    reload({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}) {
         let sortField;
         let sortFieldName
         let state = {
@@ -448,7 +444,7 @@ export class LinoGrid extends Component {
             sortOrder = this.state.sortOrder;
         }
         if (sortOrder !== undefined) {
-            ajax_query.dir = sortOrder === 1? "ASC" : "DESC";
+            ajax_query.dir = sortOrder === 1 ? "ASC" : "DESC";
         }
 
         this.setState(state);
@@ -621,8 +617,8 @@ export class LinoGrid extends Component {
                                 }
                             // editorValidator={() => {console.log("validate");
                             //                         return false}}
-                            sortable={true}
-                                // sortFunction={(e)=> return }
+                                sortable={true}
+                            // sortFunction={(e)=> return }
                             // columnSortFunction={() => 1}
                         />
                 )
@@ -691,10 +687,12 @@ export class LinoGrid extends Component {
                         /> :
                         <Button icon={"pi pi-list"} onClick={() => {
                             this.setState({toggle_col: true})
-                            setTimeout(() => {this.show_col_selector.focusInput.focus();
-                                              this.show_col_selector.show();},
+                            setTimeout(() => {
+                                    this.show_col_selector.focusInput.focus();
+                                    this.show_col_selector.show();
+                                },
                                 25
-                                             )
+                            )
                         }}/>}
                 </React.Fragment>}
 
@@ -715,24 +713,6 @@ export class LinoGrid extends Component {
                           runAction={this.runAction}/>
             </div>}
         </div>;
-        let MainPVComp,
-            prop_bundle;
-
-        if (this.props.actorData.pv_layout && this.state.showPVDialog) {
-            MainPVComp = LinoComponents._GetComponent(this.props.actorData.pv_layout.main.react_name);
-            prop_bundle = {
-                data: this.state.pv_values,
-                actorId: `${this.props.packId}.${this.props.actorId}`,
-                // disabled_fields: this.state.disabled_fields,
-                update_value: this.update_pv_values,
-                editing_mode: true, // keep detail as editing mode only for now, untill beautifying things/
-                mk: this.props.pk,
-                mt: this.props.actorData.content_type,
-                match: this.props.match,
-                // in_grid == false, as data is object not array.
-            };
-            prop_bundle.prop_bundle = prop_bundle;
-        }
 
         return <React.Fragment>
             <div className={"l-grid"}>
@@ -759,7 +739,7 @@ export class LinoGrid extends Component {
                     // multiSortMeta={multiSortMeta}
                     sortField={this.state.sortField + ""}
                     sortOrder={this.state.sortOrder}
-                                                lazy={true}
+                    lazy={true}
 
                 >
 
@@ -776,7 +756,18 @@ export class LinoGrid extends Component {
                     </div>}
                     visible={this.state.showPVDialog} modal={true}
                     onHide={(e) => this.setState({showPVDialog: false})}>
-                <MainPVComp {...prop_bundle} elem={this.props.actorData.pv_layout.main} main={true}/>
+
+                {this.props.actorData.pv_layout && this.state.showPVDialog &&
+                <LinoLayout
+                    window_layout={this.props.actorData.pv_layout}
+                    data={this.state.pv_values}
+                    actorId={this.get_full_id()}
+                    update_value={this.update_pv_values}
+                    editing_mode={true}
+                    mk={this.props.pk}
+                    mt={this.props.actorData.content_type}
+                    match={this.props.match}
+                />}
             </Dialog>}
 
         </React.Fragment>

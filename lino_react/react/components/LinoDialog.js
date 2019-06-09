@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 // import {fetch as fetchPolyfill} from "whatwg-fetch";
 import {Dialog} from 'primereact/dialog';
 import {SiteContext} from "./SiteContext";
-import LinoComponents from "./LinoComponents";
+import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
 
 
@@ -28,7 +28,7 @@ export class LinoDialog extends Component {
         data: PropTypes.object,
         update_value: PropTypes.func,
         closable: PropTypes.bool,
-        content: PropTypes.any,
+        content: PropTypes.any, // Content for Yes/no dialogs
     };
     static defaultProps = {
         data: {},
@@ -57,36 +57,23 @@ export class LinoDialog extends Component {
             const footer = this.props.footer || <div><LinoBbar rp={this} actorData={siteData.actors[this.props.actorId]}
                                                                an={this.props.action.an} sr={[undefined]}/></div>
             // webpack wants theres decerations here, not in the if, otherwise unassigned var error in return
-            let MainComp,
-                layout,
-                prop_bundle;
-
-            if (!this.props.content) {
-                // To allow same system to be used for yes/no dialogs
-                layout = this.props.action.window_layout;
-                MainComp = LinoComponents._GetComponent(layout.main.react_name);
-
-
-                prop_bundle = {
-                    data: this.props.data,
-                    actorId: this.props.actorId,
-                    action: this.props.action,
-                    action_dialog: layout.main.react_name === "ActionParamsPanel",
-                    // disabled_fields: this.state.disabled_fields,
-                    update_value: (v) => this.props.update_value(v, this._reactInternalFiber.key),
-                    editing_mode: true,
-                    match: this.props.router,
-                    onSubmit:this.props.onOk,
-                };
-                prop_bundle.prop_bundle = prop_bundle;
-            }
 
             return <Dialog onHide={this.onClose} visible={this.state.visible}
                            header={this.props.title || this.props.action.label}
                            footer={footer}
                            maximizable={true}
                            closable={this.props.closable}>
-                {this.props.content || <MainComp {...prop_bundle} elem={layout.main} main={true}/>}
+                {this.props.content
+                ||
+                <LinoLayout data={this.props.data}
+                            actorId={this.props.actorId}
+                            action={this.props.action}
+                            update_value={(v) => this.props.update_value(v, this._reactInternalFiber.key)}
+                            editing_mode={true}
+                            match={this.props.router}
+                            onSubmit={this.props.onOk}
+                            window_layout={this.props.action.window_layout}
+                            />}
             </Dialog>
         }}</SiteContext.Consumer>
 

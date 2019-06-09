@@ -569,7 +569,7 @@ class App extends React.Component {
 
         if (action.preprocessor) {
             let func = eval(action.preprocessor);
-            func(rp_obj, args)
+            func && func(rp_obj, args)
         }
 
 

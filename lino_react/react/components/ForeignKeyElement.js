@@ -13,8 +13,6 @@ import {fetch as fetchPolyfill} from "whatwg-fetch";
 export class ForeignKeyElement extends Component {
 
     static propTypes = {
-        prop_bundle: PropTypes.object,
-
     };
     static defaultProps = {};
 
@@ -39,7 +37,7 @@ export class ForeignKeyElement extends Component {
     getChoices(query, siteData) {
         // if (query.length < 3) return;
         // let actor = siteData.actors[this.props.elem.field_options.related_actor_id];
-        let actor_data = siteData.actors[this.props.prop_bundle.actorId];
+        let actor_data = siteData.actors[this.props.actorId];
         let {data} = this.props;
         let ajaxQuery = {
             query: query,
@@ -54,7 +52,7 @@ export class ForeignKeyElement extends Component {
         });
         Object.assign(ajaxQuery, chooser_data);
 
-        fetchPolyfill(`/${this.props.prop_bundle.action_dialog ? "apchoices" : "choices"}/${this.props.prop_bundle.actorId.replace(".", "/")}${this.props.prop_bundle.action_dialog ? `/${this.props.prop_bundle.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
+        fetchPolyfill(`/${this.props.action_dialog ? "apchoices" : "choices"}/${this.props.actorId.replace(".", "/")}${this.props.action_dialog ? `/${this.props.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
         ).then(
             (data => this.setState( () => { return {
@@ -66,7 +64,7 @@ export class ForeignKeyElement extends Component {
     openExternalLink(siteData) {
         let props = this.props;
         return (e) => {
-            let {match} = props.prop_bundle,
+            let {match} = props,
                 actor = siteData.actors[props.elem.field_options.related_actor_id],
                 // detail_action = actor.ba[actor.detail_action],
                 // insert_action = actor.ba[actor.insert_action],
@@ -76,8 +74,8 @@ export class ForeignKeyElement extends Component {
                 status = {record_id: pk};
 
             if (actor.slave) {
-                status.mk = props.prop_bundle.mk;
-                status.mt = props.prop_bundle.mt;
+                status.mk = props.mk;
+                status.mt = props.mt;
             }
             // console.log(props.elem, detail_action);
             window.App.runAction({
@@ -90,16 +88,16 @@ export class ForeignKeyElement extends Component {
 
     render() {
         const props = this.props,
-            {update_value} = props.prop_bundle;
+            {update_value} = props;
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
 
         if (value && typeof value === "object") value = value['text'];
         let {editing_mode} = props;
 
-        // props.prop_bundle.update_value({[props.elem.name]: e.value})
+        // props.update_value({[props.elem.name]: e.value})
         return <SiteContext.Consumer>{(siteData) => (
-            <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
+            <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
                         <AutoComplete value={value} onChange={(e) => {e.originalEvent.stopPropagation (); update_value(
@@ -116,7 +114,7 @@ export class ForeignKeyElement extends Component {
                                       // onFocus={(e) => e.target.select()}
                                       field={"text"}
                                       completeMethod={(e) => this.getChoices(e.query, siteData)}
-                                      container={this.props.prop_bundle.container}
+                                      container={this.props.container}
                         />
 
                         : <React.Fragment>

@@ -10,7 +10,7 @@ import {Button} from 'primereact/button';
 import {AutoComplete} from 'primereact/autocomplete';
 import {ToggleButton} from 'primereact/togglebutton';
 
-import LinoComponents from "./LinoComponents"
+import LinoLayout from "./LinoComponents"
 import {debounce, deepCompare} from "./LinoUtils";
 import LinoBbar from "./LinoBbar";
 
@@ -158,24 +158,6 @@ export class LinoDetail extends Component {
     }
 
     render() {
-        const layout = this.props.actorData.ba[this.props.actorData.detail_action].window_layout;
-        // const Comp = "Table";
-        // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-        const MainComp = LinoComponents._GetComponent(layout.main.react_name);
-        let prop_bundle = {
-            data: this.state.data,
-            actorId: `${this.props.packId}.${this.props.actorId}`,
-            disabled_fields: this.state.disabled_fields,
-            update_value: this.update_value,
-            editing_mode: this.state.editing_mode, // keep detail as editing mode only for now, untill beautifying things/
-            mk: this.props.pk,
-            mt: this.props.actorData.content_type,
-            match: this.props.match,
-            reload_timestamp: this.state.reload_timestamp
-        };
-        prop_bundle.prop_bundle = prop_bundle;
-
-
         return (
             <React.Fragment>
                 <h1 className={"l-detail-header"}> {this.state.title || "\u00a0"} </h1>
@@ -197,22 +179,26 @@ export class LinoDetail extends Component {
                                   }
                     />
                     < i className="pi pi-bars p-toolbar-separator" style={{marginRight: '.25em'}}/>
-                    <Button disabled={!this.state.navinfo || !this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
-                            className="l-nav-first"
-                            icon="pi pi-angle-double-left"
-                            onClick={() => this.onNavClick(this.state.navinfo.first)}/>
-                    <Button disabled={!this.state.navinfo || !this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
-                            className="l-nav-prev"
-                            icon="pi pi-angle-left"
-                            onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
-                    <Button disabled={!this.state.navinfo || !this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
-                            className="l-nav-next"
-                            icon="pi pi-angle-right"
-                            onClick={() => this.onNavClick(this.state.navinfo.next)}/>
-                    <Button disabled={!this.state.navinfo || !this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
-                            className="l-nav-last"
-                            icon="pi pi-angle-double-right"
-                            onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+                    <Button
+                        disabled={!this.state.navinfo || !this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
+                        className="l-nav-first"
+                        icon="pi pi-angle-double-left"
+                        onClick={() => this.onNavClick(this.state.navinfo.first)}/>
+                    <Button
+                        disabled={!this.state.navinfo || !this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
+                        className="l-nav-prev"
+                        icon="pi pi-angle-left"
+                        onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
+                    <Button
+                        disabled={!this.state.navinfo || !this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
+                        className="l-nav-next"
+                        icon="pi pi-angle-right"
+                        onClick={() => this.onNavClick(this.state.navinfo.next)}/>
+                    <Button
+                        disabled={!this.state.navinfo || !this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
+                        className="l-nav-last"
+                        icon="pi pi-angle-double-right"
+                        onClick={() => this.onNavClick(this.state.navinfo.last)}/>
                     {this.props.actorData.editable && <React.Fragment>
                         <ToggleButton style={{"float": "right"}}
                                       checked={this.state.editing_mode}
@@ -249,7 +235,19 @@ export class LinoDetail extends Component {
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
                               an={'detail'}/>
                 </Toolbar>}
-                <MainComp {...prop_bundle} elem={layout.main} title={this.state.title} main={true}/>
+                <LinoLayout
+                    window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
+                    data={this.state.data}
+                    actorId={`${this.props.packId}.${this.props.actorId}`}
+                    disabled_fields={this.state.disabled_fields}
+                    update_value={this.update_value}
+                    editing_mode={this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
+                    mk={this.props.pk}
+                    mt={this.props.actorData.content_type}
+                    match={this.props.match}
+                    reload_timestamp={this.state.reload_timestamp}
+                    title={this.state.title}
+                />
             </React.Fragment>
         )
     }
