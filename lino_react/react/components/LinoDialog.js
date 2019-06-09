@@ -62,6 +62,7 @@ export class LinoDialog extends Component {
                            header={this.props.title || this.props.action.label}
                            footer={footer}
                            maximizable={true}
+                           onShow={()=> this.ll.focusFirst()}
                            closable={this.props.closable}>
                 {this.props.content
                 ||
@@ -73,6 +74,7 @@ export class LinoDialog extends Component {
                             match={this.props.router}
                             onSubmit={this.props.onOk}
                             window_layout={this.props.action.window_layout}
+                            ref={el=>this.ll=el}
                             />}
             </Dialog>
         }}</SiteContext.Consumer>
