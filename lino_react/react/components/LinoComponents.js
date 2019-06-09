@@ -175,7 +175,7 @@ const LinoComponents = {
                 return <Labeled {...props.prop_bundle} elem={props.elem} labeled={props.labeled} isFilled={value}>
                     {props.prop_bundle.editing_mode ?
                         <div className="l-ChoiceListFieldElement"
-                        style={{margin_top: "1px"}}>
+                             style={{margin_top: "1px"}}>
                             <Dropdown
                                 // autoWidth={false}
                                 style={{width: "100%"}}
@@ -326,12 +326,13 @@ const LinoComponents = {
 
             if (DomHandler.getViewport().width <= 600) {
                 this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
-                <span className="ql-formats">
+                    <span className="ql-formats">
                     <button className="ql-bold" aria-label="Bold"/>
                     <button className="ql-italic" aria-label="Italic"/>
                     <button className="ql-underline" aria-label="Underline"/>
                 </span>
-            );}
+                );
+            }
         }
 
         static getDerivedStateFromProps(props, state) {
