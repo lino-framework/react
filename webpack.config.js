@@ -107,5 +107,12 @@ module.exports = {
             // }
 
         ]
-    }
+    },
+    /* Uncomment to enable profiling in devtools*/
+    // resolve: {
+    //     alias: {
+    //         'react-dom$': 'react-dom/profiling',
+    //         'scheduler/tracing': 'scheduler/tracing-profiling',
+    //     }
+    // }
 };
