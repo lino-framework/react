@@ -61,9 +61,9 @@ function shouldComponentUpdate(nextProps, nextState) { // requred for grid editi
 const LinoComponents = {
     TabPanel: (props) => (
         <TabView className={classNames("lino-panel")}>
-            {props.elem.items.filter((e) => !e.hidden).map((panel, i) => {
-                    return <TabPanel header={panel.label} key={key(panel)} contentClassName={"lino-panel"}>
-                        {props.linoLayout.renderComponent(panel.react_name, {...props, elem: panel, header: false})}
+            {React.Children.map(props.children, (panel, i) => {
+                    return <TabPanel header={panel.props.elem.label} contentClassName={"lino-panel"}>
+                        {panel}
                     </TabPanel>
                 }
             )
@@ -71,20 +71,17 @@ const LinoComponents = {
 
         </TabView>
     ),
-    DetailMainPanel: (props) => {
-        return <LinoComponents.Panel {...props} />
-    },
-
     Panel: (props) => {
+        // const children = React.Children.map.((child, i) => {
 
-        const children = props.elem.items.filter((e) => !e.hidden).map((child, i) => {
+        const children = React.Children.map(props.children, (child, i) => {
             let style = {};
-            if (child.value.flex) {
+            if (child.props.elem.value.flex) {
                 // style.width = props.elem.width + "ch"
-                style.flex = child.value.flex
+                style.flex = child.props.elem.value.flex
             }
-            return <div style={style} key={key(child)} className={classNames("l-component")}>
-                {props.linoLayout.renderComponent(child.react_name, {...props, elem: child})}
+            return <div style={style} className={classNames("l-component")}>
+                {child}
             </div>
 
 
@@ -107,7 +104,8 @@ const LinoComponents = {
             // "lino-panel": props.elem.vertical || true,
             // "p-col-align-stretch": props.elem.vertical,
         >
-            {props.header && props.elem.label && <h1>{props.elem.label}</h1>}
+            {(!props.parent || props.parent.react_name !== "TabPanel")/*&& props.header */ && props.elem.label &&
+            <h1>{props.elem.label}</h1>}
             {children}
         </div>
 
@@ -161,9 +159,13 @@ const LinoComponents = {
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
         }
 
+        focus() {
+            this.dropDown && this.dropDown.focusInput.focus();
+        }
+
         render() {
             // console.log("choice render")
-            let {props} = this
+            let {props} = this;
             let value = getValue(props);
             let hidden_value = getHiddenValue(props);
             return <SiteContext.Consumer>{(siteData) => {
@@ -193,7 +195,7 @@ const LinoComponents = {
                                         props.elem,
                                         props.column)
                                 }}
-                                autoFocus
+                                ref={el => this.dropDown = el}
                                 // placeholder={""}
                             />
                         </div> :
@@ -205,28 +207,45 @@ const LinoComponents = {
         }
     },
 
-    URLFieldElement: (props) => {
-        let value = getValue(props);
-        return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            {props.editing_mode ?
-                <InputText style={{width: "100%"}}
-                           value={value || ""}
-                           onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
-                               props.elem,
-                               props.column)
-                           }/>
-                :
-                <div className={"l-ellipsis"} style={{
-                    "display": "block",
-                    "text-overflow": "ellipsis",
-                    "overflow": "hidden",
-                    "white-space": "nowrap",
-                    "max-width": "290px"
-                }}><a href={value} title={value}>{value || "\u00a0"}</a></div>
+    URLFieldElement: class ChoiceListFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.focus = this.focus.bind();
+        }
 
-            }
-        </Labeled>
-    },
+        focus() {
+            this.input.element.focus();
+        }
+
+        render() {
+            let {props} = this;
+            value = getValue(props);
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode ?
+                    <InputText style={{width: "100%"}}
+                               value={value || ""}
+                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                                   props.elem,
+                                   props.column)
+                               }
+                               ref={(el) => this.input = el}
+                    />
+                    :
+                    <div className={"l-ellipsis"} style={{
+                        "display": "block",
+                        "text-overflow": "ellipsis",
+                        "overflow": "hidden",
+                        "white-space": "nowrap",
+                        "max-width": "290px"
+                    }}><a href={value} title={value}>{value || "\u00a0"}</a></div>
+
+                }}
+            </Labeled>
+        }
+    }
+
+    ,
 
     DisplayElement: (props) => {
         let value = getValue(props);
@@ -234,28 +253,30 @@ const LinoComponents = {
             <div
                 dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
         </Labeled>
-    },
+    }
+    ,
 
     ConstantElement: (props) => {
         const value = props.elem.value.html;
         return <div
             dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
-    },
+    }
+    ,
 
     CharFieldElement: class CharFieldElement extends React.Component {
         constructor() {
             super();
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.focus = this.focus.bind(this);
         }
 
         focus() {
             this.input.element.focus();
         }
 
-
         render() {
-            let {props} = this;
-            let value = getValue(props);
+            let {props} = this,
+                value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
                 {props.editing_mode ?
@@ -265,9 +286,7 @@ const LinoComponents = {
                                    props.elem,
                                    props.column)}
                                autoFocus={props.in_grid ? 'true' : undefined}
-                               ref={(el) => {
-                                   this.input = el
-                               }}
+                               ref={(el) => this.input = el}
                     />
                     :
                     <div>{value || "\u00a0"}</div>
@@ -276,32 +295,61 @@ const LinoComponents = {
         }
     },
 
-    PasswordFieldElement: (props) => {
-        let value = getValue(props);
-        return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            <Password value={value}
-                      onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
-                          props.elem,
-                          props.column)}
-                      feedback={false} promptLabel={""}/>
-        </Labeled>
+    PasswordFieldElement: class PasswordFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.passwordEl.inputEl.focus();
+        }
+
+        render() {
+            let {props} = this,
+                value = getValue(props);
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                <Password value={value}
+                          onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                              props.elem,
+                              props.column)}
+                          feedback={false} promptLabel={""}
+                          ref={(el) => this.passwordEl = el}
+                />
+            </Labeled>
+        }
     },
 
-    AutoFieldElement: (props) => {
-        let value = getValue(props);
-        return <React.Fragment>
-            <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode ?
-                    <InputText style={{width: "100%"}} type="text" keyfilter="pint"
-                               value={value || ""}
-                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
-                                   props.elem,
-                                   props.column)}/>
-                    : <div
-                        dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-                }
-            </Labeled>
-        </React.Fragment>
+    AutoFieldElement: class AutoFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.focus = this.focus.bind(this);
+        }
+
+        focus() {
+            this.input.element.focus();
+        }
+
+        render() {
+            let {props} = this,
+                value = getValue(props);
+            return <React.Fragment>
+                <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                    {props.editing_mode ?
+                        <InputText style={{width: "100%"}} type="text" keyfilter="pint"
+                                   value={value || ""}
+                                   onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                                       props.elem,
+                                       props.column)}
+                                   ref={(el) => this.input = el}
+                        />
+                        : <div
+                            dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+                    }
+                </Labeled>
+            </React.Fragment>
+        }
     },
 
     BooleanFieldElement: (props) => {
@@ -384,8 +432,8 @@ const LinoComponents = {
                         headerTemplate={this.renderHeader()}
                         value={value}
                         onTextChange={this.onTextChange}
-                        ref={(editor)=>this.quill=editor? editor.quill: null}
-                        key={key(this)} />
+                        ref={(editor) => this.quill = editor ? editor.quill : null}
+                        key={key(this)}/>
                 </div>
                 :
                 <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
@@ -406,76 +454,103 @@ const LinoComponents = {
         }
     },
 
-    DateFieldElement: (props) => {
-        let value = (getValue(props));
-        // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
-        return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            {props.editing_mode ?
-                <Calendar style={{width: "100%"}}
-                          value={value}
-                          dateFormat="dd.mm.yy"
-                          onChange={(e) => {
-                              let formatedDate;
-                              if (e.value instanceof Date) {
-                                  formatedDate = ("0" + e.value.getDate()).slice(-2) + "." +
-                                      ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
-                                      e.value.getFullYear();
+    DateFieldElement: class DateFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.cal.inputElement.focus()
+        }
+
+        render() {
+            let {props} = this,
+                value = (getValue(props));
+            // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode ?
+                    <Calendar style={{width: "100%"}}
+                              value={value}
+                              dateFormat="dd.mm.yy"
+                              onChange={(e) => {
+                                  let formatedDate;
+                                  if (e.value instanceof Date) {
+                                      formatedDate = ("0" + e.value.getDate()).slice(-2) + "." +
+                                          ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
+                                          e.value.getFullYear();
+                                  }
+                                  props.update_value({[getDataKey(props)]: formatedDate || e.value || ""},
+                                      props.elem,
+                                      props.column);
                               }
-                              props.update_value({[getDataKey(props)]: formatedDate || e.value || ""},
-                                  props.elem,
-                                  props.column);
-                          }
-                          }
-                    // showIcon={true}
-                          viewDate={new Date()}
-                />
-                :
-                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
-        </Labeled>
+                              }
+                        // showIcon={true}
+                              viewDate={new Date()}
+                              ref={(el) => this.cal = el}
+                    />
+                    :
+                    <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
+            </Labeled>
+        }
     },
 
     // DateTimeFieldElement: (props) => {
     //
     // },
     //
-    TimeFieldElement: (props) => {
-        let value = (getValue(props));
-        let viewDate = new Date();
-        let regex = /(^\d?\d)[:.]?(\d?\d)$/g;
-        if (value && value.match(regex)) {
-            let m = regex.exec(value);
-            viewDate.setHours(m[1]);
-            viewDate.setMinutes(m[2]);
+    TimeFieldElement: class TimeFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
         }
-        // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
-        return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            {props.editing_mode ?
-                <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
-                          value={value}
-                    // dateFormat="dd.mm.yy"
-                          onChange={(e) => {
-                              let time;
-                              if (e.value instanceof Date) {
-                                  time = ("0" + e.value.getHours()).slice(-2) + ":" +
-                                      ("0" + e.value.getMinutes()).slice(-2);
-                              }
-                              props.update_value({[getDataKey(props)]: time || e.value || ""},
-                                  props.elem,
-                                  props.column)
-                          }}
-                    // onBlur={(e) => {
-                    //     props.update_value({[getDataKey(props]: e.target.value.replace(/\./g, ':')},
-                    //         props.elem,
-                    //         props.column)
-                    // }}
-                    // showIcon={true}
-                          onViewDateChange={(e) => {
-                          }}
-                          viewDate={viewDate}
-                />
-                :
-                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
-        </Labeled>
+
+        focus() {
+            this.cal.inputElement.focus()
+        }
+
+        render() {
+            let {props} = this,
+                value = (getValue(props));
+            let viewDate = new Date();
+            let regex = /(^\d?\d)[:.]?(\d?\d)$/g;
+            if (value && value.match(regex)) {
+                let m = regex.exec(value);
+                viewDate.setHours(m[1]);
+                viewDate.setMinutes(m[2]);
+            }
+            // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode ?
+                    <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
+                              value={value}
+                        // dateFormat="dd.mm.yy"
+                              onChange={(e) => {
+                                  let time;
+                                  if (e.value instanceof Date) {
+                                      time = ("0" + e.value.getHours()).slice(-2) + ":" +
+                                          ("0" + e.value.getMinutes()).slice(-2);
+                                  }
+                                  props.update_value({[getDataKey(props)]: time || e.value || ""},
+                                      props.elem,
+                                      props.column)
+                              }}
+                        // onBlur={(e) => {
+                        //     props.update_value({[getDataKey(props]: e.target.value.replace(/\./g, ':')},
+                        //         props.elem,
+                        //         props.column)
+                        // }}
+                        // showIcon={true}
+                              onViewDateChange={(e) => {
+                              }}
+                              viewDate={viewDate}
+                              ref={(el) => this.cal = el}
+
+                    />
+                    :
+                    <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
+            </Labeled>
+        }
     },
 
     ForeignKeyElement: ForeignKeyElement,
@@ -536,6 +611,7 @@ const LinoComponents = {
 
 LinoComponents.Panel.defaultProps = {header: true};
 LinoComponents.ParamsPanel = LinoComponents.Panel;
+LinoComponents.DetailMainPanel = LinoComponents.Panel;
 LinoComponents.ComplexRemoteComboFieldElement = LinoComponents.ForeignKeyElement;
 LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
@@ -551,7 +627,7 @@ class LinoLayout extends React.Component {
         super();
         this.firstFocusable = false;
         [this.renderComponent, this.focusFirst].forEach((e) =>
-        this[e.name] = e.bind(this));
+            this[e.name] = e.bind(this));
 
     }
 
@@ -563,7 +639,9 @@ class LinoLayout extends React.Component {
     }
 
     focusFirst() {
-        setTimeout( () => {this.firstFocusable && this.firstFocusable.focus()}, 5);
+        setTimeout(() => {
+            this.firstFocusable && this.firstFocusable.focus()
+        }, 5);
     }
 
     /**
@@ -583,12 +661,17 @@ class LinoLayout extends React.Component {
         // if (!this.firstFocusableFound && Child.focusable){
         //     this.firstFocusableFound = Child.focus;
         // }
-        if (!this.firstFocusable && Child.prototype.focus){
+        if (!this.firstFocusable && Child.prototype.focus || Child.focus) {
             this.firstFocusable = "found"; // Need to change from false as it will be set later buy ref, not now.
             ref = (el) => this.firstFocusable = el;
         }
 
-        return <Child {...props} ref={ref}/>
+        return <Child {...props} ref={ref}>
+            {props.elem.items && props.elem.items.filter(e => !e.hidden).map(e => {
+
+                return this.renderComponent(e.react_name, {...props, key: key(e), elem: e, parent: props.elem})
+            })}
+        </Child>
     }
 
 };

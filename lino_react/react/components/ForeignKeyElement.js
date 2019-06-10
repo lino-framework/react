@@ -86,6 +86,10 @@ export class ForeignKeyElement extends Component {
         }
     };
 
+    focus() {
+        this.autoComplete.inputEl.focus();
+    }
+
     render() {
         const props = this.props,
             {update_value} = props;
@@ -115,6 +119,7 @@ export class ForeignKeyElement extends Component {
                                       field={"text"}
                                       completeMethod={(e) => this.getChoices(e.query, siteData)}
                                       container={this.props.container}
+                                      ref={(el) => this.autoComplete = el}
                         />
 
                         : <React.Fragment>
