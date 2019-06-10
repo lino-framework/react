@@ -577,14 +577,17 @@ const LinoComponents = {
     },
 
     ActionParamsPanel: (props) => {
-        let {action, elem, onSubmit} = props,
-            is_sign_in = action.an === "sign_in";
+        let {action, onSubmit} = props,
+            is_sign_in = action.an === "sign_in",
+            Panel=LinoComponents.Panel;
         return (
             <form target={is_sign_in ? "temp" : undefined}
                   id={is_sign_in ? "sign_in_submit" : undefined}
                   action={is_sign_in ? "/null/" : undefined}
                   method={action.http_method}>
-                {props.linoLayout.renderComponent("Panel", {...props, elem: elem, action_dialog: true})}
+                {<Panel {...props} action_dialog={true}>
+                    {props.children}
+                </Panel>}
                 <input type="submit"
                        style={{"position": "absolute", "left": "-9999px", "width": "1px", "height": "1px"}}
                        tabIndex="-1"
