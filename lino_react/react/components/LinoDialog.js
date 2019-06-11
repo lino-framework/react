@@ -12,7 +12,19 @@ import {Dialog} from 'primereact/dialog';
 import {SiteContext} from "./SiteContext";
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
+import DomHandler from "../../../../primereact/src/components/utils/DomHandler";
 
+// better onOpen focusing logic.
+Dialog.prototype.focus = function focus() {
+        let focusable;
+        [this.contentElement, this.footerElement, this.headerElement].filter(e=>e).some(elem => {
+            focusable = DomHandler.findSingle(elem, 'button,input,textarea');
+            return focusable; // if true breaks loop
+        });
+        if (focusable) {
+            focusable.focus();
+        }
+};
 
 export class LinoDialog extends Component {
 
