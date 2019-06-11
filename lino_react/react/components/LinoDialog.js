@@ -62,7 +62,7 @@ export class LinoDialog extends Component {
                            header={this.props.title || this.props.action.label}
                            footer={footer}
                            maximizable={true}
-                           onShow={()=> this.ll.focusFirst()}
+                           onShow={()=> this.ll && this.ll.focusFirst()}
                            closable={this.props.closable}>
                 {this.props.content
                 ||
