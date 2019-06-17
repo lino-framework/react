@@ -40,24 +40,31 @@ class Suggester extends React.Component {
         triggerKey: PropTypes.string,
         field: PropTypes.string,
         onStart: PropTypes.func,
+        onCancel: PropTypes.func,
         optionSelected: PropTypes.func
     };
 
     constructor(props) {
         super();
-        this.startState = {
+        this.state = {
             suggestions: [],
             selectedIndex: 0,
             startPoint: 1, // Can't trigger on 0, as first char will always be triggering char
             triggered: false,
             text: "",
         };
-        this.state = {...this.startState};
+        this.startState = {...this.state};
 
         this.getSuggestions = debounce(this.getSuggestions.bind(this), 25);
         this.onStart = this.onStart.bind(this);
         this.onType = this.onType.bind(this);
     }
+
+
+    aheadOfStartPoint(state) {
+        return state.cursor.selectionStart < state.startPoint
+    }
+
 
     resetState() {
         this.setState(this.startState);
@@ -70,6 +77,11 @@ class Suggester extends React.Component {
             query: text,
             start: 0
         };
+
+        if (!this.aheadOfStartPoint(this.state) || text.find("\n")){ // Don't fetch when doing stuff before startpoint.
+            return
+        }
+
         fetchPolyfill(`/choices/${this.props.actorId.replace(".", "/")}?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then(
@@ -94,15 +106,26 @@ class Suggester extends React.Component {
     }
 
     onType(obj, e) {
+        console.log(obj);
         this.setState(old => {
-            return {...obj,}
+            let state = {...obj,};
+            return state
         });
-        let {text} = obj;
-        this.getSuggestions(text);
     }
 
+    componentDidUpdate(oldProps, oldState) {
+        this.props.componentDidUpdate && this.props.componentDidUpdate(this.state);
+        if (oldState.text !== this.state.text) {
+            this.getSuggestions(this.state.text);
+        }
+    }
 
     selectOption(index, removeNewLine) {
+
+        if (!this.state.suggestions.length) { // didn't use feature, reset self.
+            this.resetState();
+        }
+
         let selected = this.state.suggestions[this.state.selectedIndex];
         if (selected.text && selected.text[0] === this.props.triggerKey) {
             selected.text = selected.text.replace(this.props.triggerKey, "") // only replaces first
@@ -155,7 +178,7 @@ class Suggester extends React.Component {
                           onCancel={(obj) => {
                               this.setState({...obj, triggered: false});
                               this.props.onCancel && this.props.onCancel();
-                              }
+                          }
                           }
                           onType={this.onType
                           }
@@ -163,27 +186,38 @@ class Suggester extends React.Component {
                               this.inputTrigger = e
                           }}
             >
-                {this.props.attachTo() && ReactDom.createPortal(
-                    <div
+                {(this.state.triggered && this.state.suggestions.length && this.state.startPoint <= this.state.cursor.selectionStart && this.props.attachTo() && ReactDom.createPortal(
+                    <ui role="listbox"
                         style={{
                             position: "absolute",
                             width: "200px",
                             borderRadius: "6px",
                             background: "white",
                             boxShadow: "rgba(0, 0, 0, 0.4) 0px 1px 4px",
-
+                            listStyle: "none",
+                            marginTop: "20px",
                             display: this.state.triggered ? "block" : "none",
                             top: this.state.cursor && this.state.cursor.top,
                             left: this.state.cursor && this.state.cursor.left,
-                            minHeight: "50px",
+                            // minHeight: "50px",
+                            zIndex: "800"
                         }}>
                         {this.state.suggestions.map((s, i) => {
-                            return <div style={{
-                                minHeight: "3ch"
-                            }} key={s.value}
-                                        className={classNames({"l-s-selected": i === this.state.selectedIndex})}>{s.text}</div>
+                            let isSel = i === this.state.selectedIndex;
+                            let style = {
+                                minHeight: "3ch",
+                                padding: "4px 8px",
+                            };
+                            if (isSel) {
+                                style.backgroundColor = "#007ad9";
+                                style.color = "#fff";
+                            }
+
+                            return <li style={style} key={s.value}
+
+                                       className={classNames({"l-s-selected": isSel})}>{s.text}</li>
                         })}
-                    </div>, this.props.attachTo())}
+                    </ui>, this.props.attachTo())}
                 {props.children}
             </InputTrigger></div>
     }

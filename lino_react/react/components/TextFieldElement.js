@@ -35,6 +35,8 @@ class TextFieldElement extends React.Component {
         this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
         this.onTextChange = this.onTextChange.bind(this);
         this.props_update_value = debounce(props.update_value, 150);
+        this.disableEnter = this.disableEnter.bind(this);
+        this.enableEnter = this.enableEnter.bind(this);
 
         if (DomHandler.getViewport().width <= 600) {
             this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
@@ -74,6 +76,21 @@ class TextFieldElement extends React.Component {
     }
 
 
+    disableEnter() {
+        if (this.editor.quill.keyboard.bindings[13]) {
+            this.EnterHack = this.EnterHack ? this.EnterHack : this.editor.quill.keyboard.bindings[13];
+            delete this.editor.quill.keyboard.bindings[13];
+        }
+
+    }
+
+    enableEnter() {
+        if (this.EnterHack) {
+            this.editor.quill.keyboard.bindings[13] = this.EnterHack;
+        }
+    }
+
+
     render() {
         let {props} = this,
             {value} = this.state,
@@ -91,11 +108,14 @@ class TextFieldElement extends React.Component {
                            attachTo={() => this.editor && this.editor.editorElement}
                            actorId={this.props.actorId}
                            triggerKey={"#"}
-                           onStart={() => {
-                               this.EnterHack = this.editor.quill.keyboard.bindings[13];
-                               delete this.editor.quill.keyboard.bindings[13];
+                           componentDidUpdate={(state) => {
+                               if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart ) {
+                                   this.disableEnter();
+                               }
+                               else {
+                                   this.enableEnter();
+                               }
                            }}
-                           onCancel={()=>{setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)}}
                            optionSelected={(obj, enter) => {
                                this.editor.quill.updateContents([
                                        {retain: obj.startPoint}, // starts at 0?
