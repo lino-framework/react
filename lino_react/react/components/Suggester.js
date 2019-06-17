@@ -56,13 +56,14 @@ class Suggester extends React.Component {
         this.startState = {...this.state};
 
         this.getSuggestions = debounce(this.getSuggestions.bind(this), 25);
+        this.showSuggestions = this.showSuggestions.bind(this);
         this.onStart = this.onStart.bind(this);
         this.onType = this.onType.bind(this);
     }
 
 
     aheadOfStartPoint(state) {
-        return state.cursor.selectionStart < state.startPoint
+        return state.startPoint <= state.cursor.selectionStart
     }
 
 
@@ -79,6 +80,7 @@ class Suggester extends React.Component {
         };
 
         if (!this.aheadOfStartPoint(this.state) || text.find("\n")){ // Don't fetch when doing stuff before startpoint.
+            console.log("don't get sugs");
             return
         }
 
@@ -95,6 +97,10 @@ class Suggester extends React.Component {
                 });
             }
         ).catch(error => window.App.handleAjaxException(error));
+    }
+
+    showSuggestions(){
+        return this.state.triggered && this.state.suggestions.length && this.state.startPoint <= this.state.cursor.selectionStart && this.props.attachTo()
     }
 
     onStart(obj) {
@@ -186,7 +192,7 @@ class Suggester extends React.Component {
                               this.inputTrigger = e
                           }}
             >
-                {(this.state.triggered && this.state.suggestions.length && this.state.startPoint <= this.state.cursor.selectionStart && this.props.attachTo() && ReactDom.createPortal(
+                {this.showSuggestions() && ReactDom.createPortal(
                     <ui role="listbox"
                         style={{
                             position: "absolute",

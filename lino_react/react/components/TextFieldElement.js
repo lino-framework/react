@@ -109,7 +109,7 @@ class TextFieldElement extends React.Component {
                            actorId={this.props.actorId}
                            triggerKey={"#"}
                            componentDidUpdate={(state) => {
-                               if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart ) {
+                               if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.find("\n") ) {
                                    this.disableEnter();
                                }
                                else {
