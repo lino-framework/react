@@ -86,7 +86,7 @@ class Suggester extends React.Component {
             return
         }
         // let actorID = this.props.actorId.replace(".", "/")
-        let actorID = "tickets.Tickets";
+        let actorID = "tickets/Tickets";
         fetchPolyfill(`/choices/${actorID}?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then(
