@@ -59,6 +59,7 @@ class Suggester extends React.Component {
         this.showSuggestions = this.showSuggestions.bind(this);
         this.onStart = this.onStart.bind(this);
         this.onType = this.onType.bind(this);
+        this.renderSuggestion = this.renderSuggestion.bind(this);
     }
 
 
@@ -79,7 +80,7 @@ class Suggester extends React.Component {
             start: 0
         };
 
-        if (!this.aheadOfStartPoint(this.state) || text.find("\n")){ // Don't fetch when doing stuff before startpoint.
+        if (!this.aheadOfStartPoint(this.state) || text.includes("\n")) { // Don't fetch when doing stuff before startpoint.
             console.log("don't get sugs");
             return
         }
@@ -99,16 +100,15 @@ class Suggester extends React.Component {
         ).catch(error => window.App.handleAjaxException(error));
     }
 
-    showSuggestions(){
+    showSuggestions() {
         return this.state.triggered && this.state.suggestions.length && this.state.startPoint <= this.state.cursor.selectionStart && this.props.attachTo()
     }
 
     onStart(obj) {
         this.props.onStart && this.props.onStart();
         this.setState({...obj, triggered: true});
-        if (!this.state.suggestions.length) {
-            this.getSuggestions();
-        }
+        this.getSuggestions("");
+
     }
 
     onType(obj, e) {
@@ -126,26 +126,68 @@ class Suggester extends React.Component {
         }
     }
 
-    selectOption(index, removeNewLine) {
-
+    selectOption(index) {
+        index = index === undefined ? this.state.selectedIndex: index;
         if (!this.state.suggestions.length) { // didn't use feature, reset self.
             this.resetState();
         }
 
-        let selected = this.state.suggestions[this.state.selectedIndex];
+        let selected = this.state.suggestions[index];
         if (selected.text && selected.text[0] === this.props.triggerKey) {
             selected.text = selected.text.replace(this.props.triggerKey, "") // only replaces first
         }
-        this.props.optionSelected(
-            {...this.state, selected: selected},
-            true // tells textFieldElement to remove newline.
-        );
+        if (this.aheadOfStartPoint(this.state)) {
+            this.props.optionSelected(
+                {...this.state, selected: selected});
+        }
         this.resetState();
 
     }
 
+    renderSuggestion() {
+        let {props} = this;
+
+        if (this.showSuggestions()) return ReactDom.createPortal(
+            <ui role="listbox"
+                className="l-suggester-suggestions" // todo move to style sheet + add hover.
+
+                style={{
+                    position: "absolute",
+                    width: "200px",
+                    borderRadius: "6px",
+                    background: "white",
+                    boxShadow: "rgba(0, 0, 0, 0.4) 0px 1px 4px",
+                    listStyle: "none",
+                    marginTop: "20px",
+                    display: this.state.triggered ? "block" : "none",
+                    top: this.state.cursor && this.state.cursor.top,
+                    left: this.state.cursor && this.state.cursor.left,
+                    // minHeight: "50px",
+                    zIndex: "800"
+                }}>
+                {this.state.suggestions.map((s, i) => {
+                    let isSel = i === this.state.selectedIndex;
+                    let style = {
+                        minHeight: "3ch",
+                        padding: "4px 8px",
+                    };
+                    if (isSel) {
+                        style.backgroundColor = "#007ad9";
+                        style.color = "#fff";
+                    }
+
+                    return <li style={style} key={s.value}
+                               onClick={()=>this.selectOption(i)}
+                               className={classNames({"l-s-selected": isSel})}>{s.text}</li>
+                })}
+            </ui>, this.props.attachTo())
+    }
+
     render() {
         let {props} = this;
+
+        let sugestions = this.renderSuggestion();
+
         return <div onKeyDown={(e) => {
             console.log("onKeyPressCapture");
             if (!this.state.triggered) return;
@@ -192,38 +234,7 @@ class Suggester extends React.Component {
                               this.inputTrigger = e
                           }}
             >
-                {this.showSuggestions() && ReactDom.createPortal(
-                    <ui role="listbox"
-                        style={{
-                            position: "absolute",
-                            width: "200px",
-                            borderRadius: "6px",
-                            background: "white",
-                            boxShadow: "rgba(0, 0, 0, 0.4) 0px 1px 4px",
-                            listStyle: "none",
-                            marginTop: "20px",
-                            display: this.state.triggered ? "block" : "none",
-                            top: this.state.cursor && this.state.cursor.top,
-                            left: this.state.cursor && this.state.cursor.left,
-                            // minHeight: "50px",
-                            zIndex: "800"
-                        }}>
-                        {this.state.suggestions.map((s, i) => {
-                            let isSel = i === this.state.selectedIndex;
-                            let style = {
-                                minHeight: "3ch",
-                                padding: "4px 8px",
-                            };
-                            if (isSel) {
-                                style.backgroundColor = "#007ad9";
-                                style.color = "#fff";
-                            }
-
-                            return <li style={style} key={s.value}
-
-                                       className={classNames({"l-s-selected": isSel})}>{s.text}</li>
-                        })}
-                    </ui>, this.props.attachTo())}
+                {sugestions}
                 {props.children}
             </InputTrigger></div>
     }
