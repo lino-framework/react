@@ -21,6 +21,10 @@ import {SiteContext} from "./SiteContext"
 import classNames from 'classnames';
 import {ForeignKeyElement} from "./ForeignKeyElement";
 
+// import InputTrigger from 'react-input-trigger';
+// import Suggester from "./Suggester";
+import TextFieldElement from "./TextFieldElement"
+
 export const Labeled = (props) => {
     return <React.Fragment>
         {!props.hide_label && props.elem.label && <React.Fragment>
@@ -36,19 +40,19 @@ export const Labeled = (props) => {
 
 // Shortcut functions for getting the correct value from the props.
 // in_grid wants fields index,
-function getValue(props) {
+export function getValue(props) {
     return props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]
 }
 
-function getHiddenValue(props) {
+export function getHiddenValue(props) {
     return props.in_grid ? props.data[props.elem.fields_index + 1] : props.data[props.elem.name + "Hidden"]
 }
 
-function getDataKey(props) {
+export function getDataKey(props) {
     return props.in_grid ? props.elem.fields_index : props.elem.name
 }
 
-function shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
+export function shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
     let {props} = this,
         value = getValue(props),
         next_value = getValue(nextProps);
@@ -368,91 +372,7 @@ const LinoComponents = {
         </div>
     },
 
-    TextFieldElement: class TextFieldElement extends React.Component {
-        constructor(props) {
-            super();
-            this.state = {
-                value: (getValue(props))
-            };
-            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-            this.onTextChange = this.onTextChange.bind(this);
-            this.props_update_value = debounce(props.update_value, 150);
-
-            if (DomHandler.getViewport().width <= 600) {
-                this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
-                    <span className="ql-formats">
-                    <button className="ql-bold" aria-label="Bold"/>
-                    <button className="ql-italic" aria-label="Italic"/>
-                    <button className="ql-underline" aria-label="Underline"/>
-                </span>
-                );
-            }
-        }
-
-        static getDerivedStateFromProps(props, state) {
-            let newPropValue = getValue(props);
-            if (newPropValue !== state.value) {
-                return {value: newPropValue}
-            }
-            return null;
-        }
-
-        renderHeader() {
-            return this.header ? this.header : undefined //
-        }
-
-        onTextChange(e) {
-            let {props} = this,
-                value = e.htmlValue || "";
-            this.setState({value: value});
-            this.props_update_value({[getDataKey(props)]: value},
-                props.elem,
-                props.column)
-
-        }
-
-        focus() {
-            this.quill.focus();
-        }
-
-
-        render() {
-            let {props} = this,
-                {value} = this.state,
-                style = {
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column"
-                };
-
-            let elem = props.editing_mode ?
-                <div className={"l-editor-wrapper"}
-                     style={{"padding-bottom": "42px", "display": "flex", "height": "99%"}}>
-                    <Editor //style={ {{/!*height: '100%'*!/}} }
-                        headerTemplate={this.renderHeader()}
-                        value={value}
-                        onTextChange={this.onTextChange}
-                        ref={(editor) => this.quill = editor ? editor.quill : null}
-                        key={key(this)}/>
-                </div>
-                :
-                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
-
-            if (props.in_grid) return elem; // No wrapping needed
-
-            if (props.editing_mode) {
-                elem = <Labeled {...props} elem={props.elem} labeled={props.labeled}
-                                isFilled={true} // either 1 or 0, can't be unfilled
-                > {elem} </Labeled>
-            } else {
-                elem = <Panel header={props.elem.label} style={style}>
-                    {elem}
-                </Panel>
-            }
-
-            return elem
-        }
-    },
+    TextFieldElement: TextFieldElement ,
 
     DateFieldElement: class DateFieldElement extends React.Component {
         constructor() {
