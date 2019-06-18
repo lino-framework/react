@@ -77,15 +77,17 @@ class Suggester extends React.Component {
         // this.props.getSuggestions();
         let ajax_query = {
             query: text,
-            start: 0
+            start: 0,
+            limit: 8,
         };
 
         if (!this.aheadOfStartPoint(this.state) || text.includes("\n")) { // Don't fetch when doing stuff before startpoint.
             console.log("don't get sugs");
             return
         }
-
-        fetchPolyfill(`/choices/${this.props.actorId.replace(".", "/")}?${queryString.stringify(ajax_query)}`).then(
+        // let actorID = this.props.actorId.replace(".", "/")
+        let actorID = "tickets.Tickets";
+        fetchPolyfill(`/choices/${actorID}?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then(
             (data) => {
