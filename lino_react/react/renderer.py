@@ -85,7 +85,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
             kernel.CHOICELISTS.items()}
         f.write(py2js(dict(actors={a.actor_id: a for a in self.actors_list},
                            menu=settings.SITE.get_site_menu(get_user_profile()),
-                           choicelists=choicelists_data),
+                           choicelists=choicelists_data,
+                           suggestors=list(settings.SITE.kernel.memo_parser.suggesters.keys()) # [#,@] keytriggers
+                           ),
                       compact=not settings.SITE.is_demo_site))
         self.serialise_js_code = False
         return 1
@@ -188,16 +190,15 @@ class Renderer(JsRenderer, JsCacheRenderer):
         params.update(self.get_action_params(ar, ba, obj))
 
         js_obj = {
-                "rp": rp,
-                "an": ba.action.action_name,
-                "onMain": ar.is_on_main_actor,
-                "actorId": ba.actor.actor_id,
-                "status": params
-            }
+            "rp": rp,
+            "an": ba.action.action_name,
+            "onMain": ar.is_on_main_actor,
+            "actorId": ba.actor.actor_id,
+            "status": params
+        }
         if obj is not None:
-            js_obj["sr"] = obj.pk# else "-99998",
+            js_obj["sr"] = obj.pk  # else "-99998",
             #  -99998 might be wrong for many commands... need to know what logic is used to determn it,
-
 
         return "window.App.runAction(%s)" % (
             py2js(js_obj))
@@ -287,7 +288,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             # todo include grid info
             # todo refactor this into a all_actions object and have the bound actions ref it to reduse json size
             result = dict(an=v.action.action_name,
-                          label=v.action.get_label(), # todo fix this, this is a readable action, not ID for the action
+                          label=v.action.get_label(),  # todo fix this, this is a readable action, not ID for the action
                           window_action=v.action.is_window_action(),
                           window_layout=v.get_layout_handel(),
                           http_method=v.action.http_method,
@@ -299,8 +300,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
             if v.action.select_rows: result['select_rows'] = v.action.select_rows
             if v.action.submit_form_data: result['submit_form_data'] = True
             if v.action.window_type: result["toolbarActions"] = [ba.action.action_name for ba in
-                                                                                v.actor.get_toolbar_actions(
-                                                                                    v.action)]
+                                                                 v.actor.get_toolbar_actions(
+                                                                     v.action)]
 
             return result
         if isclass(v) and issubclass(v, Actor):
@@ -331,8 +332,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 result.update(chooser_dict={fn: [cf.name for cf in c.context_fields]
                                             for fn, c in chooser_dict.items()})
 
-
-            if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None and hasattr(v.model, "_meta"):
+            if settings.SITE.is_installed('contenttypes') and getattr(v, 'model', None) is not None and hasattr(v.model,
+                                                                                                                "_meta"):
                 # Perhaps I should have the model also be py2js'd?
                 result.update(content_type=ContentType.objects.get_for_model(v.model).pk)
             for a in "detail_action insert_action default_action".split(" "):
@@ -365,7 +366,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
         js = self.instance_handler(ar, obj, detail_action)
         kw.update(eval_js=js)
         ar.set_response(**kw)
-
 
     def handler_item(self, mi, handler, help_text):
         """"""

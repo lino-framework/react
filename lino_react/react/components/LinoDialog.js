@@ -80,6 +80,7 @@ export class LinoDialog extends Component {
                 ||
                 <LinoLayout data={this.props.data}
                             actorId={this.props.actorId}
+                            actorData={siteData.actors[this.props.actorId]}
                             action={this.props.action}
                             update_value={(v) => this.props.update_value(v, this._reactInternalFiber.key)}
                             editing_mode={true}

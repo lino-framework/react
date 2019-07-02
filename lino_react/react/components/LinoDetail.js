@@ -239,6 +239,7 @@ export class LinoDetail extends Component {
                     window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
                     data={this.state.data}
                     actorId={`${this.props.packId}.${this.props.actorId}`}
+                    actorData={this.props.actorData}
                     disabled_fields={this.state.disabled_fields}
                     update_value={this.update_value}
                     editing_mode={this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}

@@ -37,7 +37,8 @@ class Suggester extends React.Component {
         actorData: PropTypes.object,
         actorId: PropTypes.string, // foo.bar
         field: PropTypes.string,
-        triggerKey: PropTypes.string,
+        id: PropTypes.string,
+        triggerKeys: PropTypes.array,
         field: PropTypes.string,
         onStart: PropTypes.func,
         onCancel: PropTypes.func,
@@ -52,6 +53,7 @@ class Suggester extends React.Component {
             startPoint: 1, // Can't trigger on 0, as first char will always be triggering char
             triggered: false,
             text: "",
+            triggeredKey: null,
         };
         this.startState = {...this.state};
 
@@ -73,27 +75,30 @@ class Suggester extends React.Component {
         this.inputTrigger.resetState();
     }
 
-    getSuggestions(text) {
+    getSuggestions(text, triggeredKey) {
         // this.props.getSuggestions();
         let ajax_query = {
             query: text,
+            trigger: triggeredKey || this.state.triggeredKey, // counter race conditions.
             start: 0,
             limit: 8,
         };
 
+
+        let id = this.props.id === undefined ? "-99999" : this.props.id;
         if (!this.aheadOfStartPoint(this.state) || text.includes("\n")) { // Don't fetch when doing stuff before startpoint.
             console.log("don't get sugs");
             return
         }
-        // let actorID = this.props.actorId.replace(".", "/")
-        let actorID = "tickets/Tickets";
-        fetchPolyfill(`/choices/${actorID}?${queryString.stringify(ajax_query)}`).then(
+        let actorID = this.props.actorId.replace(".", "/")
+        // let actorID = "tickets/Tickets";
+        fetchPolyfill(`/api/${actorID}/${id}/${this.props.field}/suggestions?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then(
             (data) => {
                 this.setState((prevState) => {
                     return {
-                        suggestions: data.rows,
+                        suggestions: data.suggestions,
                         selectedIndex: 0,
 
                     };
@@ -109,7 +114,7 @@ class Suggester extends React.Component {
     onStart(obj) {
         this.props.onStart && this.props.onStart();
         this.setState({...obj, triggered: true});
-        this.getSuggestions("");
+        this.getSuggestions("", obj.triggeredKey);
 
     }
 
@@ -123,24 +128,24 @@ class Suggester extends React.Component {
 
     componentDidUpdate(oldProps, oldState) {
         this.props.componentDidUpdate && this.props.componentDidUpdate(this.state);
-        if (oldState.text !== this.state.text) {
+        if (this.state.triggered && oldState.text !== this.state.text || oldState.triggeredKey !== this.state.triggeredKey) {
             this.getSuggestions(this.state.text);
         }
     }
 
     selectOption(index) {
-        index = index === undefined ? this.state.selectedIndex: index;
+        index = index === undefined ? this.state.selectedIndex : index;
         if (!this.state.suggestions.length) { // didn't use feature, reset self.
             this.resetState();
         }
 
         let selected = this.state.suggestions[index];
-        if (selected.text && selected.text[0] === this.props.triggerKey) {
-            selected.text = selected.text.replace(this.props.triggerKey, "") // only replaces first
-        }
+        // if (selected.text && selected.text[0] === this.props.triggerKey) {
+        //     selected.text = selected.text.replace(this.props.triggerKey, "") // only replaces first
+        // }
         if (this.aheadOfStartPoint(this.state)) {
             this.props.optionSelected(
-                {...this.state, selected: selected});
+                {state:this.state, selected: selected, props:this.props});
         }
         this.resetState();
 
@@ -179,8 +184,8 @@ class Suggester extends React.Component {
                     }
 
                     return <li style={style} key={s.value}
-                               onClick={()=>this.selectOption(i)}
-                               className={classNames({"l-s-selected": isSel})}>{s.text}</li>
+                               onClick={() => this.selectOption(i)}
+                               className={classNames({"l-s-selected": isSel})}>{s[1]}</li>
                 })}
             </ui>, this.props.attachTo())
     }
@@ -190,9 +195,15 @@ class Suggester extends React.Component {
 
         let sugestions = this.renderSuggestion();
 
-        return <div onKeyDown={(e) => {
+        return <div onKeyDownCapture={(e) => {
             console.log("onKeyPressCapture");
             if (!this.state.triggered) return;
+                if (this.state.suggestions.length === 0 && props.triggerKeys.find((triggerKey) => e.key === triggerKey)){
+                    this.resetState(); // reset and let the input-trigger fire again with the new trigger
+                    return
+                }
+
+
             if (e.key === "ArrowDown") {
                 e.preventDefault();
                 e.stopPropagation();
@@ -222,7 +233,7 @@ class Suggester extends React.Component {
         }
         }>
             <InputTrigger getElement={this.props.getElement} trigger={{
-                key: this.props.triggerKey
+                keys: this.props.triggerKeys
             }}
                           onStart={this.onStart}
                           onCancel={(obj) => {

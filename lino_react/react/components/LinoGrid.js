@@ -123,6 +123,7 @@ export class LinoGrid extends Component {
             // let editing = pk == editingPK && cellIndex == editingCellIndex;
             const prop_bundle = {
                 actorId: this.get_full_id(),
+                actorData: this.props.actorData,
                 data: (pk === null && this.state.editingPK === null) ? this.state.editingValues : rowData,
                 disabled_fields: this.state.disabled_fields,
                 update_value: this.update_col_value, // No editable yet
@@ -149,6 +150,7 @@ export class LinoGrid extends Component {
             const prop_bundle = {
                 actorId: this.get_full_id(),
                 data: this.state.editingValues,
+                actorData:this.props.actorData,
                 disabled_fields: this.state.disabled_fields,
                 update_value: this.update_col_value,
                 hide_label: true,
@@ -760,6 +762,7 @@ export class LinoGrid extends Component {
                 {this.props.actorData.pv_layout && this.state.showPVDialog &&
                 <LinoLayout
                     window_layout={this.props.actorData.pv_layout}
+                    actorData={this.props.actorData}
                     data={this.state.pv_values}
                     actorId={this.get_full_id()}
                     update_value={this.update_pv_values}

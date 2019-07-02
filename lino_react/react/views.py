@@ -235,7 +235,6 @@ class ApiList(View):
         if action_name:
             return settings.SITE.kernel.run_action(ar)
 
-
         if fmt == constants.URL_FORMAT_JSON:
             rows = [rh.store.row2list(ar, row)
                     for row in ar.sliced_data_iterator]
@@ -741,10 +740,13 @@ class MainHtml(View):
 
 class Null(View):
     """Just returns 200, used in an iframe to cause the browser to trigger "Do you want to remember this pw" dialog"""
+
     def post(self, request):
         return http.HttpResponse()
+
     def get(self, request):
         return http.HttpResponse()
+
 
 class Authenticate(View):
     def get(self, request, *args, **kw):
@@ -844,6 +846,7 @@ class UserSettings(View):
     def get(self, request):
         u = request.user
         anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
+
         def getit():
             if not settings.SITE.build_js_cache_on_startup:
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
@@ -856,6 +859,16 @@ class UserSettings(View):
             ))
 
         return with_user_profile(u.user_type, getit)
+
+
+class Suggestions(View):
+    def get(self, request, app_label=None, actor=None, pk=None, field=None):
+        suggesters = settings.SITE.kernel.memo_parser.suggesters
+        trigger = request.GET.get("trigger")
+        query = request.GET.get("query")
+        return json_response(
+            {"suggestions": list(suggesters[trigger].get_suggestions(query))}
+        )
 
 # class Index(View):
 #     """

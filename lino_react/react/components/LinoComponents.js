@@ -62,6 +62,10 @@ export function shouldComponentUpdate(nextProps, nextState) { // requred for gri
     return value !== next_value || props.editing_mode !== nextProps.editing_mode
 }
 
+export function getID(props){
+    return props.data[props.actorData.pk_index];
+}
+
 const LinoComponents = {
     TabPanel: (props) => (
         <TabView className={classNames("lino-panel")}>
@@ -557,7 +561,7 @@ class LinoLayout extends React.Component {
     render() {
         let {window_layout} = this.props;
         let elem = this.props.elem ? this.props.elem : window_layout.main;
-        return this.renderComponent(elem.react_name, {...this.props, elem: elem, linoLayout: this})
+        return this.renderComponent(elem.react_name, {...this.props, id:getID(this.props), elem: elem, linoLayout: this})
 
     }
 

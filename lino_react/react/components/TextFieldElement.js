@@ -107,7 +107,9 @@ class TextFieldElement extends React.Component {
                 <Suggester getElement={() => this.editor}
                            attachTo={() => this.editor && this.editor.editorElement}
                            actorId={this.props.actorId}
-                           triggerKey={"#"}
+                           triggerKeys={window.App.state.site_data.suggestors}
+                           field={this.props.elem.name}
+                           id={this.props.id}
                            componentDidUpdate={(state) => {
                                if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.includes("\n") ) {
                                    this.disableEnter();
@@ -116,14 +118,15 @@ class TextFieldElement extends React.Component {
                                    this.enableEnter();
                                }
                            }}
-                           optionSelected={(obj, enter) => {
+                           optionSelected={({state, props, selected}) => {
+                               let text = state.triggeredKey + selected[0];
                                this.editor.quill.updateContents([
-                                       {retain: obj.startPoint}, // starts at 0?
-                                       {delete: obj.text.length + (enter ? 1 : 0)},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
-                                       {insert: obj.selected.text}
+                                       {retain: state.startPoint}, // starts at 0?
+                                       {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
+                                       {insert: text}
                                    ].filter(action => action[Object.keys(action)[0]])
                                );
-                               this.editor.quill.setSelection(obj.startPoint + obj.selected.text.length);
+                               this.editor.quill.setSelection(state.startPoint + text.length);
                                setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)
                            }}
                 >
