@@ -128,7 +128,9 @@ class Suggester extends React.Component {
 
     componentDidUpdate(oldProps, oldState) {
         this.props.componentDidUpdate && this.props.componentDidUpdate(this.state);
-        if (this.state.triggered && oldState.text !== this.state.text || oldState.triggeredKey !== this.state.triggeredKey) {
+        if (this.state.triggered &&
+            (oldState.text !== this.state.text || oldState.triggeredKey !== this.state.triggeredKey)
+        ) {
             this.getSuggestions(this.state.text);
         }
     }
@@ -145,7 +147,7 @@ class Suggester extends React.Component {
         // }
         if (this.aheadOfStartPoint(this.state)) {
             this.props.optionSelected(
-                {state:this.state, selected: selected, props:this.props});
+                {state: this.state, selected: selected, props: this.props});
         }
         this.resetState();
 
@@ -197,11 +199,14 @@ class Suggester extends React.Component {
 
         return <div onKeyDownCapture={(e) => {
             console.log("onKeyPressCapture");
-            if (!this.state.triggered) return;
-                if (this.state.suggestions.length === 0 && props.triggerKeys.find((triggerKey) => e.key === triggerKey)){
-                    this.resetState(); // reset and let the input-trigger fire again with the new trigger
-                    return
-                }
+            if (!this.state.triggered) {
+                return;
+            }
+
+            if (this.state.suggestions.length === 0 && props.triggerKeys.find((triggerKey) => e.key === triggerKey)) {
+                this.resetState(); // reset and let the input-trigger fire again with the new trigger
+                return
+            }
 
 
             if (e.key === "ArrowDown") {
@@ -220,6 +225,8 @@ class Suggester extends React.Component {
                 );
             }
             else if (e.key === "Enter") {
+                console.log("onKeyPressCapture ENTER");
+
                 e.preventDefault(); // Doesn't work!!
                 e.stopPropagation(); // Doesn't work with quill!
                 this.selectOption(this.state.selectedIndex, /*true*/);

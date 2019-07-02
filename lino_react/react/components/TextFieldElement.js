@@ -119,9 +119,9 @@ class TextFieldElement extends React.Component {
                                }
                            }}
                            optionSelected={({state, props, selected}) => {
-                               let text = state.triggeredKey + selected[0] + " ";
+                               let text = /*state.triggeredKey + */selected[0] + " "; // if you add the trigger key use retain-1 and delete+1 to remove the existing triggerkey
                                this.editor.quill.updateContents([
-                                       {retain: state.startPoint}, // starts at 0?
+                                       {retain: state.startPoint},
                                        {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
                                        {insert: text}
                                    ].filter(action => action[Object.keys(action)[0]])
