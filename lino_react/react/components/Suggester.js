@@ -149,6 +149,7 @@ class Suggester extends React.Component {
         index = index === undefined ? this.state.selectedIndex : index;
         if (!this.state.suggestions.length) { // didn't use feature, reset self.
             this.resetState();
+            return
         }
 
         let selected = this.state.suggestions[index];
@@ -254,6 +255,7 @@ class Suggester extends React.Component {
             }}
                           onStart={this.onStart}
                           onCancel={(obj) => {
+                              this.resetState();
                               this.setState({...obj, triggered: false});
                               this.props.onCancel && this.props.onCancel();
                           }
