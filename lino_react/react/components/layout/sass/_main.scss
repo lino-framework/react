@@ -496,8 +496,13 @@ a {
     }
 }
 
+body .lino-panel.p-tabview .p-tabview-panels{
+    padding: .5ch 0.7ch;
+}
+
 .l-panel {
     height: 100%;
+    width: 100%;
     flex: auto;
     display: flex;
 

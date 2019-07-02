@@ -86,7 +86,7 @@ const LinoComponents = {
             let style = {};
             if (child.props.elem.value.flex) {
                 // style.width = props.elem.width + "ch"
-                style.flex = child.props.elem.value.flex
+                style.flex = `1 1 ${child.props.elem.value.flex}%`;
             }
             return <div style={style} className={classNames("l-component")}>
                 {child}
