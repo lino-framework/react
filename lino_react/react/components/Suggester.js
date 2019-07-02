@@ -57,7 +57,7 @@ class Suggester extends React.Component {
         };
         this.startState = {...this.state};
 
-        this.getSuggestions = debounce(this.getSuggestions.bind(this), 25);
+        this.getSuggestions = debounce(this.getSuggestions.bind(this), 100);
         this.showSuggestions = this.showSuggestions.bind(this);
         this.onStart = this.onStart.bind(this);
         this.onType = this.onType.bind(this);
@@ -128,9 +128,19 @@ class Suggester extends React.Component {
 
     componentDidUpdate(oldProps, oldState) {
         this.props.componentDidUpdate && this.props.componentDidUpdate(this.state);
-        if (this.state.triggered &&
-            (oldState.text !== this.state.text || oldState.triggeredKey !== this.state.triggeredKey)
+
+        if (this.state.triggeredKey === null || !this.state.triggered) {
+            return
+        }
+
+        if (oldState.text !== this.state.text || oldState.triggeredKey !== this.state.triggeredKey
         ) {
+
+            if (this.state.suggestions.length === 0 && this.state.text.length >= oldState.text.length){
+                // don't keep requesting suggestions after typing.
+                return
+            }
+
             this.getSuggestions(this.state.text);
         }
     }
