@@ -119,7 +119,7 @@ class TextFieldElement extends React.Component {
                                }
                            }}
                            optionSelected={({state, props, selected}) => {
-                               let text = state.triggeredKey + selected[0];
+                               let text = state.triggeredKey + selected[0] + " ";
                                this.editor.quill.updateContents([
                                        {retain: state.startPoint}, // starts at 0?
                                        {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
