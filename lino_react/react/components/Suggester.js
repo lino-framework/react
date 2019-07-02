@@ -87,7 +87,7 @@ class Suggester extends React.Component {
 
         let id = this.props.id === undefined ? "-99999" : this.props.id;
         if (!this.aheadOfStartPoint(this.state) || text.includes("\n")) { // Don't fetch when doing stuff before startpoint.
-            console.log("don't get sugs");
+            // console.log("don't get sugs");
             return
         }
         let actorID = this.props.actorId.replace(".", "/")
@@ -119,7 +119,7 @@ class Suggester extends React.Component {
     }
 
     onType(obj, e) {
-        console.log(obj);
+        // console.log(obj);
         this.setState(old => {
             let state = {...obj,};
             return state
@@ -198,7 +198,7 @@ class Suggester extends React.Component {
         let sugestions = this.renderSuggestion();
 
         return <div onKeyDownCapture={(e) => {
-            console.log("onKeyPressCapture");
+            // console.log("onKeyPressCapture");
             if (!this.state.triggered) {
                 return;
             }
@@ -225,7 +225,7 @@ class Suggester extends React.Component {
                 );
             }
             else if (e.key === "Enter") {
-                console.log("onKeyPressCapture ENTER");
+                // console.log("onKeyPressCapture ENTER");
 
                 e.preventDefault(); // Doesn't work!!
                 e.stopPropagation(); // Doesn't work with quill!
