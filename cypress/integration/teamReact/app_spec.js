@@ -6,6 +6,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route("/media/cache/json/*.json").as("SiteData");
         cy.visit("/");
         cy.wait("@SiteData",{timeout:30000}); // Wait 30sec max for siteData gen
+        cy.get('.layout-menu-button ').click();
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
         cy.get(":nth-child(1) > .p-inputtext").type("robin"); // username field
@@ -32,7 +33,7 @@ describe("Basic tests for TeamReact", () => {
         cy.get('.l-nav-next > .pi').click().wait("@getTicketData");
         cy.get('.l-button-expand-grid:last').click().wait("@getTicketData");
         cy.get(".l-grid-header").contains("Tickets");
-        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(2)').click(); // 3ed row, 1st cell
+        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(2)').dblclick(); // 3ed row, 1st cell
         cy.get(".l-detail-header").contains("Tickets");
         cy.get(".l-slave-summary-expand-button:first").click().wait("@getSessionData");
 
@@ -67,7 +68,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/api/**').as('getData');
 
         cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click().wait("@getData"); // goto allTickets via html
-        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
+        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').dblclick().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
 
         // Test nav arrows
         cy.get('.l-nav-last:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
@@ -83,8 +84,8 @@ describe("Basic tests for TeamReact", () => {
 
         cy.get(".layout-menu-button > .pi").click(); // open menu
 
-        cy.get(".layout-main-menu > :nth-child(4) > :nth-child(2)").click();
-        cy.get(".active-menuitem > ul > :nth-child(3) > a").click();
+        cy.get(".layout-main-menu > :nth-child(3) > :nth-child(2)").click();
+        cy.get(".active-menuitem > ul > :nth-child(3) > a").click().wait("@getData");
 
         cy.get('.p-paginator-pages > :nth-child(2)').click().wait("@getData");
         cy.get('.p-paginator-prev').click().wait("@getData");
