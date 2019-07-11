@@ -60,9 +60,9 @@ class LinoBbar extends Component {
         return <React.Fragment>
             {this.props.reload && <Button icon={"pi pi-refresh"} onClick={this.props.reload}/>}
             {actorData.ba[this.props.an].toolbarActions && actorData.ba[this.props.an].toolbarActions.map((an) => {
-                let action = this.props.actorData.ba[an];
+                let action = window.App.state.site_data.actions[an];
                 return <Button label={action.label} key={an}
-                               disabled={actorData.ba[an].select_rows && this.props.sr.length === 0}
+                               disabled={action.select_rows && this.props.sr.length === 0}
                                onClick={() => this.runAction(an)}/>
 
             })}

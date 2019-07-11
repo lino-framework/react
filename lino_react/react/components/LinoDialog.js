@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 // import queryString from "query-string";
 // import {fetch as fetchPolyfill} from "whatwg-fetch";
 import {Dialog} from 'primereact/dialog';
-import {SiteContext} from "./SiteContext";
+import {SiteContext, ActorContext} from "./SiteContext";
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
 import DomHandler from "../../../../primereact/src/components/utils/DomHandler";
@@ -65,8 +65,8 @@ export class LinoDialog extends Component {
 
     render() {
 
-        return <SiteContext.Consumer>{(siteData) => {
-            const footer = this.props.footer || <div><LinoBbar rp={this} actorData={siteData.actors[this.props.actorId]}
+        return <ActorContext.Consumer>{(ActorData) => {
+            const footer = this.props.footer || <div><LinoBbar rp={this} actorData={ActorData}
                                                                an={this.props.action.an} sr={[undefined]}/></div>
             // webpack wants theres decerations here, not in the if, otherwise unassigned var error in return
 
@@ -80,17 +80,17 @@ export class LinoDialog extends Component {
                 ||
                 <LinoLayout data={this.props.data}
                             actorId={this.props.actorId}
-                            actorData={siteData.actors[this.props.actorId]}
+                            actorData={ActorData}
                             action={this.props.action}
                             update_value={(v) => this.props.update_value(v, this._reactInternalFiber.key)}
                             editing_mode={true}
                             match={this.props.router}
                             onSubmit={this.props.onOk}
-                            window_layout={this.props.action.window_layout}
+                            window_layout={ActorData.ba[this.props.action.an].window_layout}
                             ref={el=>this.ll=el}
                             />}
             </Dialog>
-        }}</SiteContext.Consumer>
+        }}</ActorContext.Consumer>
 
     };
 }

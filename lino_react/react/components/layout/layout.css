@@ -522,11 +522,18 @@ body .l-ForeignKeyElement {
 .p-calendar input {
   width: 100%; }
 
-.layout-main .l-ChoiceListFieldElement .p-dropdown-clearable > label {
+.l-ChoiceListFieldElement .p-dropdown.p-component {
+  padding-right: 1px; }
+
+.l-ChoiceListFieldElement .p-dropdown-clearable > label {
   margin-right: 16px; }
 
-.layout-main .l-ChoiceListFieldElement > div {
+.l-ChoiceListFieldElement > div {
   min-width: unset; }
+
+.l-ChoiceListFieldElement label {
+  margin-top: 1px;
+  margin-left: 1px; }
 
 .l-panel-vertical {
   flex-direction: column; }
@@ -544,6 +551,14 @@ body .l-ForeignKeyElement {
 .p-tabview-panel {
   flex: auto;
   display: flex; }
+
+.l-editor-wrapper > div {
+  width: 100%;
+  height: 100%; }
+
+.l-editor-wrapper > div > div {
+  width: 100%;
+  height: 100%; }
 
 .p-editor-container {
   height: 100%;

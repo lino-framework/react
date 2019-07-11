@@ -44,7 +44,7 @@ import {Redirect} from 'react-router-dom';
 import {fetch as fetchPolyfill} from 'whatwg-fetch'
 
 
-import {SiteContext} from "./SiteContext"
+import {SiteContext, ActorData} from "./SiteContext"
 
 let Lino = {}; // For action.preprocessing for appy mixins.
 Lino.get_current_grid_config = function (rp_obj, ajax_args) {
@@ -380,7 +380,7 @@ class App extends React.Component {
             rp_obj = rp;
             rp = key(rp_obj);
         }
-        const action = this.state.site_data.actors[actorId].ba[an];
+        const action = this.state.site_data.actions[an];
         // console.log("runAction", action, an, actorId, rp, status, sr);
         // Grid show and detail actions change url to correct page.
         let url_args = queryString.parse(this.router.history.location.search);
@@ -837,10 +837,12 @@ class App extends React.Component {
                                 let key = route.match.params.packId + "." + route.match.params.actorId;
                                 let parms = new URLSearchParams(route.location.search);
                                 // console.log(key);
-                                if (this.state.site_loaded && this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")] === undefined) {
-                                    return <div><h1>Not found</h1><p>The Actor you have requested does not exist.</p>
-                                    </div>;
-                                }
+
+                                // todo have 404 be inside Actor?
+                                // if (this.state.site_loaded && this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")] === undefined) {
+                                //     return <div><h1>Not found</h1><p>The Actor you have requested does not exist.</p>
+                                //     </div>;
+                                // }
 
                                 return this.state.site_loaded ? <Actor match={route}
                                                                        actorId={route.match.params.actorId}
@@ -851,7 +853,8 @@ class App extends React.Component {
                                                                        key={key}
 
                                         // Should it look at SiteContext?
-                                                                       actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}/>
+                                        //                                actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}
+                                    />
                                     : <ProgressSpinner/>
                             }}/>
                         </SiteContext.Provider>
@@ -863,27 +866,26 @@ class App extends React.Component {
                         <iframe id="temp" name="temp" style={{display: "none"}}/>
                         {/*<SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}*/}
                         {/*onSignIn={this.onSignIn}/>*/}
-                        {this.state.dialogs.map((d) => {
+                        {this.state.dialogs.map((d) => (<ActorData key={key(d)} actorId={d.actorId}>
+                                <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
+                                            onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title}
+                                            content={d.content}
+                                            closable={d.closable}
+                                            footer={d.footer}
+                                            router={this.router}
+                                            update_value={(values, id) => {
+                                                this.setState(previous => {
+                                                    const dia = previous.dialogs.find(e => key(e) === id),
 
-                            return <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
-                                               onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title}
-                                               content={d.content}
-                                               closable={d.closable}
-                                               footer={d.footer}
-                                               router={this.router}
-                                               update_value={(values, id) => {
-                                                   this.setState(previous => {
-                                                       const dia = previous.dialogs.find(e => key(e) === id),
+                                                        dialogs = [...previous.dialogs];
+                                                    Object.assign(dia.data, values);
+                                                    return {dialogs: dialogs}
+                                                })
+                                            }}/>
 
-                                                           dialogs = [...previous.dialogs];
-                                                       Object.assign(dia.data, values);
-                                                       return {dialogs: dialogs}
-                                                   })
-                                               }}/>
-
-                        })}
+                            </ActorData>
+                        ))}
                     </SiteContext.Provider>
-
                 </div>
             </HashRouter>
         )

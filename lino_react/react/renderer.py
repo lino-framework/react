@@ -9,10 +9,11 @@ from builtins import str
 import six
 
 from cgi import escape
-
+from os import path
 from django.conf import settings
 from django.db import models
 from django.utils.text import format_lazy
+from django.utils import translation
 
 from lino.core import constants as ext_requests
 from lino.core.renderer import add_user_language, JsRenderer, HtmlRenderer
@@ -26,7 +27,7 @@ from lino.modlib.extjs.ext_renderer import ExtRenderer
 
 from lino.core.actions import (ShowEmptyTable, ShowDetail,
                                ShowInsert, ShowTable, SubmitDetail,
-                               SubmitInsert)
+                               SubmitInsert, Action)
 from lino.core.boundaction import BoundAction
 from lino.core.choicelists import ChoiceListMeta
 from lino.core.actors import Actor
@@ -83,10 +84,20 @@ class Renderer(JsRenderer, JsCacheRenderer):
             ID: [{"value": py2js(c[0]).strip('"'), "text": py2js(c[1]).strip('"')} for c in cl.get_choices()] for
             ID, cl in
             kernel.CHOICELISTS.items()}
-        f.write(py2js(dict(actors={a.actor_id: a for a in self.actors_list},
+
+        actions = set()
+        for rpt in self.actors_list:
+            # rh = rpt.get_handle() #for getting bound actor, not needed.
+            for ba in rpt.get_actions():
+                if ba.action not in actions:
+                    actions.add(ba.action)
+
+        f.write(py2js(dict(
+                           actions={a.action_name:a for a in actions},
+            # actors={a.actor_id: a for a in self.actors_list},
                            menu=settings.SITE.get_site_menu(get_user_profile()),
                            choicelists=choicelists_data,
-                           suggestors=list(settings.SITE.kernel.memo_parser.suggesters.keys()) # [#,@] keytriggers
+                           suggestors=list(settings.SITE.kernel.memo_parser.suggesters.keys())  # [#,@] keytriggers
                            ),
                       compact=not settings.SITE.is_demo_site))
         self.serialise_js_code = False
@@ -282,23 +293,35 @@ class Renderer(JsRenderer, JsCacheRenderer):
         if isinstance(v, LayoutHandle):
             # Layout entry-point
             return dict(main=v.main)
+
+        if isinstance(v, Action):
+            # todo include all aux info
+            # todo include grid info
+            # todo refactor this into a all_actions object and have the bound actions ref it to reduse json size
+            result = dict(an=v.action_name,
+                          label=v.get_label(),  # todo fix this, this is a readable action, not ID for the action
+                          window_action=v.is_window_action(),
+                          http_method=v.http_method,
+                          )
+
+            # if v.show_in_bbar: result["bbar"] = True # not needed
+            if v.preprocessor: result["preprocessor"] = v.preprocessor
+            if v.combo_group: result["combo_group"] = v.combo_group
+            if v.select_rows: result['select_rows'] = v.select_rows
+            if v.submit_form_data: result['submit_form_data'] = True
+
+            return result
+
         if isinstance(v, BoundAction):
 
             # todo include all aux info
             # todo include grid info
             # todo refactor this into a all_actions object and have the bound actions ref it to reduse json size
             result = dict(an=v.action.action_name,
-                          label=v.action.get_label(),  # todo fix this, this is a readable action, not ID for the action
-                          window_action=v.action.is_window_action(),
                           window_layout=v.get_layout_handel(),
-                          http_method=v.action.http_method,
                           )
 
             # if v.action.show_in_bbar: result["bbar"] = True # not needed
-            if v.action.preprocessor: result["preprocessor"] = v.action.preprocessor
-            if v.action.combo_group: result["combo_group"] = v.action.combo_group
-            if v.action.select_rows: result['select_rows'] = v.action.select_rows
-            if v.action.submit_form_data: result['submit_form_data'] = True
             if v.action.window_type: result["toolbarActions"] = [ba.action.action_name for ba in
                                                                  v.actor.get_toolbar_actions(
                                                                      v.action)]
@@ -486,3 +509,28 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 # kw.update(tooltip=self.field.help_text)
                 kw.update(quicktip="(%s,%s)" % (title,
                                                 ttt))
+
+    def lino_js_parts_chunked(self, actorId):
+        """ Like lino_js_parts, but for actor_level data"""
+        user_type = get_user_profile()
+        filename = 'Lino_' + actorId + "_"
+        file_type = self.lino_web_template.rsplit(".")[-1]  # json
+        if user_type is not None:
+            filename += user_type.value + '_'
+        filename += translation.get_language() + '.' + file_type
+        return ('cache', file_type, filename)
+
+    def build_js_cache(self, force):
+        self.serialise_js_code = True
+
+        for actor in self.actors_list:
+            fn = path.join(*self.lino_js_parts_chunked(actor.actor_id))
+
+            def write(f):
+                f.write(
+                    py2js(actor)
+                )
+            settings.SITE.kernel.make_cache_file(fn, write, force)
+        self.serialise_js_code = False
+
+        return super(Renderer, self).build_js_cache(force)

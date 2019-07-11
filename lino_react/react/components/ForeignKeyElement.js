@@ -9,11 +9,12 @@ import {AutoComplete} from 'primereact/autocomplete';
 import queryString from "query-string";
 import {fetch as fetchPolyfill} from "whatwg-fetch";
 
+import {ActorData, ActorContext} from "./SiteContext"
+
 
 export class ForeignKeyElement extends Component {
 
-    static propTypes = {
-    };
+    static propTypes = {};
     static defaultProps = {};
 
     constructor(props) {
@@ -21,7 +22,15 @@ export class ForeignKeyElement extends Component {
         this.state = {
             rows: [],
         };
+        this.OnExternalLinkClick = this.OnExternalLinkClick.bind(this);
+        this.getChoices = this.getChoices.bind(this);
+
+        this.openExternalLink = this.openExternalLink.bind(this);
+        this.focus = this.focus.bind(this);
+        this.openExternalLink = this.openExternalLink.bind(this);
+
     }
+
     // Causes errors with dropdown opening
     // shouldComponentUpdate(nextProps, nextState) {
     //     let {props} = this,
@@ -34,10 +43,9 @@ export class ForeignKeyElement extends Component {
 
     };
 
-    getChoices(query, siteData) {
+    getChoices(query, actor_data) {
         // if (query.length < 3) return;
         // let actor = siteData.actors[this.props.elem.field_options.related_actor_id];
-        let actor_data = siteData.actors[this.props.actorId];
         let {data} = this.props;
         let ajaxQuery = {
             query: query,
@@ -45,45 +53,55 @@ export class ForeignKeyElement extends Component {
             //todo have pageing / some sort of max amount
         };
         let chooser_data = {},
-            context_fields = actor_data.chooser_dict? actor_data.chooser_dict[this.props.elem.name] : [];
+            context_fields = actor_data.chooser_dict ? actor_data.chooser_dict[this.props.elem.name] : [];
         context_fields && context_fields.forEach((cf) => {
             // todo have work with grid's array indexed data
-            chooser_data[cf] = data[cf+"Hidden"] === undefined ? data[cf] : data[cf+"Hidden"];
+            chooser_data[cf] = data[cf + "Hidden"] === undefined ? data[cf] : data[cf + "Hidden"];
         });
         Object.assign(ajaxQuery, chooser_data);
 
         fetchPolyfill(`/${this.props.action_dialog ? "apchoices" : "choices"}/${this.props.actorId.replace(".", "/")}${this.props.action_dialog ? `/${this.props.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
         ).then(
-            (data => this.setState( () => { return {
-                rows: data.rows.slice(),
-            }}))
+            (data => this.setState(() => {
+                return {
+                    rows: data.rows.slice(),
+                }
+            }))
         ).catch(error => window.App.handleAjaxException(error));
     }
 
-    openExternalLink(siteData) {
-        let props = this.props;
-        return (e) => {
-            let {match} = props,
-                actor = siteData.actors[props.elem.field_options.related_actor_id],
-                // detail_action = actor.ba[actor.detail_action],
-                // insert_action = actor.ba[actor.insert_action],
-                // [packId, actorId] = props.elem.field_options.related_actor_id.split("."),
-                pk = props.in_grid ? props.data[props.elem.fields_index + 1]
-                    : props.data[props.elem.name + 'Hidden'],
-                status = {record_id: pk};
+    OnExternalLinkClick(related_actor_id) {
 
-            if (actor.slave) {
-                status.mk = props.mk;
-                status.mt = props.mt;
-            }
-            // console.log(props.elem, detail_action);
-            window.App.runAction({
-                an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
-                rp: null, status: status
-            });
-            // match.history.push(`/api/${packId}/${actorId}/${pk}`);
+        return () => {
+            ActorData.prototype.getData(related_actor_id, (relatedActorData) => {
+                this.openExternalLink(relatedActorData)
+            })
         }
+    };
+
+    openExternalLink(relatedActorData) {
+
+        let {props} = this,
+            {match} = props,
+            actor = relatedActorData, //siteData.actors[props.elem.field_options.related_actor_id],
+            // detail_action = actor.ba[actor.detail_action],
+            // insert_action = actor.ba[actor.insert_action],
+            // [packId, actorId] = props.elem.field_options.related_actor_id.split("."),
+            pk = props.in_grid ? props.data[props.elem.fields_index + 1]
+                : props.data[props.elem.name + 'Hidden'],
+            status = {record_id: pk};
+
+        if (actor.slave) {
+            status.mk = props.mk;
+            status.mt = props.mt;
+        }
+        // console.log(props.elem, detail_action);
+        window.App.runAction({
+            an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
+            rp: null, status: status
+        });
+        // match.history.push(`/api/${packId}/${actorId}/${pk}`)
     };
 
     focus() {
@@ -100,24 +118,27 @@ export class ForeignKeyElement extends Component {
         let {editing_mode} = props;
 
         // props.update_value({[props.elem.name]: e.value})
-        return <SiteContext.Consumer>{(siteData) => (
+        return <ActorContext.Consumer>{(this_actorData) => (
             <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
-                        <AutoComplete value={value} onChange={(e) => {e.originalEvent.stopPropagation (); update_value(
-                            typeof(e.value) === "string" ?
-                                {[props.in_grid ? props.elem.fields_index : props.elem.name]: e.value} : // When filtering, we want the typed value to appear.
-                                {
-                                    [props.in_grid ? props.elem.fields_index : props.elem.name]: e.value.text,
-                                    [props.in_grid ? props.elem.fields_index +1 : props.elem.name + "Hidden"]: e.value.value,
-                                },
-                            props.elem, props.column
-                                )}}
+                        <AutoComplete value={value} onChange={(e) => {
+                            e.originalEvent.stopPropagation();
+                            update_value(
+                                typeof(e.value) === "string" ?
+                                    {[props.in_grid ? props.elem.fields_index : props.elem.name]: e.value} : // When filtering, we want the typed value to appear.
+                                    {
+                                        [props.in_grid ? props.elem.fields_index : props.elem.name]: e.value.text,
+                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: e.value.value,
+                                    },
+                                props.elem, props.column
+                            )
+                        }}
                                       suggestions={this.state.rows}
                                       dropdown={true}
-                                      // onFocus={(e) => e.target.select()}
+                            // onFocus={(e) => e.target.select()}
                                       field={"text"}
-                                      completeMethod={(e) => this.getChoices(e.query, siteData)}
+                                      completeMethod={(e) => this.getChoices(e.query, this_actorData)}
                                       container={this.props.container}
                                       ref={(el) => this.autoComplete = el}
                         />
@@ -127,12 +148,12 @@ export class ForeignKeyElement extends Component {
                                 dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                             {value &&
                             <Button icon="pi pi-external-link" className="p-button-secondary l-button-fk"
-                                    onClick={this.openExternalLink(siteData)}
+                                    onClick={this.OnExternalLinkClick(props.elem.field_options.related_actor_id)}
                             />}
                         </React.Fragment>}
                 </div>
 
-            </Labeled>)}</SiteContext.Consumer>
+            </Labeled>)}</ActorContext.Consumer>
 
     }
 }

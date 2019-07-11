@@ -852,7 +852,7 @@ class UserSettings(View):
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
             return json_response(dict(
                 user_type=u.user_type,
-                lang=u.language,
+                lang=get_language(),
                 site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()),
                 logged_in=anon,
                 username=u.get_full_name() if anon else _("Anonymous")

@@ -16,7 +16,7 @@ import DomHandler from "primereact/domhandler";
 
 import {LinoGrid} from "./LinoGrid";
 import {debounce} from "./LinoUtils";
-import {SiteContext} from "./SiteContext"
+import {SiteContext, ActorData, ActorContext} from "./SiteContext"
 
 import classNames from 'classnames';
 import {ForeignKeyElement} from "./ForeignKeyElement";
@@ -62,7 +62,7 @@ export function shouldComponentUpdate(nextProps, nextState) { // requred for gri
     return value !== next_value || props.editing_mode !== nextProps.editing_mode
 }
 
-export function getID(props){
+export function getID(props) {
     return props.data[props.actorData.pk_index];
 }
 
@@ -173,9 +173,9 @@ const LinoComponents = {
 
         render() {
             // console.log("choice render")
-            let {props} = this;
-            let value = getValue(props);
-            let hidden_value = getHiddenValue(props);
+            let {props} = this,
+                value = getValue(props),
+                hidden_value = getHiddenValue(props);
             return <SiteContext.Consumer>{(siteData) => {
                 let options = siteData.choicelists[props.elem.field_options.store];
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
@@ -227,8 +227,8 @@ const LinoComponents = {
         }
 
         render() {
-            let {props} = this;
-            value = getValue(props);
+            let {props} = this,
+                value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode ?
                     <InputText style={{width: "100%"}}
@@ -376,7 +376,7 @@ const LinoComponents = {
         </div>
     },
 
-    TextFieldElement: TextFieldElement ,
+    TextFieldElement: TextFieldElement,
 
     DateFieldElement: class DateFieldElement extends React.Component {
         constructor() {
@@ -435,9 +435,9 @@ const LinoComponents = {
 
         render() {
             let {props} = this,
-                value = (getValue(props));
-            let viewDate = new Date();
-            let regex = /(^\d?\d)[:.]?(\d?\d)$/g;
+                value = (getValue(props)),
+                viewDate = new Date(),
+                regex = /(^\d?\d)[:.]?(\d?\d)$/g;
             if (value && value.match(regex)) {
                 let m = regex.exec(value);
                 viewDate.setHours(m[1]);
@@ -484,18 +484,19 @@ const LinoComponents = {
 
         let [packId, actorId] = props.elem.actor_id.split("."); // "contacts.RolesByPerson"
 
-        return <SiteContext.Consumer>{(siteData) => (<LinoGrid
-            reload_timestamp={props.reload_timestamp}
-            ref={window.App.setRpRef}
-            inDetail={true}
-            match={props.match} // todo
-            mk={props.mk}
-            mt={props.mt} // Correct: Should be content_type of the detail object, not of the grid actor
-            // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
-            actorId={actorId}
-            packId={packId}
-            actorData={siteData.actors[props.elem.actor_id]}
-        />)}</SiteContext.Consumer>
+        return <ActorData key={props.elem.actor_id} actorId={props.elem.actor_id}>
+            <ActorContext.Consumer>{(actorData) => (<LinoGrid
+                reload_timestamp={props.reload_timestamp}
+                ref={window.App.setRpRef}
+                inDetail={true}
+                match={props.match} // todo
+                mk={props.mk}
+                mt={props.mt} // Correct: Should be content_type of the detail object, not of the grid actor
+                // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
+                actorId={actorId}
+                packId={packId}
+                actorData={actorData}
+            />)}</ActorContext.Consumer></ActorData>
 
 
     },
@@ -503,7 +504,7 @@ const LinoComponents = {
     ActionParamsPanel: (props) => {
         let {action, onSubmit} = props,
             is_sign_in = action.an === "sign_in",
-            Panel=LinoComponents.Panel;
+            Panel = LinoComponents.Panel;
         return (
             <form target={is_sign_in ? "temp" : undefined}
                   id={is_sign_in ? "sign_in_submit" : undefined}
@@ -561,7 +562,12 @@ class LinoLayout extends React.Component {
     render() {
         let {window_layout} = this.props;
         let elem = this.props.elem ? this.props.elem : window_layout.main;
-        return this.renderComponent(elem.react_name, {...this.props, id:getID(this.props), elem: elem, linoLayout: this})
+        return this.renderComponent(elem.react_name, {
+            ...this.props,
+            id: getID(this.props),
+            elem: elem,
+            linoLayout: this
+        })
 
     }
 

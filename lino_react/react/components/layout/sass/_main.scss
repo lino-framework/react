@@ -496,7 +496,7 @@ a {
     }
 }
 
-body .lino-panel.p-tabview .p-tabview-panels{
+body .lino-panel.p-tabview .p-tabview-panels {
     padding: .5ch 0.7ch;
 }
 
@@ -563,19 +563,28 @@ body .l-ForeignKeyElement {
     width: 100%;
 }
 
-.layout-main .l-ChoiceListFieldElement {
+.l-ChoiceListFieldElement {
     //    display: flex;
     //    flex-direction: row;
     //    align-items: center;
     //    .p-dropdown {
     //        display: inherit; //stops dropdown button from wrapping.
     //    }
+
+    .p-dropdown.p-component {
+        padding-right: 1px;
+    }
     .p-dropdown-clearable > label {
         margin-right: 16px;
     }
     > div {
         min-width: unset;
     }
+    label {
+        margin-top: 1px;
+        margin-left: 1px;
+    }
+    .d-dropdown-    
 }
 
 .l-panel-vertical {
@@ -606,6 +615,16 @@ body .l-ForeignKeyElement {
 .p-tabview-panel {
     flex: auto;
     display: flex;
+}
+
+.l-editor-wrapper > div{
+    width: 100%;
+    height: 100%;
+}
+
+.l-editor-wrapper > div > div {
+    width: 100%;
+    height: 100%;
 }
 
 .p-editor-container {
