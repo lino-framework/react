@@ -15,6 +15,7 @@ describe("Basic tests for TeamReact", () => {
         // logged in
         // cy.wait("@logIn");
         cy.wait("@SiteData",{timeout:30000}); // Wait 30sec max for siteData gen
+        cy.wait(3000);
     });
 
 //    it("Test gen menu function", () => {
