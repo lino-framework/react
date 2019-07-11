@@ -5,7 +5,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/auth').as('logOut');
         cy.route("/media/cache/json/*.json").as("SiteData");
         cy.visit("/");
-        cy.wait("@SiteData",{timeout:30000}); // Wait 30sec max for siteData gen
+        cy.wait("@SiteData",{timeout:120000}); // Wait 30sec max for siteData gen
         cy.get('.layout-menu-button ').click();
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
@@ -14,7 +14,7 @@ describe("Basic tests for TeamReact", () => {
         cy.get(":nth-child(1) > .p-button-text").click();
         // logged in
         // cy.wait("@logIn");
-        cy.wait("@SiteData",{timeout:30000}); // Wait 30sec max for siteData gen
+        cy.wait("@SiteData",{timeout:120000}); // Wait 30sec max for siteData gen
         cy.wait(3000);
     });
 
