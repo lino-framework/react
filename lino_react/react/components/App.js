@@ -531,30 +531,6 @@ class App extends React.Component {
             Object.assign(args, changes);
         }
 
-        if (an === "grid_put" || an === "grid_post") {
-            let {editingValues} = rp_obj.state;
-            let values = {};
-            let actor_data = this.state.site_data.actors[actorId];
-            // actor_data.col.forEach( (col) => {
-            //     let v = editingValues[col.fields_index];
-            //     if (v === undefined) return
-            //     values[col.name] = v;
-            // });
-            Object.keys(editingValues).sort().forEach(function (k, i) {
-                let col = actor_data.col.find(col => col.fields_index == k);
-                if (col === undefined) {
-                    col = actor_data.col.find(col => col.fields_index + 1 == k);
-                }
-                if (col !== undefined) { // last two items are disabled fields and isEditable bool, without cols.
-                    values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
-                }
-            });
-            if (status.base_params) {
-                status.base_params.mt && (values.mk = status.base_params.mk);
-                status.base_params.mk && (values.mt = status.base_params.mt);
-            }
-            Object.assign(args, values)
-        }
 
         if (an === "submit_insert") {
             //called from an action button rather than OK / cancel buttons
@@ -572,29 +548,53 @@ class App extends React.Component {
             func && func(rp_obj, args)
         }
 
+        let makeCall = () => {
+            let url = `api/${actorId.split(".").join("/")}`;
+            if (urlSr !== undefined && urlSr !== null) url += `/${urlSr}`;
+            if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
 
-        let url = `api/${actorId.split(".").join("/")}`;
-        if (urlSr !== undefined && urlSr !== null) url += `/${urlSr}`;
-        if (action.http_method === "GET") url += `?${queryString.stringify(args)}`;
-
-        fetchPolyfill(url, {
-            method: action.http_method,
-            body: ['POST', "PUT"].includes(action.http_method) ? new URLSearchParams(queryString.stringify(args))/* objectToFormData(args)  *//*JSON.stringify(args)*/ : undefined,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',// 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        }).then(
-            this.handleAjaxResponse
-        ).then((data) => {
-                this.handleActionResponse({
-                    response: data,
-                    rp: rp_obj || rp,
-                    response_callback: response_callback
+            fetchPolyfill(url, {
+                method: action.http_method,
+                body: ['POST', "PUT"].includes(action.http_method) ? new URLSearchParams(queryString.stringify(args))/* objectToFormData(args)  *//*JSON.stringify(args)*/ : undefined,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',// 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(
+                this.handleAjaxResponse
+            ).then((data) => {
+                    this.handleActionResponse({
+                        response: data,
+                        rp: rp_obj || rp,
+                        response_callback: response_callback
+                    });
+                }
+            ).catch(error => window.App.handleAjaxException(error));
+            // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
+        };
+        if (an === "grid_put" || an === "grid_post") {
+            let {editingValues} = rp_obj.state;
+            let values = {};
+            ActorData.prototype.getData(actorId, (actorData) => {
+                Object.keys(editingValues).sort().forEach(function (k, i) {
+                    let col = actorData.col.find(col => col.fields_index == k);
+                    if (col === undefined) {
+                        col = actorData.col.find(col => col.fields_index + 1 == k);
+                    }
+                    if (col !== undefined) { // last two items are disabled fields and isEditable bool, without cols.
+                        values[values[col.name] === undefined ? col.name : col.name + "Hidden"] = editingValues[k];
+                    }
                 });
-            }
-        ).catch(error => window.App.handleAjaxException(error));
-        // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
+                if (status.base_params) {
+                    status.base_params.mt && (values.mk = status.base_params.mk);
+                    status.base_params.mk && (values.mt = status.base_params.mt);
+                }
+                Object.assign(args, values)
+                makeCall();
+            });
+        } else {
+            makeCall();
+        }
     };
 
     handleActionResponse = ({response = response, rp = undefined, response_callback = undefined,}) => {

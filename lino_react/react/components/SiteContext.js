@@ -66,18 +66,32 @@ export class ActorData extends React.Component {
     }
 
     componentDidMount() {
-        this.getData(this.props.actorId,
-            (data) =>
-                this.setState({
-                    loaded: true,
-                    actorData: data
-                })
-        );
+        if (this.props.actorId === undefined) {
+            this.setState({
+                loaded: true,
+            });
+        }
+        else {
+            this.getData(this.props.actorId,
+                (data) => {
+                    this.setState({
+                        loaded: true,
+                        actorData: data
+                    })
+                }
+            )
+        }
     }
 
     render() {
-        return <ActorContext.Provider value={this.state.actorData}>
-            {this.state.loaded && this.props.children}
-        </ActorContext.Provider>
+
+        if (this.props.actorId === undefined) {
+            return this.props.children
+        }
+        else {
+            return <ActorContext.Provider value={this.state.actorData}>
+                {this.state.loaded && this.props.children}
+            </ActorContext.Provider>
+        }
     }
 }
