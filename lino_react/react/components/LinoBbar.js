@@ -18,10 +18,12 @@ class LinoBbar extends Component {
         rp: PropTypes.any,
         reload: PropTypes.func,
         srMap: PropTypes.func,
+        runWrapper: PropTypes.func,
     };
     static defaultProps = {
         srMap: sr => sr,
         sr: [],
+        runWrapper: (fn) => (fn())
     };
 
     constructor(props) {
@@ -63,7 +65,7 @@ class LinoBbar extends Component {
                 let action = window.App.state.site_data.actions[an];
                 return <Button label={action.label} key={an}
                                disabled={action.select_rows && this.props.sr.length === 0}
-                               onClick={() => this.runAction(an)}/>
+                               onClick={() => this.props.runWrapper(() => this.runAction(an))}/>
 
             })}
         </React.Fragment>

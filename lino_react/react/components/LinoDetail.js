@@ -53,7 +53,9 @@ export class LinoDetail extends Component {
         this.update_value = this.update_value.bind(this);
         this.quickSearch = debounce(this.quickSearch.bind(this));
         this.consume_server_responce = this.consume_server_responce.bind(this);
-
+        this.isDirty = this.isDirty.bind(this);
+        this.save = debounce(this.save.bind(this), 200);
+        this.saveThenDo = this.saveThenDo.bind(this);
 
     }
 
@@ -97,6 +99,34 @@ export class LinoDetail extends Component {
         ).then(
             this.consume_server_responce
         ).catch(error => window.App.handleAjaxException(error));
+    }
+
+    isDirty() {
+        return !deepCompare(this.state.data, this.state.original_data);
+    }
+
+    save(callback) {
+        this.isDirty() && window.App.runAction({
+            rp: this,
+            an: "submit_detail",
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            sr: this.props.pk,
+            response_callback: (data) => {
+                this.setState({editing_mode: false});
+                // this.consume_server_responce(data.data_record);
+                this.reload();
+                if (callback) callback(data)
+            }
+        });
+    }
+
+    saveThenDo(fn){
+        if (this.isDirty()) {
+            this.save(fn)
+        } else {
+            fn()
+        }
+
     }
 
     consume_server_responce(data) {
@@ -203,18 +233,8 @@ export class LinoDetail extends Component {
                         <ToggleButton style={{"float": "right"}}
                                       checked={this.state.editing_mode}
                                       onChange={(e) => {
-                                          if (this.state.editing_mode && !deepCompare(this.state.original_data, this.state.data)) {
-                                              window.App.runAction({
-                                                  rp: this,
-                                                  an: "submit_detail",
-                                                  actorId: `${this.props.packId}.${this.props.actorId}`,
-                                                  sr: this.props.pk,
-                                                  response_callback: (data) => {
-                                                      this.setState({editing_mode: false});
-                                                      // this.consume_server_responce(data.data_record);
-                                                      this.reload();
-                                                  }
-                                              });
+                                          if (this.state.editing_mode && this.isDirty()) {
+                                              this.save();
                                           }
                                           else {
                                               this.setState({editing_mode: e.value})
@@ -233,7 +253,7 @@ export class LinoDetail extends Component {
                     }
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
-                              an={'detail'}/>
+                              an={'detail'} runWrapper={this.saveThenDo}/>
                 </Toolbar>}
                 <LinoLayout
                     window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
