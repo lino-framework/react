@@ -226,6 +226,15 @@ function (_React$Component) {
 
     _this.fetch_user_settings = function () {
       Object(whatwg_fetch__WEBPACK_IMPORTED_MODULE_28__["fetch"])("/user/settings/").then(_this.handleAjaxResponse).then(function (data) {
+        var store = window.localStorage,
+            lv = store.getItem("lv");
+
+        if (lv !== data["lv"]) {
+          // need to update layout data.
+          store.clear();
+          store.setItem("lv", data["lv"]); // lino_version
+        }
+
         _this.setState({
           user_settings: data
         });

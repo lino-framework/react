@@ -10,6 +10,8 @@ from past.utils import old_div
 
 import logging
 
+from os import environ
+
 import ast
 
 logger = logging.getLogger(__name__)
@@ -852,6 +854,7 @@ class UserSettings(View):
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
             return json_response(dict(
                 user_type=u.user_type,
+                lv=str(settings.SITE.kernel.code_mtime),
                 lang=get_language(),
                 site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()),
                 logged_in=anon,

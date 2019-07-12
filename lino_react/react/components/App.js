@@ -256,7 +256,14 @@ class App extends React.Component {
         fetchPolyfill("/user/settings/").then(
             this.handleAjaxResponse
         ).then((data) => {
+                let store = window.localStorage,
+                    lv = store.getItem("lv");
+                if (lv !== data["lv"]){ // need to update layout data.
+                        store.clear();
+                        store.setItem("lv", data["lv"]) // lino_version
+                }
                 this.setState({user_settings: data});
+
                 return this.fetch_site_data(data.site_data);
             }
         ).catch(error => window.App.handleAjaxException(error));
