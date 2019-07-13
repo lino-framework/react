@@ -866,7 +866,7 @@ class UserSettings(View):
 
 class Suggestions(View):
     def get(self, request, app_label=None, actor=None, pk=None, field=None):
-        suggesters = settings.SITE.kernel.memo_parser.suggesters
+        suggesters = settings.SITE.plugins.memo.parser.suggesters
         trigger = request.GET.get("trigger")
         query = request.GET.get("query")
         return json_response(

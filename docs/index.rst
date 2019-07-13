@@ -1,7 +1,7 @@
 .. _react:
 
 ========================
-React Front-end for Lino
+React front end for Lino
 ========================
 
 This is the documentation tree for :mod:`lino_react`.

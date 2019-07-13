@@ -87,6 +87,13 @@ class Plugin(Plugin):
         ]
         return urls
 
+    def get_detail_url(self, actor, pk, *args, **kw):
+        return self.build_plain_url(
+            "#",
+            "api",
+            actor.actor_id.replace(".", "/"),
+            str(pk), *args, **kw)
+
     def get_used_libs(self, html=False):
         if html is not None:
             yield ("React", '16.6', "https://reactjs.org/")

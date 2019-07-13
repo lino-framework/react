@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2012-2017 Luc Saffre
+# Copyright 2012-2019 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
 
@@ -97,7 +97,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             # actors={a.actor_id: a for a in self.actors_list},
                            menu=settings.SITE.get_site_menu(get_user_profile()),
                            choicelists=choicelists_data,
-                           suggestors=list(settings.SITE.kernel.memo_parser.suggesters.keys())  # [#,@] keytriggers
+                           suggestors=list(settings.SITE.plugins.memo.parser.suggesters.keys())  # [#,@] keytriggers
                            ),
                       compact=not settings.SITE.is_demo_site))
         self.serialise_js_code = False
@@ -107,14 +107,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
     def reload_js(self):
         return "window.App.dashboard.reload();"
-
-    def get_detail_url(self, actor, pk, *args, **kw):
-        """Opens detail however clears the app's history"""
-        return self.plugin.build_plain_url(
-            "#",
-            "api",
-            actor.actor_id.replace(".", "/"),
-            str(pk), *args, **kw)
 
     def get_request_url(self, ar, *args, **kw):
         """Used for turn requests into urls"""
