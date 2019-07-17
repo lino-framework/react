@@ -62139,7 +62139,11 @@ function (_Component) {
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", {
         className: "l-detail-header"
-      }, " ", this.state.title || "\xA0", " "), !this.props.noToolbar && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_toolbar__WEBPACK_IMPORTED_MODULE_4__["Toolbar"], {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        dangerouslySetInnerHTML: {
+          __html: this.state.title || "\xA0"
+        }
+      })), !this.props.noToolbar && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_toolbar__WEBPACK_IMPORTED_MODULE_4__["Toolbar"], {
         className: "l-detail-toolbar"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_autocomplete__WEBPACK_IMPORTED_MODULE_6__["AutoComplete"], {
         placeholder: "Quick Search",

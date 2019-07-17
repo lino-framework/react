@@ -190,7 +190,7 @@ export class LinoDetail extends Component {
     render() {
         return (
             <React.Fragment>
-                <h1 className={"l-detail-header"}> {this.state.title || "\u00a0"} </h1>
+                <h1 className={"l-detail-header"}><div dangerouslySetInnerHTML={{__html: this.state.title || "\u00a0"}}></div></h1>
 
                 {!this.props.noToolbar && <Toolbar className={"l-detail-toolbar"}>
                     <AutoComplete placeholder={"Quick Search"}
