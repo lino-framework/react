@@ -32,7 +32,7 @@ from lino.core.boundaction import BoundAction
 from lino.core.choicelists import ChoiceListMeta
 from lino.core.actors import Actor
 from lino.core.layouts import LayoutHandle
-from lino.core.elems import LayoutElement, ComboFieldElement
+from lino.core.elems import LayoutElement, ComboFieldElement, SimpleRemoteComboFieldElement
 from lino.core import kernel
 
 from etgen.html import E
@@ -334,7 +334,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 for c in result['col']:
                     c.fields_index = find(v.get_handle().store.list_fields, c.field.name,
                                           key=lambda f: f.name) + index_mod
-                    if isinstance(c, ComboFieldElement):
+                    if isinstance(c, ComboFieldElement) and not isinstance(c, SimpleRemoteComboFieldElement):
                         # Skip the data value for multi value columns, such as choices and FK fields.
                         # use c.fields_index -1 for data value
                         index_mod += 1

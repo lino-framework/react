@@ -16,14 +16,14 @@ import DomHandler from "../../../../primereact/src/components/utils/DomHandler";
 
 // better onOpen focusing logic.
 Dialog.prototype.focus = function focus() {
-        let focusable;
-        [this.contentElement, this.footerElement, this.headerElement].filter(e=>e).some(elem => {
-            focusable = DomHandler.findSingle(elem, 'button,input,textarea');
-            return focusable; // if true breaks loop
-        });
-        if (focusable) {
-            focusable.focus();
-        }
+    let focusable;
+    [this.contentElement, this.footerElement, this.headerElement].filter(e => e).some(elem => {
+        focusable = DomHandler.findSingle(elem, 'button,input,textarea');
+        return focusable; // if true breaks loop
+    });
+    if (focusable) {
+        focusable.focus();
+    }
 };
 
 export class LinoDialog extends Component {
@@ -67,17 +67,40 @@ export class LinoDialog extends Component {
 
         return <ActorContext.Consumer>{(ActorData) => {
             const footer = this.props.footer || <div><LinoBbar rp={this} actorData={ActorData}
-                                                               an={this.props.action.an} sr={[undefined]}/></div>
+                                                               an={this.props.action.an} sr={[undefined]}/></div>;
             // webpack wants theres decerations here, not in the if, otherwise unassigned var error in return
 
-            return <Dialog onHide={this.onClose} visible={this.state.visible}
+            const stop = (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            return <div
+                // Forward dragged files to fileUploader component.
+                onDragEnter={(e) => {
+                    stop(e);
+                    this.ll.fileUpload.onDragEnter(e);
+                }}
+                onDragOver={(e) => {
+                    stop(e);
+                    this.ll.fileUpload.onDragOver(e);
+                }}
+                onDragLeave={(e) => {
+                    stop(e);
+                    this.ll.fileUpload.onDragLeave(e);
+                }}
+                onDrop={(e) => {
+                    stop(e);
+                    this.ll.fileUpload.onDrop(e);
+                }}><Dialog onHide={this.onClose} visible={this.state.visible}
                            header={this.props.title || this.props.action.label}
                            footer={footer}
                            maximizable={true}
-                           onShow={()=> this.ll && this.ll.focusFirst()}
+                           onShow={() => this.ll && this.ll.focusFirst()}
                            closable={this.props.closable}>
                 {this.props.content
                 ||
+
                 <LinoLayout data={this.props.data}
                             actorId={this.props.actorId}
                             actorData={ActorData}
@@ -86,10 +109,17 @@ export class LinoDialog extends Component {
                             editing_mode={true}
                             match={this.props.router}
                             onSubmit={this.props.onOk}
+                            saveFileUploadRequest={(xhr_formData) => {
+                                this.setState({
+                                    FileUploadRequest: xhr_formData
+                                })
+                            }}
                             window_layout={ActorData.ba[this.props.action.an].window_layout}
-                            ref={el=>this.ll=el}
-                            />}
-            </Dialog>
+                            ref={el => this.ll = el}
+                            inDialog={true}
+                />
+                }
+            </Dialog></div>
         }}</ActorContext.Consumer>
 
     };

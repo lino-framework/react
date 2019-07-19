@@ -13,6 +13,7 @@ import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
 import {Calendar} from 'primereact/calendar';
 import DomHandler from "primereact/domhandler";
+import {FileUpload} from "primereact/fileupload"
 
 import {LinoGrid} from "./LinoGrid";
 import {debounce} from "./LinoUtils";
@@ -478,6 +479,55 @@ const LinoComponents = {
     },
 
     ForeignKeyElement: ForeignKeyElement,
+
+    FileFieldElement: class FileFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.cal.inputElement.focus()
+        }
+
+        render() {
+            let {props} = this,
+                value = (getValue(props));
+
+            // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                { props.inDialog ?
+                    <FileUpload ref={(el)=> props.linoLayout.fileUpload = el} name={getDataKey(props)} url={`api/${props.actorId.split(".").join("/")}`}
+                                // mode={"basic"}
+                                multiple={true} // BUG even with false, when using mode:advanced you can add >1 file
+                                onBeforeUpload={
+                                    ({xhr, formData}) => {
+                                        console.log("onBeforeUpload")
+                                    }}
+                                onBeforeSend={
+                                    ({xhr, formData}) => {
+                                        console.log("onBeforeSend");
+                                        props.saveFileUploadRequest({xhr: xhr, formData: formData});
+                                        // set null so as to not overwrite file value in formdata
+                                        props.update_value({[getDataKey(props)]: null});
+                                        return false
+                                    }}
+                                onUpload={({xhr, files}) => {
+                                    window.App.handleActionResponse({
+                                        response: JSON.parse(xhr.responseText),
+                                        ...xhr.lino_callbackdata
+                                    });
+                                    // console.log("onUpload", xhr,files);
+                                }}
+                                auto={true}
+
+                    />
+                    :
+                    <a href={("/media/" + value) || ""}> {value || "\u00a0"} </a>
+                }
+            </Labeled>
+        }
+    },
 
     GridElement: (props) => {
         // https://jane.saffre-rumma.net/api/contacts/RolesByPerson?_dc=1545239958036&limit=15&start=0&fmt=json&rp=ext-comp-1353&mt=8&mk=316

@@ -588,7 +588,7 @@ export class LinoGrid extends Component {
                                                   style={{
                                                       width: '2em',
                                                       "padding": "unset",
-                                                      "text-align": "center"
+                                                      "textAlign": "center"
                                                   }}
                             // editor={this.columnEditor(col)}
 
@@ -653,7 +653,7 @@ export class LinoGrid extends Component {
         const header = <div className="p-clearfix p-grid"
             // style={{'lineHeight': '1.87em'}}
         >
-            <div className={"p-col p-justify-end"} style={{"text-align": "left"}}>
+            <div className={"p-col p-justify-end"} style={{"textAlign": "left"}}>
                 {!this.props.inDetail && <React.Fragment>
                     <InputText className="l-grid-quickfilter"
                                placeholder="QuickSearch" /*value={this.state.query}*/

@@ -258,9 +258,9 @@ class App extends React.Component {
         ).then((data) => {
                 let store = window.localStorage,
                     lv = store.getItem("lv");
-                if (lv !== data["lv"]){ // need to update layout data.
-                        store.clear();
-                        store.setItem("lv", data["lv"]) // lino_version
+                if (lv !== data["lv"]) { // need to update layout data.
+                    store.clear();
+                    store.setItem("lv", data["lv"]) // lino_version
                 }
                 this.setState({user_settings: data});
 
@@ -388,7 +388,7 @@ class App extends React.Component {
             rp = key(rp_obj);
         }
 
-        rp_obj && rp_obj.save && an !=="submit_detail" && rp_obj.save(); // auto save
+        rp_obj && rp_obj.save && an !== "submit_detail" && rp_obj.save(); // auto save
 
         const action = this.state.site_data.actions[an];
         // console.log("runAction", action, an, actorId, rp, status, sr);
@@ -557,6 +557,16 @@ class App extends React.Component {
         if (action.preprocessor) {
             let func = eval(action.preprocessor);
             func && func(rp_obj, args)
+        }
+
+        if (an === "submit_insert" && rp_obj.state.FileUploadRequest) {
+            // We have file upload
+            let {xhr, formData} = rp_obj.state.FileUploadRequest;
+            Object.keys(args).forEach(
+                (name) => args[name] != null && formData.append(name, args[name]));
+            xhr.lino_callbackdata = {rp: rp_obj || rp, response_callback: response_callback};
+            xhr.send(formData);
+            return
         }
 
         let makeCall = () => {
