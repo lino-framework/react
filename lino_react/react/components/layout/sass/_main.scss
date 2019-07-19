@@ -616,7 +616,7 @@ body .l-ForeignKeyElement {
     display: flex;
 }
 
-.l-editor-wrapper > div{
+.l-editor-wrapper > div {
     width: 100%;
     height: 100%;
 }
@@ -647,6 +647,12 @@ body .l-ForeignKeyElement {
         }
 
         width: 100%;
+    }
+    .p-fileupload-content {
+        min-height: 150px;
+        max-height: 300px;
+        overflow-y: scroll;
+        overflow-x: hidden;
     }
     //max-height: 100vh;
     max-width: 100vw;

@@ -575,6 +575,11 @@ body .l-ForeignKeyElement {
     @media (max-width: 600px) {
       .p-dialog .p-dialog-content {
         overflow: scroll; } }
+  .p-dialog .p-fileupload-content {
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: scroll;
+    overflow-x: hidden; }
 
 .p-panel-content {
   flex: auto; }
