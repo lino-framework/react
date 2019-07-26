@@ -108,7 +108,7 @@ class Suggester extends React.Component {
     }
 
     showSuggestions() {
-        return this.state.triggered && this.state.suggestions.length && this.state.startPoint <= this.state.cursor.selectionStart && this.props.attachTo()
+        return this.state.triggered && this.state.suggestions && this.state.suggestions.length && this.state.startPoint <= this.state.cursor.selectionStart && this.props.attachTo()
     }
 
     onStart(obj) {
