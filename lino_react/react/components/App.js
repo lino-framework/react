@@ -407,7 +407,10 @@ class App extends React.Component {
             data: {},
         };
 
-
+        if (status.base_params) {
+            status.base_params.mt && (excecute_args.mk = status.base_params.mk);
+            status.base_params.mk && (excecute_args.mt = status.base_params.mt);
+        }
         if (an === "grid" || an === "show" || an === "detail") {
             ActorData.prototype.getData(actorId, (actorData) => {
                 let history_conf = {
@@ -556,7 +559,8 @@ class App extends React.Component {
 
         if (action.preprocessor) {
             let func = eval(action.preprocessor);
-            func && func(rp_obj, args)
+            func && func(rp_obj, args);
+
         }
 
         if (an === "submit_insert" && rp_obj.state.FileUploadRequest) {

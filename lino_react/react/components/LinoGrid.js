@@ -369,6 +369,12 @@ export class LinoGrid extends Component {
         ajaxArgs.cw = cw;
         ajaxArgs.ch = orderedCols.map((c, i) => i >= unhiddenCols); // all cols after a point are hidden.
 
+        if (this.props.actorData.slave) {
+                this.props.mt && (ajaxArgs.mt = this.props.mt);
+                this.props.mk && (ajaxArgs.mk = this.props.mk);
+            }
+
+
         if (this.state.sortFieldName && this.state.sortOrder) { // if table is sorted add sort.
             ajaxArgs.dir = this.state.sortOrder === 1 ? "ASC" : "DESC";
             ajaxArgs.sort = this.state.sortFieldName;
