@@ -17,7 +17,7 @@ import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
 import LinoBbar from "./LinoBbar";
-import {pvObj2array} from "./LinoUtils"
+import {pvObj2array, deepCompare} from "./LinoUtils"
 
 
 import {Sidebar} from 'primereact/sidebar';
@@ -27,6 +27,7 @@ import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 //import {OverlayPanel} from 'primereact/overlaypanel';
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {Growl} from 'primereact/growl';
+import DomHandler from 'primereact/domhandler';
 
 import 'primereact/resources/themes/nova-light/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -78,7 +79,7 @@ class App extends React.Component {
         };
 
         this.rps = {}; // used for rp
-
+        this.dialogRefs = {}; // used for getting and focusing on the previous dialog from dialog props obj.
         this.onWrapperClick = this.onWrapperClick.bind(this);
         this.onToggleMenu = this.onToggleMenu.bind(this);
         this.onSidebarClick = this.onSidebarClick.bind(this);
@@ -439,6 +440,15 @@ class App extends React.Component {
                 action: action,
                 actorId: actorId,
                 data: {},
+                originalData: {},
+                isClosable: (linoDialog) => {
+                    if (deepCompare(linoDialog.props.data, linoDialog.props.originalData)) {
+                        return true; // no change, just close
+                    }
+                    else {
+                        this.askToCloseDialog(linoDialog);
+                    }
+                },
                 onClose: () => {
                     // console.log("Action Dialog Closed Callback");
                     this.setState((old) => {
@@ -467,10 +477,13 @@ class App extends React.Component {
 
             if (status.data_record) {
                 diag_props.data = status.data_record.data;
+                diag_props.originalData = {...status.data_record.data}; // make copy
                 diag_props.title = status.data_record.title;
             }
             else if (status.field_values) {
                 diag_props.data = status.field_values;
+                diag_props.originalData = {...status.field_values}; // make copy
+
             }
             else if (an === "insert") { // no default data and insert action,
 
@@ -490,11 +503,12 @@ class App extends React.Component {
                         this.setState(old => {
                             let dialogs = old.dialogs,
                                 dialog = dialogs.find(e => e === diag_props); // find dialog
-                            dialogs = [...dialogs]; // make copy of array, as to triger a refresh of data.
+                            dialogs = [...dialogs]; // make copy of array, to trigger a rerender.
                             // Object.assign(prevState.data, {...values}
                             if (dialog.data.mk) data.data.mk = dialog.data.mk;
                             if (dialog.data.mt) data.data.mt = dialog.data.mt;
                             dialog.data = data.data;
+                            dialog.originalData = {...data.data};
                             dialog.title = data.title;
                             return {dialogs: dialogs}
                         })
@@ -791,6 +805,41 @@ class App extends React.Component {
         return result
     };
 
+    askToCloseDialog(ParentlinoDialog) {
+        let diag_props = {
+            onClose: () => {
+                this.setState((old) => {
+                    let diags = old.dialogs.filter((x) => x !== diag_props);
+                    return {dialogs: diags};
+                });
+            },
+            closable: false,
+            footer: <div>
+                <Button label={"yes"} onClick={() => {
+                    diag_props.onClose();
+                    ParentlinoDialog.props.onClose();
+                    setTimeout(()=>{
+                        let topDiagProps = window.App.state.dialogs.length[window.App.state.dialogs.length-1];
+                        if (topDiagProps === undefined) {return}
+                        let topLinoDialog = window.App.dialogRefs[key(topDiagProps)];
+                        topLinoDialog && topLinoDialog.dialog && topLinoDialog.dialog.show()
+                    }, 50)
+                }}/>
+                <Button className={"p-button-secondary"} label={"no"} onClick={() => {
+                    diag_props.onClose();
+                    ParentlinoDialog.dialog.show();
+                }}/>
+            </div>,
+            title: "Confirmation",
+            content: <div>Discard changes to current record?</div>
+        };
+        // push to dialog buffer
+        this.setState((old) => {
+            return {dialogs: [diag_props].concat(old.dialogs)}
+        });
+
+    }
+
     render() {
         let wrapperClass = classNames('layout-wrapper', {
             'layout-overlay': this.state.layoutMode === 'overlay',
@@ -891,9 +940,11 @@ class App extends React.Component {
                         {/*<SignInDialog visible={this.state.logging_in} onClose={() => this.setState({logging_in: false})}*/}
                         {/*onSignIn={this.onSignIn}/>*/}
                         {this.state.dialogs.map((d) => (<ActorData key={key(d)} actorId={d.actorId}>
-                                <LinoDialog action={d.action} actorId={d.actorId} key={key(d)}
+                                <LinoDialog {...d}
+                                            action={d.action} actorId={d.actorId} key={key(d)}
                                             onClose={d.onClose} onOk={d.onOk} data={d.data} title={d.title}
                                             content={d.content}
+                                            isClosable={d.isClosable}
                                             closable={d.closable}
                                             footer={d.footer}
                                             router={this.router}
@@ -905,7 +956,10 @@ class App extends React.Component {
                                                     Object.assign(dia.data, values);
                                                     return {dialogs: dialogs}
                                                 })
-                                            }}/>
+                                            }}
+                                            ref={(el) => {this.dialogRefs[key(d)] = el}}
+
+                                />
 
                             </ActorData>
                         ))}

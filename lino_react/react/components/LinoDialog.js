@@ -40,11 +40,13 @@ export class LinoDialog extends Component {
         data: PropTypes.object,
         update_value: PropTypes.func,
         closable: PropTypes.bool,
+        isClosable: PropTypes.func,
         content: PropTypes.any, // Content for Yes/no dialogs
     };
     static defaultProps = {
         data: {},
         closable: true,
+        isClosable: () => true,
     };
 
     constructor(props) {
@@ -58,8 +60,10 @@ export class LinoDialog extends Component {
     };
 
     onClose() {
-        this.setState({visible: false});
-        this.props.onClose(this);
+        if (this.props.isClosable(this)){ // can have side-effects ( Mainly a close confermation window )
+            this.setState({visible: false});
+            this.props.onClose(this);
+        }
 
     };
 
@@ -73,7 +77,7 @@ export class LinoDialog extends Component {
             const stop = (event) => {
                 event.stopPropagation();
                 event.preventDefault();
-            }
+            };
 
             return <div
                 // Forward dragged files to fileUploader component.
@@ -95,8 +99,10 @@ export class LinoDialog extends Component {
                 }}><Dialog onHide={this.onClose} visible={this.state.visible}
                            header={this.props.title || this.props.action.label}
                            footer={footer}
+                           // closeOnEscape={false}
                            maximizable={true}
                            onShow={() => this.ll && this.ll.focusFirst()}
+                           ref={el => this.dialog = el}
                            closable={this.props.closable}>
                 {this.props.content
                 ||
