@@ -576,6 +576,10 @@ const LinoComponents = {
 
     },
 
+    SimpleRemoteComboFieldElement: (props) => {
+        return <ForeignKeyElement {...props} simple={true} link={false}/>
+    },
+
     UnknownElement: (props) => {
         let value = (getValue(props));
         // console.log(props); // Not needed, can get props via react debug tools in browser

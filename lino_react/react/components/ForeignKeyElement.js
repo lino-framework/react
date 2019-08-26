@@ -14,8 +14,15 @@ import {ActorData, ActorContext} from "./SiteContext"
 
 export class ForeignKeyElement extends Component {
 
-    static propTypes = {};
-    static defaultProps = {};
+    static propTypes = {
+        simple : PropTypes.bool, // For simple remote combo field
+        link: PropTypes.bool, // show link to FK object,
+    };
+    static defaultProps = {
+        simple : false,
+        link : true,
+
+    };
 
     constructor(props) {
         super();
@@ -137,7 +144,7 @@ export class ForeignKeyElement extends Component {
                                       suggestions={this.state.rows}
                                       dropdown={true}
                             // onFocus={(e) => e.target.select()}
-                                      field={"text"}
+                                      field={props.simple ? "value" : "text"}
                                       completeMethod={(e) => this.getChoices(e.query, this_actorData)}
                                       container={this.props.container}
                                       ref={(el) => this.autoComplete = el}
@@ -146,7 +153,7 @@ export class ForeignKeyElement extends Component {
                         : <React.Fragment>
                             <div
                                 dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-                            {value &&
+                            {value && props.link &&
                             <Button icon="pi pi-external-link" className="p-button-secondary l-button-fk"
                                     onClick={this.OnExternalLinkClick(props.elem.field_options.related_actor_id)}
                             />}
