@@ -16,6 +16,8 @@ import LinoBbar from "./LinoBbar";
 
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
+import {Prompt} from 'react-router'
+
 export class LinoDetail extends Component {
 
     static propTypes = {
@@ -56,6 +58,7 @@ export class LinoDetail extends Component {
         this.isDirty = this.isDirty.bind(this);
         this.save = debounce(this.save.bind(this), 200);
         this.saveThenDo = this.saveThenDo.bind(this);
+        this.onDirtyLeave = this.onDirtyLeave.bind(this);
 
     }
 
@@ -78,6 +81,16 @@ export class LinoDetail extends Component {
             this.props.mk !== prevProps.mk ||
             this.props.mt !== prevProps.mt) {
             this.reload();
+        }
+        if (this.isDirty()) {
+            window.onbeforeunload = (e) => {
+                e.preventDefault();
+                // Chrome requires returnValue to be set
+                e.returnValue = '';
+                this.onDirtyLeave({}, "UNLOAD")
+            }
+        } else {
+            window.onbeforeunload = undefined
         }
     }
 
@@ -102,7 +115,12 @@ export class LinoDetail extends Component {
     }
 
     isDirty() {
-        return !deepCompare(this.state.data, this.state.original_data);
+        if (this.state.forceClean) {
+            return false
+        }
+        else {
+            return !deepCompare(this.state.data, this.state.original_data);
+        }
     }
 
     save(callback) {
@@ -120,7 +138,47 @@ export class LinoDetail extends Component {
         });
     }
 
-    saveThenDo(fn){
+    onDirtyLeave(nextLocation, routerAction) {
+        let leave = () => {
+            if (routerAction !== "UNLOAD") { // user was closing page or relaoding, just close dialog,
+                this.setState({forceClean: true}); // required otherwise the prompt is caught again
+                setTimeout(() => this.props.match.history.push(nextLocation.pathname), 25);
+            }
+        };
+        let diag_props = {
+            onClose: () => {
+                window.App.setState((old) => {
+                    let diags = old.dialogs.filter((x) => x !== diag_props);
+                    return {dialogs: diags};
+                });
+            },
+            closable: false,
+            footer: <div>
+                <Button label={"Save"} onClick={() => {
+                    this.save(() => {
+                        diag_props.onClose();
+                        leave()
+                    });
+                }}/>
+                <Button label={"No"} onClick={() => {
+                    diag_props.onClose();
+                    leave()
+                }}/>
+                <Button className={"p-button-secondary"} label={"Cancel"} onClick={() => {
+                    diag_props.onClose();
+                }}/>
+            </div>,
+            title: "Save changes",
+            content: <div>Do you wish to save the current changes?</div>
+        };
+        // push to dialog stack
+        window.App.setState((old) => {
+            return {dialogs: [diag_props].concat(old.dialogs)}
+        });
+        return false;
+    }
+
+    saveThenDo(fn) {
         if (this.isDirty()) {
             this.save(fn)
         } else {
@@ -190,7 +248,14 @@ export class LinoDetail extends Component {
     render() {
         return (
             <React.Fragment>
-                <h1 className={"l-detail-header"}><div dangerouslySetInnerHTML={{__html: this.state.title || "\u00a0"}}></div></h1>
+
+                <Prompt message={this.onDirtyLeave}
+                        when={this.isDirty()}
+                />
+
+                <h1 className={"l-detail-header"}>
+                    <div dangerouslySetInnerHTML={{__html: this.state.title || "\u00a0"}}></div>
+                </h1>
 
                 {!this.props.noToolbar && <Toolbar className={"l-detail-toolbar"}>
                     <AutoComplete placeholder={"Quick Search"}

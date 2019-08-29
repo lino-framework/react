@@ -446,7 +446,7 @@ class App extends React.Component {
                         return true; // no change, just close
                     }
                     else {
-                        this.askToCloseDialog(linoDialog);
+                        this.askToCloseDialog({ParentlinoDialog: linoDialog});
                     }
                 },
                 onClose: () => {
@@ -805,7 +805,17 @@ class App extends React.Component {
         return result
     };
 
-    askToCloseDialog(ParentlinoDialog) {
+    showTopDialog() {
+        let topDiagProps = window.App.state.dialogs.length[window.App.state.dialogs.length - 1];
+        if (topDiagProps === undefined) {
+            return
+        }
+        let topLinoDialog = window.App.dialogRefs[key(topDiagProps)];
+        topLinoDialog && topLinoDialog.dialog && topLinoDialog.dialog.show()
+
+    }
+
+    askToCloseDialog({ParentlinoDialog = undefined,} = {}) {
         let diag_props = {
             onClose: () => {
                 this.setState((old) => {
@@ -817,27 +827,23 @@ class App extends React.Component {
             footer: <div>
                 <Button label={"yes"} onClick={() => {
                     diag_props.onClose();
-                    ParentlinoDialog.props.onClose();
-                    setTimeout(()=>{
-                        let topDiagProps = window.App.state.dialogs.length[window.App.state.dialogs.length-1];
-                        if (topDiagProps === undefined) {return}
-                        let topLinoDialog = window.App.dialogRefs[key(topDiagProps)];
-                        topLinoDialog && topLinoDialog.dialog && topLinoDialog.dialog.show()
+                    ParentlinoDialog && ParentlinoDialog.props.onClose();
+                    setTimeout(() => {
+                        this.showTopDialog();
                     }, 50)
                 }}/>
                 <Button className={"p-button-secondary"} label={"no"} onClick={() => {
                     diag_props.onClose();
-                    ParentlinoDialog.dialog.show();
+                    ParentlinoDialog && ParentlinoDialog.dialog.show();
                 }}/>
             </div>,
             title: "Confirmation",
             content: <div>Discard changes to current record?</div>
         };
-        // push to dialog buffer
+        // push to dialog stack
         this.setState((old) => {
             return {dialogs: [diag_props].concat(old.dialogs)}
         });
-
     }
 
     render() {
@@ -957,7 +963,9 @@ class App extends React.Component {
                                                     return {dialogs: dialogs}
                                                 })
                                             }}
-                                            ref={(el) => {this.dialogRefs[key(d)] = el}}
+                                            ref={(el) => {
+                                                this.dialogRefs[key(d)] = el
+                                            }}
 
                                 />
 
