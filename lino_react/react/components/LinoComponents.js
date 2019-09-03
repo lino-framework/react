@@ -428,22 +428,36 @@ const LinoComponents = {
         constructor() {
             super();
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.str2date = this.str2date.bind(this);
         }
 
         focus() {
             this.cal.inputElement.focus()
         }
 
+        str2date(timeStr) {
+            let regex = /^(\d(?:\d(?=[.,:; ]?\d\d|[.,:; ]\d|$))?)?[.,:; ]?(\d{0,2})$/g;
+            if (timeStr && timeStr.match(regex)) {
+                let m = regex.exec(timeStr),
+                    viewDate = new Date(),
+                    hours = m[1],
+                    min = m[2];
+                viewDate.setHours(hours || 0);
+                viewDate.setMinutes(min || 0);
+                return viewDate
+            }
+            return false
+        }
+
+        date2str(date) {
+            return ("0" + date.getHours()).slice(-2) + ":" +
+                ("0" + date.getMinutes()).slice(-2);
+            }
+
         render() {
             let {props} = this,
                 value = (getValue(props)),
-                viewDate = new Date(),
-                regex = /(^\d?\d)[:.]?(\d?\d)$/g;
-            if (value && value.match(regex)) {
-                let m = regex.exec(value);
-                viewDate.setHours(m[1]);
-                viewDate.setMinutes(m[2]);
-            }
+                viewDate = this.str2date(value) || new Date();
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode ?
@@ -453,18 +467,19 @@ const LinoComponents = {
                               onChange={(e) => {
                                   let time;
                                   if (e.value instanceof Date) {
-                                      time = ("0" + e.value.getHours()).slice(-2) + ":" +
-                                          ("0" + e.value.getMinutes()).slice(-2);
+                                      time = this.date2str(e.value)
                                   }
                                   props.update_value({[getDataKey(props)]: time || e.value || ""},
                                       props.elem,
                                       props.column)
                               }}
-                        // onBlur={(e) => {
-                        //     props.update_value({[getDataKey(props]: e.target.value.replace(/\./g, ':')},
-                        //         props.elem,
-                        //         props.column)
-                        // }}
+                              onBlur={(e) => {
+                                  let value = getValue(props),
+                                      dateValue = this.str2date(value);
+                                  props.update_value({[getDataKey(props)]: dateValue ? this.date2str(dateValue) : value },
+                                      props.elem,
+                                      props.column)
+                              }}
                         // showIcon={true}
                               onViewDateChange={(e) => {
                               }}
@@ -496,9 +511,10 @@ const LinoComponents = {
 
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                { props.inDialog ?
-                    <FileUpload ref={(el)=> props.linoLayout.fileUpload = el} name={getDataKey(props)} url={`api/${props.actorId.split(".").join("/")}`}
-                                // mode={"basic"}
+                {props.inDialog ?
+                    <FileUpload ref={(el) => props.linoLayout.fileUpload = el} name={getDataKey(props)}
+                                url={`api/${props.actorId.split(".").join("/")}`}
+                        // mode={"basic"}
                                 multiple={true} // BUG even with false, when using mode:advanced you can add >1 file
                                 onBeforeUpload={
                                     ({xhr, formData}) => {
