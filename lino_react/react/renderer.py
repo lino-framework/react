@@ -44,6 +44,8 @@ from lino.modlib.users.utils import get_user_profile, with_user_profile
 
 from inspect import isclass
 
+from .icons import REACT_ICON_MAPPING
+
 
 def find(itter, target, key=None):
     """Returns the index of an element in a callable which can be use a key function"""
@@ -93,13 +95,13 @@ class Renderer(JsRenderer, JsCacheRenderer):
                     actions.add(ba.action)
 
         f.write(py2js(dict(
-                           actions={a.action_name:a for a in actions},
+            actions={a.action_name: a for a in actions},
             # actors={a.actor_id: a for a in self.actors_list},
-                           menu=settings.SITE.get_site_menu(get_user_profile()),
-                           choicelists=choicelists_data,
-                           suggestors=list(settings.SITE.plugins.memo.parser.suggesters.keys())  # [#,@] keytriggers
-                           ),
-                      compact=not settings.SITE.is_demo_site))
+            menu=settings.SITE.get_site_menu(get_user_profile()),
+            choicelists=choicelists_data,
+            suggestors=list(settings.SITE.plugins.memo.parser.suggesters.keys())  # [#,@] keytriggers
+        ),
+            compact=not settings.SITE.is_demo_site))
         self.serialise_js_code = False
         return 1
 
@@ -176,6 +178,19 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 ar, ar.action_param_values)
             kw[constants.URL_PARAM_FIELD_VALUES] = fv
         return kw
+
+    def get_action_icon(self, action):
+        """
+        Uses an internal mapping for icon names to convert existing icons into react-usable.
+        :param action:
+        :return: str: a icon name for either prime-react or icon8
+        """
+        icon = action.icon_name
+        react_icon = REACT_ICON_MAPPING.get(icon, None)
+        if react_icon is None:
+            return None
+        else:
+            return "pi %s" % react_icon
 
     def ar2js(self, ar, obj, **status):
         """Implements :meth:`lino.core.renderer.HtmlRenderer.ar2js`.
@@ -301,6 +316,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
             if v.combo_group: result["combo_group"] = v.combo_group
             if v.select_rows: result['select_rows'] = v.select_rows
             if v.submit_form_data: result['submit_form_data'] = True
+
+            icon = self.get_action_icon(v)
+            if icon: result['icon'] = icon
 
             return result
 
@@ -522,6 +540,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 f.write(
                     py2js(actor)
                 )
+
             settings.SITE.kernel.make_cache_file(fn, write, force)
         self.serialise_js_code = False
 

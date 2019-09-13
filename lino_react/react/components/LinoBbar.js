@@ -63,7 +63,13 @@ class LinoBbar extends Component {
             {this.props.reload && <Button icon={"pi pi-refresh"} onClick={this.props.reload}/>}
             {actorData.ba[this.props.an].toolbarActions && actorData.ba[this.props.an].toolbarActions.map((an) => {
                 let action = window.App.state.site_data.actions[an];
-                return <Button label={action.label} key={an}
+                let icon_and_label = {label:action.label};
+                if (action.icon) {
+                    icon_and_label = {label:undefined, icon:action.icon,
+                        tooltip:action.label,
+                        tooltipOptions:{position: 'bottom'}}
+                }
+                return <Button {...icon_and_label} key={an}
                                disabled={action.select_rows && this.props.sr.length === 0}
                                onClick={() => this.props.runWrapper(() => this.runAction(an))}/>
 

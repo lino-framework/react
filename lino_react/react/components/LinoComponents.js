@@ -446,13 +446,15 @@ const LinoComponents = {
                 viewDate.setMinutes(min || 0);
                 return viewDate
             }
-            return false
+            if (timeStr === "")
+                return null;
+            return false;
         }
 
         date2str(date) {
             return ("0" + date.getHours()).slice(-2) + ":" +
                 ("0" + date.getMinutes()).slice(-2);
-            }
+        }
 
         render() {
             let {props} = this,
@@ -476,9 +478,13 @@ const LinoComponents = {
                               onBlur={(e) => {
                                   let value = getValue(props),
                                       dateValue = this.str2date(value);
-                                  props.update_value({[getDataKey(props)]: dateValue ? this.date2str(dateValue) : value },
-                                      props.elem,
-                                      props.column)
+                                  console.log(e, value, dateValue);
+                                  if (dateValue) {dateValue = this.date2str(dateValue)} // convert to string
+                                  if (dateValue !== value) {
+                                      props.update_value({[getDataKey(props)]: dateValue ? this.date2str(dateValue) : value},
+                                          props.elem,
+                                          props.column)
+                                  }
                               }}
                         // showIcon={true}
                               onViewDateChange={(e) => {
