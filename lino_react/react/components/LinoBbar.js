@@ -69,6 +69,11 @@ class LinoBbar extends Component {
                         tooltip:action.label,
                         tooltipOptions:{position: 'bottom'}}
                 }
+                if (action.button_text){
+                    icon_and_label = {label:action.button_text,
+                        tooltip:action.label,
+                        tooltipOptions:{position: 'bottom'}}
+                }
                 return <Button {...icon_and_label} key={an}
                                disabled={action.select_rows && this.props.sr.length === 0}
                                onClick={() => this.props.runWrapper(() => this.runAction(an))}/>

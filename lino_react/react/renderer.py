@@ -316,6 +316,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             if v.combo_group: result["combo_group"] = v.combo_group
             if v.select_rows: result['select_rows'] = v.select_rows
             if v.submit_form_data: result['submit_form_data'] = True
+            if v.button_text: result['button_text'] = v.button_text
 
             icon = self.get_action_icon(v)
             if icon: result['icon'] = icon
