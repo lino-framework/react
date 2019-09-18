@@ -15,12 +15,12 @@ import {ActorData, ActorContext} from "./SiteContext"
 export class ForeignKeyElement extends Component {
 
     static propTypes = {
-        simple : PropTypes.bool, // For simple remote combo field
+        simple: PropTypes.bool, // For simple remote combo field
         link: PropTypes.bool, // show link to FK object,
     };
     static defaultProps = {
-        simple : false,
-        link : true,
+        simple: false,
+        link: true,
 
     };
 
@@ -35,6 +35,7 @@ export class ForeignKeyElement extends Component {
         this.openExternalLink = this.openExternalLink.bind(this);
         this.focus = this.focus.bind(this);
         this.openExternalLink = this.openExternalLink.bind(this);
+        this.onKeyPress = this.onKeyPress.bind(this);
 
     }
 
@@ -49,6 +50,13 @@ export class ForeignKeyElement extends Component {
     componentDidMount() {
 
     };
+
+    onKeyPress(event) {
+        if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && this.autoComplete && !this.autoComplete.isPanelVisible()) {
+            this.autoComplete.search(event, "", "dropdown"); // open suggestions with keyboard
+        }
+    };
+
 
     getChoices(query, actor_data) {
         // if (query.length < 3) return;
@@ -66,8 +74,12 @@ export class ForeignKeyElement extends Component {
             chooser_data[cf] = data[cf + "Hidden"] === undefined ? data[cf] : data[cf + "Hidden"];
         });
         Object.assign(ajaxQuery, chooser_data);
-        if (mk !== undefined) {ajaxQuery.mk = mk;}
-        if (mt !== undefined) {ajaxQuery.mt = mt;}
+        if (mk !== undefined) {
+            ajaxQuery.mk = mk;
+        }
+        if (mt !== undefined) {
+            ajaxQuery.mt = mt;
+        }
 
         fetchPolyfill(`/${this.props.action_dialog ? "apchoices" : "choices"}/${this.props.actorId.replace(".", "/")}${this.props.action_dialog ? `/${this.props.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
@@ -150,6 +162,8 @@ export class ForeignKeyElement extends Component {
                                       completeMethod={(e) => this.getChoices(e.query, this_actorData)}
                                       container={this.props.container}
                                       ref={(el) => this.autoComplete = el}
+                                      onKeyDown={this.onKeyPress}
+
                         />
 
                         : <React.Fragment>
