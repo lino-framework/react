@@ -304,6 +304,39 @@ const LinoComponents = {
         }
     },
 
+    DecimalFieldElement: class DecimalFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.focus = this.focus.bind(this);
+        }
+
+        focus() {
+            this.input.element.focus();
+        }
+
+        render() {
+            let {props} = this,
+                value = getValue(props);
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+
+                {props.editing_mode ?
+                    <InputText style={{width: "100%"}}
+                               keyfilter={'num'} // allows . - \d
+                               value={value || ""}
+                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                                   props.elem,
+                                   props.column)}
+                               autoFocus={props.in_grid ? 'true' : undefined}
+                               ref={(el) => this.input = el}
+                    />
+                    :
+                    <div>{value || "\u00a0"}</div>
+                }
+            </Labeled>
+        }
+    },
+
     PasswordFieldElement: class PasswordFieldElement extends React.Component {
         constructor() {
             super();

@@ -53,7 +53,7 @@ export class ForeignKeyElement extends Component {
     getChoices(query, actor_data) {
         // if (query.length < 3) return;
         // let actor = siteData.actors[this.props.elem.field_options.related_actor_id];
-        let {data} = this.props;
+        let {data, mk, mt} = this.props;
         let ajaxQuery = {
             query: query,
             start: 0,
@@ -66,6 +66,8 @@ export class ForeignKeyElement extends Component {
             chooser_data[cf] = data[cf + "Hidden"] === undefined ? data[cf] : data[cf + "Hidden"];
         });
         Object.assign(ajaxQuery, chooser_data);
+        if (mk !== undefined) {ajaxQuery.mk = mk;}
+        if (mt !== undefined) {ajaxQuery.mt = mt;}
 
         fetchPolyfill(`/${this.props.action_dialog ? "apchoices" : "choices"}/${this.props.actorId.replace(".", "/")}${this.props.action_dialog ? `/${this.props.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())

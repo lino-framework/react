@@ -133,6 +133,8 @@ export class LinoGrid extends Component {
                 column: column,
                 match: this.props.match,
                 container: this.dataTable.table,
+                mk: this.props.mk,
+                mt: this.props.mt,
             };
             return <LinoLayout {...prop_bundle} elem={col}/>;
         }
@@ -150,7 +152,7 @@ export class LinoGrid extends Component {
             const prop_bundle = {
                 actorId: this.get_full_id(),
                 data: this.state.editingValues,
-                actorData:this.props.actorData,
+                actorData: this.props.actorData,
                 disabled_fields: this.state.disabled_fields,
                 update_value: this.update_col_value,
                 hide_label: true,
@@ -158,7 +160,10 @@ export class LinoGrid extends Component {
                 container: this.dataTable.table,
                 column: column,
                 editing_mode: true,
-                match: this.props.match
+                match: this.props.match,
+                mk: this.props.mk,
+                mt: this.props.mt,
+
             };
             return <LinoLayout {...prop_bundle} elem={col}/>;
         }
@@ -198,6 +203,9 @@ export class LinoGrid extends Component {
                         if (editingPK === null) {
                             rows.push(rows[rowIndex].slice());
                             state.editingPK = undefined;
+                        }
+                        else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]){
+                            state.editingValues = Object.assign({}, {...data.rows[0]}) // update editing values
                         }
                         rows[rowIndex] = data.rows[0];
                         return state
@@ -370,9 +378,9 @@ export class LinoGrid extends Component {
         ajaxArgs.ch = orderedCols.map((c, i) => i >= unhiddenCols); // all cols after a point are hidden.
 
         if (this.props.actorData.slave) {
-                this.props.mt && (ajaxArgs.mt = this.props.mt);
-                this.props.mk && (ajaxArgs.mk = this.props.mk);
-            }
+            this.props.mt && (ajaxArgs.mt = this.props.mt);
+            this.props.mk && (ajaxArgs.mk = this.props.mk);
+        }
 
 
         if (this.state.sortFieldName && this.state.sortOrder) { // if table is sorted add sort.
@@ -755,7 +763,7 @@ export class LinoGrid extends Component {
                 </DataTable>
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
-            <Dialog header="PV Values"
+            <Dialog header="Filter Parameters"
                     footer={<div>
                         <Button style={{width: "33px"}} icon={"pi pi-times-circle"}
                                 onClick={() => this.reload({pv: {}})}/>
@@ -773,7 +781,7 @@ export class LinoGrid extends Component {
                     actorId={this.get_full_id()}
                     update_value={this.update_pv_values}
                     editing_mode={true}
-                    mk={this.props.pk}
+                    mk={this.props.mt}
                     mt={this.props.actorData.content_type}
                     match={this.props.match}
                 />}
