@@ -55,7 +55,7 @@ export class LinoGrid extends Component {
             show_columns: undefined,
             // for pager
             totalRecords: 0,
-            rowsPerPage: props.actorData.preview_limit,
+            rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
             page: search[page_key] ? search[page_key] - 1 : 0,
             topRow: 0,
             count: undefined,
