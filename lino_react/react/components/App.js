@@ -483,7 +483,6 @@ class App extends React.Component {
             else if (status.field_values) {
                 diag_props.data = status.field_values;
                 diag_props.originalData = {...status.field_values}; // make copy
-
             }
             else if (an === "insert") { // no default data and insert action,
 
@@ -519,8 +518,10 @@ class App extends React.Component {
             if (url_args.mk) diag_props.data.mk = url_args.mk; // in the case of expanded slave-grid or detail
             if (url_args.mt) diag_props.data.mt = url_args.mt;
             if (status.base_params) {
-                status.base_params.mt && (diag_props.data.mk = status.base_params.mk);
-                status.base_params.mk && (diag_props.data.mt = status.base_params.mt);
+                status.base_params.mk && (diag_props.data.mk = status.base_params.mk,
+                    diag_props.originalData.mk = status.base_params.mk);
+                status.base_params.mt && (diag_props.data.mt = status.base_params.mt,
+                    diag_props.originalData.mt = status.base_params.mt);
 
             }
 
@@ -826,13 +827,19 @@ class App extends React.Component {
             closable: false,
             footer: <div>
                 <Button label={"yes"} onClick={() => {
+                    window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
+                    window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
                     diag_props.onClose();
+                    ParentlinoDialog && ParentlinoDialog.dialog.unbindMaskClickListener();
+                    ParentlinoDialog && ParentlinoDialog.dialog.unbindGlobalListeners();
                     ParentlinoDialog && ParentlinoDialog.props.onClose();
                     setTimeout(() => {
                         this.showTopDialog();
                     }, 50)
                 }}/>
                 <Button className={"p-button-secondary"} label={"no"} onClick={() => {
+                    window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
+                    window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
                     diag_props.onClose();
                     ParentlinoDialog && ParentlinoDialog.dialog.show();
                 }}/>

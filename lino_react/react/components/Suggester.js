@@ -62,8 +62,19 @@ class Suggester extends React.Component {
         this.onStart = this.onStart.bind(this);
         this.onType = this.onType.bind(this);
         this.renderSuggestion = this.renderSuggestion.bind(this);
+        this.stopDialogClose = this.stopDialogClose.bind(this);
     }
 
+    stopDialogClose(e) {
+        console.log("sug keyDown");
+        if (this.state.triggered && (e.key === "Escape" || event.which === 27)) {
+            console.log("escBubble sug stop");
+            e.preventDefault();
+            e.stopPropagation();
+            this.resetState();
+
+        }
+    }
 
     aheadOfStartPoint(state) {
         return state.startPoint <= state.cursor.selectionStart
@@ -73,7 +84,9 @@ class Suggester extends React.Component {
     resetState() {
         this.setState(this.startState);
         this.inputTrigger.resetState();
-    }
+        this.div.removeEventListener('keydown', this.stopDialogClose)
+
+    }   
 
     getSuggestions(text, triggeredKey) {
         // this.props.getSuggestions();
@@ -115,6 +128,7 @@ class Suggester extends React.Component {
         this.props.onStart && this.props.onStart();
         this.setState({...obj, triggered: true});
         this.getSuggestions("", obj.triggeredKey);
+        this.div.addEventListener('keydown', this.stopDialogClose)
 
     }
 
@@ -136,7 +150,7 @@ class Suggester extends React.Component {
         if (oldState.text !== this.state.text || oldState.triggeredKey !== this.state.triggeredKey
         ) {
 
-            if (this.state.suggestions.length === 0 && this.state.text.length >= oldState.text.length){
+            if (this.state.suggestions.length === 0 && this.state.text.length >= oldState.text.length) {
                 // don't keep requesting suggestions after typing.
                 return
             }
@@ -208,48 +222,51 @@ class Suggester extends React.Component {
 
         let sugestions = this.renderSuggestion();
 
-        return <div onKeyDownCapture={(e) => {
-            // console.log("onKeyPressCapture");
-            if (!this.state.triggered) {
-                return;
-            }
+        return <div ref={(el) => {
+            this.div = el
+        }}
+                    onKeyDownCapture={(e) => {
+                        // console.log("onKeyPressCapture");
+                        if (!this.state.triggered) {
+                            return;
+                        }
 
-            if (this.state.suggestions.length === 0 && props.triggerKeys.find((triggerKey) => e.key === triggerKey)) {
-                this.resetState(); // reset and let the input-trigger fire again with the new trigger
-                return
-            }
+                        if (this.state.suggestions.length === 0 && props.triggerKeys.find((triggerKey) => e.key === triggerKey)) {
+                            this.resetState(); // reset and let the input-trigger fire again with the new trigger
+                            return
+                        }
 
 
-            if (e.key === "ArrowDown") {
-                e.preventDefault();
-                e.stopPropagation();
-                this.setState((old) => {
-                    return {selectedIndex: Math.min(old.selectedIndex + 1, old.suggestions.length - 1)}
-                });
-            }
-            else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                e.stopPropagation();
-                this.setState((old) => {
-                        return {selectedIndex: Math.max(old.selectedIndex - 1, 0)}
-                    }
-                );
-            }
-            else if (e.key === "Enter") {
-                // console.log("onKeyPressCapture ENTER");
+                        if (e.key === "ArrowDown") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.setState((old) => {
+                                return {selectedIndex: Math.min(old.selectedIndex + 1, old.suggestions.length - 1)}
+                            });
+                        }
+                        else if (e.key === "ArrowUp") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.setState((old) => {
+                                    return {selectedIndex: Math.max(old.selectedIndex - 1, 0)}
+                                }
+                            );
+                        }
+                        else if (e.key === "Enter") {
+                            // console.log("onKeyPressCapture ENTER");
 
-                e.preventDefault(); // Doesn't work!!
-                e.stopPropagation(); // Doesn't work with quill!
-                this.selectOption(this.state.selectedIndex, /*true*/);
-            }
-            else if (e.key === "Escape") {
-                e.preventDefault();
-                e.stopPropagation();
-
-                this.resetState();
-            }
-        }
-        }>
+                            e.preventDefault(); // Doesn't work!!
+                            e.stopPropagation(); // Doesn't work with quill!
+                            this.selectOption(this.state.selectedIndex, /*true*/);
+                        }
+                        else if (e.key === "Escape") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log("escCapture sug stop");
+                            this.resetState();
+                        }
+                    }}
+        >
             <InputTrigger getElement={this.props.getElement} trigger={{
                 keys: this.props.triggerKeys
             }}
