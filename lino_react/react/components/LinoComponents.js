@@ -352,6 +352,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <Password value={value}
+                          style={{width: "100%"}}
                           onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
                               props.elem,
                               props.column)}

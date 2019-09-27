@@ -67,6 +67,30 @@ export class LinoDialog extends Component {
 
     };
 
+    renderDialogStyle(ActorData){
+        if (this.props.action === undefined) return {};
+        const win_size = ActorData.ba[this.props.action.an].window_layout.window_size;
+
+        let style = {
+        };
+        if (win_size[0]) // width
+        {
+            style.width = Math.floor((win_size[0] * 1.5 )) + "ch";
+        }
+        return style
+    }
+    renderDialogContentStyle(ActorData){
+        if (this.props.action === undefined) return {};
+        const win_size = ActorData.ba[this.props.action.an].window_layout.window_size;
+
+        let style = {
+        };
+        if (win_size[1] && win_size[1] !== "auto"){
+            style.height = win_size[1] * 3 + "ch";
+            // style.margin_top = (win_size[1] / 2) * -1 + "ch";
+        } // height
+        return style
+    }
     render() {
 
         return <ActorContext.Consumer>{(ActorData) => {
@@ -78,6 +102,7 @@ export class LinoDialog extends Component {
                 event.stopPropagation();
                 event.preventDefault();
             };
+
 
             return <div
                 // Forward dragged files to fileUploader component.
@@ -99,6 +124,8 @@ export class LinoDialog extends Component {
                 }}><Dialog onHide={this.onClose} visible={this.state.visible}
                            header={this.props.title || this.props.action.label}
                            footer={footer}
+                           style={this.renderDialogStyle(ActorData)}
+                           contentStyle={this.renderDialogContentStyle(ActorData)}
                            // closeOnEscape={false}
                            maximizable={true}
                            onShow={() => this.ll && this.ll.focusFirst()}

@@ -299,7 +299,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
             return result
         if isinstance(v, LayoutHandle):
             # Layout entry-point
-            return dict(main=v.main)
+            return dict(main=v.main,
+                        window_size=v.layout.window_size)
 
         if isinstance(v, Action):
             # todo include all aux info

@@ -567,8 +567,7 @@ body .l-ForeignKeyElement {
   width: 100%; }
 
 .p-dialog {
-  max-width: 100vw;
-  min-width: calc(100vw - 10ch); }
+  max-width: 100vw; }
   .p-dialog .p-dialog-content {
     max-height: 78vh;
     width: 100%; }
