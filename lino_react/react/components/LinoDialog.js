@@ -73,7 +73,7 @@ export class LinoDialog extends Component {
 
         let style = {
         };
-        if (win_size[0]) // width
+        if (win_size && win_size[0]) // width
         {
             style.width = Math.floor((win_size[0] * 1.5 )) + "ch";
         }
@@ -85,7 +85,7 @@ export class LinoDialog extends Component {
 
         let style = {
         };
-        if (win_size[1] && win_size[1] !== "auto"){
+        if (win_size && win_size[1] && win_size[1] !== "auto"){
             style.height = win_size[1] * 3 + "ch";
             // style.margin_top = (win_size[1] / 2) * -1 + "ch";
         } // height
