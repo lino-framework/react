@@ -818,30 +818,32 @@ class App extends React.Component {
 
     askToCloseDialog({ParentlinoDialog = undefined,} = {}) {
         let diag_props = {
-            onClose: () => {
+            onClose: (diag, closeParent) => { // acts as a cancel
                 this.setState((old) => {
                     let diags = old.dialogs.filter((x) => x !== diag_props);
                     return {dialogs: diags};
                 });
+                !closeParent && ParentlinoDialog && ParentlinoDialog.dialog.show();
+
             },
-            closable: false,
+            closeOnEscape: true,
+            closable: true,
             footer: <div>
                 <Button label={"yes"} onClick={() => {
-                    window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
-                    window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
-                    diag_props.onClose();
-                    ParentlinoDialog && ParentlinoDialog.dialog.unbindMaskClickListener();
-                    ParentlinoDialog && ParentlinoDialog.dialog.unbindGlobalListeners();
+                    // window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
+                    // window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
+                    diag_props.onClose(undefined,"closeParent");
+                    // ParentlinoDialog && ParentlinoDialog.dialog.unbindMaskClickListener();
+                    // ParentlinoDialog && ParentlinoDialog.dialog.unbindGlobalListeners();
                     ParentlinoDialog && ParentlinoDialog.props.onClose();
-                    setTimeout(() => {
-                        this.showTopDialog();
-                    }, 50)
+                    // setTimeout(() => {
+                    //     this.showTopDialog();
+                    // }, 50)
                 }}/>
                 <Button className={"p-button-secondary"} label={"no"} onClick={() => {
                     window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
                     window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
                     diag_props.onClose();
-                    ParentlinoDialog && ParentlinoDialog.dialog.show();
                 }}/>
             </div>,
             title: "Confirmation",

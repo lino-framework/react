@@ -126,7 +126,7 @@ export class LinoDialog extends Component {
                            footer={footer}
                            style={this.renderDialogStyle(ActorData)}
                            contentStyle={this.renderDialogContentStyle(ActorData)}
-                           // closeOnEscape={false}
+                           closeOnEscape={this.props.closeOnEscape}
                            maximizable={true}
                            onShow={() => this.ll && this.ll.focusFirst()}
                            ref={el => this.dialog = el}
