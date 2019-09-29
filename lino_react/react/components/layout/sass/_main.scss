@@ -549,6 +549,10 @@ body .l-ForeignKeyElement {
         .p-autocomplete-items > li {
             min-height: 32px; // Makes blank choices same height as others
         }
+        .p-autocomplete-dropdown {
+            max-width: 2.257em;
+
+        }
     }
     input {
         width: calc(100% - 2.357em);

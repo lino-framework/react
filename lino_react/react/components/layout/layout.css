@@ -514,6 +514,8 @@ body .l-ForeignKeyElement {
     display: inherit; }
     body .l-ForeignKeyElement .p-autocomplete .p-autocomplete-items > li {
       min-height: 32px; }
+    body .l-ForeignKeyElement .p-autocomplete .p-autocomplete-dropdown {
+      max-width: 2.257em; }
   body .l-ForeignKeyElement input {
     width: calc(100% - 2.357em); }
   body .l-ForeignKeyElement label {
