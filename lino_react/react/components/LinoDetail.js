@@ -47,6 +47,7 @@ export class LinoDetail extends Component {
             title: "",
             navinfo: {},
             searchSuggestions: [],
+            pv: {},
             quickSearchQuery: "",
             reload_timestamp: 0 //Date.now() // 0 used to prevent reload after mount // used to propgate down to cause reloading of slave-grids on realod.
             // loading: true
@@ -201,7 +202,8 @@ export class LinoDetail extends Component {
             id: data.id,
             title: data.title,
             navinfo: data.navinfo,
-            reload_timestamp: Date.now()
+            reload_timestamp: Date.now(),
+            pv: data.param_values,
             // loading:false,
         });
 
@@ -275,22 +277,22 @@ export class LinoDetail extends Component {
                     />
                     < i className="pi pi-bars p-toolbar-separator" style={{marginRight: '.25em'}}/>
                     <Button
-                        disabled={!this.state.navinfo || !this.state.navinfo.first || this.props.pk == this.state.navinfo.first}
+                        disabled={!this.state.navinfo || this.state.navinfo.first === null || this.props.pk == this.state.navinfo.first}
                         className="l-nav-first"
                         icon="pi pi-angle-double-left"
                         onClick={() => this.onNavClick(this.state.navinfo.first)}/>
                     <Button
-                        disabled={!this.state.navinfo || !this.state.navinfo.prev || this.props.pk == this.state.navinfo.prev}
+                        disabled={!this.state.navinfo || this.state.navinfo.prev === null || this.props.pk == this.state.navinfo.prev}
                         className="l-nav-prev"
                         icon="pi pi-angle-left"
                         onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
                     <Button
-                        disabled={!this.state.navinfo || !this.state.navinfo.next || this.props.pk == this.state.navinfo.next}
+                        disabled={!this.state.navinfo || this.state.navinfo.next === null || this.props.pk == this.state.navinfo.next}
                         className="l-nav-next"
                         icon="pi pi-angle-right"
                         onClick={() => this.onNavClick(this.state.navinfo.next)}/>
                     <Button
-                        disabled={!this.state.navinfo || !this.state.navinfo.last || this.props.pk == this.state.navinfo.last}
+                        disabled={!this.state.navinfo || this.state.navinfo.last === null || this.props.pk == this.state.navinfo.last}
                         className="l-nav-last"
                         icon="pi pi-angle-double-right"
                         onClick={() => this.onNavClick(this.state.navinfo.last)}/>
@@ -333,6 +335,7 @@ export class LinoDetail extends Component {
                     match={this.props.match}
                     reload_timestamp={this.state.reload_timestamp}
                     title={this.state.title}
+                    parent_pv={this.state.pv}
                 />
             </React.Fragment>
         )

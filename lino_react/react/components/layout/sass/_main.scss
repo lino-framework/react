@@ -683,6 +683,10 @@ body .p-datatable .p-datatable-tbody > tr.p-highlight a {
     color: #333333;
 }
 
+body table p {
+    margin: unset;
+}
+
 body .l-grid .p-datatable {
 
     .p-datatable-tbody > tr > td.p-cell-editing {

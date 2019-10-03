@@ -597,7 +597,8 @@ const LinoComponents = {
                 inDetail={true}
                 match={props.match} // todo
                 mk={props.mk}
-                mt={props.mt} // Correct: Should be content_type of the detail object, not of the grid actor
+                mt={props.mt}
+                parent_pv={props.parent_pv}// Correct: Should be content_type of the detail object, not of the grid actor
                 // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
                 actorId={actorId}
                 packId={packId}
@@ -659,6 +660,7 @@ class LinoLayout extends React.Component {
 
     static propTypes = {
         window_layout: PropTypes.object,
+        parent_pv: PropTypes.object, // used in cal
     };
 
     constructor() {

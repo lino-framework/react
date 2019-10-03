@@ -31,6 +31,7 @@ export class LinoGrid extends Component {
         mt: PropTypes.int,
         mk: PropTypes.string, // we want to allow str / slug pks
         reload_timestamp: PropTypes.int, // used to propogate a reload
+        parent_pv: PropTypes.object,
 
         // todo: in_detail : PropTypes.bool
     };
@@ -204,7 +205,7 @@ export class LinoGrid extends Component {
                             rows.push(rows[rowIndex].slice());
                             state.editingPK = undefined;
                         }
-                        else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]){
+                        else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
                             state.editingValues = Object.assign({}, {...data.rows[0]}) // update editing values
                         }
                         rows[rowIndex] = data.rows[0];
@@ -465,7 +466,11 @@ export class LinoGrid extends Component {
 
         this.setState(state);
 
-        if (this.props.actorData.pv_layout) {
+
+        if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
+                ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
+        }
+        else if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
             // use either, pv passed with reload method, current state, or failing all, in url
             if (pv === undefined && Object.keys(this.state.pv_values).length === 0) {
@@ -475,11 +480,12 @@ export class LinoGrid extends Component {
                 ajax_query.pv = pvObj2array(pv || this.state.pv_values, this.props.actorData.pv_fields);
             }
             // convert pv values from obj to array and add to ajax call
-
         }
 
-        if (this.props.actorData.slave) {
+        if (this.props.mk !== undefined) {
             this.props.mk && (ajax_query.mk = this.props.mk);
+        }
+        if (this.props.mt !== undefined) {
             this.props.mt && (ajax_query.mt = this.props.mt);
         }
         // console.log("table pre-GET", ajax_query, this.state);
