@@ -688,7 +688,13 @@ body table p {
 }
 
 body .l-grid .p-datatable {
+    .p-datatable-thead > tr > th {
+     //box-sizing: content-box;
+    }
 
+    div.p-datatable-wrapper > table {
+        //table-layout: unset; /* allows for smaller tables and seems to resize better*/
+    }
     .p-datatable-tbody > tr > td.p-cell-editing {
         overflow: unset;
 

@@ -75,7 +75,6 @@ export class LinoGrid extends Component {
             sortFieldName: undefined, // Sort col.name (used in Lino)
             sortOrder: undefined
 
-
         };
         this.state.cols = props.actorData.col.map((column, i) => (
             {
@@ -601,7 +600,14 @@ export class LinoGrid extends Component {
     get_cols() {
 
         if (this.cols === undefined) {
-            this.cols = ["SelectCol"].concat(
+            // let total_widths = 0; // get total of all width values to use % rather than ch.
+            // this.state.show_columns.map((i) => (this.props.actorData.col[i - 0])).forEach(
+            //     (col) => total_widths += (col.width || col.preferred_width)
+            // );
+
+            this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
+
+            this.cols = this.cols.concat(
                 this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
                     col === "SelectCol" ? <Column selectionMode="multiple"
@@ -620,7 +626,7 @@ export class LinoGrid extends Component {
                                 header={col.label}
                                 key={key(col)}
                                 col={col}
-                                style={{width: `${col.width || col.preferred_width}ch`}}
+                                style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
                                 className={`l-grid-col l-grid-col-${col.name} ${
                                     this.state.editingCellIndex === i ? 'p-cell-editing' : ''
                                     }`}
@@ -649,28 +655,8 @@ export class LinoGrid extends Component {
         return this.cols
     }
 
-    render() {
-        const {rows} = this.state;
-        // const Comp = "Table";
-        // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-
-        const paginator = <Paginator
-            rows={this.state.rowsPerPage}
-            paginator={true}
-            first={this.state.topRow}
-            totalRecords={this.state.totalRecords}
-            /*paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
-            rowsPerPageOptions={[5, 10, 20]}*/
-            onPageChange={(e) => {
-                /*Can't be set via set-state, as we need to
-                  do an ajax call to change the data not state*/
-                this.reload({page: e.page});
-            }}
-            rightContent={
-                this.state.count && <span className={"l-grid-count"}><span>{this.state.count}</span> rows</span>
-            }
-        />;
-        const header = <div className="p-clearfix p-grid"
+    renderHeader() {
+        return <div className="p-clearfix p-grid"
             // style={{'lineHeight': '1.87em'}}
         >
             <div className={"p-col p-justify-end"} style={{"textAlign": "left"}}>
@@ -727,14 +713,47 @@ export class LinoGrid extends Component {
             <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                     icon="pi pi-external-link"
                     style={{'float': 'right'}}/>}</div>
-            {!this.props.inDetail && <div className={"p-col-12"} style={{"textAlign": "left"}}>
+            {!this.props.inDetail && !this.props.actorData.hide_top_toolbar && <div className={"p-col-12"} style={{"textAlign": "left"}}>
 
                 <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
                           srMap={(row) => row[this.props.actorData.pk_index]}
                           rp={this} an={'grid'}
                           runAction={this.runAction}/>
             </div>}
-        </div>;
+        </div>
+    }
+
+    renderPaginator() {
+
+        if (this.props.actorData.preview_limit === 0) {
+            return undefined
+        }
+
+        return <Paginator
+            rows={this.state.rowsPerPage}
+            paginator={true}
+            first={this.state.topRow}
+            totalRecords={this.state.totalRecords}
+            /*paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
+            rowsPerPageOptions={[5, 10, 20]}*/
+            onPageChange={(e) => {
+                /*Can't be set via set-state, as we need to
+                  do an ajax call to change the data not state*/
+                this.reload({page: e.page});
+            }}
+            rightContent={
+                this.state.count && <span className={"l-grid-count"}><span>{this.state.count}</span> rows</span>
+            }
+        />;
+    }
+
+    render() {
+        const {rows} = this.state;
+        // const Comp = "Table";
+        // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
+
+        const paginator = this.renderPaginator();
+        const header = this.renderHeader();
 
         return <React.Fragment>
             <div className={"l-grid"}>
@@ -747,10 +766,10 @@ export class LinoGrid extends Component {
                     value={rows} paginator={false}
                     // selectionMode="single"
                     editable={true}
-                    selectionMode="multiple"
+                    selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" }
                     onSelectionChange={e => this.setState({selectedRows: e.value})}
-                    onRowSelect={this.onRowSelect} // Todo: allow multi-selection
-                    selection={this.state.selectedRows}
+                    onRowSelect={this.onRowSelect}
+                    selection={this.props.actorData.hide_top_toolbar? undefined : this.state.selectedRows}
                     loading={this.state.loading}
                     emptyMessage={this.state.emptyMessage}
                     ref={(ref) => this.dataTable = ref}

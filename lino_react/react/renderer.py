@@ -359,7 +359,11 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         # use c.fields_index -1 for data value
                         index_mod += 1
             result.update(obj2dict(v.get_handle().store, "pk_index"))  # Data index which is the PK
-            result.update(obj2dict(v, "preview_limit use_detail_param_panel use_detail_params_value"))  # number of rows to render
+            result.update(obj2dict(v, "preview_limit "# number of rows to render # if 0 no paginator.
+                                      "use_detail_param_panel " # show PV panel in detail
+                                      "use_detail_params_value " # in grid, use parrent PV values
+                                      "hide_top_toolbar " # No selection and toolbar
+                                      "use_detail_params_value "))
             # mt + slave-tables
 
             chooser_dict = getattr(v.model, "_choosers_dict", {})
