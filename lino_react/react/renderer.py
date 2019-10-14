@@ -206,6 +206,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             status.update(self.get_action_status(ar, ba, obj))
             params.update(status)
         params.update(self.get_action_params(ar, ba, obj))
+        params.update(status)
 
         js_obj = {
             "rp": rp,
@@ -214,9 +215,12 @@ class Renderer(JsRenderer, JsCacheRenderer):
             "actorId": ba.actor.actor_id,
             "status": params
         }
-        if obj is not None:
+        if hasattr(obj, "pk"):
             js_obj["sr"] = obj.pk  # else "-99998",
             #  -99998 might be wrong for many commands... need to know what logic is used to determn it,
+        elif isinstance(obj, list):
+            js_obj["sr"] = obj
+
 
         return "window.App.runAction(%s)" % (
             py2js(js_obj))

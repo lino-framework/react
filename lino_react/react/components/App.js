@@ -80,6 +80,7 @@ class App extends React.Component {
 
         this.rps = {}; // used for rp
         this.dialogRefs = {}; // used for getting and focusing on the previous dialog from dialog props obj.
+        this.response_callbacks = {}; // Used to store respnce callback functions when using confirmation callbacks.
         this.onWrapperClick = this.onWrapperClick.bind(this);
         this.onToggleMenu = this.onToggleMenu.bind(this);
         this.onSidebarClick = this.onSidebarClick.bind(this);
@@ -396,6 +397,10 @@ class App extends React.Component {
         // Grid show and detail actions change url to correct page.
         let url_args = queryString.parse(this.router.history.location.search);
 
+        let {rqdata, xcallback} = status;
+        delete status.rqdata;
+        delete status.xcallback;
+
         let excecute_args = {
             an: an,
             action: action,
@@ -406,7 +411,13 @@ class App extends React.Component {
             sr: sr,
             response_callback: response_callback,
             data: {},
+            rqdata: rqdata, // responce data to use used (from confirmation dialog)
+            xcallback: xcallback // confirmation callback token
         };
+
+        if (rqdata && xcallback) {
+            return this.excuteAction(excecute_args) // skip preprocessing of action, already done in past request
+        }
 
         if (status && status.base_params) {
             status.base_params.mt && (excecute_args.mk = status.base_params.mk);
@@ -440,6 +451,7 @@ class App extends React.Component {
                 action: action,
                 actorId: actorId,
                 data: {},
+                action_dialog: an !== "insert", // insert windows use normal choice API
                 originalData: {},
                 isClosable: (linoDialog) => {
                     if (deepCompare(linoDialog.props.data, linoDialog.props.originalData)) {
@@ -538,12 +550,13 @@ class App extends React.Component {
         }
     };
 
-    excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, response_callback, data} = {}) => {
+    excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, response_callback, data, rqdata, xcallback} = {}) => {
         let urlSr = Array.isArray(sr) ? sr[0] : sr, // if array, first item, if undefined, blank
             args = {
                 an: an,
                 sr: sr, // not needed for submit_detail, but non breaking, so leave it.
             };
+
         rp && (args.rp = rp);
         // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
 
@@ -611,6 +624,14 @@ class App extends React.Component {
             ).catch(error => window.App.handleAjaxException(error));
             // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
         };
+
+        if (rqdata && xcallback){
+            Object.assign(args, rqdata);
+            args["xcallback__"+xcallback.xcallback_id] = xcallback.choice;
+            makeCall();
+            return
+        }
+
         if (an === "grid_put" || an === "grid_post") {
             let {editingValues} = rp_obj.state;
             let values = {};
@@ -639,59 +660,30 @@ class App extends React.Component {
     handleActionResponse = ({response = response, rp = undefined, response_callback = undefined,}) => {
         // console.log(response, rp);
 
-        if (response_callback) {
+        if (response_callback) { // callback from run_action for doing something extra with req data.
             response_callback(response);
         }
 
-        if (response.xcallback) {
-            // yes/no Dialog
-            let {id, title} = response.xcallback,
+        if (response.xcallback) { // confirmation dialogs
+            let {id, buttons, title} = response.xcallback,
                 url = `/callbacks/${id}/`,
 
                 diag_props = {
-                    onClose: () => {
+                    onClose: () => { // close dialog after doing callback
                         this.setState((old) => {
                             let diags = old.dialogs.filter((x) => x !== diag_props);
                             return {dialogs: diags};
                         });
                     },
                     closable: false,
-                    footer: <div>
-                        <Button label={response.xcallback.buttons.yes} onClick={() => {
-                            // console.log("Dialog OK", diag_props.data);
+                    footer: <div> { Object.entries(buttons).filter((button) => !button[0].includes("resendEvalJs")).map((button) =>
+                        <Button key={button[0]}className={"p-button-secondary"} label={button[1]} onClick={() => {
                             diag_props.onClose();
-                            fetchPolyfill(url + "yes").then(this.handleAjaxResponse).then(
-                                (data) => {
-                                    if (data.record_deleted && data.success) {
-                                        this.growl.show({
-                                            // severity: "error",
-                                            severity: "success",
-                                            summary: "Success",
-                                            detail: "Record Deleted"
-                                        });
-                                        this.router.history.goBack(); // looking at empty recrod, go back!
-
-                                    }
-                                    else {
-                                        this.handleActionResponse({
-                                            response: data,
-                                            rp: rp,
-                                            response_callback: response_callback
-                                        })
-                                    }
-
-                                }
-                            ).catch(error => window.App.handleAjaxException(error));
+                            // window.App.response_callbacks
+                            eval(buttons[button[0]+"_resendEvalJs"]);
+                            // WARNING, no longer preserves response_callback, as eval runs the action from window, not detail/grid...
                         }}/>
-                        <Button className={"p-button-secondary"} label={response.xcallback.buttons.no} onClick={() => {
-                            diag_props.onClose();
-                            fetchPolyfill(url + "no").then(window.App.handleAjaxResponse).then(
-                                (data) => {
-                                }
-                            ).catch(window.App.handleAjaxException);
-
-                        }}/>
-                    </div>,
+                    )} </div>,
                     title: title,
                     content: <div dangerouslySetInnerHTML={{__html: response.message}}></div>
                 };
@@ -708,6 +700,15 @@ class App extends React.Component {
             eval(response.eval_js);
         }
 
+        if (response.record_deleted && response.success) {
+            this.growl.show({
+                // severity: "error",
+                severity: "success",
+                summary: "Success",
+                detail: "Record Deleted"
+            });
+            this.router.history.goBack(); // looking at empty recrod, go back!
+        }
         if (response.success && response.goto_url === "/" && response.close_window) {
             // Sign-in action success
             document.querySelector('#sign_in_submit').submit();
@@ -832,7 +833,7 @@ class App extends React.Component {
                 <Button label={"yes"} onClick={() => {
                     // window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
                     // window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
-                    diag_props.onClose(undefined,"closeParent");
+                    diag_props.onClose(undefined, "closeParent");
                     // ParentlinoDialog && ParentlinoDialog.dialog.unbindMaskClickListener();
                     // ParentlinoDialog && ParentlinoDialog.dialog.unbindGlobalListeners();
                     ParentlinoDialog && ParentlinoDialog.props.onClose();

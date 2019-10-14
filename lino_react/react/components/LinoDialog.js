@@ -42,10 +42,12 @@ export class LinoDialog extends Component {
         closable: PropTypes.bool,
         isClosable: PropTypes.func,
         content: PropTypes.any, // Content for Yes/no dialogs
+        action_dialog: PropTypes.bool, // changes the API call for getting choices.
     };
     static defaultProps = {
         data: {},
         closable: true,
+        action_dialog: false,
         isClosable: () => true,
     };
 
@@ -147,6 +149,7 @@ export class LinoDialog extends Component {
                                     FileUploadRequest: xhr_formData
                                 })
                             }}
+                            action_dialog={this.props.action_dialog}
                             window_layout={ActorData.ba[this.props.action.an].window_layout}
                             ref={el => this.ll = el}
                             inDialog={true}

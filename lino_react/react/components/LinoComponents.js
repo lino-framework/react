@@ -617,7 +617,7 @@ const LinoComponents = {
                   id={is_sign_in ? "sign_in_submit" : undefined}
                   action={is_sign_in ? "/null/" : undefined}
                   method={action.http_method}>
-                {<Panel {...props} action_dialog={true}>
+                {<Panel {...props}>
                     {props.children}
                 </Panel>}
                 <input type="submit"
@@ -661,6 +661,8 @@ class LinoLayout extends React.Component {
     static propTypes = {
         window_layout: PropTypes.object,
         parent_pv: PropTypes.object, // used in cal
+        action_dialog: PropTypes.bool, // changes the API call for getting choices.
+
     };
 
     constructor() {
