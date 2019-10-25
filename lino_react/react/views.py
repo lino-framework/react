@@ -95,9 +95,9 @@ def elem2rec_empty(ar, ah, elem, **rec):
     return rec
 
 
-class Callbacks(View):
-    def get(self, request, thread_id, button_id):
-        return settings.SITE.kernel.run_callback(request, thread_id, button_id)
+# class Callbacks(View):
+#     def get(self, request, thread_id, button_id):
+#         return settings.SITE.kernel.run_callback(request, thread_id, button_id)
 
 
 class ApiElement(View):
