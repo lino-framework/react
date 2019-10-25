@@ -23,6 +23,7 @@ from django.views.generic import View
 from django.core import exceptions
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
+from django.core.exceptions import PermissionDenied
 
 # from django.contrib import auth
 from lino.core import auth
@@ -129,6 +130,11 @@ class ApiElement(View):
         fmt = request.GET.get(
             constants.URL_PARAM_FORMAT, ba.action.default_format)
 
+        if not ar.get_permission():
+            msg = "No permission to run {}".format(ar)
+            # raise Exception(msg)
+            raise PermissionDenied(msg)
+
         if ba.action.opens_a_window:
             # print("15022019", action_name)
             if fmt == constants.URL_FORMAT_JSON:
@@ -225,6 +231,11 @@ class ApiList(View):
         #     if _sort[0]['direction'] and _sort[0]['direction'] == 'DESC':
         #         sort = '-' + sort
         #     ar.order_by = [str(sort)]
+        if not ar.get_permission():
+            msg = "No permission to run {}".format(ar)
+            # raise Exception(msg)
+            raise PermissionDenied(msg)
+
         ar.renderer = settings.SITE.kernel.default_renderer
         rh = ar.ah
 
