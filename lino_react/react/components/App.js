@@ -398,10 +398,11 @@ class App extends React.Component {
         // Grid show and detail actions change url to correct page.
         let url_args = queryString.parse(this.router.history.location.search);
 
-        let {rqdata, xcallback} = status;
-        delete status.rqdata;
-        delete status.xcallback;
-
+        if (status) {
+            let {rqdata, xcallback} = status;
+            delete status.rqdata;
+            delete status.xcallback;
+        }
         let excecute_args = {
             an: an,
             action: action,
