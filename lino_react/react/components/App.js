@@ -397,9 +397,10 @@ class App extends React.Component {
         // console.log("runAction", action, an, actorId, rp, status, sr);
         // Grid show and detail actions change url to correct page.
         let url_args = queryString.parse(this.router.history.location.search);
-
+        let rqdata, xcallback;
         if (status) {
-            let {rqdata, xcallback} = status;
+            rqdata = status.rqdata;
+            xcallback = status.xcallback;
             delete status.rqdata;
             delete status.xcallback;
         }
