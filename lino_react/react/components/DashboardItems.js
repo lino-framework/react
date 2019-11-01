@@ -23,8 +23,11 @@ export class DashboardItems extends Component {
     // method() {return this.props.}
 
     reload() {
-        this.setState({ // Set new stamp forcing reloading of each DP
-            stamp:Date()
+        // this.setState({ // Set new stamp forcing reloading of each DP
+        //     stamp:Date()
+        // });
+        Object.keys(window.App.rps).filter(k => k.includes("dashboard")).forEach(d => {
+           window.App.rps[d].reload();
         })
     }
 
@@ -44,10 +47,12 @@ export class DashboardItems extends Component {
         return <div>
             <DataProvider
                 ref={(el) => {
-                    window.App.setRpRef(el)
+                    window.App.setRpRef(el, `dashboard-main`)
                 }}
                 key={`${P.user}-${S.stamp}`}
                 endpoint={"/api/main_html"}
+                useEverLoaded={true}
+
                 render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
             />
             {[...Array(len).keys()].map(i =>
