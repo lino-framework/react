@@ -9,11 +9,15 @@ class DataProvider extends Component {
   static propTypes = {
     endpoint: PropTypes.string.isRequired,
     render: PropTypes.func.isRequired,
-    post_data: PropTypes.func
+    post_data: PropTypes.func,
+    hideLoading: PropTypes.bool,
+    useEverLoaded: PropTypes.bool,
 
   };
   static defaultProps = {
-      post_data: (data) => (data)
+      post_data: (data) => (data),
+      hideLoading: false,
+      useEverLoaded: false,
   };
 
     constructor() {
@@ -42,15 +46,15 @@ class DataProvider extends Component {
 	  })
 	  .then(data =>{
 	      this.props.post_data(data);
-	      this.setState({ data: data, loaded: true });
+	      this.setState({ data: data, loaded: true, everloaded: true });
 	  })
   };
 	       
   render() {
-    const { data, loaded, placeholder } = this.state;
+    const { data, loaded, placeholder , everloaded} = this.state;
     // const Comp = "Table";
     // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-    return loaded ? this.props.render(data) :<ProgressSpinner/> ;
+    return loaded || everloaded && this.props.useEverLoaded ? this.props.render(data) : this.props.hideLoading ? <div/> : <ProgressSpinner/> ;
   }
 }
 

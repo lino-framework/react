@@ -750,6 +750,16 @@ class MainHtml(View):
         ar.success(html=html)
         return json_response(ar.response, ar.content_type)
 
+class DashboardItem(View):
+    def get(self, request, index, *args, **kw):
+        """Returns a rendered HTML version the requested user dashboard."""
+        ar = BaseRequest(request)
+        ar.renderer = settings.SITE.plugins.react.renderer
+        ar.requesting_panel = f"dashboard-{index}"
+        html = ar.show_story([ar.get_user().get_preferences().dashboard_items[index]])
+        ar.success(html=html)
+        return json_response(ar.response, ar.content_type)
+
 
 class Null(View):
     """Just returns 200, used in an iframe to cause the browser to trigger "Do you want to remember this pw" dialog"""
@@ -865,6 +875,7 @@ class UserSettings(View):
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
             return json_response(dict(
                 user_type=u.user_type,
+                dashboard_items=len(u.get_preferences().dashboard_items), #[d.serialize() for d in u.get_preferences().dashboard_items],
                 lv=str(settings.SITE.kernel.code_mtime),
                 lang=get_language(),
                 site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()),

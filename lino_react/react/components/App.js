@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import queryString from "query-string"
 
 import DataProvider from "./DataProvider";
+import {DashboardItems} from "./DashboardItems";
 import Table from "./Table";
 import Menu from "./Menu";
 import {AppMenu} from './AppMenu';
@@ -157,9 +158,9 @@ class App extends React.Component {
     //
     // }
 
-    setRpRef(el) {
+    setRpRef(el, manual_rp) {
         if (el) {
-            let rp = key(el);
+            let rp = manual_rp === undefined ? key(el) : manual_rp;
             window.App.rps[rp] = el;
             el.rp = rp;
         }
@@ -628,9 +629,9 @@ class App extends React.Component {
             // console.warn(`Unknown action ${an} on actor ${actorId} with status ${JSON.stringify(status)}`);
         };
 
-        if (rqdata && xcallback){
+        if (rqdata && xcallback) {
             Object.assign(args, rqdata);
-            args["xcallback__"+xcallback.xcallback_id] = xcallback.choice;
+            args["xcallback__" + xcallback.xcallback_id] = xcallback.choice;
             makeCall();
             return
         }
@@ -679,14 +680,15 @@ class App extends React.Component {
                         });
                     },
                     closable: false,
-                    footer: <div> { Object.entries(buttons).filter((button) => !button[0].includes("resendEvalJs")).map((button) =>
-                        <Button key={button[0]}className={"p-button-secondary"} label={button[1]} onClick={() => {
-                            diag_props.onClose();
-                            // window.App.response_callbacks
-                            eval(buttons[button[0]+"_resendEvalJs"]);
-                            // WARNING, no longer preserves response_callback, as eval runs the action from window, not detail/grid...
-                        }}/>
-                    )} </div>,
+                    footer:
+                        <div> {Object.entries(buttons).filter((button) => !button[0].includes("resendEvalJs")).map((button) =>
+                            <Button key={button[0]} className={"p-button-secondary"} label={button[1]} onClick={() => {
+                                diag_props.onClose();
+                                // window.App.response_callbacks
+                                eval(buttons[button[0] + "_resendEvalJs"]);
+                                // WARNING, no longer preserves response_callback, as eval runs the action from window, not detail/grid...
+                            }}/>
+                        )} </div>,
                     title: title,
                     content: <div dangerouslySetInnerHTML={{__html: response.message}}></div>
                 };
@@ -914,13 +916,12 @@ class App extends React.Component {
                         <Growl ref={(el) => this.growl = el}/>
 
                         <Route exact path="/" render={(match) => (
-                            <DataProvider
-                                ref={(el) => {
-                                    this.dashboard = el;
-                                    this.setRpRef(el)
-                                }}
-                                endpoint="/api/main_html"
-                                render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
+                            <DashboardItems ref={(el) => {
+                                this.dashboard = el;
+                                this.setRpRef(el)
+                            }}
+                                            dashboard_items={this.state.user_settings ? this.state.user_settings.dashboard_items : 0}
+                                            user={this.state.user_settings ? this.state.user_settings.username : "notloaded"}
                             />
                         )}/>
                         <SiteContext.Provider value={this.state.site_data}>

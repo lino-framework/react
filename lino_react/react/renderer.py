@@ -69,6 +69,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
     lino_web_template = "react/linoweb.json"
     file_type = '.json'
+    hide_dashboard_items = True # Used to prevent any dashboard items being rendered from main html dashboard.
 
     def __init__(self, plugin):
         super(JsRenderer, self).__init__(plugin)

@@ -39,6 +39,7 @@ class Plugin(Plugin):
 
     def get_patterns(self):
         from django.conf.urls import url
+        from django.urls import path
         from . import views
 
         rx = '^'
@@ -52,6 +53,8 @@ class Plugin(Plugin):
             url(rx + r"null/", views.Null.as_view()),
 
             url(rx + r'api/main_html$', views.MainHtml.as_view()),
+
+            path('dashboard/<int:index>', views.DashboardItem.as_view()),
 
             # To be fased out
             url(rx + r'restful/(?P<app_label>\w+)/(?P<actor>\w+)$',
