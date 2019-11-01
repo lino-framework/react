@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import DataProvider from "./DataProvider";
+import {LoadingMask} from "./LoadingMask";
 
 export class DashboardItems extends Component {
     static propTypes = {
@@ -14,11 +15,12 @@ export class DashboardItems extends Component {
     constructor() {
         super();
         this.state = {
-            stamp: Date()
+            stamp: Date(),
+            unloaded: true,
         };
         // this.method = this.method.bind(this);
         this.reloadData = this.reload;
-
+        this.onDataGet = this.onDataGet.bind(this)
     }
     // method() {return this.props.}
 
@@ -28,6 +30,12 @@ export class DashboardItems extends Component {
         // });
         Object.keys(window.App.rps).filter(k => k.includes("dashboard")).forEach(d => {
            window.App.rps[d].reload();
+        })
+    }
+
+    onDataGet(d){
+        this.setState({
+            unloaded: false
         })
     }
 
@@ -44,7 +52,7 @@ export class DashboardItems extends Component {
         }
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-        return <div>
+        return <LoadingMask mask={S.unloaded} fillHeight={true} backgroundColor={""}>
             <DataProvider
                 ref={(el) => {
                     window.App.setRpRef(el, `dashboard-main`)
@@ -52,7 +60,8 @@ export class DashboardItems extends Component {
                 key={`${P.user}-${S.stamp}`}
                 endpoint={"/api/main_html"}
                 useEverLoaded={true}
-
+                hideLoading={true}
+                post_data={this.onDataGet}
                 render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
             />
             {[...Array(len).keys()].map(i =>
@@ -62,12 +71,11 @@ export class DashboardItems extends Component {
                         window.App.setRpRef(el,`dashboard-${i}`)
                     }}
                     endpoint={`/dashboard/${i}`}
+                    post_data={this.onDataGet}
                     hideLoading={true}
-                    useEverLoaded={true}
                     render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
                 />)
             }
-
-        </div>
+            </LoadingMask>
     }
 };
