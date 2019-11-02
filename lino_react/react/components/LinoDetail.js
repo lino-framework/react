@@ -14,6 +14,7 @@ import LinoLayout from "./LinoComponents"
 import {debounce, deepCompare} from "./LinoUtils";
 import LinoBbar from "./LinoBbar";
 import {LoadingMask} from "./LoadingMask"
+import {ProgressBar} from 'primereact/progressbar';
 
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
@@ -327,7 +328,12 @@ export class LinoDetail extends Component {
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
                               an={'detail'} runWrapper={this.saveThenDo}/>
-                </Toolbar>}
+
+
+                    <ProgressBar mode="indeterminate" style={{opacity:this.state.loading ? "100%" : "0%", height: '5px'}}></ProgressBar>
+
+                </Toolbar>
+                }
                 <LinoLayout
                     window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
                     data={this.state.data}
