@@ -744,6 +744,8 @@ class MainHtml(View):
         settings.SITE.startup()
         # ~ raise Exception("20131023")
         ar = BaseRequest(request)
+        # Add to reqeust not ar, as there's error if passing ar to get_main_html
+        request.requesting_panel = "dashboard-main"
         html = settings.SITE.get_main_html(
             request, extjs=settings.SITE.plugins.react)
         html = settings.SITE.plugins.react.renderer.html_text(html)

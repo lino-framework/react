@@ -753,9 +753,11 @@ class App extends React.Component {
         }
 
         if (response.refresh || response.refresh_all) {
+            if (rp && rp.rp.includes("dashboard") && rp.rp !== 'dashboard-main') {
+                this.rps['dashboard-main'].reload(); // reloads main dashboard text
+            }
             rp && rp.reload();
             if (rp === null) this.dashboard.reloadData();
-
         }
 
 
