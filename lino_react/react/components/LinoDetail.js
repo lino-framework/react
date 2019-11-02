@@ -13,6 +13,7 @@ import {ToggleButton} from 'primereact/togglebutton';
 import LinoLayout from "./LinoComponents"
 import {debounce, deepCompare} from "./LinoUtils";
 import LinoBbar from "./LinoBbar";
+import {LoadingMask} from "./LoadingMask"
 
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
@@ -49,8 +50,8 @@ export class LinoDetail extends Component {
             searchSuggestions: [],
             pv: {},
             quickSearchQuery: "",
-            reload_timestamp: 0 //Date.now() // 0 used to prevent reload after mount // used to propgate down to cause reloading of slave-grids on realod.
-            // loading: true
+            reload_timestamp: 0, //Date.now() // 0 used to prevent reload after mount // used to propgate down to cause reloading of slave-grids on realod.
+            loading: true
         };
         this.reload = this.reload.bind(this);
         this.update_value = this.update_value.bind(this);
@@ -96,9 +97,9 @@ export class LinoDetail extends Component {
     }
 
     reload() {
-        // this.setState({
-        // loading: true,
-        // });
+        this.setState({
+            loading: true,
+        });
         let query = {
             fmt: "json",
             rp: key(this)
@@ -125,18 +126,22 @@ export class LinoDetail extends Component {
     }
 
     save(callback) {
-        this.isDirty() && window.App.runAction({
-            rp: this,
-            an: "submit_detail",
-            actorId: `${this.props.packId}.${this.props.actorId}`,
-            sr: this.props.pk,
-            response_callback: (data) => {
-                this.setState({editing_mode: false});
-                // this.consume_server_responce(data.data_record);
-                this.reload();
-                if (callback) callback(data)
-            }
-        });
+        if (this.isDirty()) {
+            this.setState({loading:true});
+            window.App.runAction({
+                rp: this,
+                an: "submit_detail",
+                actorId: `${this.props.packId}.${this.props.actorId}`,
+                sr: this.props.pk,
+                response_callback: (data) => {
+                    this.setState({editing_mode: false});
+                    // this.consume_server_responce(data.data_record);
+                    this.reload();
+                    if (callback) callback(data)
+                }
+            })
+        }
+        ;
     }
 
     onDirtyLeave(nextLocation, routerAction) {
@@ -204,6 +209,7 @@ export class LinoDetail extends Component {
             navinfo: data.navinfo,
             reload_timestamp: Date.now(),
             pv: data.param_values,
+            loading: false
             // loading:false,
         });
 

@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import DataProvider from "./DataProvider";
 import {LoadingMask} from "./LoadingMask";
+import {Button} from 'primereact/button';
 
 export class DashboardItems extends Component {
     static propTypes = {
@@ -22,6 +23,7 @@ export class DashboardItems extends Component {
         this.reloadData = this.reload;
         this.onDataGet = this.onDataGet.bind(this)
     }
+
     // method() {return this.props.}
 
     reload() {
@@ -29,11 +31,11 @@ export class DashboardItems extends Component {
         //     stamp:Date()
         // });
         Object.keys(window.App.rps).filter(k => k.includes("dashboard")).forEach(d => {
-           window.App.rps[d].reload();
+            window.App.rps[d].reload();
         })
     }
 
-    onDataGet(d){
+    onDataGet(d) {
         this.setState({
             unloaded: false
         })
@@ -43,11 +45,28 @@ export class DashboardItems extends Component {
 
     };
 
+    renderDashboard(showReloadButton, rp) {
+
+        return (data) => {
+            if (data.html) {
+                return <div>
+                    {showReloadButton && <Button icon={"pi pi-refresh"} style={{float:"right"}} onClick={() => {
+                        let dp = window.App.rps[rp];
+                        dp && dp.reload();
+                    }
+                    }/>}
+                    <div dangerouslySetInnerHTML={{__html: data.html}}></div>
+                </div>
+            }
+
+        }
+    }
+
     render() {
         const S = this.state;
         const P = this.props;
         let len = P.dashboard_items;
-        if (len === undefined){
+        if (len === undefined) {
             len = 0
         }
         // const Comp = "Table";
@@ -62,20 +81,20 @@ export class DashboardItems extends Component {
                 useEverLoaded={true}
                 hideLoading={true}
                 post_data={this.onDataGet}
-                render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
+                render={this.renderDashboard(false, `dashboard-main`)}
             />
             {[...Array(len).keys()].map(i =>
                 <DataProvider
                     key={`${P.user}-${i}-${S.stamp}`}
                     ref={(el) => {
-                        window.App.setRpRef(el,`dashboard-${i}`)
+                        window.App.setRpRef(el, `dashboard-${i}`)
                     }}
                     endpoint={`/dashboard/${i}`}
                     post_data={this.onDataGet}
                     hideLoading={true}
-                    render={(data) => <div dangerouslySetInnerHTML={{__html: data.html}}></div>}
+                    render={this.renderDashboard(true, `dashboard-${i}`)}
                 />)
             }
-            </LoadingMask>
+        </LoadingMask>
     }
 };
