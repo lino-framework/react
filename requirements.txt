@@ -18,8 +18,3 @@ git+https://github.com/khchine5/django-mailbox.git#egg=django-mailbox
 # -e git+https://github.com/lino-framework/amici.git#egg=lino_amici
 # -e git+https://github.com/lino-framework/openui5.git#egg=lino_openui5
 # git+https://github.com/eliben/pycparser@release_v2.14#egg=pycparser
-
-
-
-
-

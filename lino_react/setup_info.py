@@ -1,25 +1,25 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2015-2016 Luc Saffre
+# Copyright 2015-2019 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
 from __future__ import unicode_literals
 
 SETUP_INFO = dict(
     name='lino_react',
-    version='17.10.0',
-    install_requires=['lino', 'lino_noi'],
+    version='19.11.0',
+    install_requires=['lino'],
     tests_require=[],
     test_suite='tests',
     description="The React user interface for Lino",
     license='BSD-2-Clause',
     include_package_data=False,
     zip_safe=False,
-    author='Luc Saffre',
-    author_email='luc.saffre@gmail.com',
+    author='Rumma & Ko Ltd',
+    author_email='info@lino-framework.org',
     url="http://www.lino-framework.org",
     classifiers="""\
   Programming Language :: Python
-  Programming Language :: Python :: 2
+  Programming Language :: Python :: 3
   Development Status :: 5 - Production/Stable
   Environment :: Web Environment
   Framework :: Django
