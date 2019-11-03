@@ -1,0 +1,4 @@
+graft lino_react/react
+global-include *.py
+prune docs
+prune lino_react/projects
