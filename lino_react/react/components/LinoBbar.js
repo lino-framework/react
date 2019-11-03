@@ -69,7 +69,7 @@ class LinoBbar extends Component {
                         tooltip:action.label,
                         tooltipOptions:{position: 'bottom'}}
                 }
-                if (action.button_text){
+                else if (action.button_text){
                     icon_and_label = {label:action.button_text,
                         tooltip:action.label,
                         tooltipOptions:{position: 'bottom'}}

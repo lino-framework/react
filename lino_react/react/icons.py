@@ -223,3 +223,6 @@ REACT_ICON_MAPPING = {
     "flag_green": None,
     "date_next": None, # pr only has cal, cal+ cal- and calx
 }
+
+# allow direct mapping pi-uplaods -> pi-uploads
+REACT_ICON_MAPPING.update({icon : icon for icon in REACT_ICON_NAMES})

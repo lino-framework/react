@@ -186,7 +186,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :param action:
         :return: str: a icon name for either prime-react or icon8
         """
-        icon = action.icon_name
+
+        icon = action.react_icon_name or action.icon_name # prioritise react_icon
         react_icon = REACT_ICON_MAPPING.get(icon, None)
         if react_icon is None:
             return None
