@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 SETUP_INFO = dict(
     name='lino_react',
-    version='19.11.0',
+    version='19.11.1',
     install_requires=['lino'],
     tests_require=[],
     test_suite='tests',
@@ -55,3 +55,7 @@ lino_react.projects.lydiaReact
 lino_react.projects.lydiaReact.settings
 lino_react.projects.lydiaReact.tests
 """.splitlines() if n])
+
+SETUP_INFO.update(
+    zip_safe=False,
+    include_package_data=True)
