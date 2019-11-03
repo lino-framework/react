@@ -120,11 +120,16 @@ class App extends React.Component {
         else {
             // log_out
             fetchPolyfill("/auth").then((req) => {
-                this.setState({logging_in: false});
-                this.router.history.push("/");
+                this.setState({
+                    // logging_in: false,
+                    site_loaded: false,
+                    site_data: null,
+                    menu_data: null,
+                    user_settings: null,
+                });
                 this.fetch_user_settings();
+                this.router.history.push("/");
                 this.dashboard.reloadData();
-
             })
         }
 

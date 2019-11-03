@@ -758,7 +758,11 @@ class DashboardItem(View):
         ar = BaseRequest(request)
         ar.renderer = settings.SITE.plugins.react.renderer
         ar.requesting_panel = f"dashboard-{index}"
-        html = ar.show_story([ar.get_user().get_preferences().dashboard_items[index]])
+        dash = ar.get_user().get_preferences().dashboard_items
+        if len(dash) > index:
+            html = ar.show_story([dash[index]])
+        else:
+            html = ""
         ar.success(html=html)
         return json_response(ar.response, ar.content_type)
 
