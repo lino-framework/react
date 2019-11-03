@@ -43,13 +43,8 @@ export class LoadingMask extends Component {
         return <div style={wrapingStyle}>
             <div className={"lino-loading-mask"}
                  style={{
-                     position: "absolute",
-                     width: "100%", height: "100%",
-                     zIndex: "9999",
                      display: mask ? "block" : "none",
                      backgroundColor: backgroundColor,
-                     opacity: ".2",
-                     borderRadius: "5px",
 
                  }}>
                 <div style={{

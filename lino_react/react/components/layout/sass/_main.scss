@@ -598,6 +598,26 @@ body .l-ForeignKeyElement {
 
 }
 
+.lino-loading-mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    opacity: .2;
+    border-radius: 5px;
+}
+
+.lino-loading-mask > div {
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    transform: translate(50%, -50%);
+}
+
+.lino-transparent {
+    opacity: 0;
+}
+
 @media (max-width: 1024px) {
 }
 
@@ -689,7 +709,7 @@ body table p {
 
 body .l-grid .p-datatable {
     .p-datatable-thead > tr > th {
-     //box-sizing: content-box;
+        //box-sizing: content-box;
     }
 
     div.p-datatable-wrapper > table {
