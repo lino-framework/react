@@ -330,7 +330,7 @@ export class LinoDetail extends Component {
                               an={'detail'} runWrapper={this.saveThenDo}/>
 
 
-                    <ProgressBar mode="indeterminate" style={{opacity:this.state.loading ? "100%" : "0%", height: '5px'}}></ProgressBar>
+                    <ProgressBar mode="indeterminate" style={{opacity:this.state.loading ? "1" : "0", height: '5px'}}></ProgressBar>
 
                 </Toolbar>
                 }

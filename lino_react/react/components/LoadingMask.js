@@ -48,7 +48,7 @@ export class LoadingMask extends Component {
                      zIndex: "9999",
                      display: mask ? "block" : "none",
                      backgroundColor: backgroundColor,
-                     opacity: "20%",
+                     opacity: ".2",
                      borderRadius: "5px",
 
                  }}>
