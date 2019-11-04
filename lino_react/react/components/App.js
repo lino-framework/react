@@ -686,11 +686,11 @@ class App extends React.Component {
                     },
                     closable: false,
                     footer:
-                        <div> {Object.entries(buttons).filter((button) => !button[0].includes("resendEvalJs")).map((button) =>
+                        <div> {buttons.map((button) =>
                             <Button key={button[0]} className={"p-button-secondary"} label={button[1]} onClick={() => {
                                 diag_props.onClose();
                                 // window.App.response_callbacks
-                                eval(buttons[button[0] + "_resendEvalJs"]);
+                                eval(response.xcallback[button[0] + "_resendEvalJs"]);
                                 // WARNING, no longer preserves response_callback, as eval runs the action from window, not detail/grid...
                             }}/>
                         )} </div>,
