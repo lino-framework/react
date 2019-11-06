@@ -557,6 +557,10 @@ body .l-ForeignKeyElement {
 .lino-transparent {
   opacity: 0; }
 
+.l-actas .p-button {
+  width: 100%;
+  margin-bottom: 2px; }
+
 .p-tabview {
   flex: auto;
   display: flex;

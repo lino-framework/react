@@ -81,6 +81,9 @@ export class ForeignKeyElement extends Component {
             ajaxQuery.mt = mt;
         }
 
+        window.App.add_su(ajax_query);
+
+
         fetchPolyfill(`/${this.props.action_dialog ? "apchoices" : "choices"}/${this.props.actorId.replace(".", "/")}${this.props.action_dialog ? `/${this.props.action.an}` : ""}/${this.props.elem.name}?${queryString.stringify(ajaxQuery)}`).then(
             (res) => (res.json())
         ).then(

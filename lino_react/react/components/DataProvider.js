@@ -39,7 +39,9 @@ class DataProvider extends Component {
 
     reloadData() {
         this.setState({loaded: false});
-        fetchPolyfill(this.props.endpoint + `?${queryString.stringify({fmt: "json"})}`)
+        let query = {fmt: "json"}
+        window.App.add_su(query);
+        fetchPolyfill(this.props.endpoint + `?${queryString.stringify(query)}`)
             .then(response => {
                 if (response.status !== 200) {
                     return this.setState({placeholder: "Something went wrong"});

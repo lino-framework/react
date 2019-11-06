@@ -106,6 +106,9 @@ export class LinoDetail extends Component {
             rp: key(this)
             // mt: this.props.actorData.content_type, // Should be the master actor's PK, so should be a prop / url param
         };
+
+        window.App.add_su(query);
+
         if (this.props.actorData.slave) {
             this.props.mt && (query.mt = this.props.mt);
             this.props.mk && (query.mk = this.props.mk);
@@ -241,6 +244,7 @@ export class LinoDetail extends Component {
             start: 0,
             //todo have pageing / some sort of max amount
         };
+        window.App.add_su(ajax_query);
 
         fetchPolyfill(`/choices/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajaxQuery)}`).then(
             window.App.handleAjaxResponse

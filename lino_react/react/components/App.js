@@ -94,7 +94,8 @@ class App extends React.Component {
 
         this.handleActionResponse = this.handleActionResponse.bind(this);
         this.runAction = this.runAction.bind(this);
-
+        this.onAuthoritiesSelect = this.onAuthoritiesSelect.bind(this);
+        this.add_su = this.add_su.bind(this);
         // this.searchMethod = this.searchMethod.bind(this);
 
         this.fetch_user_settings();
@@ -120,13 +121,7 @@ class App extends React.Component {
         else {
             // log_out
             fetchPolyfill("/auth").then((req) => {
-                this.setState({
-                    // logging_in: false,
-                    site_loaded: false,
-                    site_data: null,
-                    menu_data: null,
-                    user_settings: null,
-                });
+                ;
                 this.fetch_user_settings();
                 this.router.history.push("/");
                 this.dashboard.reloadData();
@@ -169,6 +164,12 @@ class App extends React.Component {
             window.App.rps[rp] = el;
             el.rp = rp;
         }
+    }
+
+    onAuthoritiesSelect(auth_obj) {
+        let id = auth_obj[0];
+        this.fetch_user_settings(id);
+
     }
 
     onWrapperClick(event) {
@@ -261,8 +262,19 @@ class App extends React.Component {
             this.removeClass(document.body, 'body-overflow-hidden');
     }
 
-    fetch_user_settings = () => {
-        fetchPolyfill("/user/settings/").then(
+    fetch_user_settings = (su_id) => {
+        this.setState({ // clear current settings
+            // logging_in: false,/
+            su_id: undefined,
+            site_loaded: false,
+            site_data: null,
+            menu_data: null,
+            user_settings: null,
+        })
+        let url = "/user/settings/";
+        if (su_id) url += `?su=${su_id}`;
+
+        fetchPolyfill(url).then(
             this.handleAjaxResponse
         ).then((data) => {
                 let store = window.localStorage,
@@ -271,7 +283,11 @@ class App extends React.Component {
                     store.clear();
                     store.setItem("lv", data["lv"]) // lino_version
                 }
-                this.setState({user_settings: data});
+                ;
+                this.setState({
+                    user_settings: data,
+                    su_id: data.su_id,
+                });
 
                 return this.fetch_site_data(data.site_data);
             }
@@ -559,12 +575,19 @@ class App extends React.Component {
         }
     };
 
+    add_su = (obj) => {
+        this.state.su_id && (obj['su'] = this.state.su_id);
+    };
+
     excuteAction = ({an, action, actorId, rp, rp_obj, status, sr, response_callback, data, rqdata, xcallback} = {}) => {
         let urlSr = Array.isArray(sr) ? sr[0] : sr, // if array, first item, if undefined, blank
             args = {
                 an: an,
                 sr: sr, // not needed for submit_detail, but non breaking, so leave it.
             };
+
+        // add sub user id
+        this.add_su(args);
 
         rp && (args.rp = rp);
         // filter out changes fields, only submit them. Reason being we have no way to filter for editable fields...
@@ -880,7 +903,7 @@ class App extends React.Component {
         // console.log("app_re-render");
         return (
             <HashRouter ref={(el) => this.router = el}>
-                <div className={wrapperClass} onClick={this.onWrapperClick}>
+                <div className={wrapperClass} onClick={this.onWrapperClick} ref={el => this.topDiv = el}>
                     <AppTopbar onToggleMenu={this.onToggleMenu} onHomeButton={this.onHomeButton}
                         // searchValue={this.state.searchValue}
                         // searchMethod={}
@@ -897,7 +920,18 @@ class App extends React.Component {
                                     <div>
                                         <AppInlineProfile username={this.state.user_settings.username}
                                                           logged_in={this.state.user_settings.logged_in}
-                                                          onSignOutIn={(e) => this.onSignOutIn(e)}/>
+                                                          authorities={this.state.user_settings.authorities}
+                                                          onActAsSelf={() => this.onAuthoritiesSelect([undefined])}
+                                                          su_id={this.state.su_id}
+                                                          su_name={this.state.user_settings.su_name}
+                                                          act_as_subtext={this.state.user_settings.act_as_subtext}
+                                                          act_as_title_text={this.state.user_settings.act_as_title_text}
+                                                          act_as_button_text={this.state.user_settings.act_as_button_text}
+                                                          act_as_self_text={this.state.user_settings.act_as_self_text}
+                                                          onAuthoritiesSelect={this.onAuthoritiesSelect}
+                                                          onSignOutIn={(e) => this.onSignOutIn(e)}
+                                                          authAppendTo={this.topDiv}/>
+
                                         <AppMenu model={this.state.menu_data}
                                                  onMenuItemClick={this.onMenuItemClick}/>
                                     </div>

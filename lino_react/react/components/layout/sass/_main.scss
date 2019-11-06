@@ -618,8 +618,22 @@ body .l-ForeignKeyElement {
     opacity: 0;
 }
 
+.layout-wrapper .layout-sidebar .p-overlaypanel .p-button{
+
+}
+
+.l-actas .p-button {
+    width: 100%;
+    margin-bottom: 2px;
+
+}
+
 @media (max-width: 1024px) {
 }
+
+//.layout-wrapper .layout-sidebar .p-overlaypanel { // if it's inside the thing
+//    margin-top: -50px;
+//}
 
 // Makes tab panels + editors fill all vertical space.
 

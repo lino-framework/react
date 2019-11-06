@@ -752,6 +752,7 @@ class MainHtml(View):
         ar.success(html=html)
         return json_response(ar.response, ar.content_type)
 
+
 class DashboardItem(View):
     def get(self, request, index, *args, **kw):
         """Returns a rendered HTML version the requested user dashboard."""
@@ -873,21 +874,38 @@ class UserSettings(View):
     Ajax interface for getting the current session/user settings."""
 
     def get(self, request):
+        request = BaseRequest(request)
         u = request.user
-        anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
+        su = request.subst_user
+        su_name = request.subst_user.get_full_name() if su else ""
+
+        not_anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
 
         def getit():
             if not settings.SITE.build_js_cache_on_startup:
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
-            return json_response(dict(
+            user_settings = dict(
                 user_type=u.user_type,
-                dashboard_items=len(u.get_preferences().dashboard_items), #[d.serialize() for d in u.get_preferences().dashboard_items],
+                dashboard_items=len(u.get_preferences().dashboard_items),
+                # [d.serialize() for d in u.get_preferences().dashboard_items],
                 lv=str(settings.SITE.kernel.code_mtime),
                 lang=get_language(),
                 site_data=settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()),
-                logged_in=anon,
-                username=u.get_full_name() if anon else _("Anonymous")
-            ))
+                logged_in=not_anon,
+                username=u.get_full_name() if not_anon else _("Anonymous"),
+                su_name=su_name,  # subst_user # must be passed as param in get_user_settings request,
+                act_as_subtext=_("You are authorised to act as the following users."),
+                act_as_title_text=_("Act as another user"),
+                act_as_button_text=_("Act as another user"),
+                act_as_self_text=_("Stop acting as another user"),
+            )
+            if su_name:
+                user_settings["su_id"] = su.id
+
+            if not_anon:
+                user_settings["authorities"] = u.get_authorities()
+
+            return json_response(user_settings)
 
         return with_user_profile(u.user_type, getit)
 
