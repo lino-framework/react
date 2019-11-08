@@ -557,9 +557,15 @@ body .l-ForeignKeyElement {
 .lino-transparent {
   opacity: 0; }
 
-.l-actas .p-button {
-  width: 100%;
-  margin-bottom: 2px; }
+.l-actas {
+  max-height: calc(-250px + 100vh); }
+  .l-actas .p-card-content {
+    max-height: calc(100vh - 372px);
+    overflow-x: hidden;
+    overflow-y: scroll; }
+  .l-actas .p-button {
+    width: 100%;
+    margin-bottom: 2px; }
 
 .p-tabview {
   flex: auto;

@@ -618,14 +618,21 @@ body .l-ForeignKeyElement {
     opacity: 0;
 }
 
-.layout-wrapper .layout-sidebar .p-overlaypanel .p-button{
+.layout-wrapper .layout-sidebar .p-overlaypanel .p-button {
 
 }
 
-.l-actas .p-button {
-    width: 100%;
-    margin-bottom: 2px;
-
+.l-actas { // act as another user 
+    max-height: calc(-250px + 100vh);
+    .p-card-content {
+        max-height: calc(100vh - 372px);
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+    .p-button {
+        width: 100%;
+        margin-bottom: 2px;
+    }
 }
 
 @media (max-width: 1024px) {

@@ -244,7 +244,7 @@ export class LinoDetail extends Component {
             start: 0,
             //todo have pageing / some sort of max amount
         };
-        window.App.add_su(ajax_query);
+        window.App.add_su(ajaxQuery);
 
         fetchPolyfill(`/choices/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajaxQuery)}`).then(
             window.App.handleAjaxResponse
