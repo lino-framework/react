@@ -907,7 +907,8 @@ class UserSettings(View):
 
             return json_response(user_settings)
 
-        return with_user_profile(u.user_type, getit)
+
+        return with_user_profile((su or u).user_type, getit)
 
 
 class Suggestions(View):

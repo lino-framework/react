@@ -562,7 +562,7 @@ body .l-ForeignKeyElement {
   .l-actas .p-card-content {
     max-height: calc(100vh - 372px);
     overflow-x: hidden;
-    overflow-y: scroll; }
+    overflow-y: auto; }
   .l-actas .p-button {
     width: 100%;
     margin-bottom: 2px; }

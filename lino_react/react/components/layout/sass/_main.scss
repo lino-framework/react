@@ -622,12 +622,12 @@ body .l-ForeignKeyElement {
 
 }
 
-.l-actas { // act as another user 
+.l-actas { // act as another user panel.
     max-height: calc(-250px + 100vh);
     .p-card-content {
         max-height: calc(100vh - 372px);
         overflow-x: hidden;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
     .p-button {
         width: 100%;
