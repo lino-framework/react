@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 SETUP_INFO = dict(
     name='lino_react',
-    version='19.11.1',
+    version='19.11.2',
     install_requires=['lino'],
     tests_require=[],
     test_suite='tests',
