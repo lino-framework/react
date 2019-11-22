@@ -48,13 +48,14 @@ export class ActorData extends React.Component {
     getData(id, fn) {
         let store = window.localStorage,
             {user_type, lang} = window.App.state.user_settings,
-            key = `ActorData_${user_type}_${lang}_${id}`,
+            su = window.App.state.user_settings.su_user_type,
+            key = `ActorData_${su || user_type}_${lang}_${id}`,
             data = store.getObject(key);
 
         if (data) {
             fn(data);
         } else {
-            fetchPolyfill(`/media/cache/json/Lino_${id}_${user_type}_${lang}.json`).then(
+            fetchPolyfill(`/media/cache/json/Lino_${id}_${su || user_type}_${lang}.json`).then(
                 window.App.handleAjaxResponse
             ).then((data) => {
                     console.log(`Fetched data for ${id}`, data);

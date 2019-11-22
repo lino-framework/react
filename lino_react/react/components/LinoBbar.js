@@ -19,11 +19,13 @@ class LinoBbar extends Component {
         reload: PropTypes.func,
         srMap: PropTypes.func,
         runWrapper: PropTypes.func,
+        disabledFields: PropTypes.object
     };
     static defaultProps = {
         srMap: sr => sr,
         sr: [],
-        runWrapper: (fn) => (fn())
+        runWrapper: (fn) => (fn()),
+        disabledFields: {},
     };
 
     constructor(props) {
@@ -75,7 +77,7 @@ class LinoBbar extends Component {
                         tooltipOptions:{position: 'bottom'}}
                 }
                 return <Button {...icon_and_label} key={an}
-                               disabled={action.select_rows && this.props.sr.length === 0}
+                               disabled={action.select_rows && this.props.sr.length === 0 || this.props.disabledFields[action.an]}
                                onClick={() => this.props.runWrapper(() => this.runAction(an))}/>
 
             })}

@@ -307,7 +307,7 @@ export class LinoDetail extends Component {
                         className="l-nav-last"
                         icon="pi pi-angle-double-right"
                         onClick={() => this.onNavClick(this.state.navinfo.last)}/>
-                    {this.props.actorData.editable && <React.Fragment>
+                    {this.props.actorData.editable && !this.state.data.disable_editing && <React.Fragment>
                         <ToggleButton style={{"float": "right"}}
                                       checked={this.state.editing_mode}
                                       onChange={(e) => {
@@ -331,7 +331,7 @@ export class LinoDetail extends Component {
                     }
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
-                              an={'detail'} runWrapper={this.saveThenDo}/>
+                              an={'detail'} runWrapper={this.saveThenDo} disabledFields={this.state.disabled_fields} />
 
 
                     <ProgressBar mode="indeterminate" className={this.state.loading ?"" : "lino-transparent"} style={{height: '5px'}}></ProgressBar>
@@ -345,7 +345,7 @@ export class LinoDetail extends Component {
                     actorData={this.props.actorData}
                     disabled_fields={this.state.disabled_fields}
                     update_value={this.update_value}
-                    editing_mode={this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
+                    editing_mode={this.state.data.disable_editing? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
                     mk={this.props.pk}
                     mt={this.props.actorData.content_type}
                     match={this.props.match}

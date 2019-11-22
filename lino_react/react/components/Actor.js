@@ -17,6 +17,7 @@ export class Actor extends Component {
         match: PropTypes.object,
         actorId: PropTypes.string,
         packId: PropTypes.string,
+        su: PropTypes.string,
         // actorData: PropTypes.object,
 
         mt: PropTypes.int,
@@ -48,7 +49,7 @@ export class Actor extends Component {
     }
 
     render() {
-        return <ActorData key={this.props.actorId} actorId={this.props.packId + "." + this.props.actorId}>
+        return <ActorData key={this.props.actorId+this.props.su} actorId={this.props.packId + "." + this.props.actorId}>
             <ActorContext.Consumer>{(actorData) => {  return <React.Fragment> {
                     actorData.default_action === "grid" &&
                     <Route exact path={this.props.match.match.path} render={(match) => (

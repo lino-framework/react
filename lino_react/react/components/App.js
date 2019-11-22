@@ -968,7 +968,6 @@ class App extends React.Component {
                         <SiteContext.Provider value={this.state.site_data}>
                             {/*<Route path="/api/:packId/:actorId/:actionId" component={Actor}/>*/}
                             <Route path="/api/:packId/:actorId" render={(route) => {
-                                let key = route.match.params.packId + "." + route.match.params.actorId;
                                 let parms = new URLSearchParams(route.location.search);
                                 // console.log(key);
 
@@ -984,7 +983,8 @@ class App extends React.Component {
                                                                        mk={parms.get("mk")}
                                                                        mt={parms.get("mt")}
                                         // makes react recreate the LinoGrid instance
-                                                                       key={key}
+                                                                       su={this.state.user_settings.su_name}
+                                                                       key={route.match.params.packId + "." + route.match.params.actorId + "." + this.state.user_settings.su_name}
 
                                         // Should it look at SiteContext?
                                         //                                actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}

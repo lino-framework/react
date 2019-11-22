@@ -901,6 +901,8 @@ class UserSettings(View):
             )
             if su_name:
                 user_settings["su_id"] = su.id
+                user_settings["su_user_type"] = su.user_type
+
 
             if not_anon:
                 user_settings["authorities"] = u.get_authorities()

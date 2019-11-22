@@ -69,7 +69,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
 
     lino_web_template = "react/linoweb.json"
     file_type = '.json'
-    hide_dashboard_items = True # Used to prevent any dashboard items being rendered from main html dashboard.
+    hide_dashboard_items = True  # Used to prevent any dashboard items being rendered from main html dashboard.
 
     def __init__(self, plugin):
         super(JsRenderer, self).__init__(plugin)
@@ -187,7 +187,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :return: str: a icon name for either prime-react or icon8
         """
 
-        icon = action.react_icon_name or action.icon_name # prioritise react_icon
+        icon = action.react_icon_name or action.icon_name  # prioritise react_icon
         react_icon = REACT_ICON_MAPPING.get(icon, None)
         if react_icon is None:
             return None
@@ -222,7 +222,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
             #  -99998 might be wrong for many commands... need to know what logic is used to determn it,
         elif isinstance(obj, list):
             js_obj["sr"] = obj
-
 
         return "window.App.runAction(%s)" % (
             py2js(js_obj))
@@ -289,8 +288,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result = dict(label=v.get_label(),
                           repr=repr(v),
                           react_name=v.__class__.__name__)  # Used for choosing correct react component
-            if hasattr(v, "elements"):
-                result['items'] = v.elements
+            if hasattr(v, "elements"): #dd
+                result['items'] = [ e for e in v.elements if  e.get_view_permission(get_user_profile()) ]
             result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width preferred_width\
                                       hidden value hflex vflex"))
             # result["width"] = v.width or v.preferred_width
@@ -365,10 +364,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
                         # use c.fields_index -1 for data value
                         index_mod += 1
             result.update(obj2dict(v.get_handle().store, "pk_index"))  # Data index which is the PK
-            result.update(obj2dict(v, "preview_limit "# number of rows to render # if 0 no paginator.
-                                      "use_detail_param_panel " # show PV panel in detail
-                                      "use_detail_params_value " # in grid, use parrent PV values
-                                      "hide_top_toolbar " # No selection and toolbar
+            result.update(obj2dict(v, "preview_limit "  # number of rows to render # if 0 no paginator.
+                                      "use_detail_param_panel "  # show PV panel in detail
+                                      "use_detail_params_value "  # in grid, use parrent PV values
+                                      "hide_top_toolbar "  # No selection and toolbar
                                       "use_detail_params_value "))
             # mt + slave-tables
 
