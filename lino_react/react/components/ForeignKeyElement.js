@@ -146,7 +146,8 @@ export class ForeignKeyElement extends Component {
             <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
-                        <AutoComplete value={value} onChange={(e) => {
+                        <AutoComplete value={value}
+                                      appendTo={window.App.topDiv} onChange={(e) => {
                             e.originalEvent.stopPropagation();
                             update_value(
                                 typeof(e.value) === "string" ?

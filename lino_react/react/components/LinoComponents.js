@@ -193,6 +193,7 @@ const LinoComponents = {
                                 showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
                                 options={options}
                                 container={props.container}
+                                appendTo={window.App.topDiv}
                                 onChange={(e) => {
                                     // console.log(e);
                                     let v = e.target.value === null ? "" : e.target.value['text'],
@@ -430,6 +431,8 @@ const LinoComponents = {
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode ?
                     <Calendar style={{width: "100%"}}
+                              appendTo={window.App.topDiv}
+
                               value={value}
                               dateFormat="dd.mm.yy"
                               onChange={(e) => {
@@ -499,6 +502,8 @@ const LinoComponents = {
                 {props.editing_mode ?
                     <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
                               value={value}
+                              appendTo={window.App.topDiv}
+
                         // dateFormat="dd.mm.yy"
                               onChange={(e) => {
                                   let time;
@@ -513,7 +518,9 @@ const LinoComponents = {
                                   let value = getValue(props),
                                       dateValue = this.str2date(value);
                                   console.log(e, value, dateValue);
-                                  if (dateValue) {dateValue = this.date2str(dateValue)} // convert to string
+                                  if (dateValue) {
+                                      dateValue = this.date2str(dateValue)
+                                  } // convert to string
                                   if (dateValue !== value) {
                                       props.update_value({[getDataKey(props)]: dateValue ? this.date2str(dateValue) : value},
                                           props.elem,
