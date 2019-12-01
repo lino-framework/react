@@ -62,6 +62,7 @@ export class LinoDetail extends Component {
         this.save = debounce(this.save.bind(this), 200);
         this.saveThenDo = this.saveThenDo.bind(this);
         this.onDirtyLeave = this.onDirtyLeave.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
 
     }
 
@@ -131,7 +132,7 @@ export class LinoDetail extends Component {
 
     save(callback) {
         if (this.isDirty()) {
-            this.setState({loading:true});
+            this.setState({loading: true});
             window.App.runAction({
                 rp: this,
                 an: "submit_detail",
@@ -220,8 +221,13 @@ export class LinoDetail extends Component {
     }
 
     componentDidMount() {
+        document.addEventListener('keydown', this.onKeyDown);
         this.reload();
         // console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
+    };
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.onKeyDown);
     };
 
     onNavClick(pk) {
@@ -256,6 +262,28 @@ export class LinoDetail extends Component {
                 })
             })
         ).catch(error => window.App.handleAjaxException(error));
+    }
+
+    onKeyDown(event) {
+        console.log("keydown", event);
+        if ((event.ctrlKey || event.metaKey) && String.fromCharCode(event.which).toLowerCase() === "s") {
+            event.preventDefault();
+            if (this.state.editing_mode) {
+                this.isDirty() ? this.save() : this.setState({editing_mode: false});
+            } else {
+                this.setState({editing_mode: true});
+            }
+        }
+        if (event.key === "Insert") {
+            event.preventDefault();
+            window.App.runAction({
+                an: "insert",
+                actorId: this.props.actorData.id,
+                status:{},
+                rp: this,
+            });
+
+        }
     }
 
     render() {
@@ -331,10 +359,11 @@ export class LinoDetail extends Component {
                     }
                     <br/>
                     <LinoBbar sr={[this.props.pk]} reload={this.reload} actorData={this.props.actorData} rp={this}
-                              an={'detail'} runWrapper={this.saveThenDo} disabledFields={this.state.disabled_fields} />
+                              an={'detail'} runWrapper={this.saveThenDo} disabledFields={this.state.disabled_fields}/>
 
 
-                    <ProgressBar mode="indeterminate" className={this.state.loading ?"" : "lino-transparent"} style={{height: '5px'}}></ProgressBar>
+                    <ProgressBar mode="indeterminate" className={this.state.loading ? "" : "lino-transparent"}
+                                 style={{height: '5px'}}></ProgressBar>
 
                 </Toolbar>
                 }
@@ -345,7 +374,7 @@ export class LinoDetail extends Component {
                     actorData={this.props.actorData}
                     disabled_fields={this.state.disabled_fields}
                     update_value={this.update_value}
-                    editing_mode={this.state.data.disable_editing? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
+                    editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
                     mk={this.props.pk}
                     mt={this.props.actorData.content_type}
                     match={this.props.match}
