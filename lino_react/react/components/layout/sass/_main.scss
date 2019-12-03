@@ -527,15 +527,31 @@ body .lino-panel.p-tabview .p-tabview-panels {
         }
     }
 }
-
+.p-autocomplete-list-item {
+    min-height: 28.7px; // For blank values to have same height as others.
+}
 body .l-ForeignKeyElement {
     display: flex;
     flex-direction: row;
     align-items: center;
     margin-right: 1ch;
+    position: relative;
 
     > span {
         width: 100%;
+    }
+
+    .l-fk-clear { // clear button
+        position: absolute;
+        right: 2.7em;
+        top: 50%;
+        font-size: 1em;
+        height: 1em;
+        margin-top: -.5em;
+        color: #848484;
+    }
+    .l-fk-clear::before {
+        content: "\E90B"
     }
 
     .l-button-fk {

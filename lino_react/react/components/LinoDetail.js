@@ -265,7 +265,7 @@ export class LinoDetail extends Component {
     }
 
     onKeyDown(event) {
-        console.log("keydown", event);
+        // console.log("keydown", event);
         if ((event.ctrlKey || event.metaKey) && String.fromCharCode(event.which).toLowerCase() === "s") {
             event.preventDefault();
             if (this.state.editing_mode) {
