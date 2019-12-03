@@ -11,6 +11,7 @@ import {fetch as fetchPolyfill} from "whatwg-fetch";
 
 import {ActorData, ActorContext} from "./SiteContext"
 
+import DomHandler from 'primereact/domhandler';
 
 export class ForeignKeyElement extends Component {
 
@@ -28,6 +29,7 @@ export class ForeignKeyElement extends Component {
         super();
         this.state = {
             rows: [],
+            loading: false
         };
         this.OnExternalLinkClick = this.OnExternalLinkClick.bind(this);
         this.getChoices = this.getChoices.bind(this);
@@ -36,7 +38,8 @@ export class ForeignKeyElement extends Component {
         this.focus = this.focus.bind(this);
         this.openExternalLink = this.openExternalLink.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
-
+        this.onChange = this.onChange.bind(this);
+        this.clear = this.clear.bind(this);
     }
 
     // Causes errors with dropdown opening
@@ -54,6 +57,12 @@ export class ForeignKeyElement extends Component {
     onKeyPress(event) {
         if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && this.autoComplete && !this.autoComplete.isPanelVisible()) {
             this.autoComplete.search(event, "", "dropdown"); // open suggestions with keyboard
+        } else if (event.key === "Enter" && this.autoComplete && this.autoComplete.isPanelVisible()) {
+            let highlight = DomHandler.findSingle(this.autoComplete.panel.element, 'li.p-highlight');
+            if (!highlight) {
+                this.autoComplete.selectItem(event, this.state.rows[0]); // sets value but doesn't close panel
+                this.autoComplete.hidePanel();
+            }
         }
     };
 
@@ -132,10 +141,38 @@ export class ForeignKeyElement extends Component {
         this.autoComplete.inputEl.focus();
     }
 
+    onChange(e) {
+        let {in_grid, elem, update_value, column} = this.props;
+        console.log(e);
+        e.originalEvent.stopPropagation();
+        let v = {};
+        if (typeof(e.value) === "string") {
+            v[in_grid ? elem.fields_index : elem.name] = e.value;
+            let rows = this.state.rows.filter(r => r.text.toLowerCase().includes(e.value.toLowerCase()))
+            if (rows.length === 1) {
+                v[in_grid ? elem.fields_index + 1 : elem.name + "Hidden"] = rows[0].value;
+            } else if (rows.length === 0 && e.value === "" && this.props.elem.field_options.allowBlank) {
+                v[in_grid ? elem.fields_index + 1 : elem.name + "Hidden"] = null;
+            }
+        } else {
+            v[in_grid ? elem.fields_index : elem.name] = e.value.text;
+            v[in_grid ? elem.fields_index + 1 : elem.name + "Hidden"] = e.value.value;
+        }
+        update_value(v, elem, column)
+    }
+
+    clear() {
+        let {in_grid, elem, update_value, column} = this.props;
+        update_value({
+            [in_grid ? elem.fields_index : elem.name]: "",
+            [in_grid ? elem.fields_index + 1 : elem.name + "Hidden"]: null,
+        }, elem, column)
+    }
+
+
     render() {
-        const props = this.props,
-            {update_value} = props;
-        // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
+        const props = this.props;
+
         let value = (props.in_grid ? props.data[props.elem.fields_index] : props.data[props.elem.name]);
 
         if (value && typeof value === "object") value = value['text'];
@@ -146,30 +183,31 @@ export class ForeignKeyElement extends Component {
             <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
                     {editing_mode ?
-                        <AutoComplete value={value}
-                                      appendTo={window.App.topDiv} onChange={(e) => {
-                            e.originalEvent.stopPropagation();
-                            update_value(
-                                typeof(e.value) === "string" ?
-                                    {[props.in_grid ? props.elem.fields_index : props.elem.name]: e.value} : // When filtering, we want the typed value to appear.
-                                    {
-                                        [props.in_grid ? props.elem.fields_index : props.elem.name]: e.value.text,
-                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: e.value.value,
-                                    },
-                                props.elem, props.column
-                            )
-                        }}
-                                      suggestions={this.state.rows}
-                                      dropdown={true}
+                        <React.Fragment> <AutoComplete value={value}
+                                                       appendTo={window.App.topDiv} onChange={this.onChange}
+                                                       suggestions={this.state.rows}
+                                                       dropdown={true}
                             // onFocus={(e) => e.target.select()}
-                                      field={props.simple ? "value" : "text"}
-                                      completeMethod={(e) => this.getChoices(e.query, this_actorData)}
-                                      container={this.props.container}
-                                      ref={(el) => this.autoComplete = el}
-                                      onKeyDown={this.onKeyPress}
-
+                                                       field={props.simple ? "value" : "text"}
+                                                       completeMethod={(e) => this.getChoices(e.query, this_actorData)}
+                                                       container={this.props.container}
+                                                       ref={(el) => this.autoComplete = el}
+                                                       onKeyDown={this.onKeyPress}
+                                                       onShowLoader={() => {
+                                                           if (this.clearButton) {
+                                                               this.clearButton.style.visibility = 'hidden'
+                                                           }
+                                                       }}
+                                                       onHideLoader={() => {
+                                                           this.setState({touch: Date()})
+                                                           /*if (this.clearButton) {this.clearButton.style.visibility = 'visible'}*/
+                                                       }} // should rerender the clear button and get rid it spinner?
                         />
-
+                            {this.props.elem.field_options.allowBlank && value &&
+                            <i key={this.state.touch} ref={el => this.clearButton = el}
+                               className={"pi pi-times l-fk-clear"}
+                               onClick={this.clear} style={{visibility: 'visible'}}/>}
+                        </React.Fragment>
                         : <React.Fragment>
                             <div
                                 dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>

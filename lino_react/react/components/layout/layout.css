@@ -498,13 +498,27 @@ body .lino-panel.p-tabview .p-tabview-panels {
     .l-panel .l-component .p-checkbox.p-component {
       padding-top: .5ch; }
 
+.p-autocomplete-list-item {
+  min-height: 28.7px; }
+
 body .l-ForeignKeyElement {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-right: 1ch; }
+  margin-right: 1ch;
+  position: relative; }
   body .l-ForeignKeyElement > span {
     width: 100%; }
+  body .l-ForeignKeyElement .l-fk-clear {
+    position: absolute;
+    right: 2.7em;
+    top: 50%;
+    font-size: 1em;
+    height: 1em;
+    margin-top: -.5em;
+    color: #848484; }
+  body .l-ForeignKeyElement .l-fk-clear::before {
+    content: "\E90B"; }
   body .l-ForeignKeyElement .l-button-fk {
     margin-left: 1em;
     height: 1.5em;
