@@ -898,9 +898,12 @@ class UserSettings(View):
                 act_as_title_text=_("Act as another user"),
                 act_as_button_text=_("Act as another user"),
                 act_as_self_text=_("Stop acting as another user"),
+                # #3070: Add id and the text of "My setting" menu
+                my_setting_text=_("My settings"),
+                user_id=u.pk,
             )
             if su_name:
-                user_settings["su_id"] = su.id
+                user_settings["user_id"] = user_settings["su_id"] = su.id
                 user_settings["su_user_type"] = su.user_type
 
 

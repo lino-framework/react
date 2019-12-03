@@ -24,6 +24,8 @@ export class AppInlineProfile extends Component {
         act_as_title_text: PropTypes.string,
         act_as_subtext: PropTypes.string,
         act_as_self_text: PropTypes.string,
+        my_setting_text: PropTypes.string,
+        onMysettings: PropTypes.func.isRequired,
         // todo include currnt SU as to display correct name and act as self button
     };
 
@@ -96,6 +98,13 @@ export class AppInlineProfile extends Component {
                     </a>
 
                 </li>}
+                // #3070: Add menu to open the settings page of the current user 
+                <li onClick={this.props.onMysettings}>
+                    <a>
+                        <i className="pi pi-fw pi-user"/>
+                        <span>{my_setting_text}</span>
+                    </a>
+                </li>
 
             </ul>
             {this.renderActAsOverLay()}

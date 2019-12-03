@@ -104,6 +104,17 @@ class App extends React.Component {
         // console.log(window, window.App);
     }
 
+    // #3070: Add function to open the settings page of the current user 
+    onMysettings(event){
+        // Open the detail view of the current user settings.
+        this.runAction({
+            "actorId": "users.MySettings",
+            "an": "detail",
+            "onMain": true,
+            "rp": null,
+            "status": { "record_id": this.state.user_settings.user_id }
+        })
+    }
     onSignOutIn(event) {
         if (!this.state.user_settings.logged_in) {
             // this.setState({logging_in: true})
@@ -928,9 +939,11 @@ class App extends React.Component {
                                                           act_as_title_text={this.state.user_settings.act_as_title_text}
                                                           act_as_button_text={this.state.user_settings.act_as_button_text}
                                                           act_as_self_text={this.state.user_settings.act_as_self_text}
-                                                          onAuthoritiesSelect={this.onAuthoritiesSelect}
+                                                          act_as_self_text={this.state.user_settings.act_as_self_text}
+                                                          my_setting_text={this.state.user_settings.my_setting_text}
                                                           onSignOutIn={(e) => this.onSignOutIn(e)}
-                                                          authAppendTo={this.topDiv}/>
+                                                          authAppendTo={this.topDiv}
+                                                          onMysettings={(e) => this.onMysettings(e)}/>
 
                                         <AppMenu model={this.state.menu_data}
                                                  onMenuItemClick={this.onMenuItemClick}/>
