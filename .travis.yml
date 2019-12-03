@@ -1,18 +1,18 @@
+dist: bionic
 language: python
 python:
-  - "2.7"
   - "3.6"
-env:
-  matrix:
-    - DJANGO=1.11 
+  - "3.7"
+  - "3.8"
 
+os: linux
+sudo: required
 
 install:
   - pip install -U setuptools
   - pip install coveralls
-  - if [[ $TRAVIS_PYTHON_VERSION != 2.7 ]]; then pip install -r requirements.python3.txt; else pip install -r requirements.txt;  fi
+  - pip install -r requirements.python3.txt
   - # test -e "requirements.$TRAVIS_BRANCH.txt" && ( pip install -r "requirements.$TRAVIS_BRANCH.txt" ) || ( pip install -r requirements.txt )
-  - pip install Django==$DJANGO
   - npm install
   - pip install -e .
 
