@@ -67,7 +67,7 @@ export class AppInlineProfile extends Component {
 
     render() {
         let {username, su_name, su_id} = this.props;
-        let {act_as_button_text, act_as_self_text} = this.props;
+        let {act_as_button_text, act_as_self_text, my_setting_text} = this.props;
 
         username = su_name ? `${username} acting as ${su_name}` : username;
 
@@ -98,13 +98,17 @@ export class AppInlineProfile extends Component {
                     </a>
 
                 </li>}
-                // #3070: Add menu to open the settings page of the current user 
-                <li onClick={this.props.onMysettings}>
-                    <a>
-                        <i className="pi pi-fw pi-user"/>
-                        <span>{my_setting_text}</span>
-                    </a>
-                </li>
+                {/* #3070: Add menu to open the settings page of the current user  */ }
+                {this.props.logged_in ?
+                    <li onClick={this.props.onMysettings}>
+                        <a>
+                            <i className="pi pi-fw pi-user"/>
+                            <span>{my_setting_text}</span>
+                        </a>
+                    </li>
+                :
+                <li></li>
+                }
 
             </ul>
             {this.renderActAsOverLay()}
