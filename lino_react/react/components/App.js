@@ -940,6 +940,7 @@ class App extends React.Component {
                                                           act_as_button_text={this.state.user_settings.act_as_button_text}
                                                           act_as_self_text={this.state.user_settings.act_as_self_text}
                                                           act_as_self_text={this.state.user_settings.act_as_self_text}
+                                                          onAuthoritiesSelect={this.onAuthoritiesSelect}
                                                           my_setting_text={this.state.user_settings.my_setting_text}
                                                           onSignOutIn={(e) => this.onSignOutIn(e)}
                                                           authAppendTo={this.topDiv}

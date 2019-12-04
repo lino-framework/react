@@ -99,15 +99,12 @@ export class AppInlineProfile extends Component {
 
                 </li>}
                 {/* #3070: Add menu to open the settings page of the current user  */ }
-                {this.props.logged_in ?
-                    <li onClick={this.props.onMysettings}>
+                {this.props.logged_in && <li onClick={this.props.onMysettings}>
                         <a>
-                            <i className="pi pi-fw pi-user"/>
+                            <i className="pi pi-fw pi-sliders-v"/>
                             <span>{my_setting_text}</span>
                         </a>
                     </li>
-                :
-                <li></li>
                 }
 
             </ul>
