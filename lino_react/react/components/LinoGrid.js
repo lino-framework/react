@@ -73,7 +73,10 @@ export class LinoGrid extends Component {
 
             sortField: undefined, // Sort data index   (used in PR)
             sortFieldName: undefined, // Sort col.name (used in Lino)
-            sortOrder: undefined
+            // sortOrder: undefined
+
+            sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined,
+            sortCol : search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined 
 
         };
         this.state.cols = props.actorData.col.map((column, i) => (
@@ -446,6 +449,10 @@ export class LinoGrid extends Component {
             state.sortField = sortCol.fields_index;
             state.sortFieldName = sortCol.name;
             sortFieldName = sortCol.name;
+        } else if (this.state.sortCol !== undefined) {
+            state.sortField = this.state.sortCol.fields_index;
+            state.sortFieldName = this.state.sortCol.name;
+            sortFieldName = this.state.sortCol.name;
         } else if (this.state.sortField !== undefined) {
             // sortField = this.state.sortField;
             sortFieldName = this.state.sortFieldName
@@ -465,6 +472,8 @@ export class LinoGrid extends Component {
 
         this.setState(state);
 
+        let sort_values = {'sortOrder': sortOrder,'sortField':state.sortField};
+        this.update_url_values(sort_values , this.props.match);
 
         if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
                 ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
