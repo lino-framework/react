@@ -53,7 +53,7 @@ export class LinoGrid extends Component {
             rows: [],
             toggle_col: false, // show multiselect elem for thing
             cols: undefined,
-            show_columns: undefined,
+            show_columns: search['show_columns'] ? search['show_columns'].split(",") : undefined,
             // for pager
             totalRecords: 0,
             rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
@@ -85,7 +85,9 @@ export class LinoGrid extends Component {
                 value: i + "",
                 col: column
             }));
-        this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
+        if ( this.state.show_columns === undefined){
+            this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
+        }
 
         this.reload = debounce(this.reload.bind(this), 200);
         this.refresh = this.reload;
@@ -617,7 +619,7 @@ export class LinoGrid extends Component {
             // );
 
             this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
-
+            this.update_url_values({'show_columns': this.state.show_columns.toString()} , this.props.match);
             this.cols = this.cols.concat(
                 this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
