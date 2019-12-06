@@ -440,29 +440,26 @@ class Renderer(JsRenderer, JsCacheRenderer):
     def action_call(self, request, bound_action, status):
 
         a = bound_action.action
-        fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
-        actorId, an = bound_action.full_name().rsplit(".", 1)  # moves action name to first arg,
+        # fullname = ".".join(bound_action.full_name().rsplit(".", 1)[::-1])  # moves action name to first arg,
+        actorId, an = bound_action.full_name().rsplit(".", 1)
 
-        if a.opens_a_window or (a.parameters and not a.no_params_window):
-            if request and request.subst_user:
-                status[
-                    constants.URL_PARAM_SUBST_USER] = request.subst_user
-            if isinstance(a, ShowEmptyTable):
-                status.update(record_id=-99998)
-            if request is None:
-                rp = None
-            else:
-                rp = request.requesting_panel
-            if not status:
-                status = {}
+        if request and request.subst_user:
+            status[
+                constants.URL_PARAM_SUBST_USER] = request.subst_user
+        if isinstance(a, ShowEmptyTable):
+            status.update(record_id=-99998)
 
-            return "window.App.runAction(%s)" % py2js(dict(
-                an=an,
-                actorId=actorId,
-                status=status,
-                rp=rp))
-            # return "%s()" % self.get_panel_btn_handler(bound_action)
-        return "simple_action(%s)" % fullname
+        rp = None if request is None else request.requesting_panel
+
+        if not status:
+            status = {}
+
+        return "window.App.runAction(%s)" % py2js(dict(
+            an=an,
+            actorId=actorId,
+            status=status,
+            rp=rp))
+        # return "%s()" % self.get_panel_btn_handler(bound_action)
 
     def js2url(self, js):
         if not js:
