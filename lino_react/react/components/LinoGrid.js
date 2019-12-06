@@ -233,7 +233,7 @@ export class LinoGrid extends Component {
                     // } )
                 }
 
-            }, 10)
+            }, 20)
         }
         else {
             submit()
