@@ -760,6 +760,14 @@ export class LinoGrid extends Component {
         />;
     }
 
+    onColReorder(e) {
+        // console.log('e.event',e.event);
+        let show_columns = e.event.filter((c) => c.props.cellIndex).map((col) => col.props.cellIndex - 1)
+        // console.log('show_columns',show_columns);
+        this.setState({'show_columns': show_columns});
+        this.update_url_values({'show_columns': show_columns.toString()} , this.props.match);
+    }
+
     render() {
         const {rows} = this.state;
         // const Comp = "Table";
@@ -781,6 +789,7 @@ export class LinoGrid extends Component {
                     editable={true}
                     selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" }
                     onSelectionChange={e => this.setState({selectedRows: e.value})}
+                    onColReorder = {e => this.onColReorder({event:e.columns})}
                     onRowSelect={this.onRowSelect}
                     selection={this.props.actorData.hide_top_toolbar? undefined : this.state.selectedRows}
                     loading={this.state.loading}
