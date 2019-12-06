@@ -418,10 +418,32 @@ const LinoComponents = {
         constructor() {
             super();
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+            this.parse_date = this.parse_date.bind(this);
         }
 
         focus() {
             this.cal.inputElement.focus()
+        }
+
+        convertValueToDate(value) {
+            let parts = value ? value.split(".") : [];
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return value
+        }
+
+        /*
+        Attempts to convert the value into a date object.
+         */
+        parse_date(value) {
+            let v = this.convertValueToDate(value);
+            if (v instanceof Date){
+                return v
+            } else {
+                return new Date();
+            }
+
         }
 
         render() {
@@ -447,9 +469,11 @@ const LinoComponents = {
                                       props.column);
                               }
                               }
+                              showButtonBar={true}
                         // showIcon={true}
-                              viewDate={new Date()}
+                              viewDate={this.parse_date(value)}
                               ref={(el) => this.cal = el}
+                              convertValueToDate={this.convertValueToDate}
                     />
                     :
                     <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
