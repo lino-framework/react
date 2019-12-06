@@ -106,7 +106,8 @@ export class ForeignKeyElement extends Component {
 
     OnExternalLinkClick(related_actor_id) {
 
-        return () => {
+        return (e) => {
+            e.stopPropagation();
             ActorData.prototype.getData(related_actor_id, (relatedActorData) => {
                 this.openExternalLink(relatedActorData)
             })
