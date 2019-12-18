@@ -15,6 +15,7 @@ install:
   - sudo apt-get install -y graphviz
   - sudo apt-get install redis-server ; redis-server &
   - sudo apt-get install -y tidy libreoffice python3-uno
+  - sudo apt install libgconf-2-4 # required by cypress
   - pip install -U setuptools
   - pip install coveralls
   - pip install -r requirements.python3.txt
