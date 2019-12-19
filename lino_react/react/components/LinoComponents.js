@@ -338,6 +338,81 @@ const LinoComponents = {
         }
     },
 
+    UppercaseTextFieldElement: class UppercaseTextFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.uppercaseTextField.inputEl.focus();
+        }
+
+        toInputUppercase(event){
+            event.target.value = ("" + event.target.value).toUpperCase();
+        }
+
+        render() {
+            let {props} = this,
+                value = getValue(props);
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode ?
+                    <InputText style={{width: "100%"}}
+                               value={value || ""}
+                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                                   props.elem,
+                                   props.column)}
+                               onInput={(e) => this.toInputUppercase(e)}
+                               autoFocus={props.in_grid ? 'true' : undefined}
+                               ref={(el) => this.uppercaseTextField = el}
+                    />
+                    :
+                    <div>{value || "\u00a0"}</div>
+                }
+            </Labeled>
+        }
+    },
+
+    IBANFieldElement: class IBANFieldElement extends React.Component {
+
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.ibanEl.inputEl.focus();
+        }
+
+        iban_renderer(event){
+            event.target.value = ("" + event.target.value).toUpperCase();
+            let reg = new RegExp(".{4}", "g");
+            if(event.target.value) {
+                event.target.value = event.target.value.replace(reg, function (a) { return a + ' '; });
+            }
+        }
+
+        render() {
+            let {props} = this,
+                value = getValue(props);
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode ?
+                    <InputText style={{width: "100%"}}
+                               value={value || ""}
+                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                                   props.elem,
+                                   props.column)}
+                               onInput={(e) => this.iban_renderer(e)}
+                               autoFocus={props.in_grid ? 'true' : undefined}
+                               ref={(el) => this.ibanEl = el}
+                    />
+                    :
+                    <div>{value || "\u00a0"}</div>
+                }
+            </Labeled>
+        }
+    },
+
     PasswordFieldElement: class PasswordFieldElement extends React.Component {
         constructor() {
             super();
