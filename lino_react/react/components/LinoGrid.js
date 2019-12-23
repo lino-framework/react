@@ -130,7 +130,7 @@ export class LinoGrid extends Component {
                 actorId: this.get_full_id(),
                 actorData: this.props.actorData,
                 data: (pk === null && this.state.editingPK === null) ? this.state.editingValues : rowData,
-                disabled_fields: this.state.disabled_fields,
+                disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value, // No editable yet
                 editing_mode: false,
                 hide_label: true,
@@ -158,7 +158,7 @@ export class LinoGrid extends Component {
                 actorId: this.get_full_id(),
                 data: this.state.editingValues,
                 actorData: this.props.actorData,
-                disabled_fields: this.state.disabled_fields,
+                disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value,
                 hide_label: true,
                 in_grid: true,

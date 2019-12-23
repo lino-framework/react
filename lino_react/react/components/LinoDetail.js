@@ -204,11 +204,12 @@ export class LinoDetail extends Component {
             return
         }
         let df = data.data.disabled_fields;
-        delete data.data.disabled_fields;
+        // delete data.data.disabled_fields;
+        let original_data = JSON.parse(JSON.stringify(data.data));
         this.setState({
             data: data.data,
-            original_data: JSON.parse(JSON.stringify(data.data)), // Copy of data for diff test
-            disabled_fields: df,
+            original_data: original_data, // Copy of data for diff test
+            disabled_fields: original_data.disabled_fields || [],
             id: data.id,
             title: data.title,
             navinfo: data.navinfo,

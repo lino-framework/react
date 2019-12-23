@@ -53,6 +53,10 @@ export function getDataKey(props) {
     return props.in_grid ? props.elem.fields_index : props.elem.name
 }
 
+export function isDisabledField(props) {
+    return props.disabled_fields.hasOwnProperty(getDataKey(props))
+}
+
 export function shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
     let {props} = this,
         value = getValue(props),
@@ -181,7 +185,7 @@ const LinoComponents = {
                 let options = siteData.choicelists[props.elem.field_options.store];
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
                 return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                    {props.editing_mode ?
+                    {props.editing_mode && ! isDisabledField(props) ?
                         <div className="l-ChoiceListFieldElement"
                              style={{margin_top: "1px"}}>
                             <Dropdown
@@ -232,7 +236,7 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -289,7 +293,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -321,7 +325,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                keyfilter={'num'} // allows . - \d
                                value={value || ""}
@@ -354,7 +358,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                keyfilter={'int'} // allows . - \d
                                value={value || ""}
@@ -389,7 +393,7 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -429,7 +433,7 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -488,7 +492,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <React.Fragment>
                 <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                    {props.editing_mode ?
+                    {props.editing_mode && ! isDisabledField(props) ?
                         <InputText style={{width: "100%"}} type="text" keyfilter="pint"
                                    value={value || ""}
                                    onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -509,7 +513,7 @@ const LinoComponents = {
             <Labeled {...props} elem={props.elem} labeled={props.labeled}
                      isFilled={true} // either 1 or 0, can't be unfilled
             >
-                <Checkbox readOnly={!props.editing_mode}
+                <Checkbox readOnly={!props.editing_mode || isDisabledField(props)}
                           onChange={(e) => props.update_value({[getDataKey(props)]: e.checked},
                               props.elem,
                               props.column)}
@@ -559,7 +563,7 @@ const LinoComponents = {
                 value = (getValue(props));
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode ?
+                {props.editing_mode && ! isDisabledField(props) ?
                     <Calendar style={{width: "100%"}}
                               appendTo={window.App.topDiv}
 
@@ -631,7 +635,7 @@ const LinoComponents = {
                 viewDate = this.str2date(value) || new Date();
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode ?
+                {props.editing_mode  && ! isDisabledField(props) ?
                     <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
                               value={value}
                               appendTo={window.App.topDiv}
