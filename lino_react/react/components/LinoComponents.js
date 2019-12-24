@@ -54,7 +54,7 @@ export function getDataKey(props) {
 }
 
 export function isDisabledField(props) {
-    return props.disabled_fields.hasOwnProperty(getDataKey(props))
+    return props.disabled_fields ? props.disabled_fields.hasOwnProperty(getDataKey(props)) : false;
 }
 
 export function shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
@@ -191,7 +191,8 @@ const LinoComponents = {
                             <Dropdown
                                 // autoWidth={false}
                                 style={{width: "100%"}}
-                                optionLabel={"text"} value={{text: value, value: hidden_value}}
+                                optionLabel={"text"} 
+                                value={{text: value, value: hidden_value}}
                                 datakey={"value"}
                                 //Todo clear tied to props.elem.field_options.blank
                                 showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
@@ -218,6 +219,56 @@ const LinoComponents = {
             }}
             </SiteContext.Consumer>
 
+        }
+    },
+    ChoicesFieldElement: class ChoicesFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.dropDown && this.dropDown.focusInput.focus();
+        }
+
+        render() {
+            // console.log("choice render")
+            let {props} = this,
+                value = getValue(props),
+                hidden_value = getHiddenValue(props);
+                let store = props.elem.field_options.store.map(x => ({'text': x[1],'value':x[0]}));;
+                return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                    {props.editing_mode && ! isDisabledField(props) ?
+                        <div className="l-ChoiceListFieldElement"
+                             style={{margin_top: "1px"}}>
+                            <Dropdown
+                                // autoWidth={false}
+                                style={{width: "100%"}}
+                                optionLabel={"text"} 
+                                value={{text: value, value: hidden_value}}
+                                datakey={"value"}
+                                //Todo clear tied to props.elem.field_options.blank
+                                showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
+                                options={store}
+                                container={props.container}
+                                appendTo={window.App.topDiv}
+                                onChange={(e) => {
+                                    // console.log(e);
+                                    let v = e.target.value === null ? "" : e.target.value['text'],
+                                        h = e.target.value === null ? "" : e.target.value['value'];
+                                    props.update_value({
+                                            [getDataKey(props)]: v,
+                                            [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                        },
+                                        props.elem,
+                                        props.column)
+                                }}
+                                ref={el => this.dropDown = el}
+                                // placeholder={""}
+                            />
+                        </div> :
+                        <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
+                    }</Labeled>
         }
     },
 
@@ -254,7 +305,7 @@ const LinoComponents = {
                         "max-width": "290px"
                     }}><a href={value} title={value}>{value || "\u00a0"}</a></div>
 
-                }}
+                }
             </Labeled>
         }
     }
@@ -798,7 +849,6 @@ LinoComponents.ComplexRemoteComboFieldElement = LinoComponents.ForeignKeyElement
 LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 LinoComponents.GenericForeignKeyElement = LinoComponents.DisplayElement;
-
 class LinoLayout extends React.Component {
 
     static propTypes = {
