@@ -2,11 +2,9 @@
 # Copyright 2015-2019 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
-from __future__ import unicode_literals
-
 SETUP_INFO = dict(
     name='lino_react',
-    version='19.11.2',
+    version='20.1.0',
     install_requires=['lino'],
     tests_require=[],
     test_suite='tests',
