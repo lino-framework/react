@@ -644,6 +644,35 @@ const LinoComponents = {
         }
     },
 
+    IncompleteDateFieldElement: class IncompleteDateFieldElement extends React.Component {
+        constructor() {
+            super();
+            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        }
+
+        focus() {
+            this.cal.inputElement.focus()
+        }
+
+        render() {
+            let {props} = this,
+                value = (getValue(props));
+            // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode && ! isDisabledField(props) ?
+                    <InputText style={{width: "100%"}} type="text" keyfilter="pint"
+                        value={value || ""}
+                        onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                            props.elem,
+                            props.column)}
+                        ref={(el) => this.input = el}
+                        />
+                    : <div
+                        dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+                }
+            </Labeled>
+        }
+    },
     // DateTimeFieldElement: (props) => {
     //
     // },
