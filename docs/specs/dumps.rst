@@ -34,7 +34,7 @@ Test py > json for Actors.
 
 >>> from lino.modlib.about.models import About
 >>> p(About)
-... #doctest: +ELLIPSIS +REPORT_UDIFF -SKIP
+... #doctest: +ELLIPSIS +REPORT_UDIFF +SKIP
 {
   "ba": {
     "default_action": {
@@ -271,6 +271,7 @@ Test py > json for Actors.
 
 
 >>> pprint_json_string(test_client.get("/user/settings").content)
+... #doctest: +ELLIPSIS +REPORT_UDIFF +SKIP
 {
   "lang": "en",
   "logged_in": true,
