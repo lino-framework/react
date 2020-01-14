@@ -856,6 +856,8 @@ class App(View):
                 # title=ar.get_title(),
                 # heading=ar.get_title(),
                 # main=main,
+                request = request,
+                user = user,  # Current user
             )
             context.update(ar=ar)
 
