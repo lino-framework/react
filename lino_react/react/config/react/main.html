@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html language="{{requested_language}}">
+{%- macro javascript(url) -%}
+    <script type="text/javascript" src="{{ url }}"></script>
+{%- endmacro -%}
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8"/>

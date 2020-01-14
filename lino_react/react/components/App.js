@@ -107,6 +107,7 @@ class App extends React.Component {
     // #3070: Add function to open the settings page of the current user 
     onMysettings(event){
         // Open the detail view of the current user settings.
+        Notifier.start("Title","Here is context","www.google.com","validated image url");
         this.runAction({
             "actorId": "users.MySettings",
             "an": "detail",
@@ -1050,3 +1051,5 @@ class App extends React.Component {
 const wrapper = document.getElementById("root");
 
 wrapper ? ReactDOM.render(<App/>, wrapper) : null;
+import * as serviceWorker from './serviceWorker';
+serviceWorker.register();
