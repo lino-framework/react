@@ -131,10 +131,20 @@ export class ForeignKeyElement extends Component {
             status.mt = props.mt;
         }
         // console.log(props.elem, detail_action);
-        window.App.runAction({
-            an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
-            rp: null, status: status
-        });
+        if (pk){
+            window.App.runAction({
+                an: actor.detail_action, actorId: props.elem.field_options.related_actor_id,
+                rp: null, status: status
+            });
+        }
+        else
+        // javascript:window.App.runAction({ "actorId": "tickets.AllTickets", "an": "insert", "rp": "dashboard-main", "status": {  } })
+        {
+            window.App.runAction({
+                an: "insert", actorId: props.elem.field_options.related_actor_id,
+                rp: null, status: {}
+            });
+        }
         // match.history.push(`/api/${packId}/${actorId}/${pk}`)
     };
 
@@ -183,9 +193,9 @@ export class ForeignKeyElement extends Component {
         return <ActorContext.Consumer>{(this_actorData) => (
             <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 <div className="l-ForeignKeyElement">
-                    {editing_mode ?
                         <React.Fragment> <AutoComplete value={value}
-                                                       appendTo={window.App.topDiv} onChange={this.onChange}
+                                                       appendTo={window.App.topDiv} 
+                                                       onChange={this.onChange}
                                                        suggestions={this.state.rows}
                                                        dropdown={true}
                             // onFocus={(e) => e.target.select()}
@@ -208,15 +218,13 @@ export class ForeignKeyElement extends Component {
                             <i key={this.state.touch} ref={el => this.clearButton = el}
                                className={"pi pi-times l-fk-clear"}
                                onClick={this.clear} style={{visibility: 'visible'}}/>}
+                            {props.elem.field_options.insert_action || value ? 
+                                <Button icon="pi pi-external-link" 
+                                        className="p-button-secondary l-button-fk"
+                                        onClick={this.OnExternalLinkClick(props.elem.field_options.related_actor_id)} 
+                                />
+                            : ''}
                         </React.Fragment>
-                        : <React.Fragment>
-                            <div
-                                dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-                            {value && props.link &&
-                            <Button icon="pi pi-external-link" className="p-button-secondary l-button-fk"
-                                    onClick={this.OnExternalLinkClick(props.elem.field_options.related_actor_id)}
-                            />}
-                        </React.Fragment>}
                 </div>
 
             </Labeled>)}</ActorContext.Consumer>
