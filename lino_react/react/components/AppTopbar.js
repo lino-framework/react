@@ -13,6 +13,8 @@ export class AppTopbar extends Component {
     static propTypes = {
         onToggleMenu: PropTypes.func.isRequired,
         onHomeButton: PropTypes.func.isRequired,
+        WS: PropTypes.bool,
+        UnseenCount: PropTypes.number,
         // searchValue: PropTypes.func.isRequired,
         // searchMethod: PropTypes.func.isRequired,
         // searchSuggestions: PropTypes.func.isRequired,
@@ -29,19 +31,21 @@ export class AppTopbar extends Component {
                 </a>
                 <div className="layout-topbar-icons">
                     {/*<span className="layout-topbar-search">*/}
-                        {/*<AutoComplete type="text" placeholder="Search"*/}
-                                      {/*value={this.props.searchValue}*/}
-                                      {/*completeMethod={(e) => {*/}
-                                          {/*this.props.searchMethod(e.query)*/}
-                                      {/*}}*/}
-                                      {/*suggestions={this.props.searchSuggestions}/>*/}
-                        {/*<span className="layout-topbar-search-icon pi pi-search"/>*/}
+                    {/*<AutoComplete type="text" placeholder="Search"*/}
+                    {/*value={this.props.searchValue}*/}
+                    {/*completeMethod={(e) => {*/}
+                    {/*this.props.searchMethod(e.query)*/}
+                    {/*}}*/}
+                    {/*suggestions={this.props.searchSuggestions}/>*/}
+                    {/*<span className="layout-topbar-search-icon pi pi-search"/>*/}
                     {/*</span>*/}
-                    {/*<a>*/}
-                    {/*<span className="layout-topbar-item-text">Events</span>*/}
-                    {/*<span className="layout-topbar-icon pi pi-calendar"/>*/}
-                    {/*<span className="layout-topbar-badge">5</span>*/}
-                    {/*</a>*/}
+                    <a>
+                        {/*<span className="layout-topbar-item-text">Events</span>*/}
+                        <span className="layout-topbar-icon pi pi-bell"/>
+                        {!this.props.WS && <span className="layout-topbar-badge">!</span>}
+                        {this.props.UnseenCount && <span className="layout-topbar-badge">{this.props.UnseenCount}</span>}
+
+                    </a>
                     {/*<a>*/}
                     {/*<span className="layout-topbar-item-text">Settings</span>*/}
                     {/*<span className="layout-topbar-icon pi pi-cog"/>*/}

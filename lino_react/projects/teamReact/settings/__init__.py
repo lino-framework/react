@@ -20,6 +20,9 @@ class Site(Site):
     default_ui = 'lino_react.react'
     project_name = "react_teamReact"
     title = "Team Lino React demo"
+    use_websockets = True
+
+
 
     def get_installed_apps(self):
         yield super(Site, self).get_installed_apps()

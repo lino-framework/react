@@ -45,6 +45,7 @@ import {Redirect} from 'react-router-dom';
 
 import {fetch as fetchPolyfill} from 'whatwg-fetch'
 
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 import {SiteContext, ActorData} from "./SiteContext"
 
@@ -77,6 +78,8 @@ class App extends React.Component {
             // searchValue: "",
             // searchSuggestions: []
 
+            WS: false, // Websocket status
+
         };
 
         this.rps = {}; // used for rp
@@ -98,6 +101,9 @@ class App extends React.Component {
         this.add_su = this.add_su.bind(this);
         // this.searchMethod = this.searchMethod.bind(this);
 
+        this.notification_web_socket = this.notification_web_socket.bind(this);
+        this.push = this.push.bind(this);
+
         this.fetch_user_settings();
 
         window.App = this;
@@ -105,17 +111,18 @@ class App extends React.Component {
     }
 
     // #3070: Add function to open the settings page of the current user 
-    onMysettings(event){
+    onMysettings(event) {
         // Open the detail view of the current user settings.
-        Notifier.start("Title","Here is context","www.google.com","validated image url");
+        Notifier.start("Title", "Here is context", "www.google.com", "validated image url");
         this.runAction({
             "actorId": "users.MySettings",
             "an": "detail",
             "onMain": true,
             "rp": null,
-            "status": { "record_id": this.state.user_settings.user_id }
+            "status": {"record_id": this.state.user_settings.user_id}
         })
     }
+
     onSignOutIn(event) {
         if (!this.state.user_settings.logged_in) {
             // this.setState({logging_in: true})
@@ -274,6 +281,86 @@ class App extends React.Component {
             this.removeClass(document.body, 'body-overflow-hidden');
     }
 
+    notification_web_socket(user_settings) {
+        let {user_id} = user_settings || this.state.user_settings;
+
+        if (this.webSocketBridge) {
+            this.webSocketBridge.close();
+            this.setState({
+                WS:false
+            })
+        }
+
+        // this.webSocketBridge = new WebSocket(ws_path); // original
+        this.webSocketBridge = new ReconnectingWebSocket(
+            (window.location.protocol === "https:" ? "wss" : "ws") + "://" + window.location.host + "/WS/",
+            [], // protocalls, not needed
+            {} //options, see https://www.npmjs.com/package/reconnecting-websocket
+        );
+
+        // Helpful debugging
+        this.webSocketBridge.onclose = () =>  {
+            this.setState(() => {return {WS:false,
+            foo:true}});
+            console.log("Disconnected from chat socket");
+        };
+
+        // this.webSocketBridge.connect();
+        this.webSocketBridge.addEventListener('open', () => {
+            console.log("lino connecting ...");
+            // this.webSocketBridge.send(JSON.stringify({
+            //     "command": "user_connect",
+            //     "username": user_id
+            // }));
+            this.setState(() => {return {WS:true}})
+        });
+
+
+        this.webSocketBridge.onmessage = (e) => {
+
+            let data = JSON.parse(e.data);
+            console.log("Recived message ", data);
+            if (data.type === "NOTIFICATION") {
+                this.push(data)
+            };
+        }
+    }
+
+    push(data){
+        let {body, subject} = data;
+        Push.Permission.request(onGranted, onDenied);
+        console.log("We get the message ", data);
+        // let message = data['message'];
+        let onGranted = () => console.log("onGranted");
+        let onDenied = () => console.log("onDenied");
+        // Ask for permission if it's not already granted
+        Push.Permission.request(onGranted, onDenied);
+
+        try {
+            Push.create(subject, {
+                body: body,
+                icon: '/static/img/lino-logo.png',
+                onClick: function () {
+                    // todo include the url to where the notifiaton reffers to
+                    window.focus();
+                    window.App.dashboard.reload();
+                    this.close();
+                }
+            });
+            // if (false && Number.isInteger(action["id"])){
+            //     this.webSocketBridge.stream('lino').send({message_id: action["id"]})
+            //     this.webSocketBridge.send(JSON.stringify({
+            //                     "command": "seen",
+            //                     "message_id": action["id"],
+            //                 }));
+            //             }
+        }
+        catch (err) {
+            console.log(err.message);
+        }
+
+    }
+
     fetch_user_settings = (su_id) => {
         this.setState({ // clear current settings
             // logging_in: false,/
@@ -300,6 +387,8 @@ class App extends React.Component {
                     user_settings: data,
                     su_id: data.su_id,
                 });
+
+                this.notification_web_socket(data);
 
                 return this.fetch_site_data(data.site_data);
             }
@@ -917,6 +1006,8 @@ class App extends React.Component {
             <HashRouter ref={(el) => this.router = el}>
                 <div className={wrapperClass} onClick={this.onWrapperClick} ref={el => this.topDiv = el}>
                     <AppTopbar onToggleMenu={this.onToggleMenu} onHomeButton={this.onHomeButton}
+                               WS={this.state.WS}
+                               UnseenCount={this.state.UnseenCount} /* todo hook into WS to count unseen mesgs*/
                         // searchValue={this.state.searchValue}
                         // searchMethod={}
                         // searchSuggestions={}
@@ -1051,5 +1142,8 @@ class App extends React.Component {
 const wrapper = document.getElementById("root");
 
 wrapper ? ReactDOM.render(<App/>, wrapper) : null;
+
+
 import * as serviceWorker from './serviceWorker';
+
 serviceWorker.register();
