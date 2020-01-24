@@ -76,7 +76,7 @@ export class LinoGrid extends Component {
             // sortOrder: undefined
 
             sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined,
-            sortCol : search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined 
+            sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined
 
         };
         this.state.cols = props.actorData.col.map((column, i) => (
@@ -85,7 +85,7 @@ export class LinoGrid extends Component {
                 value: i + "",
                 col: column
             }));
-        if ( this.state.show_columns === undefined){
+        if (this.state.show_columns === undefined) {
             this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
         }
 
@@ -178,18 +178,19 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(cellProps) {
+    onSubmit(event, cellProps) {
         let {rowData, field, rowIndex} = cellProps;
         // check if new row
         // save row index
         // run ajax call on this.get_full_id url
         // Objects.assign over this.state.rows[rowIndex]
-        console.log("onSubmit", cellProps, this.state.editingValues);
+        // console.log("onSubmit", cellProps, this.state.editingValues);
         let editingPK = this.state.editingPK;
+        let {key, which, target} = event;
         if (!this.editorDirty) {
             return
         }
-        let submit = () => {
+        let submit = (openNextCell) => {
             window.App.runAction({
                 rp: this,
                 an: editingPK === null ? "grid_post" : "grid_put",
@@ -206,8 +207,14 @@ export class LinoGrid extends Component {
                             rows = old.rows.slice(); // make data copy
                         state.rows = rows;
                         if (editingPK === null) {
-                            rows.push(rows[rowIndex].slice());
+                            rows.push(rows[rowIndex].slice()); // create copy phantom row
                             state.editingPK = undefined;
+                            if (openNextCell){
+                                this.editPhantomRowAgain = setTimeout( () => {
+                                    //TODO open phantom row
+                                    console.log("Try go find and start editing cell", target)
+                                }, 10)
+                            }
                         }
                         else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
                             state.editingValues = Object.assign({}, {...data.rows[0]}) // update editing values
@@ -218,22 +225,29 @@ export class LinoGrid extends Component {
                 }
             })
         };
+
         if (editingPK === null) {
-            this.phantomSubmit = setTimeout(() => {
-                console.log("on submit timeout");
 
-                if (editingPK === null && !this.editorDirty) {// we've opened a new editer in phantom row
+            if (key === "Enter") {
+                submit(!event.shiftKey);
 
-                } else {
-                    submit();
-                    // this.setState((old) => {
-                    //     let rows = old.rows.slice();
-                    //     rows.push(rows[rows.length-1].slice());
-                    //     return {rows:rows} // add new phantom rows, old will be overwriten by post callback.
-                    // } )
-                }
+            } else {
+                this.phantomSubmit = setTimeout(() => {
+                    console.log("on submit timeout");
 
-            }, 20)
+                    if (editingPK === null && !this.editorDirty) {// we've opened a new editer in phantom row
+
+                    } else {
+                        submit();
+                        // this.setState((old) => {
+                        //     let rows = old.rows.slice();
+                        //     rows.push(rows[rows.length-1].slice());
+                        //     return {rows:rows} // add new phantom rows, old will be overwriten by post callback.
+                        // } )
+                    }
+
+                }, 20)
+            }
         }
         else {
             submit()
@@ -244,9 +258,9 @@ export class LinoGrid extends Component {
         let {rowData, field} = cellProps;
         console.log("editor Open");
         let was_dirty = this.editorDirty;
-        setTimeout(() => { // delay as we should submit before claring editing values.
+        setTimeout(() => { // delay as we should submit before clearing editing values.
                 this.editorDirty = false;
-                console.log("editor Open timeout");
+                // console.log("editor Open timeout");
                 this.setState((old) => {
                     if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
                         this.editorDirty = true; // we have old values so still dirty.
@@ -474,11 +488,11 @@ export class LinoGrid extends Component {
 
         this.setState(state);
 
-        let sort_values = {'sortOrder': sortOrder,'sortField':state.sortField};
-        this.update_url_values(sort_values , this.props.match);
+        let sort_values = {'sortOrder': sortOrder, 'sortField': state.sortField};
+        this.update_url_values(sort_values, this.props.match);
 
         if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
-                ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
+            ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
         }
         else if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
@@ -619,7 +633,7 @@ export class LinoGrid extends Component {
             // );
 
             this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
-            this.update_url_values({'show_columns': this.state.show_columns.toString()} , this.props.match);
+            this.update_url_values({'show_columns': this.state.show_columns.toString()}, this.props.match);
             this.cols = this.cols.concat(
                 this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
@@ -726,7 +740,8 @@ export class LinoGrid extends Component {
             <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                     icon="pi pi-external-link"
                     style={{'float': 'right'}}/>}</div>
-            {!this.props.inDetail && !this.props.actorData.hide_top_toolbar && <div className={"p-col-12"} style={{"textAlign": "left"}}>
+            {!this.props.inDetail && !this.props.actorData.hide_top_toolbar &&
+            <div className={"p-col-12"} style={{"textAlign": "left"}}>
 
                 <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
                           srMap={(row) => row[this.props.actorData.pk_index]}
@@ -762,10 +777,10 @@ export class LinoGrid extends Component {
 
     onColReorder(e) {
         // console.log('e.event',e.event);
-        let show_columns = e.event.filter((c) => c.props.cellIndex).map((col) => col.props.cellIndex - 1)
+        let show_columns = e.event.filter((c) => c.props.cellIndex).map((col) => col.props.cellIndex - 1);
         // console.log('show_columns',show_columns);
         this.setState({'show_columns': show_columns});
-        this.update_url_values({'show_columns': show_columns.toString()} , this.props.match);
+        this.update_url_values({'show_columns': show_columns.toString()}, this.props.match);
     }
 
     render() {
@@ -787,17 +802,18 @@ export class LinoGrid extends Component {
                     value={rows} paginator={false}
                     // selectionMode="single"
                     editable={true}
-                    selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" }
+                    // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
+                    selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
+
                     onSelectionChange={e => this.setState({selectedRows: e.value})}
-                    onColReorder = {e => this.onColReorder({event:e.columns})}
+                    onColReorder={e => this.onColReorder({event: e.columns})}
                     onRowSelect={this.onRowSelect}
-                    selection={this.props.actorData.hide_top_toolbar? undefined : this.state.selectedRows}
+                    selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
                     loading={this.state.loading}
                     emptyMessage={this.state.emptyMessage}
                     ref={(ref) => this.dataTable = ref}
                     onRowDoubleClick={this.onRowDoubleClick}
                     onSort={this.onSort}
-                    sortField={this.state.sortField}
                     // sortMode={"multiple"}
                     // multiSortMeta={multiSortMeta}
                     sortField={this.state.sortField + ""}
