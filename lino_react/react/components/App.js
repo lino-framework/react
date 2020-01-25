@@ -765,6 +765,9 @@ class App extends React.Component {
             return
         }
 
+        if (status.fv){
+            Object.assign(args, {'fv':status.fv})
+        }
         if (an === "grid_put" || an === "grid_post") {
             let {editingValues} = rp_obj.state;
             let values = {};
