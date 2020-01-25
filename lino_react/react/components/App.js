@@ -765,7 +765,7 @@ class App extends React.Component {
             return
         }
 
-        if (status.fv){
+        if (status && status.fv !== undefined){
             Object.assign(args, {'fv':status.fv})
         }
         if (an === "grid_put" || an === "grid_post") {
