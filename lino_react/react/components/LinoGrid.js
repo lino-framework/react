@@ -246,8 +246,12 @@ export class LinoGrid extends Component {
         let was_dirty = this.editorDirty;
         setTimeout(() => { // delay as we should submit before claring editing values.
                 this.editorDirty = false;
-                console.log("editor Open timeout");
+                // console.log("editor Open timeout");
+                // console.log('this.props',this.props);
+                // console.log('rowData',rowData);
+                // console.log('field',field);
                 this.setState((old) => {
+                    // console.log('old',old);
                     if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
                         this.editorDirty = true; // we have old values so still dirty.
                         clearTimeout(this.phantomSubmit);
@@ -260,6 +264,10 @@ export class LinoGrid extends Component {
                         }
                     }
                     else {
+                        if (old.cols[field].col.react_name === 'BooleanFieldElement' ){
+                            // When we edit BooleanFieldElement field we change its value
+                            rowData[field] = !rowData[field]
+                        }
                         return {
                             // editingCellIndex:cellIndex,
                             editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
@@ -620,6 +628,7 @@ export class LinoGrid extends Component {
 
             this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
             this.update_url_values({'show_columns': this.state.show_columns.toString()} , this.props.match);
+            console.log('this.props',this.props);
             this.cols = this.cols.concat(
                 this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
