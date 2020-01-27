@@ -190,6 +190,18 @@ export class LinoGrid extends Component {
         if (!this.editorDirty) {
             return
         }
+
+        let tr = target,
+            td,
+            tdIndex;
+        while (tr.localName !== "tr" || tr === null) {
+            td = tr;
+            tr = tr.parentElement;
+        }
+        if (tr){
+            tdIndex = Array.prototype.indexOf.call(tr.children, td);
+        }
+
         let submit = (openNextCell) => {
             window.App.runAction({
                 rp: this,
@@ -212,7 +224,8 @@ export class LinoGrid extends Component {
                             if (openNextCell){
                                 this.editPhantomRowAgain = setTimeout( () => {
                                     //TODO open phantom row
-                                    console.log("Try go find and start editing cell", target)
+                                    tr.nextSibling.children[tdIndex].click();
+                                    // console.log("Try go find and start editing cell", target, tr)
                                 }, 10)
                             }
                         }
