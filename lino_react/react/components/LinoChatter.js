@@ -1,13 +1,17 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
-import {fetch as fetchPolyfill} from 'whatwg-fetch'
+import { fetch as fetchPolyfill } from 'whatwg-fetch'
 import key from "weak-key";
 import classNames from 'classnames';
 import queryString from "query-string"
 
 export class LinoChatter extends Component {
 
-    static propTypes = {};
+    input = React.createRef();
+
+    static propTypes = {
+        sendChat: PropTypes.func,
+    };
     static defaultProps = {
         open: false,
     };
@@ -15,10 +19,14 @@ export class LinoChatter extends Component {
     constructor() {
         super();
         this.state = {
-            chatlog: []
+            chatlog: [],
+            new_message: ''
         };
         this.reload = this.reload.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.keyPress = this.keyPress.bind(this);
+        //this.consume_server_responce = this.consume_server_responce.bind(this);
     }
 
     reload() {
@@ -38,32 +46,76 @@ export class LinoChatter extends Component {
         };
         window.App.add_su(query);
 
-        fetchPolyfill(`/api/chat/ChatMessages/` + `?${queryString.stringify(query)}`).then(
+        fetchPolyfill(`/api/chat/ChatMessages/-99998` + `?${queryString.stringify(query)}`).then(
             window.App.handleAjaxResponse
-        ).then(
-            this.consume_server_responce
+        ).then((data) => {
+                //this.consume_server_responce
+                let chats_data = data.rows
+                // console.log('chats_data',chats_data)
+                this.setState({
+                    chats: chats_data
+                })
+                //this.input.current.focus();
+            }
         ).catch(/*error => window.App.handleAjaxException(error)*/);
     }
 
     consume_server_responce(data) {
-        this.setState({
-            chats: data
-        })
+        // let chats = data.rows
+        // console.log('chats',chats);
+        // this.setState({
+        //     chats: chats
+        // })
     }
 
     componentDidMount() {
         this.reload()
+        this.scrollToBottom()
+    }
+
+    componentDidUpdate() {
+        this.scrollToBottom()
+    }
+
+    scrollToBottom = () => {
+        this.input.current.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    handleChange(e) {
+        this.setState({ new_message: e.target.value })
+    }
+
+    keyPress(e) {
+        if (e.keyCode == 13) {
+            // console.log('new_message', e.target.value)
+            this.props.sendChat(e.target.value)
+            e.target.value = ""
+            this.reload()
+            // put the login here
+        }
     }
 
     render() {
-        return <div>
+        const divStyle = {
+            'overflow-y': 'auto',
+            'max-height': '250px',
+          };
+        return <div style={ divStyle } id="chatwindow">
             {this.state.chats && this.state.chats.map((chat) => (
-                <p key={chat.pk}>
-                    <span style={{float:"right"}}>{chat.user}</span>
-                    <div dangerouslySetInnerHTML={chat.body}></div>
+                <p key={chat[0]}>
+                    <span style={{ float: "right" }}>{chat[0]}</span>
+                    <div>{chat[1]}</div>
                 </p>
             ))}
-            <textarea placeholder={"write to group..."}/>
+            <input placeholder={"write to group..."} 
+                    value={this.state.value} 
+                    onKeyDown={this.keyPress} 
+                    onChange={this.handleChange}
+                    type="text" 
+                    autoComplete="off"
+                    autofocus
+                    ref={this.input}
+                    />
         </div>
     }
 };

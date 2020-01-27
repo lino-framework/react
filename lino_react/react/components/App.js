@@ -107,6 +107,7 @@ class App extends React.Component {
         this.sendChat = this.sendChat.bind(this);
 
         this.onChatButton = this.onChatButton.bind(this)
+        this.chatwindow = React.createRef()
 
         this.fetch_user_settings();
 
@@ -346,12 +347,13 @@ class App extends React.Component {
         this.webSocketBridge.onmessage = (e) => {
 
             let data = JSON.parse(e.data);
-            // console.log("Recived message ", data);
+            console.log("Recived message ", data);
             if (data.type === "NOTIFICATION") {
                 this.push(data)
             } else if (data.type === "CHAT") {
-                console.log("Got Chat", data);
-
+                // console.log("Got Chat", data);
+                this.chatwindow.current.reload()
+                //this.consume_incoming_chat(data)
             }
         }
     }
@@ -1179,7 +1181,10 @@ class App extends React.Component {
                     </SiteContext.Provider>
                     <OverlayPanel ref={(el) => this.chatOp = el}>
                         <img src="showcase/resources/demo/images/galleria/galleria1.jpg" alt="Galleria 1"/>
-                        <LinoChatter open={this.state.chatOpen}/>
+                        <LinoChatter open={this.state.chatOpen}
+                                    sendChat={this.sendChat}
+                                    ref={this.chatwindow}
+                        />
                     </OverlayPanel>
                 </div>
 
