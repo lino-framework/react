@@ -350,7 +350,7 @@ const LinoComponents = {
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
                                    props.elem,
                                    props.column)}
-                               autoFocus={props.in_grid ? 'true' : undefined}
+                               autoFocus={props.in_grid ? true : undefined}
                                ref={(el) => this.input = el}
                     />
                     :
@@ -383,7 +383,7 @@ const LinoComponents = {
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
                                    props.elem,
                                    props.column)}
-                               autoFocus={props.in_grid ? 'true' : undefined}
+                               autoFocus={props.in_grid ? true : undefined}
                                ref={(el) => this.input = el}
                     />
                     :
@@ -416,7 +416,7 @@ const LinoComponents = {
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
                                    props.elem,
                                    props.column)}
-                               autoFocus={props.in_grid ? 'true' : undefined}
+                               autoFocus={props.in_grid ? true : undefined}
                                ref={(el) => this.input = el}
                     />
                     :
@@ -451,7 +451,7 @@ const LinoComponents = {
                                    props.elem,
                                    props.column)}
                                onInput={(e) => this.toInputUppercase(e)}
-                               autoFocus={props.in_grid ? 'true' : undefined}
+                               autoFocus={props.in_grid ? true : undefined}
                                ref={(el) => this.uppercaseTextField = el}
                     />
                     :
@@ -491,7 +491,7 @@ const LinoComponents = {
                                    props.elem,
                                    props.column)}
                                onInput={(e) => this.iban_renderer(e)}
-                               autoFocus={props.in_grid ? 'true' : undefined}
+                               autoFocus={props.in_grid ? true : undefined}
                                ref={(el) => this.ibanEl = el}
                     />
                     :

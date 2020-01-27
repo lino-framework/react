@@ -427,7 +427,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
     # Todo
     def request_handler(self, ar, *args, **kw):
         """ Generates js string for action button calls.
-            Needs to understand if it's a param action or simple action.
         """
         # js = super(ExtRenderer, self).request_handler(ar, *args, **kw)
         st = ar.get_status(**kw)
