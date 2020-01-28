@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import PropTypes from "prop-types";
-import { fetch as fetchPolyfill } from 'whatwg-fetch'
+import {fetch as fetchPolyfill} from 'whatwg-fetch'
 import key from "weak-key";
 import classNames from 'classnames';
 import queryString from "query-string"
@@ -14,7 +14,7 @@ export class LinoChatter extends Component {
         sendSeenAction: PropTypes.func,
     };
     static defaultProps = {
-        open: false,
+        // open: false,
     };
 
     constructor() {
@@ -30,7 +30,7 @@ export class LinoChatter extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.keyPress = this.keyPress.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
-        //this.consume_server_responce = this.consume_server_responce.bind(this);
+        this.consume_server_response = this.consume_server_response.bind(this);
     }
 
     reload() {
@@ -49,48 +49,41 @@ export class LinoChatter extends Component {
             count: 10,
         };
         window.App.add_su(query);
-
         fetchPolyfill(`/api/chat/ChatMessages/-99998` + `?${queryString.stringify(query)}`).then(
             window.App.handleAjaxResponse
-        ).then((data) => {
-                //this.consume_server_responce
-                let chats_data = data.rows
-                // console.log('chats_data',chats_data)
-                this.setState({
-                    chats: chats_data,
-                    NotSeenChats:chats_data.filter(msg => msg[3] !== undefined).map(msg => msg[4])
-                })
-                //this.input.current.focus();
-            }
+        ).then(this.consume_server_response
         ).catch(/*error => window.App.handleAjaxException(error)*/);
     }
 
-    consume_server_responce(data) {
-        // let chats = data.rows
-        // console.log('chats',chats);
-        // this.setState({
-        //     chats: chats
-        // })
+    consume_server_response(data) {
+        let chats_data = data.rows;
+        // console.log('chats_data',chats_data)
+        // this.input.current.focus();
+        this.setState({
+            chats: chats_data,
+            NotSeenChats: chats_data.filter(msg => msg[3] !== undefined).map(msg => msg[4])
+        })
     }
 
     componentDidMount() {
-        this.reload()
-        this.scrollToBottom()
+        // Don't want to reload when mounted, as then we run the fetch command w/o the user activly intereacting to get messages.
+        // this.reload()
+        // this.scrollToBottom()
     }
 
     componentDidUpdate() {
-        this.scrollToBottom()
+        // this.scrollToBottom()
     }
 
     scrollToBottom = () => {
-        this.input.current.scrollIntoView({ behavior: 'smooth' })
+        this.input.current.scrollIntoView({behavior: 'smooth'})
     }
 
     handleChange(e) {
-        this.setState({ new_message: e.target.value })
+        this.setState({new_message: e.target.value})
     }
 
-    handleFocus(){
+    handleFocus() {
         //let chatids = this.state.chats.map(msg => msg[4])
         // console.log('handleFocus',this.state.NotSeenChats)
         this.props.sendSeenAction(this.state.NotSeenChats)
@@ -108,27 +101,24 @@ export class LinoChatter extends Component {
     }
 
     render() {
-        const divStyle = {
-            'overflow-y': 'auto',
-            'max-height': '250px',
-          };
-        return <div style={ divStyle } id="chatwindow">
+
+        return <div id="chatwindow">
             {this.state.chats && this.state.chats.map((chat) => (
-                <p key={chat[0]}>
-                    <span style={{ float: "right" }}>{chat[0]}</span>
+                <p key={chat[4]}>
+                    <span style={{float: "right"}}>{chat[0]}</span>
                     <div>{chat[1]}</div>
                 </p>
             ))}
-            <input placeholder={"write to group..."} 
-                    value={this.state.value} 
-                    onKeyDown={this.keyPress} 
-                    onChange={this.handleChange}
-                    onFocus={this.handleFocus}
-                    type="text" 
-                    autoComplete="off"
-                    autofocus
-                    ref={this.input}
-                    />
+            <input placeholder={"write to group..."}
+                   value={this.state.value}
+                   onKeyDown={this.keyPress}
+                   onChange={this.handleChange}
+                   onFocus={this.handleFocus}
+                   type="text"
+                   autoComplete="off"
+                   autofocus
+                   ref={this.input}
+            />
         </div>
     }
 };

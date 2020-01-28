@@ -288,7 +288,11 @@ class App extends React.Component {
     }
 
     onChatButton(e) {
+        this.setState({
+            chatOpen: new Date()
+        })
         this.chatOp.toggle(e)
+        this.chatwindow.reload() // fetch init messages
     }
 
     notification_web_socket(user_settings) {
@@ -316,11 +320,12 @@ class App extends React.Component {
 
             if (this.state.WS) {
                 // lost connection from server for first time atm.
-                this.growl.show({
+                // Commented out, too distracting, pops up also when closed normally, via a page refresh
+                /*this.growl.show({
                     severity: "error",
                     summary: "Connection to Lino server lost",
                     detail: "Please wait, and contact system administrator if the problem persists."
-                });
+                });*/
             }
 
             this.setState(() => {
@@ -364,8 +369,10 @@ class App extends React.Component {
         // let {user_id} = this.state.user_settings;
         this.webSocketBridge.send(
             JSON.stringify(
-                {body: message,
-                function:'onRecive'}
+                {
+                    body: message,
+                    function: 'onRecive'
+                }
             )
         )
     }
@@ -373,8 +380,10 @@ class App extends React.Component {
     sendSeenAction(messages) {
         this.webSocketBridge.send(
             JSON.stringify(
-                {body: messages,
-                function:'markAsSeen'}
+                {
+                    body: messages,
+                    function: 'markAsSeen'
+                }
             )
         )
     }
@@ -818,8 +827,8 @@ class App extends React.Component {
             return
         }
 
-        if (status && status.fv !== undefined){
-            Object.assign(args, {'fv':status.fv})
+        if (status && status.fv !== undefined) {
+            Object.assign(args, {'fv': status.fv})
         }
         if (an === "grid_put" || an === "grid_post") {
             let {editingValues} = rp_obj.state;
@@ -1063,6 +1072,7 @@ class App extends React.Component {
                 <div className={wrapperClass} onClick={this.onWrapperClick} ref={el => this.topDiv = el}>
                     <AppTopbar onToggleMenu={this.onToggleMenu} onHomeButton={this.onHomeButton}
                                WS={this.state.WS}
+                               useChat={this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats}
                                onChatButton={this.onChatButton}
                                UnseenCount={this.state.UnseenCount} /* todo hook into WS to count unseen mesgs*/
                         // searchValue={this.state.searchValue}
@@ -1190,13 +1200,16 @@ class App extends React.Component {
                             </ActorData>
                         ))}
                     </SiteContext.Provider>
-                    <OverlayPanel ref={(el) => this.chatOp = el}>
-                        <img src="showcase/resources/demo/images/galleria/galleria1.jpg" alt="Galleria 1"/>
-                        <LinoChatter open={this.state.chatOpen}
-                                    sendChat={this.sendChat}
-                                    sendSeenAction={this.sendSeenAction}
-                                    ref={this.chatwindow}
-                        />
+                    <OverlayPanel ref={(el) => this.chatOp = el} style={{
+                        'overflow-y': 'auto',
+                        'max-height': '250px'
+                    }}>
+                        {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
+                        <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
+                                     sendChat={this.sendChat}
+                                     sendSeenAction={this.sendSeenAction}
+                                     ref={this.chatwindow}
+                        />}
                     </OverlayPanel>
                 </div>
 

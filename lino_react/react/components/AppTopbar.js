@@ -14,6 +14,7 @@ export class AppTopbar extends Component {
         onToggleMenu: PropTypes.func.isRequired,
         onHomeButton: PropTypes.func.isRequired,
         onChatButton: PropTypes.func,
+        useChat: PropTypes.bool,
         WS: PropTypes.bool,
         UnseenCount: PropTypes.number,
         // searchValue: PropTypes.func.isRequired,
@@ -40,13 +41,13 @@ export class AppTopbar extends Component {
                     {/*suggestions={this.props.searchSuggestions}/>*/}
                     {/*<span className="layout-topbar-search-icon pi pi-search"/>*/}
                     {/*</span>*/}
-                    <a onClick={this.props.onChatButton}>
+                    {this.props.useChat && <a onClick={this.props.onChatButton}>
                         {/*<span className="layout-topbar-item-text">Events</span>*/}
                         <span className="layout-topbar-icon pi pi-comments"/>
                         {!this.props.WS && <span className="layout-topbar-badge">!</span>}
                         {this.props.UnseenCount && <span className="layout-topbar-badge">{this.props.UnseenCount}</span>}
 
-                    </a>
+                    </a>}
                     {/*<a>*/}
                     {/*<span className="layout-topbar-item-text">Settings</span>*/}
                     {/*<span className="layout-topbar-icon pi pi-cog"/>*/}
