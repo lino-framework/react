@@ -105,6 +105,7 @@ class App extends React.Component {
         this.notification_web_socket = this.notification_web_socket.bind(this);
         this.push = this.push.bind(this);
         this.sendChat = this.sendChat.bind(this);
+        this.sendSeenAction = this.sendSeenAction.bind(this);
 
         this.onChatButton = this.onChatButton.bind(this)
         this.chatwindow = React.createRef()
@@ -363,7 +364,17 @@ class App extends React.Component {
         // let {user_id} = this.state.user_settings;
         this.webSocketBridge.send(
             JSON.stringify(
-                {body: message}
+                {body: message,
+                function:'onRecive'}
+            )
+        )
+    }
+
+    sendSeenAction(messages) {
+        this.webSocketBridge.send(
+            JSON.stringify(
+                {body: messages,
+                function:'markAsSeen'}
             )
         )
     }
@@ -1183,6 +1194,7 @@ class App extends React.Component {
                         <img src="showcase/resources/demo/images/galleria/galleria1.jpg" alt="Galleria 1"/>
                         <LinoChatter open={this.state.chatOpen}
                                     sendChat={this.sendChat}
+                                    sendSeenAction={this.sendSeenAction}
                                     ref={this.chatwindow}
                         />
                     </OverlayPanel>

@@ -11,6 +11,7 @@ export class LinoChatter extends Component {
 
     static propTypes = {
         sendChat: PropTypes.func,
+        sendSeenAction: PropTypes.func,
     };
     static defaultProps = {
         open: false,
@@ -20,12 +21,15 @@ export class LinoChatter extends Component {
         super();
         this.state = {
             chatlog: [],
-            new_message: ''
+            new_message: '',
+            chats: [],
+            NotSeenChats: [],
         };
         this.reload = this.reload.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.keyPress = this.keyPress.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
         //this.consume_server_responce = this.consume_server_responce.bind(this);
     }
 
@@ -53,7 +57,8 @@ export class LinoChatter extends Component {
                 let chats_data = data.rows
                 // console.log('chats_data',chats_data)
                 this.setState({
-                    chats: chats_data
+                    chats: chats_data,
+                    NotSeenChats:chats_data.filter(msg => msg[3] !== undefined).map(msg => msg[4])
                 })
                 //this.input.current.focus();
             }
@@ -85,6 +90,13 @@ export class LinoChatter extends Component {
         this.setState({ new_message: e.target.value })
     }
 
+    handleFocus(){
+        //let chatids = this.state.chats.map(msg => msg[4])
+        // console.log('handleFocus',this.state.NotSeenChats)
+        this.props.sendSeenAction(this.state.NotSeenChats)
+        this.state.NotSeenChats = []
+    }
+
     keyPress(e) {
         if (e.keyCode == 13) {
             // console.log('new_message', e.target.value)
@@ -111,6 +123,7 @@ export class LinoChatter extends Component {
                     value={this.state.value} 
                     onKeyDown={this.keyPress} 
                     onChange={this.handleChange}
+                    onFocus={this.handleFocus}
                     type="text" 
                     autoComplete="off"
                     autofocus
