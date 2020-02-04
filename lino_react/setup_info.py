@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2015-2019 Rumma & Ko Ltd
+# Copyright 2015-2020 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
 SETUP_INFO = dict(
     name='lino_react',
-    version='20.1.0',
+    version='20.2.0',
     install_requires=['lino'],
     tests_require=[],
     test_suite='tests',
@@ -35,7 +35,7 @@ SETUP_INFO = dict(
 
 SETUP_INFO.update(long_description="""\
 
-The React user interface for Lino
+The React front end for Lino
 
 The central project homepage is http://react.lino-framework.org/
 
