@@ -814,6 +814,22 @@ body .l-grid .p-datatable {
 
 }
 
+
+.chatwindow-chats .p-scrollpanel-wrapper {
+    border-right: 9px solid #f4f4f4;
+}
+
+.chatwindow-chats .p-scrollpanel-bar {
+    background-color: #1976d2;
+    opacity: 1;
+    transition: background-color .3s;
+}
+
+.chatwindow-chats .p-scrollpanel-bar:hover {
+    background-color: #135ba1;
+}
+
+
 body .l-detail-toolbar .p-button {
     margin-right: 2px;
     margin-bottom: 1px;

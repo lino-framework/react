@@ -358,7 +358,7 @@ class App extends React.Component {
                 this.push(data)
             } else if (data.type === "CHAT") {
                 // console.log("Got Chat", data);
-                this.chatwindow.current.reload()
+                this.chatwindow.reload()
                 //this.consume_incoming_chat(data)
             }
         }
@@ -1201,14 +1201,12 @@ class App extends React.Component {
                         ))}
                     </SiteContext.Provider>
                     <OverlayPanel ref={(el) => this.chatOp = el} style={{
-                        'overflow-y': 'auto',
-                        'max-height': '250px'
                     }}>
                         {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
                                      sendChat={this.sendChat}
                                      sendSeenAction={this.sendSeenAction}
-                                     ref={this.chatwindow}
+                                     ref={(el) => this.chatwindow = el }
                         />}
                     </OverlayPanel>
                 </div>

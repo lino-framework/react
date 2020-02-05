@@ -5,6 +5,8 @@ import key from "weak-key";
 import classNames from 'classnames';
 import queryString from "query-string"
 
+import {ScrollPanel} from 'primereact/scrollpanel';
+
 export class LinoChatter extends Component {
 
     input = React.createRef();
@@ -76,7 +78,8 @@ export class LinoChatter extends Component {
     }
 
     scrollToBottom = () => {
-        this.input.current.scrollIntoView({behavior: 'smooth'})
+        this.chatBottom && this.chatBottom.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+        // this.input.current.scrollIntoView({behavior: 'smooth'})
     }
 
     handleChange(e) {
@@ -91,10 +94,10 @@ export class LinoChatter extends Component {
     }
 
     keyPress(e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode == 13 && e.target.value) {
             // console.log('new_message', e.target.value)
-            this.props.sendChat(e.target.value)
-            e.target.value = ""
+            this.props.sendChat(e.target.value);
+            e.target.value = "";
             this.reload()
             // put the login here
         }
@@ -103,12 +106,15 @@ export class LinoChatter extends Component {
     render() {
 
         return <div id="chatwindow">
+            <ScrollPanel className={"chatwindow-chats"} style={{height:"300px"}}>
             {this.state.chats && this.state.chats.map((chat) => (
                 <p key={chat[4]}>
                     <span style={{float: "right"}}>{chat[0]}</span>
-                    <div>{chat[1]}</div>
+                    {chat[1]}
                 </p>
             ))}
+            <div  ref={(el) => this.chatBottom = el}/>
+            </ScrollPanel>
             <input placeholder={"write to group..."}
                    value={this.state.value}
                    onKeyDown={this.keyPress}
