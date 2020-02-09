@@ -1200,7 +1200,8 @@ class App extends React.Component {
                             </ActorData>
                         ))}
                     </SiteContext.Provider>
-                    <OverlayPanel ref={(el) => this.chatOp = el} style={{
+                    <OverlayPanel dismissable={false}  showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
+                        marginRight:"-10px"
                     }}>
                         {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading

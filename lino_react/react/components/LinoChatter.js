@@ -29,6 +29,8 @@ export class LinoChatter extends Component {
         };
         this.reload = this.reload.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
+        this.componentDidUpdate = this.componentDidUpdate.bind(this);
+
         this.handleChange = this.handleChange.bind(this);
         this.keyPress = this.keyPress.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
@@ -63,8 +65,8 @@ export class LinoChatter extends Component {
         // this.input.current.focus();
         this.setState({
             chats: chats_data,
-            NotSeenChats: chats_data.filter(msg => msg[3] !== undefined).map(msg => msg[4])
-        })
+            NotSeenChats: chats_data.filter(msg => msg[3] !== undefined).map(msg => msg[4]),
+            scroll: new Date()})
     }
 
     componentDidMount() {
@@ -73,12 +75,15 @@ export class LinoChatter extends Component {
         // this.scrollToBottom()
     }
 
-    componentDidUpdate() {
-        // this.scrollToBottom()
+    componentDidUpdate(p, s) {
+        if (this.state.scroll !== s.scroll) {
+            this.scrollToBottom();
+        }
+
     }
 
     scrollToBottom = () => {
-        this.chatBottom && this.chatBottom.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+        this.chatBottom && this.chatBottom.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'})
         // this.input.current.scrollIntoView({behavior: 'smooth'})
     }
 
@@ -106,14 +111,27 @@ export class LinoChatter extends Component {
     render() {
 
         return <div id="chatwindow">
-            <ScrollPanel className={"chatwindow-chats"} style={{height:"300px"}}>
-            {this.state.chats && this.state.chats.map((chat) => (
-                <p key={chat[4]}>
-                    <span style={{float: "right"}}>{chat[0]}</span>
-                    {chat[1]}
-                </p>
-            ))}
-            <div  ref={(el) => this.chatBottom = el}/>
+            <ScrollPanel className={"chatwindow-chats"} style={{height: "300px"}}>
+                {this.state.chats && this.state.chats.map((chat) => (
+                    <div key={chat[4]}>
+                        <div style={{
+                            display: "flex",
+                            direction: (window.App.state.user_settings.user_id === chat[5] ? "rtl" : "ltr")
+                        }}>
+                            <span className={"user"}>{chat[0]}</span>
+                        </div>
+                        <div className={"message-wrapper"}
+                             style={{
+                                 display: "flex",
+                                 flexDirection: window.App.state.user_settings.user_id === chat[5] ? "row-reverse" : "row",
+                             }}>
+                            <div
+                                style={{background: window.App.state.user_settings.user_id === chat[5] ? "#07bdf4" : "#06b4f1"}}
+                                className={"message"}>{chat[1]}</div>
+                        </div>
+                    </div>
+                ))}
+                <div ref={(el) => this.chatBottom = el} style={{height: "1ch"}}/>
             </ScrollPanel>
             <input placeholder={"write to group..."}
                    value={this.state.value}

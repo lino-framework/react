@@ -668,6 +668,23 @@ body .l-grid .p-datatable .p-paginator {
     right: 2ch;
     transform: translateY(-50%); }
 
+.chatwindow-chats > .p-scrollpanel-content {
+  display: flex;
+  flex-direction: column;
+  margin-top: .6ch; }
+  .chatwindow-chats > .p-scrollpanel-content > div {
+    margin-top: .7ch; }
+
+.chatwindow-chats .user {
+  font-size: x-small;
+  text-transform: capitalize; }
+
+.chatwindow-chats .message {
+  border-radius: 1000px;
+  background: #06b4f1;
+  padding-left: 1ch;
+  padding-right: 1ch; }
+
 .chatwindow-chats .p-scrollpanel-wrapper {
   border-right: 9px solid #f4f4f4; }
 
