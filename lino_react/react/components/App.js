@@ -17,6 +17,7 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
+import {LinoChatter} from './LinoChatter'
 import LinoBbar from "./LinoBbar";
 import {pvObj2array, deepCompare} from "./LinoUtils"
 
@@ -25,7 +26,7 @@ import {Sidebar} from 'primereact/sidebar';
 import {PanelMenu} from 'primereact/panelmenu';
 import {Button} from 'primereact/button';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
-//import {OverlayPanel} from 'primereact/overlaypanel';
+import {OverlayPanel} from 'primereact/overlaypanel';
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {Growl} from 'primereact/growl';
 import DomHandler from 'primereact/domhandler';
@@ -103,6 +104,11 @@ class App extends React.Component {
 
         this.notification_web_socket = this.notification_web_socket.bind(this);
         this.push = this.push.bind(this);
+        this.sendChat = this.sendChat.bind(this);
+        this.sendSeenAction = this.sendSeenAction.bind(this);
+
+        this.onChatButton = this.onChatButton.bind(this)
+        this.chatwindow = React.createRef()
 
         this.fetch_user_settings();
 
@@ -281,13 +287,24 @@ class App extends React.Component {
             this.removeClass(document.body, 'body-overflow-hidden');
     }
 
+    onChatButton(e) {
+        this.setState({
+            chatOpen: new Date()
+        })
+        this.chatOp.toggle(e)
+        this.chatwindow.reload() // fetch init messages
+    }
+
     notification_web_socket(user_settings) {
+
+        if (!window.Lino.useWebSockets) return;
+
         let {user_id} = user_settings || this.state.user_settings;
 
         if (this.webSocketBridge) {
             this.webSocketBridge.close();
             this.setState({
-                WS:false
+                WS: false
             })
         }
 
@@ -299,10 +316,25 @@ class App extends React.Component {
         );
 
         // Helpful debugging
-        this.webSocketBridge.onclose = () =>  {
-            this.setState(() => {return {WS:false,
-            foo:true}});
-            console.log("Disconnected from chat socket");
+        this.webSocketBridge.onclose = () => {
+
+            if (this.state.WS) {
+                // lost connection from server for first time atm.
+                // Commented out, too distracting, pops up also when closed normally, via a page refresh
+                /*this.growl.show({
+                    severity: "error",
+                    summary: "Connection to Lino server lost",
+                    detail: "Please wait, and contact system administrator if the problem persists."
+                });*/
+            }
+
+            this.setState(() => {
+                return {
+                    WS: false,
+                    foo: true
+                }
+            });
+            // console.log("Disconnected from chat socket");
         };
 
         // this.webSocketBridge.connect();
@@ -312,7 +344,9 @@ class App extends React.Component {
             //     "command": "user_connect",
             //     "username": user_id
             // }));
-            this.setState(() => {return {WS:true}})
+            this.setState(() => {
+                return {WS: true}
+            })
         });
 
 
@@ -322,11 +356,39 @@ class App extends React.Component {
             console.log("Recived message ", data);
             if (data.type === "NOTIFICATION") {
                 this.push(data)
-            };
+            } else if (data.type === "CHAT") {
+                // console.log("Got Chat", data);
+                this.chatwindow.reload()
+                //this.consume_incoming_chat(data)
+            }
         }
     }
 
-    push(data){
+    sendChat(message) {
+        // TODO check that WS is up before sending
+        // let {user_id} = this.state.user_settings;
+        this.webSocketBridge.send(
+            JSON.stringify(
+                {
+                    body: message,
+                    function: 'onRecive'
+                }
+            )
+        )
+    }
+
+    sendSeenAction(messages) {
+        this.webSocketBridge.send(
+            JSON.stringify(
+                {
+                    body: messages,
+                    function: 'markAsSeen'
+                }
+            )
+        )
+    }
+
+    push(data) {
         let {body, subject} = data;
         Push.Permission.request(onGranted, onDenied);
         console.log("We get the message ", data);
@@ -765,8 +827,8 @@ class App extends React.Component {
             return
         }
 
-        if (status && status.fv !== undefined){
-            Object.assign(args, {'fv':status.fv})
+        if (status && status.fv !== undefined) {
+            Object.assign(args, {'fv': status.fv})
         }
         if (an === "grid_put" || an === "grid_post") {
             let {editingValues} = rp_obj.state;
@@ -1010,6 +1072,8 @@ class App extends React.Component {
                 <div className={wrapperClass} onClick={this.onWrapperClick} ref={el => this.topDiv = el}>
                     <AppTopbar onToggleMenu={this.onToggleMenu} onHomeButton={this.onHomeButton}
                                WS={this.state.WS}
+                               useChat={this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats}
+                               onChatButton={this.onChatButton}
                                UnseenCount={this.state.UnseenCount} /* todo hook into WS to count unseen mesgs*/
                         // searchValue={this.state.searchValue}
                         // searchMethod={}
@@ -1136,7 +1200,18 @@ class App extends React.Component {
                             </ActorData>
                         ))}
                     </SiteContext.Provider>
+                    <OverlayPanel dismissable={false}  showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
+                        marginRight:"-10px"
+                    }}>
+                        {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
+                        <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
+                                     sendChat={this.sendChat}
+                                     sendSeenAction={this.sendSeenAction}
+                                     ref={(el) => this.chatwindow = el }
+                        />}
+                    </OverlayPanel>
                 </div>
+
             </HashRouter>
         )
     }

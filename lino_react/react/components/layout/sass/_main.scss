@@ -527,9 +527,11 @@ body .lino-panel.p-tabview .p-tabview-panels {
         }
     }
 }
+
 .p-autocomplete-list-item {
     min-height: 28.7px; // For blank values to have same height as others.
 }
+
 body .l-ForeignKeyElement {
     display: flex;
     flex-direction: row;
@@ -812,6 +814,45 @@ body .l-grid .p-datatable {
         }
     }
 
+}
+
+.chatwindow-chats > .p-scrollpanel-content {
+    display: flex;
+    flex-direction: column;
+    margin-top: .6ch;
+    > div {
+        margin-top: .7ch;
+
+    }
+}
+
+.chatwindow-chats .user {
+    //position: absolute;
+    //margin-top: -2ch;
+    font-size: x-small;
+    text-transform: capitalize;
+    //margin-left: 2ch;
+}
+
+.chatwindow-chats .message {
+    border-radius: 1000px;
+    background: #06b4f1;
+    padding-left: 1ch;
+    padding-right: 1ch;
+}
+
+.chatwindow-chats .p-scrollpanel-wrapper {
+    border-right: 9px solid #f4f4f4;
+}
+
+.chatwindow-chats .p-scrollpanel-bar {
+    background-color: #1976d2;
+    opacity: 1;
+    transition: background-color .3s;
+}
+
+.chatwindow-chats .p-scrollpanel-bar:hover {
+    background-color: #135ba1;
 }
 
 body .l-detail-toolbar .p-button {
