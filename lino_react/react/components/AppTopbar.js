@@ -41,11 +41,16 @@ export class AppTopbar extends Component {
                     {/*suggestions={this.props.searchSuggestions}/>*/}
                     {/*<span className="layout-topbar-search-icon pi pi-search"/>*/}
                     {/*</span>*/}
-                    {this.props.useChat && <a onClick={this.props.onChatButton}>
+                    {this.props.useChat &&
+                    <a
+                        onClick={this.props.onChatButton}
+                        ref={(e) => window.App.chatButton = e} // used as event target to show chat window via WS
+                    >
                         {/*<span className="layout-topbar-item-text">Events</span>*/}
                         <span className="layout-topbar-icon pi pi-comments"/>
                         {!this.props.WS && <span className="layout-topbar-badge">!</span>}
-                        {this.props.UnseenCount && <span className="layout-topbar-badge">{this.props.UnseenCount}</span>}
+                        {this.props.UnseenCount &&
+                        <span className="layout-topbar-badge">{this.props.UnseenCount}</span>}
 
                     </a>}
                     {/*<a>*/}

@@ -104,6 +104,8 @@ class App extends React.Component {
 
         this.notification_web_socket = this.notification_web_socket.bind(this);
         this.push = this.push.bind(this);
+        this.pushChat = this.pushChat.bind(this);
+
         this.sendChat = this.sendChat.bind(this);
         this.sendSeenAction = this.sendSeenAction.bind(this);
 
@@ -358,6 +360,13 @@ class App extends React.Component {
                 this.push(data)
             } else if (data.type === "CHAT") {
                 // console.log("Got Chat", data);
+                //body: "test\n\n", created: "Wed 12 Feb 2020 17:25", user: "tonis"
+                if (!document.hasFocus()) {
+                    this.pushChat("New message from: " + data.user[0].toLocaleUpperCase() + data.user.slice(1),
+                        data.body,
+                        //todo icon, user avitar
+                    );
+                }
                 this.chatwindow.reload()
                 //this.consume_incoming_chat(data)
             }
@@ -388,16 +397,46 @@ class App extends React.Component {
         )
     }
 
-    push(data) {
-        let {body, subject} = data;
-        Push.Permission.request(onGranted, onDenied);
-        console.log("We get the message ", data);
-        // let message = data['message'];
+    pushPermission() {
         let onGranted = () => console.log("onGranted");
         let onDenied = () => console.log("onDenied");
         // Ask for permission if it's not already granted
         Push.Permission.request(onGranted, onDenied);
+    }
 
+    pushChat(subject, body, icon = undefined) {
+        this.pushPermission();
+        try {
+            Push.create(subject, {
+                body: body,
+                icon: icon || '/static/img/lino-logo.png',
+                onClick: function () {
+                    if (!this.chatOp.isVisible()) {
+                        this.chatOp.show({target: window.App.chatButton});
+                    }
+                    this.chatwindow.focus();
+
+                }
+            });
+            // if (false && Number.isInteger(action["id"])){
+            //     this.webSocketBridge.stream('lino').send({message_id: action["id"]})
+            //     this.webSocketBridge.send(JSON.stringify({
+            //                     "command": "seen",
+            //                     "message_id": action["id"],
+            //                 }));
+            //             }
+        }
+        catch (err) {
+            console.log(err.message);
+        }
+
+    }
+
+    push(data) {
+        let {body, subject} = data;
+        console.log("We get the message ", data);
+        // let message = data['message'];
+        this.pushPermission();
         try {
             Push.create(subject, {
                 body: body,
@@ -1200,14 +1239,14 @@ class App extends React.Component {
                             </ActorData>
                         ))}
                     </SiteContext.Provider>
-                    <OverlayPanel dismissable={false}  showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
-                        marginRight:"-10px"
+                    <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
+                        marginRight: "-10px", position:"fixed"
                     }}>
                         {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
                                      sendChat={this.sendChat}
                                      sendSeenAction={this.sendSeenAction}
-                                     ref={(el) => this.chatwindow = el }
+                                     ref={(el) => this.chatwindow = el}
                         />}
                     </OverlayPanel>
                 </div>
