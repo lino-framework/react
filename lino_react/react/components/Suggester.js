@@ -36,7 +36,6 @@ class Suggester extends React.Component {
     static propTypes = {
         actorData: PropTypes.object,
         actorId: PropTypes.string, // foo.bar
-        field: PropTypes.string,
         id: PropTypes.string,
         triggerKeys: PropTypes.array,
         field: PropTypes.string,
