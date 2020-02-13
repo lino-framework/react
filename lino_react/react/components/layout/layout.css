@@ -675,26 +675,29 @@ body .l-grid .p-datatable .p-paginator {
   .chatwindow-chats > .p-scrollpanel-content > div {
     margin-top: .7ch; }
 
-.chatwindow-chats .user {
-  font-size: x-small;
-  text-transform: capitalize; }
-
-.chatwindow-chats .message {
-  border-radius: 1000px;
-  background: #06b4f1;
-  padding-left: 1ch;
-  padding-right: 1ch; }
-
-.chatwindow-chats .p-scrollpanel-wrapper {
-  border-right: 9px solid #f4f4f4; }
-
-.chatwindow-chats .p-scrollpanel-bar {
-  background-color: #1976d2;
-  opacity: 1;
-  transition: background-color .3s; }
-
-.chatwindow-chats .p-scrollpanel-bar:hover {
-  background-color: #135ba1; }
+.chatwindow {
+  max-width: 284px; }
+  .chatwindow .user {
+    font-size: x-small;
+    text-transform: capitalize; }
+  .chatwindow .message {
+    border-radius: 10px;
+    background: #06b4f1;
+    padding-left: 1ch;
+    padding-right: 1ch; }
+  .chatwindow .p-scrollpanel-wrapper {
+    border-right: 9px solid #f4f4f4; }
+  .chatwindow .p-scrollpanel-bar {
+    background-color: #1976d2;
+    opacity: 1;
+    transition: background-color .3s; }
+  .chatwindow .p-scrollpanel-bar:hover {
+    background-color: #135ba1; }
+  .chatwindow .p-editor-toolbar {
+    border-top: unset !important;
+    padding: unset !important; }
+  .chatwindow .p-editor-container {
+    padding-bottom: unset; }
 
 .chatwindow-chats
 body .l-detail-toolbar .p-button {

@@ -109,7 +109,8 @@ class App extends React.Component {
         this.sendChat = this.sendChat.bind(this);
         this.sendSeenAction = this.sendSeenAction.bind(this);
 
-        this.onChatButton = this.onChatButton.bind(this)
+        this.onChatButton = this.onChatButton.bind(this);
+        this.positionChatOp = this.positionChatOp.bind(this);
         this.chatwindow = React.createRef()
 
         this.fetch_user_settings();
@@ -122,6 +123,7 @@ class App extends React.Component {
 
     componentDidMount(){
         this.WindowStateManager = new window.WindowStateManager(true, true, this.onMainWindowUpdate);
+        window.addEventListener('resize', this.positionChatOp);
 
     }
 
@@ -306,6 +308,13 @@ class App extends React.Component {
         })
         this.chatOp.toggle(e)
         this.chatwindow.reload() // fetch init messages
+    }
+
+    positionChatOp(e){
+        if (this.chatOp && this.chatOp.isVisible()) {
+            this.chatOp.hide();
+            this.chatOp.show({target: window.App.chatButton});
+        }
     }
 
     notification_web_socket(user_settings) {

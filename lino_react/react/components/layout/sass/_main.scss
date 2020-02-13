@@ -826,7 +826,10 @@ body .l-grid .p-datatable {
     }
 }
 
-.chatwindow-chats {
+.chatwindow {
+
+    max-width: 284px;
+
     .user {
         //position: absolute;
         //margin-top: -2ch;
@@ -835,7 +838,7 @@ body .l-grid .p-datatable {
         //margin-left: 2ch;
     }
     .message {
-        border-radius: 1000px;
+        border-radius: 10px;
         background: #06b4f1;
         padding-left: 1ch;
         padding-right: 1ch;
@@ -851,6 +854,13 @@ body .l-grid .p-datatable {
     }
     .p-scrollpanel-bar:hover {
         background-color: #135ba1;
+    }
+    .p-editor-toolbar {
+        border-top: unset !important;
+        padding: unset !important;
+    }
+    .p-editor-container {
+        padding-bottom: unset;
     }
 }
 

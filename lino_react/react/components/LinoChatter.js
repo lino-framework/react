@@ -71,7 +71,7 @@ export class LinoChatter extends Component {
         this.setState({
             chats: chats_data,
             NotSeenChats: chats_data.filter(msg => msg[3] !== undefined).map(msg => msg[4]),
-            scroll: new Date()
+            scroll: new Date()+""
         })
     }
 
@@ -83,7 +83,7 @@ export class LinoChatter extends Component {
 
     componentDidUpdate(p, s) {
         if (this.state.scroll !== s.scroll) {
-            this.scrollToBottom();
+            setTimeout(() => (this.scrollToBottom()), 20)
         }
 
     }
@@ -137,8 +137,8 @@ export class LinoChatter extends Component {
 
     render() {
         let actorID = "tickets/Tickets";
-        return <div id="chatwindow">
-            <ScrollPanel className={"chatwindow-chats"} style={{ height: "300px" }}>
+        return <div className="chatwindow">
+            <ScrollPanel className={"chatwindow-chats"} style={{ height: "302px" }}>
                 {this.state.chats && this.state.chats.map((chat) => (
                     <div key={chat[4]}>
                         <div style={{
@@ -199,7 +199,7 @@ export class LinoChatter extends Component {
                                     }
                                 }}
                                 >
-                <Editor style={{height: '100%'}}
+                <Editor style={{height: '100%', width:"281.7px"}}
                     headerTemplate={this.header}
                     placeholder={"Write to group..."}
                     ref={e => this.editor = e}
