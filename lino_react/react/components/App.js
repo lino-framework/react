@@ -114,8 +114,19 @@ class App extends React.Component {
 
         this.fetch_user_settings();
 
+        this.onMainWindowUpdate = this.onMainWindowUpdate.bind(this);
+
         window.App = this;
         // console.log(window, window.App);
+    }
+
+    componentDidMount(){
+        this.WindowStateManager = new window.WindowStateManager(true, true, this.onMainWindowUpdate);
+
+    }
+
+    onMainWindowUpdate(WSM){
+        // console.log("Change in main window" + WSM.isMainWindow())
     }
 
     // #3070: Add function to open the settings page of the current user 
@@ -361,12 +372,17 @@ class App extends React.Component {
             } else if (data.type === "CHAT") {
                 // console.log("Got Chat", data);
                 //body: "test\n\n", created: "Wed 12 Feb 2020 17:25", user: "tonis"
-                if (!document.hasFocus()) {
+                if (!document.hasFocus() && this.WindowStateManager.isMainWindow()) {
                     this.pushChat("New message from: " + data.user[0].toLocaleUpperCase() + data.user.slice(1),
                         data.body,
                         //todo icon, user avitar
                     );
+                } else if (document.hasFocus()) {
+                    // todo main and focused, make small visual notifiation
                 }
+
+                // todo update chatter to show unseen bubble notification should be done for all chat windows.
+
                 this.chatwindow.reload()
                 //this.consume_incoming_chat(data)
             }
@@ -405,16 +421,17 @@ class App extends React.Component {
     }
 
     pushChat(subject, body, icon = undefined) {
+        var app = this;
         this.pushPermission();
         try {
             Push.create(subject, {
                 body: body,
                 icon: icon || '/static/img/lino-logo.png',
                 onClick: function () {
-                    if (!this.chatOp.isVisible()) {
-                        this.chatOp.show({target: window.App.chatButton});
+                    if (!app.chatOp.isVisible()) {
+                        app.chatOp.show({target: window.App.chatButton});
                     }
-                    this.chatwindow.focus();
+                    app.chatwindow.focus();
 
                 }
             });
@@ -1240,7 +1257,7 @@ class App extends React.Component {
                         ))}
                     </SiteContext.Provider>
                     <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
-                        marginRight: "-10px", position:"fixed"
+                        marginRight: "-10px", position: "fixed"
                     }}>
                         {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
