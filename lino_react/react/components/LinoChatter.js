@@ -151,6 +151,7 @@ export class LinoChatter extends Component {
                             style={{
                                 display: "flex",
                                 flexDirection: window.App.state.user_settings.user_id === chat[5] ? "row-reverse" : "row",
+                                [window.App.state.user_settings.user_id === chat[5] ? "marginLeft" : "marginRright"] : "1em",
                             }}>
                             <div
                                 style={{ background: window.App.state.user_settings.user_id === chat[5] ? "#07bdf4" : "#06b4f1" }}

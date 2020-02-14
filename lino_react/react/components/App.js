@@ -121,13 +121,13 @@ class App extends React.Component {
         // console.log(window, window.App);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.WindowStateManager = new window.WindowStateManager(true, true, this.onMainWindowUpdate);
         window.addEventListener('resize', this.positionChatOp);
 
     }
 
-    onMainWindowUpdate(WSM){
+    onMainWindowUpdate(WSM) {
         // console.log("Change in main window" + WSM.isMainWindow())
     }
 
@@ -159,9 +159,10 @@ class App extends React.Component {
             })
         }
         else {
-            // log_out
+            // log_out logout
             fetchPolyfill("/auth").then((req) => {
-                ;
+                this.webSocketBridge && this.webSocketBridge.close();
+                this.chatOp && this.chatOp.hide();
                 this.fetch_user_settings();
                 this.router.history.push("/");
                 this.dashboard.reloadData();
@@ -310,7 +311,7 @@ class App extends React.Component {
         this.chatwindow.reload() // fetch init messages
     }
 
-    positionChatOp(e){
+    positionChatOp(e) {
         if (this.chatOp && this.chatOp.isVisible()) {
             this.chatOp.hide();
             this.chatOp.show({target: window.App.chatButton});
@@ -1266,16 +1267,19 @@ class App extends React.Component {
                             </ActorData>
                         ))}
                     </SiteContext.Provider>
+
+                    {this.state.user_settings && this.state.user_settings.logged_in
+                    && window.Lino.useChats &&
                     <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
                         marginRight: "-10px", position: "fixed"
                     }}>
-                        {this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats &&
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
                                      sendChat={this.sendChat}
                                      sendSeenAction={this.sendSeenAction}
                                      ref={(el) => this.chatwindow = el}
-                        />}
-                    </OverlayPanel>
+                        />
+                    </OverlayPanel>}
+
                 </div>
 
             </HashRouter>
