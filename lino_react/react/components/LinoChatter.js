@@ -153,7 +153,7 @@ export class LinoChatter extends Component {
                                 flexDirection: window.App.state.user_settings.user_id === chat[5] ? "row-reverse" : "row",
                                 [window.App.state.user_settings.user_id === chat[5] ? "marginLeft" : "marginRright"] : "1em",
                             }}>
-                            <div
+                            <div title= {chat[2] }
                                 style={{ background: window.App.state.user_settings.user_id === chat[5] ? "#07bdf4" : "#06b4f1" }}
                                 className={"message"} dangerouslySetInnerHTML={{__html: chat[1] || "\u00a0"}} ></div>
                         </div>
