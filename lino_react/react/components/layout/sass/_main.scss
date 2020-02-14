@@ -842,6 +842,8 @@ body .l-grid .p-datatable {
         background: #06b4f1;
         padding-left: 1ch;
         padding-right: 1ch;
+        overflow-wrap: break-word;
+        max-width: 100%; // needed for break-word to work
     }
 
     .p-scrollpanel-wrapper {
