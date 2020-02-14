@@ -1271,7 +1271,7 @@ class App extends React.Component {
                     {this.state.user_settings && this.state.user_settings.logged_in
                     && window.Lino.useChats &&
                     <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
-                        marginRight: "-10px", position: "fixed"
+                        marginRight: "-10px", position: "absolute"
                     }}>
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
                                      sendChat={this.sendChat}
