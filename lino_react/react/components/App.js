@@ -319,6 +319,7 @@ class App extends React.Component {
 
     notification_web_socket(user_settings) {
 
+        console.warn("NWS");
         if (!window.Lino.useWebSockets) return;
 
         let {user_id} = user_settings || this.state.user_settings;
@@ -338,8 +339,8 @@ class App extends React.Component {
         );
 
         // Helpful debugging
-        this.webSocketBridge.onclose = () => {
-
+        this.webSocketBridge.onclose = (e) => {
+            console.log(e, "WS closed");
             if (this.state.WS) {
                 // lost connection from server for first time atm.
                 // Commented out, too distracting, pops up also when closed normally, via a page refresh
