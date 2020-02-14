@@ -155,7 +155,7 @@ export class LinoChatter extends Component {
                             }}>
                             <div
                                 style={{ background: window.App.state.user_settings.user_id === chat[5] ? "#07bdf4" : "#06b4f1" }}
-                                className={"message"}>{chat[1]}</div>
+                                className={"message"} dangerouslySetInnerHTML={{__html: chat[1] || "\u00a0"}} ></div>
                         </div>
                     </div>
                 ))}
