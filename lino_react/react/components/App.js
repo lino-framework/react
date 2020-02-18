@@ -17,7 +17,7 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
-import {LinoChatter} from './LinoChatter'
+import {LinoChatter, LinoGroupMsg} from './LinoChatter'
 import LinoBbar from "./LinoBbar";
 import {pvObj2array, deepCompare} from "./LinoUtils"
 
@@ -80,6 +80,7 @@ class App extends React.Component {
             // searchSuggestions: []
 
             WS: false, // Websocket status
+            openChatGroup: []
 
         };
 
@@ -108,6 +109,7 @@ class App extends React.Component {
 
         this.sendChat = this.sendChat.bind(this);
         this.sendSeenAction = this.sendSeenAction.bind(this);
+        this.openNewGroupMsg = this.openNewGroupMsg.bind(this);
 
         this.onChatButton = this.onChatButton.bind(this);
         this.positionChatOp = this.positionChatOp.bind(this);
@@ -422,6 +424,17 @@ class App extends React.Component {
                 }
             )
         )
+    }
+
+    openNewGroupMsg(group) {
+        let group_id = group[1]
+        console.log('group_id',group_id)
+        if (! this.state.openChatGroup.includes(group_id)){
+            this.setState({
+                'openChatGroup':this.state.openChatGroup.concat(group_id)}
+            )
+        }
+        console.log('openNewGroupMsg',this.state.openChatGroup)
     }
 
     pushPermission() {
@@ -1270,15 +1283,28 @@ class App extends React.Component {
 
                     {this.state.user_settings && this.state.user_settings.logged_in
                     && window.Lino.useChats &&
-                    <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
-                        marginRight: "-10px", position: "absolute"
-                    }}>
-                        <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
-                                     sendChat={this.sendChat}
-                                     sendSeenAction={this.sendSeenAction}
-                                     ref={(el) => this.chatwindow = el}
-                        />
-                    </OverlayPanel>}
+                    <div>
+                        {this.state.openChatGroup && this.state.openChatGroup.map((openGroupChat) => (
+                            <OverlayPanel dismissable={false} showCloseIcon={true} style={{
+                                marginRight: "-10px", position: "absolute"
+                            }}>
+                                <LinoGroupMsg
+                                    group={openGroupChat}
+                                />
+                            </OverlayPanel>
+                        ))}
+                        <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
+                            marginRight: "-10px", position: "absolute"
+                        }}>
+                            <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
+                                        sendChat={this.sendChat}
+                                        sendSeenAction={this.sendSeenAction}
+                                        openNewGroupMsg={this.openNewGroupMsg}
+                                        ref={(el) => this.chatwindow = el}
+                            />
+                        </OverlayPanel>
+                    </div>
+                    }
 
                 </div>
 
