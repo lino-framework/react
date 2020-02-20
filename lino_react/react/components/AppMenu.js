@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-class AppSubmenu extends Component {
+class AppSubmenu
+    extends Component {
 
     static defaultProps = {
         className: null,

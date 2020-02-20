@@ -17,7 +17,9 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
-import {LinoChatter} from './LinoChatter'
+import {LinoChatter,} from './LinoChatter/LinoChatter'
+import {Messenger} from './LinoChatter'
+import {OpenConversations} from './LinoChatter/OpenConversations'
 import LinoBbar from "./LinoBbar";
 import {pvObj2array, deepCompare} from "./LinoUtils"
 
@@ -80,6 +82,7 @@ class App extends React.Component {
             // searchSuggestions: []
 
             WS: false, // Websocket status
+            openedconversations : [],
 
         };
 
@@ -108,6 +111,7 @@ class App extends React.Component {
 
         this.sendChat = this.sendChat.bind(this);
         this.sendSeenAction = this.sendSeenAction.bind(this);
+        this.OpenConversation = this.OpenConversation.bind(this);
 
         this.onChatButton = this.onChatButton.bind(this);
         this.positionChatOp = this.positionChatOp.bind(this);
@@ -318,6 +322,13 @@ class App extends React.Component {
         }
     }
 
+    OpenConversation(conversation_id){
+        console.log('conversation_id',conversation_id)
+        if (! this.state.openedconversations.includes(conversation_id)){
+            this.setState(prevState => ({ openedconversations: prevState.openedconversations.concat(conversation_id) }));
+        }
+    }
+
     notification_web_socket(user_settings) {
 
         console.warn("NWS");
@@ -400,13 +411,13 @@ class App extends React.Component {
         }
     }
 
-    sendChat(message) {
+    sendChat(data) {
         // TODO check that WS is up before sending
         // let {user_id} = this.state.user_settings;
         this.webSocketBridge.send(
             JSON.stringify(
                 {
-                    body: message,
+                    body: data,
                     function: 'onRecive'
                 }
             )
@@ -1233,6 +1244,14 @@ class App extends React.Component {
                             }}/>
                         </SiteContext.Provider>
                     </div>
+                    <OpenConversations
+                        //opened={this.state.chatOpen} // timestamp for reloading
+                        sendChat={this.sendChat}
+                        sendSeenAction={this.sendSeenAction}
+                        openedconversations={this.state.openedconversations}
+                        ref={(el) => this.chatwindow = el}
+
+                    />
                     <SiteContext.Provider value={this.state.site_data}>
 
                         <div className="layout-mask"/>
@@ -1273,10 +1292,9 @@ class App extends React.Component {
                     <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
                         marginRight: "-10px", position: "absolute"
                     }}>
-                        <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
-                                     sendChat={this.sendChat}
-                                     sendSeenAction={this.sendSeenAction}
-                                     ref={(el) => this.chatwindow = el}
+                        
+                        <Messenger
+                        OpenConversation={this.OpenConversation}
                         />
                     </OverlayPanel>}
 
