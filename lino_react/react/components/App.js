@@ -153,8 +153,8 @@ class App extends React.Component {
                 "onMain": true,
                 "rp": null,
                 "status": {
-                    "field_values": {"password": "", "username": ""},
-                    "fv": ["", ""],
+                    // "field_values": {"password": "", "username": ""},
+                    // "fv": ["", ""],
                 }
             })
         }
