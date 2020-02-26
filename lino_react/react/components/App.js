@@ -321,7 +321,7 @@ class App extends React.Component {
     notification_web_socket(user_settings) {
 
         console.warn("NWS");
-        if (!window.Lino.useWebSockets) return;
+        if (! window.Lino || !window.Lino.useWebSockets) return;
 
         let {user_id} = user_settings || this.state.user_settings;
 
@@ -1139,7 +1139,7 @@ class App extends React.Component {
                 <div className={wrapperClass} onClick={this.onWrapperClick} ref={el => this.topDiv = el}>
                     <AppTopbar onToggleMenu={this.onToggleMenu} onHomeButton={this.onHomeButton}
                                WS={this.state.WS}
-                               useChat={this.state.user_settings && this.state.user_settings.logged_in && window.Lino.useChats}
+                               useChat={this.state.user_settings && this.state.user_settings.logged_in && window.Lino && window.Lino.useChats}
                                onChatButton={this.onChatButton}
                                UnseenCount={this.state.UnseenCount} /* todo hook into WS to count unseen mesgs*/
                         // searchValue={this.state.searchValue}
@@ -1269,9 +1269,9 @@ class App extends React.Component {
                     </SiteContext.Provider>
 
                     {this.state.user_settings && this.state.user_settings.logged_in
-                    && window.Lino.useChats &&
+                    && window.Lino && window.Lino.useChats &&
                     <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
-                        marginRight: "-10px", position: "fixed"
+                        marginRight: "-10px", position: "absolute"
                     }}>
                         <LinoChatter opened={this.state.chatOpen} // timestamp for reloading
                                      sendChat={this.sendChat}
