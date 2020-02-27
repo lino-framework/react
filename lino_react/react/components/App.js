@@ -17,9 +17,7 @@ import {AppInlineProfile} from "./AppInlineProfile"
 import {Actor} from "./Actor";
 //import {LinoGrid} from "./LinoGrid";
 import {LinoDialog} from './LinoDialog'
-import {LinoChatter,} from './LinoChatter/LinoChatter'
-import {Messenger} from './LinoChatter'
-import {OpenConversations} from './LinoChatter/OpenConversations'
+import {LinoChats} from './LinoChatter/LinoChats'
 import LinoBbar from "./LinoBbar";
 import {pvObj2array, deepCompare} from "./LinoUtils"
 
@@ -82,7 +80,7 @@ class App extends React.Component {
             // searchSuggestions: []
 
             WS: false, // Websocket status
-            openedconversations : [],
+            openedconversations: [],
 
         };
 
@@ -312,7 +310,7 @@ class App extends React.Component {
             chatOpen: new Date()
         })
         this.chatOp.toggle(e)
-        this.chatwindow.reload() // fetch init messages
+        // this.chatwindow.reload() // fetch init messages
     }
 
     positionChatOp(e) {
@@ -322,17 +320,17 @@ class App extends React.Component {
         }
     }
 
-    OpenConversation(conversation_id){
-        console.log('conversation_id',conversation_id)
-        if (! this.state.openedconversations.includes(conversation_id)){
-            this.setState(prevState => ({ openedconversations: prevState.openedconversations.concat(conversation_id) }));
+    OpenConversation(conversation_id) {
+        console.log('conversation_id', conversation_id)
+        if (!this.state.openedconversations.includes(conversation_id)) {
+            this.setState(prevState => ({openedconversations: prevState.openedconversations.concat(conversation_id)}));
         }
     }
 
     notification_web_socket(user_settings) {
 
         console.warn("NWS");
-        if (! window.Lino || !window.Lino.useWebSockets) return;
+        if (!window.Lino || !window.Lino.useWebSockets) return;
 
         let {user_id} = user_settings || this.state.user_settings;
 
@@ -404,8 +402,8 @@ class App extends React.Component {
                 }
 
                 // todo update chatter to show unseen bubble notification should be done for all chat windows.
-
-                this.chatwindow.reload()
+                // todo have recived messages forwarded to linochats
+                // this.chatwindow.reload()
                 //this.consume_incoming_chat(data)
             }
         }
@@ -1244,14 +1242,7 @@ class App extends React.Component {
                             }}/>
                         </SiteContext.Provider>
                     </div>
-                    <OpenConversations
-                        //opened={this.state.chatOpen} // timestamp for reloading
-                        sendChat={this.sendChat}
-                        sendSeenAction={this.sendSeenAction}
-                        openedconversations={this.state.openedconversations}
-                        ref={(el) => this.chatwindow = el}
 
-                    />
                     <SiteContext.Provider value={this.state.site_data}>
 
                         <div className="layout-mask"/>
@@ -1289,15 +1280,22 @@ class App extends React.Component {
 
                     {this.state.user_settings && this.state.user_settings.logged_in
                     && window.Lino && window.Lino.useChats &&
-                    <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
-                        marginRight: "-10px", position: "absolute"
-                    }}>
-                        
-                        <Messenger
-                        OpenConversation={this.OpenConversation}
-                        />
-                    </OverlayPanel>}
+                    <React.Fragment>
+                        <OverlayPanel dismissable={false} showCloseIcon={true} ref={(el) => this.chatOp = el} style={{
+                            marginRight: "-10px", position: "absolute"
+                        }}>
+                            <div ref={el => this.GroupChatChooserMountPoint = el}/>
 
+                        </OverlayPanel>
+                        <LinoChats
+                            //opened={this.state.chatOpen} // timestamp for reloading
+                            groupChatChooserMountPoint={this.GroupChatChooserMountPoint}
+                            sendChat={this.sendChat}
+                            sendSeenAction={this.sendSeenAction}
+                            OpenConversation={this.OpenConversation}
+                            openedconversations={this.state.openedconversations}
+                            ref={(el) => this.LinoChats = el}
+                        /></React.Fragment>}
                 </div>
 
             </HashRouter>

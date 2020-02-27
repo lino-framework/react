@@ -1,0 +1,86 @@
+import React, {Component} from "react";
+import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
+import {fetch as fetchPolyfill} from "whatwg-fetch";
+import {GroupChatChooser} from "./GroupChatChooser";
+import queryString from "query-string"
+
+
+import Collapse from 'rc-collapse';
+import {Panel} from 'rc-collapse';
+
+import {LinoChatter} from './LinoChatter';
+import 'rc-collapse/assets/index.css';
+import './Conversations.css';
+
+export class LinoChats extends Component {
+
+    static propTypes = {
+        groupChatChooserMountPoint: PropTypes.element,
+        sendChat: PropTypes.func,
+        sendSeenAction: PropTypes.func,
+        OpenConversation: PropTypes.func,
+        openedconversations: PropTypes.array,
+        onGetGroups: PropTypes.func,
+    };
+
+    static defaultProps = {
+        openedconversations: [],
+        onGetGroups: () => {},
+    };
+
+    constructor() {
+        super();
+        this.state = {
+            groups: [] // state of known groups and names etc
+        };
+        this.getChatGroups = this.getChatGroups.bind(this);
+
+    }
+
+    // method() {return this.props.}
+
+    getChatGroups() {
+        let query = {
+            fmt: "json",
+            //rp: key(this),
+            // mt: this.props.actorData.content_type, // Should be the master actor's PK, so should be a prop / url param
+            an: "getChatGroups",
+            // limit: 10,
+            // count: 10,
+        };
+        window.App.add_su(query);
+        fetchPolyfill(`/api/chat/ChatGroups/-99998` + `?${queryString.stringify(query)}`).then(
+            window.App.handleAjaxResponse).then(response => {
+            this.setState({groups: response.rows})
+            this.props.onGetGroups(response.rows);
+        });
+    }
+
+    componentDidMount() {
+        this.getChatGroups();
+    };
+
+    render() {
+        console.log("this.props.groupChatChooserMountPoint", this.props.groupChatChooserMountPoint);
+        return <React.Fragment>
+            {this.props.groupChatChooserMountPoint && <GroupChatChooser OpenConversation={this.props.OpenConversation} groups={this.state.groups} attachTo={this.props.groupChatChooserMountPoint}/>}
+
+            <Collapse accordion={false} className="conversation-panel-list">
+                {this.props.openedconversations && this.props.openedconversations.map((group_id) => {
+                    let group = this.state.groups.find(g => g.id === group_id);
+                    return <Panel header={group.title} prefixCls='rc-collapse' isActive={true}
+                           key={group_id}>
+                        <LinoChatter
+                            ref={(el) => window.App.setRpRef(el, "chat-" + group_id)}
+                            //opened={opened} // timestamp for reloading
+                            groupTitle={group.title}
+                            sendChat={this.props.sendChat}
+                            sendSeenAction={this.props.sendSeenAction}
+                            group_id={group_id}/>
+                    </Panel>
+                })}
+            </Collapse>
+        </React.Fragment>
+    }
+};
