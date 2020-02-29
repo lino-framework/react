@@ -393,9 +393,11 @@ class App extends React.Component {
                 // console.log("Got Chat", data);
                 //body: "test\n\n", created: "Wed 12 Feb 2020 17:25", user: "tonis"
                 if (!document.hasFocus() && this.WindowStateManager.isMainWindow()) {
-                    this.pushChat("New message from: " + data.user[0].toLocaleUpperCase() + data.user.slice(1),
+                    let userName = data.chat[0];
+                    this.pushChat("New message from: " + userName[0].toLocaleUpperCase() + userName.slice(1),
                         data.body,
-                        //todo icon, user avitar
+                        undefined, //icon,// todo icon, user avitar
+                        data.chat, //chat data
                     );
                 } else if (document.hasFocus()) {
                     // todo main and focused, make small visual notifiation
@@ -403,7 +405,7 @@ class App extends React.Component {
 
                 // todo update chatter to show unseen bubble notification should be done for all chat windows.
                 // todo have recived messages forwarded to linochats
-                // this.chatwindow.reload()
+                this.LinoChats.consume_WS_message(data.chat);
                 //this.consume_incoming_chat(data)
             }
         }
@@ -440,7 +442,7 @@ class App extends React.Component {
         Push.Permission.request(onGranted, onDenied);
     }
 
-    pushChat(subject, body, icon = undefined) {
+    pushChat(subject, body, icon = undefined, chat=undefined) {
         var app = this;
         this.pushPermission();
         try {
@@ -448,10 +450,12 @@ class App extends React.Component {
                 body: body,
                 icon: icon || '/static/img/lino-logo.png',
                 onClick: function () {
-                    if (!app.chatOp.isVisible()) {
+
+                    /*if (!app.chatOp.isVisible()) {
                         app.chatOp.show({target: window.App.chatButton});
                     }
-                    app.chatwindow.focus();
+                    app.chatwindow.focus();*/
+                    this.linoChats.pushCallback(chat)
 
                 }
             });

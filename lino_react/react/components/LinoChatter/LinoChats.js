@@ -13,6 +13,7 @@ import {LinoChatter} from './LinoChatter';
 import 'rc-collapse/assets/index.css';
 import './Conversations.css';
 
+
 export class LinoChats extends Component {
 
     static propTypes = {
@@ -55,6 +56,23 @@ export class LinoChats extends Component {
             this.setState({groups: response.rows})
             this.props.onGetGroups(response.rows);
         });
+    }
+
+    /**
+     * Used to act on WS messages coming from outside or inside LinoChats.
+     *
+     */
+    consume_WS_message(chat) {
+        // pass the chat array to the linoChater with the right group ID
+        // TODO add user created chats to grou
+        // TODO do find here to update the chat with the new chat from WS.
+
+        let group_id = chat[6];
+        window.App.rps["chat-" + group_id].consume_WS_message(chat)
+    }
+
+    pushCallback(chat){
+        //todo open and focus current chat window
     }
 
     componentDidMount() {

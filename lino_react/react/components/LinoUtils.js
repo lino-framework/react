@@ -160,6 +160,13 @@ export function deepCompare() {
     return true;
 }
 
+export function mapReverse(array, fn) {
+    return array.reduceRight(function (result, el) {
+        result.push(fn(el));
+        return result;
+    }, []);
+}
+
 export function objectToFormData(obj, rootName, ignoreList) {
     var formData = new FormData();
 
