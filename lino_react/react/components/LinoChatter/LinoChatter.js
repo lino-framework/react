@@ -31,10 +31,8 @@ export class LinoChatter extends Component {
     constructor() {
         super();
         this.state = {
-            chatlog: [],
             new_message: '',
             chats: [],
-            NotSeenChats: [],
             conservation_name: "",
         };
         this.reload = this.reload.bind(this);
@@ -117,6 +115,7 @@ export class LinoChatter extends Component {
                 scroll: new Date() + ""
             }
         })
+
     }
 
     scrollToBottom = () => {
@@ -130,10 +129,10 @@ export class LinoChatter extends Component {
         this.setState({new_message: value})
     }
 
-    handleFocus() {
+    handleFocus(e) {
         //let chatids = this.state.chats.map(msg => msg[4])
         // console.log('handleFocus',this.state.NotSeenChats)
-        this.props.sendSeenAction(this.state.NotSeenChats);
+        this.props.sendSeenAction(this.props.group_id,this.state.chats.filter(chat => chat[4] === null));
         this.state.NotSeenChats = [];
     }
 
@@ -218,8 +217,8 @@ export class LinoChatter extends Component {
 
     render() {
         let actorID = "tickets/Tickets";
-        return <div className="scrollable sidebar">
-            <div className="chatwindow">
+        return <div className="scrollable sidebar" onMouseEnter={this.handleFocus}>
+            <div className="chatwindow" >
                 <ScrollPanel className={"chatwindow-chats"} style={{height: "302px"}}>
                     {this.state.chats && mapReverse(this.state.chats, (chat) => {
 

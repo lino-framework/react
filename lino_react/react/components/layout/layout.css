@@ -681,7 +681,7 @@ body .l-grid .p-datatable .p-paginator {
     font-size: x-small;
     text-transform: capitalize; }
   .chatwindow .not-sent .message {
-    background: gray; }
+    background: gray !important; }
   .chatwindow .message {
     transition: background-color 1000ms linear;
     border-radius: 10px;
