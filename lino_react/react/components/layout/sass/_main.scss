@@ -837,7 +837,14 @@ body .l-grid .p-datatable {
         text-transform: capitalize;
         //margin-left: 2ch;
     }
+
+    .not-sent .message {
+        background: gray !important;
+
+    }
+
     .message {
+        transition: background-color 1000ms linear;
         border-radius: 10px;
         background: #06b4f1;
         padding-left: 1ch;

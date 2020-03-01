@@ -5,11 +5,13 @@ import key from "weak-key";
 import queryString from "query-string"
 import {Editor} from 'primereact/editor';
 
+
+import classNames from 'classnames';
 import {ScrollPanel} from 'primereact/scrollpanel';
 import Suggester from "../Suggester";
 import 'rc-collapse/assets/index.css';
 import './Conversations.css';
-import {mapReverse} from "../LinoUtils"
+import {mapReverse, hashCode} from "../LinoUtils"
 
 
 export class LinoChatter extends Component {
@@ -47,6 +49,7 @@ export class LinoChatter extends Component {
 
         this.disableEnter = this.disableEnter.bind(this);
         this.enableEnter = this.enableEnter.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
         this.header = (<span></span>);
     }
 
@@ -97,15 +100,25 @@ export class LinoChatter extends Component {
         }
 
     }
-    consume_WS_message(chat){
+
+    consume_WS_message(chat) {
         console.log("got WS chat message", this, chat);
         this.setState(old => {
+            let {chats} = old;
+            let update_index = chats.findIndex( c => c[7] = chat[7]); // find matching HASH
+            if (update_index >= 0){
+                chats = chats.slice();
+                chats[update_index] = chat
+            } else {
+                chats = [chat].concat(old.chats)
+            }
             return {
-                chats: [chat].concat(old.chats),
+                chats: chats,
                 scroll: new Date() + ""
             }
         })
     }
+
     scrollToBottom = () => {
         this.chatBottom && this.chatBottom.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'})
         // this.input.current.scrollIntoView({behavior: 'smooth'})
@@ -120,15 +133,42 @@ export class LinoChatter extends Component {
     handleFocus() {
         //let chatids = this.state.chats.map(msg => msg[4])
         // console.log('handleFocus',this.state.NotSeenChats)
-        this.props.sendSeenAction(this.state.NotSeenChats)
-        this.state.NotSeenChats = []
+        this.props.sendSeenAction(this.state.NotSeenChats);
+        this.state.NotSeenChats = [];
+    }
+
+    createChatArray(chatHTML) {
+        // self.user.username,
+        // ar.parse_memo(self.chat.body),
+        // json.loads(json.dumps(self.created, cls=DjangoJSONEncoder)),
+        // json.loads(json.dumps(self.seen, cls=DjangoJSONEncoder)),
+        // self.chat.pk,
+        // self.chat.user.id,
+        // self.chat.group.id
+        // hash
+        let date = new Date() + "";
+        return [window.App.state.user_settings.username,
+            chatHTML,
+            date,
+            undefined,
+            undefined,
+            window.App.state.user_settings.user_id,
+            this.props.group_id,
+            hashCode(chatHTML + date)+""]
+    }
+
+    onSubmit(messageHTML) {
+        let chatMSG = this.createChatArray(messageHTML);
+        this.props.sendChat({'body': messageHTML,  'hash':chatMSG[7], 'group_id': this.props.group_id});
+        this.setState((old) => (
+            {chats: [chatMSG].concat(old.chats)}
+            )
+        );
     }
 
     keyPress(e) {
         if (e.keyCode === 13 && e.target.innerText) {
-            this.props.sendChat({'body': e.target.innerText, 'group_id': this.props.group_id});
-            this.setState((old) => ({})
-            );
+            this.onSubmit(e.target.innerText);
             e.target.innerText = "";
             // this.reload() // todo, don't reload. Just add new chat message, and confirm that it's delivered when you get onRecived back from WS
         }
@@ -153,16 +193,16 @@ export class LinoChatter extends Component {
         }
     }
 
-    render_chat_message(userName, userID, currentUserID, sentDateTime, chatHTML, chatPK) {
+    render_chat_message(userName, userID, currentUserID, sentDateTime, chatHTML, chatPK, hash) {
         let selfChat = currentUserID === userID;
-        return <div key={chatPK}>
+        return <div key={hash}>
             <div style={{
                 display: "flex",
-                direction: (selfChat? "rtl" : "ltr")
+                direction: (selfChat ? "rtl" : "ltr")
             }}>
                 <span className={"user"}>{userName}</span>
             </div>
-            <div className={"message-wrapper"}
+            <div className={classNames("message-wrapper", {"not-sent":chatPK === undefined})}
                  style={{
                      display: "flex",
                      flexDirection: selfChat ? "row-reverse" : "row",
@@ -181,7 +221,7 @@ export class LinoChatter extends Component {
         return <div className="scrollable sidebar">
             <div className="chatwindow">
                 <ScrollPanel className={"chatwindow-chats"} style={{height: "302px"}}>
-                    {this.state.chats && mapReverse(this.state.chats,(chat) => {
+                    {this.state.chats && mapReverse(this.state.chats, (chat) => {
 
                         // (cp.user.username, ar.parse_memo(cp.chat.body), cp.created, cp.seen, cp.chat.pk, cp.chat.user.id))
                         let userName = chat[0],
@@ -189,9 +229,11 @@ export class LinoChatter extends Component {
                             currentUserID = window.App.state.user_settings.user_id,
                             chatHTML = chat[1],
                             sentDateTime = chat[2],
-                            chatPK = chat[4];
+                            chatPK = chat[4],
+                            hash = chat[7];
 
-                        return this.render_chat_message(userName, userID, currentUserID,sentDateTime, chatHTML, chatPK)})}
+                        return this.render_chat_message(userName, userID, currentUserID, sentDateTime, chatHTML, chatPK, hash)
+                    })}
                     <div ref={(el) => this.chatBottom = el} style={{height: "1ch"}}/>
                 </ScrollPanel>
                 <Suggester getElement={() => this.editor}
