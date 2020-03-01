@@ -101,7 +101,8 @@ export class LinoChatter extends Component {
         console.log("got WS chat message", this, chat);
         this.setState(old => {
             return {
-                chats: old.chats.concat([chat])
+                chats: [chat].concat(old.chats),
+                scroll: new Date() + ""
             }
         })
     }
@@ -129,7 +130,7 @@ export class LinoChatter extends Component {
             this.setState((old) => ({})
             );
             e.target.innerText = "";
-            this.reload() // todo, don't reload. Just add new chat message, and confirm that it's delivered when you get onRecived back from WS
+            // this.reload() // todo, don't reload. Just add new chat message, and confirm that it's delivered when you get onRecived back from WS
         }
     }
 
