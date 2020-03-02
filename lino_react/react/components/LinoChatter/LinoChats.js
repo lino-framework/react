@@ -15,11 +15,11 @@ import './Conversations.css';
 
 import {debounce} from "../LinoUtils";
 
-
 export class LinoChats extends Component {
 
     static propTypes = {
         groupChatChooserMountPoint: PropTypes.element,
+        chatsUnseenBadgeMountPoint: PropTypes.element,
         sendChat: PropTypes.func,
         sendSeenAction: PropTypes.func,
         OpenConversation: PropTypes.func,
@@ -39,11 +39,22 @@ export class LinoChats extends Component {
             groups: [] // state of known groups and names etc [{id:2, title:Customers, unseen:3}...]
         };
         this.getChatGroups = this.getChatGroups.bind(this);
-        this.sendSeenAction = debounce(this.sendSeenAction.bind(this), 2000, true);
+        this.getUnseenCount = this.getUnseenCount.bind(this);
 
+
+        this.sendSeenAction = debounce(this.sendSeenAction.bind(this), 2000, true);
+        this.sendSeenAction = debounce(this.sendSeenAction.bind(this), 2000, true);
     }
 
     // method() {return this.props.}
+
+    getUnseenCount() {
+        let unseen = 0;
+        this.state.groups.forEach(g => {
+            unseen += g.unseen;
+        });
+        return unseen
+    }
 
     getChatGroups() {
         let query = {
@@ -62,13 +73,14 @@ export class LinoChats extends Component {
         });
     }
 
-    sendSeenAction(group_id, chats) {
+    sendSeenAction(group_id) {
 
         this.setState(old => {
             let {groups} = old;
             groups[groups.findIndex(g => g.id === group_id)].unseen = 0 // find and update seen count to 0
             return {groups: groups.splice(0)}
         })
+        this.props.sendSeenAction(group_id);
     }
 
 
@@ -104,11 +116,14 @@ export class LinoChats extends Component {
     };
 
     render() {
+        let unseen = this.getUnseenCount();
         console.log("this.props.groupChatChooserMountPoint", this.props.groupChatChooserMountPoint);
         return <React.Fragment>
             {this.props.groupChatChooserMountPoint &&
             <GroupChatChooser OpenConversation={this.props.OpenConversation} groups={this.state.groups}
                               attachTo={this.props.groupChatChooserMountPoint}/>}
+            {unseen && this.props.chatsUnseenBadgeMountPoint && ReactDOM.createPortal(<span
+                className="layout-topbar-badge">{unseen}</span>, this.props.chatsUnseenBadgeMountPoint)}
 
             <Collapse accordion={false} className="conversation-panel-list">
                 {this.props.openedconversations && this.props.openedconversations.map((group_id) => {

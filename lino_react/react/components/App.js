@@ -423,12 +423,11 @@ class App extends React.Component {
             )
         )
     }
-
-    sendSeenAction(messages) {
+    sendSeenAction(group_id, messages) {
         this.webSocketBridge.send(
             JSON.stringify(
                 {
-                    body: messages,
+                    body: [group_id],
                     function: 'markAsSeen'
                 }
             )
@@ -1154,7 +1153,6 @@ class App extends React.Component {
                                WS={this.state.WS}
                                useChat={this.state.user_settings && this.state.user_settings.logged_in && window.Lino && window.Lino.useChats}
                                onChatButton={this.onChatButton}
-                               UnseenCount={this.state.UnseenCount} /* todo hook into WS to count unseen mesgs*/
                         // searchValue={this.state.searchValue}
                         // searchMethod={}
                         // searchSuggestions={}
@@ -1293,6 +1291,7 @@ class App extends React.Component {
                         </OverlayPanel>
                         <LinoChats
                             //opened={this.state.chatOpen} // timestamp for reloading
+                            chatsUnseenBadgeMountPoint={this.chatButton}
                             groupChatChooserMountPoint={this.GroupChatChooserMountPoint}
                             sendChat={this.sendChat}
                             sendSeenAction={this.sendSeenAction}

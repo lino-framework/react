@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
-import {AutoComplete} from 'primereact/autocomplete';
+// import {AutoComplete} from 'primereact/autocomplete';
 import PropTypes from 'prop-types';
-import {Link} from "react-router-dom";
+// import {Link} from "react-router-dom";
+import classNames from 'classnames';
 
 
 export class AppTopbar extends Component {
 
     static defaultProps = {
-        onToggleMenu: null
+        onToggleMenu: null,
+        unseenCount: 0,
     };
 
     static propTypes = {
@@ -16,11 +18,28 @@ export class AppTopbar extends Component {
         onChatButton: PropTypes.func,
         useChat: PropTypes.bool,
         WS: PropTypes.bool,
-        UnseenCount: PropTypes.number,
+        unseenCount: PropTypes.number,
         // searchValue: PropTypes.func.isRequired,
         // searchMethod: PropTypes.func.isRequired,
         // searchSuggestions: PropTypes.func.isRequired,
     };
+
+    constructor(){
+        super();
+        this.renderChatButton = this.renderChatButton.bind(this);
+    }
+
+    renderChatButton() {
+        return <a
+            onClick={this.props.onChatButton}
+            ref={(e) => window.App.chatButton = e} // used as event target to show chat window via WS & unseen badge
+        >
+            {/*<span className="layout-topbar-item-text">Events</span>*/}
+            <span className={classNames("layout-topbar-icon pi pi-comments", {"no-ws":!this.props.WS})}/>
+
+        </a>
+    }
+
 
     render() {
         return (
@@ -31,7 +50,7 @@ export class AppTopbar extends Component {
                 <a className="layout-home-button" onClick={this.props.onHomeButton}>
                     <span className="pi pi-home"/>
                 </a>
-                <div className="layout-topbar-icons">
+                <div className="layout-topbar-icons" >
                     {/*<span className="layout-topbar-search">*/}
                     {/*<AutoComplete type="text" placeholder="Search"*/}
                     {/*value={this.props.searchValue}*/}
@@ -41,18 +60,7 @@ export class AppTopbar extends Component {
                     {/*suggestions={this.props.searchSuggestions}/>*/}
                     {/*<span className="layout-topbar-search-icon pi pi-search"/>*/}
                     {/*</span>*/}
-                    {this.props.useChat &&
-                    <a
-                        onClick={this.props.onChatButton}
-                        ref={(e) => window.App.chatButton = e} // used as event target to show chat window via WS
-                    >
-                        {/*<span className="layout-topbar-item-text">Events</span>*/}
-                        <span className="layout-topbar-icon pi pi-comments"/>
-                        {!this.props.WS && <span className="layout-topbar-badge">!</span>}
-                        {this.props.UnseenCount &&
-                        <span className="layout-topbar-badge">{this.props.UnseenCount}</span>}
-
-                    </a>}
+                    {this.props.useChat && this.renderChatButton()}
                     {/*<a>*/}
                     {/*<span className="layout-topbar-item-text">Settings</span>*/}
                     {/*<span className="layout-topbar-icon pi pi-cog"/>*/}

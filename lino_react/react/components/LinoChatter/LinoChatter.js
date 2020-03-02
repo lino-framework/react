@@ -80,7 +80,7 @@ export class LinoChatter extends Component {
         this.setState({
             chats: chats_data.messages,
             conservation_name: chats_data.name,
-            NotSeenChats: chats_data.messages.filter(msg => msg[3] !== undefined).map(msg => msg[4]),
+            // NotSeenChats: chats_data.messages.filter(msg => msg[3] !== undefined).map(msg => msg[3]),
             scroll: new Date() + ""
         })
         console.log('state', this.state)
@@ -103,7 +103,7 @@ export class LinoChatter extends Component {
         console.log("got WS chat message", this, chat);
         this.setState(old => {
             let {chats} = old;
-            let update_index = chats.findIndex( c => c[7] = chat[7]); // find matching HASH
+            let update_index = chats.findIndex( c => c[7] === chat[7]); // find matching HASH
             if (update_index >= 0){
                 chats = chats.slice();
                 chats[update_index] = chat
@@ -132,8 +132,8 @@ export class LinoChatter extends Component {
     handleFocus(e) {
         //let chatids = this.state.chats.map(msg => msg[4])
         // console.log('handleFocus',this.state.NotSeenChats)
-        this.props.sendSeenAction(this.props.group_id,this.state.chats.filter(chat => chat[4] === null));
-        this.state.NotSeenChats = [];
+        this.props.sendSeenAction(this.props.group_id/*, this.state.chats.filter(chat => chat[3] === null)*/);
+        // this.state.NotSeenChats = [];
     }
 
     createChatArray(chatHTML) {
@@ -228,6 +228,7 @@ export class LinoChatter extends Component {
                             currentUserID = window.App.state.user_settings.user_id,
                             chatHTML = chat[1],
                             sentDateTime = chat[2],
+                            seenDateTime = chat[3],
                             chatPK = chat[4],
                             hash = chat[7];
 

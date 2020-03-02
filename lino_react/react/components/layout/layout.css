@@ -668,6 +668,9 @@ body .l-grid .p-datatable .p-paginator {
     right: 2ch;
     transform: translateY(-50%); }
 
+.no-ws {
+  color: grey !important; }
+
 .chatwindow-chats > .p-scrollpanel-content {
   display: flex;
   flex-direction: column;
