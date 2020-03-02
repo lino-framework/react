@@ -103,8 +103,8 @@ export class LinoChatter extends Component {
         console.log("got WS chat message", this, chat);
         this.setState(old => {
             let {chats} = old;
-            let update_index = chats.findIndex( c => c[7] === chat[7]); // find matching HASH
-            if (update_index >= 0){
+            let update_index = chats.findIndex(c => c[7] === chat[7]); // find matching HASH
+            if (update_index >= 0) {
                 chats = chats.slice();
                 chats[update_index] = chat
             } else {
@@ -153,14 +153,14 @@ export class LinoChatter extends Component {
             undefined,
             window.App.state.user_settings.user_id,
             this.props.group_id,
-            hashCode(chatHTML + date)+""]
+            hashCode(chatHTML + date) + ""]
     }
 
     onSubmit(messageHTML) {
         let chatMSG = this.createChatArray(messageHTML);
-        this.props.sendChat({'body': messageHTML,  'hash':chatMSG[7], 'group_id': this.props.group_id});
+        this.props.sendChat({'body': messageHTML, 'hash': chatMSG[7], 'group_id': this.props.group_id});
         this.setState((old) => (
-            {chats: [chatMSG].concat(old.chats)}
+                {chats: [chatMSG].concat(old.chats)}
             )
         );
     }
@@ -201,7 +201,7 @@ export class LinoChatter extends Component {
             }}>
                 <span className={"user"}>{userName}</span>
             </div>
-            <div className={classNames("message-wrapper", {"not-sent":chatPK === undefined})}
+            <div className={classNames("message-wrapper", {"not-sent": chatPK === undefined})}
                  style={{
                      display: "flex",
                      flexDirection: selfChat ? "row-reverse" : "row",
@@ -217,72 +217,70 @@ export class LinoChatter extends Component {
 
     render() {
         let actorID = "tickets/Tickets";
-        return <div className="scrollable sidebar" onMouseEnter={this.handleFocus}>
-            <div className="chatwindow" >
-                <ScrollPanel className={"chatwindow-chats"} style={{height: "302px"}}>
-                    {this.state.chats && mapReverse(this.state.chats, (chat) => {
+        return <div className="chatwindow" onMouseEnter={this.handleFocus}>
+            <ScrollPanel className={"chatwindow-chats"} style={{height: "302px"}}>
+                {this.state.chats && mapReverse(this.state.chats, (chat) => {
 
-                        // (cp.user.username, ar.parse_memo(cp.chat.body), cp.created, cp.seen, cp.chat.pk, cp.chat.user.id))
-                        let userName = chat[0],
-                            userID = chat[5],
-                            currentUserID = window.App.state.user_settings.user_id,
-                            chatHTML = chat[1],
-                            sentDateTime = chat[2],
-                            seenDateTime = chat[3],
-                            chatPK = chat[4],
-                            hash = chat[7];
+                    // (cp.user.username, ar.parse_memo(cp.chat.body), cp.created, cp.seen, cp.chat.pk, cp.chat.user.id))
+                    let userName = chat[0],
+                        userID = chat[5],
+                        currentUserID = window.App.state.user_settings.user_id,
+                        chatHTML = chat[1],
+                        sentDateTime = chat[2],
+                        seenDateTime = chat[3],
+                        chatPK = chat[4],
+                        hash = chat[7];
 
-                        return this.render_chat_message(userName, userID, currentUserID, sentDateTime, chatHTML, chatPK, hash)
-                    })}
-                    <div ref={(el) => this.chatBottom = el} style={{height: "1ch"}}/>
-                </ScrollPanel>
-                <Suggester getElement={() => this.editor}
-                           attachTo={() => this.editor && this.editor.editorElement}
-                           actorId={actorID}
-                           triggerKeys={window.App.state.site_data ? window.App.state.site_data.suggestors : ''}
-                           field="Field" // TODO @Hamza, this shold be the field_name of the model. IE:"body"
-                           id='ID' // TODO @Hamza, this should be the ID/PK for the row
-                           componentDidUpdate={(state) => {
-                               if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.includes("\n")) {
-                                   this.disableEnter();
-                               }
-                               else {
-                                   this.enableEnter();
-                               }
-                           }}
-                           optionSelected={({state, props, selected}) => {
-                               let text = /*state.triggeredKey + */selected[0] + " "; // if you add the trigger key use retain-1 and delete+1 to remove the existing triggerkey
-                               this.editor.quill.updateContents([
-                                       {retain: state.startPoint},
-                                       {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
-                                       {insert: text}
-                                   ].filter(action => action[Object.keys(action)[0]])
-                               );
-                               this.editor.quill.setSelection(state.startPoint + text.length);
-                               setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)
-                           }}
+                    return this.render_chat_message(userName, userID, currentUserID, sentDateTime, chatHTML, chatPK, hash)
+                })}
+                <div ref={(el) => this.chatBottom = el} style={{height: "1ch"}}/>
+            </ScrollPanel>
+            <Suggester getElement={() => this.editor}
+                       attachTo={() => this.editor && this.editor.editorElement}
+                       actorId={actorID}
+                       triggerKeys={window.App.state.site_data ? window.App.state.site_data.suggestors : ''}
+                       field="Field" // TODO @Hamza, this shold be the field_name of the model. IE:"body"
+                       id='ID' // TODO @Hamza, this should be the ID/PK for the row
+                       componentDidUpdate={(state) => {
+                           if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.includes("\n")) {
+                               this.disableEnter();
+                           }
+                           else {
+                               this.enableEnter();
+                           }
+                       }}
+                       optionSelected={({state, props, selected}) => {
+                           let text = /*state.triggeredKey + */selected[0] + " "; // if you add the trigger key use retain-1 and delete+1 to remove the existing triggerkey
+                           this.editor.quill.updateContents([
+                                   {retain: state.startPoint},
+                                   {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
+                                   {insert: text}
+                               ].filter(action => action[Object.keys(action)[0]])
+                           );
+                           this.editor.quill.setSelection(state.startPoint + text.length);
+                           setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)
+                       }}
+            >
+                <div ref={(el) => {
+                    this.div = el
+                }}
+                     onKeyDownCapture={(e) => {
+                         // console.log("onKeyPressCapture");
+                         if (e.key === "Enter") {
+                             // console.log("onKeyPressCapture ENTER");
+                             this.keyPress(e)
+                             e.preventDefault(); // Doesn't work!!
+                             e.stopPropagation(); // Doesn't work with quill!
+                         }
+                     }}
                 >
-                    <div ref={(el) => {
-                        this.div = el
-                    }}
-                         onKeyDownCapture={(e) => {
-                             // console.log("onKeyPressCapture");
-                             if (e.key === "Enter") {
-                                 // console.log("onKeyPressCapture ENTER");
-                                 this.keyPress(e)
-                                 e.preventDefault(); // Doesn't work!!
-                                 e.stopPropagation(); // Doesn't work with quill!
-                             }
-                         }}
-                    >
-                        <Editor style={{height: '100%', width: "281.7px"}}
-                                headerTemplate={this.header}
-                                placeholder={"Write to group..."}
-                                ref={e => this.editor = e}
-                                onTextChange={this.handleChange}/>
-                    </div>
-                </Suggester>
-            </div>
+                    <Editor style={{height: '100%', width: "281.7px"}}
+                            headerTemplate={this.header}
+                            placeholder={"Write to group..."}
+                            ref={e => this.editor = e}
+                            onTextChange={this.handleChange}/>
+                </div>
+            </Suggester>
         </div>
     }
 };

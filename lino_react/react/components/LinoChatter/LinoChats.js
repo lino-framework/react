@@ -125,10 +125,13 @@ export class LinoChats extends Component {
             {unseen && this.props.chatsUnseenBadgeMountPoint && ReactDOM.createPortal(<span
                 className="layout-topbar-badge">{unseen}</span>, this.props.chatsUnseenBadgeMountPoint)}
 
-            <Collapse accordion={false} className="conversation-panel-list">
-                {this.props.openedconversations && this.props.openedconversations.map((group_id) => {
+            {this.props.openedconversations.length && <Collapse accordion={false} className="conversation-panel-list">
+                {this.props.openedconversations.map((group_id) => {
                     let group = this.state.groups.find(g => g.id === group_id);
-                    return <Panel header={group.title} prefixCls='rc-collapse' isActive={true}
+                    return <Panel isActive={true}
+                                  header={group.title + (group.unseen ? " : " + group.unseen : "")}
+                                  prefixCls={'rc-collapse'}
+
                                   key={group_id}>
                         <LinoChatter
                             ref={(el) => window.App.setRpRef(el, "chat-" + group_id)}
@@ -140,7 +143,7 @@ export class LinoChats extends Component {
                             group_id={group_id}/>
                     </Panel>
                 })}
-            </Collapse>
+            </Collapse>}
         </React.Fragment>
     }
 };

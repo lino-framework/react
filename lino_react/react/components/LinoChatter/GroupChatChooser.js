@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 
+import {ScrollPanel} from 'primereact/scrollpanel';
+
 import './Messenger.css';
 import './ConversationList.css';
 import './ConversationListItem.css';
@@ -51,9 +53,9 @@ export class GroupChatChooser extends Component {
     render() {
         if (this.props.attachTo) {
             return ReactDOM.createPortal(<div className="messenger">
-                    <div className="scrollable sidebar">
+                    <ScrollPanel className={"chatwindow-chats"} style={{height: "302px"}}>
                         {this.render_conversation_list(this.props.groups, (group) => this.props.OpenConversation(group.id))}
-                    </div>
+                    </ScrollPanel>
                 </div>
                 , this.props.attachTo)
         }
