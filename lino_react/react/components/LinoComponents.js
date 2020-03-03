@@ -148,7 +148,7 @@ const LinoComponents = {
                         onClick={() => {
                             let status = {
                                 base_params: {
-                                    mk: props.mk, // No need to test for if-slave as it's a slave-summary
+                                    mk: props.pk, // No need to test for if-slave as it's a slave-summary
                                     mt: props.mt // We always know we need mk/mt be
                                 }
                             };
