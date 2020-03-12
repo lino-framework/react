@@ -148,7 +148,7 @@ const LinoComponents = {
                         onClick={() => {
                             let status = {
                                 base_params: {
-                                    mk: props.mk, // No need to test for if-slave as it's a slave-summary
+                                    mk: props.pk, // No need to test for if-slave as it's a slave-summary
                                     mt: props.mt // We always know we need mk/mt be
                                 }
                             };
@@ -660,7 +660,7 @@ const LinoComponents = {
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode && ! isDisabledField(props) ?
-                    <InputText style={{width: "100%"}} type="text" keyfilter="pint"
+                    <InputText style={{width: "100%"}} type="text" keyfilter={/[\d\-\./]/}
                         value={value || ""}
                         onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
                             props.elem,

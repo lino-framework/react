@@ -376,7 +376,8 @@ export class LinoDetail extends Component {
                     disabled_fields={this.state.disabled_fields}
                     update_value={this.update_value}
                     editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
-                    mk={this.props.pk}
+                    mk={this.props.mk}
+                    pk={this.props.pk}
                     mt={this.props.actorData.content_type}
                     match={this.props.match}
                     reload_timestamp={this.state.reload_timestamp}
