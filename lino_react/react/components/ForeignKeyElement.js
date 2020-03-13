@@ -79,8 +79,15 @@ export class ForeignKeyElement extends Component {
         let chooser_data = {},
             context_fields = actor_data.chooser_dict ? actor_data.chooser_dict[this.props.elem.name] : [];
         context_fields && context_fields.forEach((cf) => {
-            // todo have work with grid's array indexed data
-            chooser_data[cf] = data[cf + "Hidden"] === undefined ? data[cf] : data[cf + "Hidden"];
+            let col = actor_data.col.find(c => c.name === cf),
+                col_index,
+                cf_value;
+            if (col) col_index = col.fields_index_hidden || col.fields_index;
+
+            cf_value = data[cf + "Hidden"];
+            if (cf_value === undefined) cf_value = data[cf];
+            if (cf_value === undefined) cf_value = data[col_index];
+            chooser_data[cf] = cf_value;
         });
         Object.assign(ajaxQuery, chooser_data);
         if (mk !== undefined) {

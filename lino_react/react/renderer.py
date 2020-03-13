@@ -290,7 +290,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           react_name=v.__class__.__name__)  # Used for choosing correct react component
             if hasattr(v, "elements"): #dd
                 result['items'] = [ e for e in v.elements if  e.get_view_permission(get_user_profile()) ]
-            result.update(obj2dict(v, "fields_index editable vertical hpad is_fieldset name width preferred_width\
+            result.update(obj2dict(v, " fields_index fields_index_hidden editable vertical hpad is_fieldset name width preferred_width\
                                       hidden value hflex vflex"))
             # result["width"] = v.width or v.preferred_width
             # Slave tables
@@ -362,7 +362,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
                     if isinstance(c, ComboFieldElement) and not isinstance(c, SimpleRemoteComboFieldElement):
                         # Skip the data value for multi value columns, such as choices and FK fields.
                         # use c.fields_index -1 for data value
+                        c.fields_index_hidden = c.fields_index + 1
                         index_mod += 1
+
             result.update(obj2dict(v.get_handle().store, "pk_index"))  # Data index which is the PK
             result.update(obj2dict(v, "preview_limit "  # number of rows to render # if 0 no paginator.
                                       "use_detail_param_panel "  # show PV panel in detail

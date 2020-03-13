@@ -178,7 +178,7 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(event, cellProps) {
+    onSubmit(event, cellProps, bodyCell) {
         let {rowData, field, rowIndex} = cellProps;
         // check if new row
         // save row index
@@ -192,15 +192,8 @@ export class LinoGrid extends Component {
         }
 
         let tr = target,
-            td,
-            tdIndex;
-        while (tr.localName !== "tr" || tr === null) {
-            td = tr;
-            tr = tr.parentElement;
-        }
-        if (tr){
-            tdIndex = Array.prototype.indexOf.call(tr.children, td);
-        }
+            td = bodyCell.container,
+            tdIndex = Array.prototype.indexOf.call(td.parentElement.children, td);
 
         let submit = (openNextCell) => {
             window.App.runAction({
@@ -226,7 +219,7 @@ export class LinoGrid extends Component {
                                     //TODO open phantom row
                                     tr.nextSibling.children[tdIndex].click();
                                     // console.log("Try go find and start editing cell", target, tr)
-                                }, 10)
+                                }, 130)
                             }
                         }
                         else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
@@ -291,7 +284,7 @@ export class LinoGrid extends Component {
                         }
                     }
                     else {
-                        if (old.cols[field].col.react_name === 'BooleanFieldElement' ){
+                        if (cellProps.col.react_name === 'BooleanFieldElement' ){
                             // When we edit BooleanFieldElement field we change its value
                             rowData[field] = !rowData[field]
                         }

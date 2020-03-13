@@ -148,7 +148,7 @@ const LinoComponents = {
                         onClick={() => {
                             let status = {
                                 base_params: {
-                                    mk: props.pk, // No need to test for if-slave as it's a slave-summary
+                                    mk: props.mk, // No need to test for if-slave as it's a slave-summary
                                     mt: props.mt // We always know we need mk/mt be
                                 }
                             };
@@ -819,8 +819,8 @@ const LinoComponents = {
                 ref={window.App.setRpRef}
                 inDetail={true}
                 match={props.match} // todo
-                mk={props.mk}
-                mt={props.mt}
+                mk={props.pk} // pk, as this is a slave table, master key is the main's PK. older MKs don't matter.
+                mt={props.mt} // this might be wrong, if detail is a slave detail, mt will be the mt of the master.
                 parent_pv={props.parent_pv}// Correct: Should be content_type of the detail object, not of the grid actor
                 // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
                 actorId={actorId}
