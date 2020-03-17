@@ -1856,3 +1856,7 @@ h2 {
   margin-right: 0.3ch;
   margin-left: 0.3ch;
   margin-bottom: 0.5ch; }
+
+.p-datatable .p-datatable-tbody>tr>td.p-cell-editing .p-component {
+    width: 20px;
+}
