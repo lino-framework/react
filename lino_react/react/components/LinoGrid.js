@@ -53,7 +53,8 @@ export class LinoGrid extends Component {
             rows: [],
             toggle_col: false, // show multiselect elem for thing
             cols: undefined,
-            show_columns: search['show_columns'] ? search['show_columns'].split(",") : undefined,
+            //show_columns: search['show_columns'] ? search['show_columns'].split(",") : undefined,
+            show_columns: undefined,
             // for pager
             totalRecords: 0,
             rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
