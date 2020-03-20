@@ -4,7 +4,7 @@
 
 SETUP_INFO = dict(
     name='lino_react',
-    version='20.3.0',
+    version='20.3.1',
     install_requires=['lino'],
     tests_require=[],
     test_suite='tests',
