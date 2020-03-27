@@ -215,8 +215,8 @@ export class LinoGrid extends Component {
                         if (editingPK === null) {
                             rows.push(rows[rowIndex].slice()); // create copy phantom row
                             state.editingPK = undefined;
-                            if (openNextCell){
-                                this.editPhantomRowAgain = setTimeout( () => {
+                            if (openNextCell) {
+                                this.editPhantomRowAgain = setTimeout(() => {
                                     //TODO open phantom row
                                     tr.nextSibling.children[tdIndex].click();
                                     // console.log("Try go find and start editing cell", target, tr)
@@ -285,7 +285,7 @@ export class LinoGrid extends Component {
                         }
                     }
                     else {
-                        if (cellProps.col.react_name === 'BooleanFieldElement' ){
+                        if (cellProps.col.react_name === 'BooleanFieldElement') {
                             // When we edit BooleanFieldElement field we change its value
                             rowData[field] = !rowData[field]
                         }
@@ -648,7 +648,7 @@ export class LinoGrid extends Component {
             // );
 
             this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
-            this.update_url_values({'show_columns': this.state.show_columns.toString()} , this.props.match);
+            this.update_url_values({'show_columns': this.state.show_columns.toString()}, this.props.match);
             this.cols = this.cols.concat(
                 this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
