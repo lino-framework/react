@@ -370,7 +370,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
                                       "use_detail_param_panel "  # show PV panel in detail
                                       "use_detail_params_value "  # in grid, use parrent PV values
                                       "hide_top_toolbar "  # No selection and toolbar
-                                      "use_detail_params_value "))
+                                      "use_detail_params_value "
+                                      "react_responsive " 
+                                      "react_big_search "))
             # mt + slave-tables
 
             chooser_dict = getattr(v.model, "_choosers_dict", {})
