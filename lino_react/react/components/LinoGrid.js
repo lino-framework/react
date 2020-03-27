@@ -14,7 +14,7 @@ import {Dropdown} from 'primereact/dropdown';
 import {MultiSelect} from 'primereact/multiselect';
 import {Dialog} from 'primereact/dialog';
 
-import {debounce, pvObj2array, find_cellIndex} from "./LinoUtils";
+import {debounce, pvObj2array, isMobile, find_cellIndex} from "./LinoUtils";
 
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
@@ -698,14 +698,23 @@ export class LinoGrid extends Component {
     }
 
     renderHeader() {
+        let mobile = isMobile();
+        let {actorData}= this.props;
+        let quickFilter = (wide) => <InputText className="l-grid-quickfilter"
+                                               style={{
+                                                   width: wide ? "100%" : undefined,
+                                                   marginRight: wide ? "1ch" : undefined,
+                                                   marginLeft: wide ? "1ch" : undefined,
+                                               }}
+                                               placeholder="QuickSearch" /*value={this.state.query}*/
+                                               onChange={(e) => this.quickFilter(e.target.value)}/>;
+
         return <div className="p-clearfix p-grid"
             // style={{'lineHeight': '1.87em'}}
         >
             <div className={"p-col p-justify-end"} style={{"textAlign": "left"}}>
                 {!this.props.inDetail && <React.Fragment>
-                    <InputText className="l-grid-quickfilter"
-                               placeholder="QuickSearch" /*value={this.state.query}*/
-                               onChange={(e) => this.quickFilter(e.target.value)}/>
+                    {!actorData.react_big_search && quickFilter()}
 
                     {this.props.actorData.pv_layout && <React.Fragment>
                         <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
@@ -763,6 +772,7 @@ export class LinoGrid extends Component {
                           rp={this} an={'grid'}
                           runAction={this.runAction}/>
             </div>}
+            {!this.props.inDetail && actorData.react_big_search && quickFilter(true)}
         </div>
     }
 
@@ -802,7 +812,7 @@ export class LinoGrid extends Component {
         const {rows} = this.state;
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-
+        let {actorData} = this.props;
         const paginator = this.renderPaginator();
         const header = this.renderHeader();
 
@@ -812,7 +822,8 @@ export class LinoGrid extends Component {
                     reorderableColumns={true}
                     header={header}
                     footer={paginator}
-                    responsive={true}
+                    responsive={actorData.react_responsive
+                    }
                     resizableColumns={true}
                     value={rows} paginator={false}
                     // selectionMode="single"
