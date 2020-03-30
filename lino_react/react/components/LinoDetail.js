@@ -275,7 +275,7 @@ export class LinoDetail extends Component {
                 this.setState({editing_mode: true});
             }
         }
-        if (event.ctrlKey && event.key === "Insert") {
+        if (! event.ctrlKey && !event.altKey && event.key === "Insert") {
             event.preventDefault();
             window.App.runAction({
                 an: "insert",
