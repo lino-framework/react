@@ -717,6 +717,7 @@ const LinoComponents = {
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode  && ! isDisabledField(props) ?
                     <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
+                                inputStyle = {{width: "100%"}}
                               value={value}
                               appendTo={window.App.topDiv}
 
