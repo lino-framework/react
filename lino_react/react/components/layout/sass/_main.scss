@@ -750,6 +750,11 @@ body .layout-wrapper .layout-sidebar ul li.active-menuitem > ul {
     max-height: 200vh;
 }
 
+body .l-bbar > * {
+    margin-right: 2px;
+    margin-bottom: 1px;
+}
+
 body .l-grid .p-datatable {
     .p-datatable-thead > tr > th {
         //box-sizing: content-box;
@@ -792,8 +797,8 @@ body .l-grid .p-datatable {
         //z-index: -1;
 
         .p-button {
-            margin-right: 2px;
-            margin-bottom: 1px;
+            //margin-right: 2px;
+            //margin-bottom: 1px;
             // Possiblly make the action button smaller...
             //.p-button-text-only .p-button-text {
             //    padding: 0 1em;
@@ -816,7 +821,7 @@ body .l-grid .p-datatable {
 
 }
 
-.no-ws{
+.no-ws {
     color: grey !important;
 }
 
