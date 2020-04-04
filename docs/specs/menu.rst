@@ -717,7 +717,7 @@ Define a utility function:
                   "rp": null,
                   "status": {}
                 },
-                "text": "Contact Persons"
+                "text": "Contact persons"
               },
               {
                 "handler": {
