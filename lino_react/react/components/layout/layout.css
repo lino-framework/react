@@ -643,6 +643,10 @@ body table p {
 body .layout-wrapper .layout-sidebar ul li.active-menuitem > ul {
   max-height: 200vh; }
 
+body .l-bbar > * {
+  margin-right: 2px;
+  margin-bottom: 1px; }
+
 body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing {
   overflow: unset; }
   body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing .p-datepicker {
@@ -656,9 +660,6 @@ body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing {
 
 body .l-grid .p-datatable .p-datatable-header {
   padding: 0.15em 0.25em; }
-  body .l-grid .p-datatable .p-datatable-header .p-button {
-    margin-right: 2px;
-    margin-bottom: 1px; }
 
 body .l-grid .p-datatable .p-paginator {
   position: relative; }
@@ -1856,7 +1857,3 @@ h2 {
   margin-right: 0.3ch;
   margin-left: 0.3ch;
   margin-bottom: 0.5ch; }
-
-.p-datatable .p-datatable-tbody>tr>td.p-cell-editing .p-component {
-    width: 20px;
-}

@@ -339,9 +339,21 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           )
 
             # if v.action.show_in_bbar: result["bbar"] = True # not needed
-            if v.action.window_type: result["toolbarActions"] = [ba.action.action_name for ba in
-                                                                 v.actor.get_toolbar_actions(
-                                                                     v.action)]
+            if v.action.window_type:
+                tba = []
+                combo_group = None
+                for ba in v.actor.get_toolbar_actions(v.action):
+                    if ba.action.combo_group == combo_group and combo_group is not None:
+                        previous = tba.pop()
+                        if not isinstance(previous, list):
+                            previous = [previous]
+                        previous.append(ba.action.action_name)
+                        tba.append(previous)
+                    else: # is normal
+                        tba.append(ba.action.action_name)
+                        combo_group = ba.action.combo_group
+                result["toolbarActions"] = tba
+
 
             return result
         if isclass(v) and issubclass(v, Actor):
