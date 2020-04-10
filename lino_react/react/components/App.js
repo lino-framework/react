@@ -1000,7 +1000,7 @@ class App extends React.Component {
             if (this.state.dialogs) {
                 this.state.dialogs[this.state.dialogs.length - 1] && this.state.dialogs[this.state.dialogs.length - 1].onClose();
 
-                this.setState((old) => {
+                    this.setState((old) => {
                     old.dialogs.pop();  // remove last item, use shift for first
                     if (rp && rp.reload && old.dialogs.length === 0) rp.reload();
                     return {dialogs: [...old.dialogs]}
