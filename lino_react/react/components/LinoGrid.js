@@ -192,8 +192,7 @@ export class LinoGrid extends Component {
             return
         }
 
-        let tr = target,
-            td = bodyCell.container,
+        let td = bodyCell.container,
             tdIndex = Array.prototype.indexOf.call(td.parentElement.children, td);
 
         let submit = (openNextCell) => {
@@ -218,9 +217,9 @@ export class LinoGrid extends Component {
                             if (openNextCell) {
                                 this.editPhantomRowAgain = setTimeout(() => {
                                     //TODO open phantom row
-                                    tr.nextSibling.children[tdIndex].click();
+                                    td.parentElement.nextSibling.children[tdIndex].click();
                                     // console.log("Try go find and start editing cell", target, tr)
-                                }, 130)
+                                }, 200)
                             }
                         }
                         else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
@@ -261,10 +260,12 @@ export class LinoGrid extends Component {
         }
     }
 
-    onEditorOpen(cellProps) {
+    onEditorOpen(event, cellProps) {
         let {rowData, field} = cellProps;
         console.log("editor Open");
         let was_dirty = this.editorDirty;
+        let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
+
         setTimeout(() => { // delay as we should submit before clearing editing values.
                 this.editorDirty = false;
                 // console.log("editor Open timeout");
@@ -273,21 +274,34 @@ export class LinoGrid extends Component {
                 // console.log('field',field);
                 this.setState((old) => {
                     // console.log('old',old);
+                    let editingPK, editingValues = {};
+
                     if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
                         this.editorDirty = true; // we have old values so still dirty.
                         clearTimeout(this.phantomSubmit);
+                        if (boolField) {
+                            old.editingValues[field] = !old.editingValues[field];
+                        }
                         return {editingValues: Object.assign({}, {...old.editingValues})} // keep old editing values
                     }
                     else if (rowData[this.props.actorData.pk_index] === null) {
+                        if (boolField) {
+                            this.editorDirty = true;
+                            editingValues[field] = true
+                        }
                         return {
                             editingPK: null, // start editing a phantom with empty values not null values.
-                            editingValues: {}
+                            editingValues: editingValues
                         }
                     }
                     else {
-                        if (cellProps.col.react_name === 'BooleanFieldElement') {
+                        if (boolField) {
                             // When we edit BooleanFieldElement field we change its value
-                            rowData[field] = !rowData[field]
+                            this.editorDirty = true; // Make the editor dirty as we want to edit on first click
+                            return {
+                                editingPK: rowData[this.props.actorData.pk_index],
+                                editingValues: {[field]: !rowData[field]}
+                            }
                         }
                         return {
                             // editingCellIndex:cellIndex,
@@ -295,6 +309,7 @@ export class LinoGrid extends Component {
                             editingValues: Object.assign({}, {...rowData}) // made copy of all row data
                         }
                     }
+
                 })
             },
             5)
@@ -699,7 +714,7 @@ export class LinoGrid extends Component {
 
     renderHeader() {
         let mobile = isMobile();
-        let {actorData}= this.props;
+        let {actorData} = this.props;
         let quickFilter = (wide) => <InputText className="l-grid-quickfilter"
                                                style={{
                                                    width: wide ? "100%" : undefined,
