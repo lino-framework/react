@@ -44,7 +44,8 @@ class DataProvider extends Component {
         fetchPolyfill(this.props.endpoint + `?${queryString.stringify(query)}`)
             .then(response => {
                 if (response.status !== 200) {
-                    return this.setState({placeholder: "Something went wrong"});
+                    this.setState({placeholder: "Something went wrong"});
+                    return {status:response.status$} //
                 }
                 return response.json();
             })
