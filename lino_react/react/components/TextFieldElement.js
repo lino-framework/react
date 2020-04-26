@@ -36,6 +36,8 @@ class TextFieldElement extends React.Component {
         this.props_update_value = debounce(props.update_value, 150);
         this.disableEnter = this.disableEnter.bind(this);
         this.enableEnter = this.enableEnter.bind(this);
+        this.fixHeight = this.fixHeight.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
 
         if (DomHandler.getViewport().width <= 600) {
             this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
@@ -89,6 +91,22 @@ class TextFieldElement extends React.Component {
         }
     }
 
+    fixHeight() {
+        if (!this.wrapperdiv) {
+            return
+        }
+
+        let component = this.wrapperdiv.parentElement;
+        this.wrapperdiv.style["height"] = component.offsetHeight-10+"px";
+        this.wrapperdiv.style["padding-bottom"]=  "25px";
+    }
+
+    componentDidMount(props) {
+
+        setTimeout(() => {
+            this.fixHeight()
+        }, 50)
+    }
 
     render() {
         let {props} = this,
@@ -100,44 +118,46 @@ class TextFieldElement extends React.Component {
             };
 
         let elem = props.editing_mode ?
-            <div className={"l-editor-wrapper"}
-                 style={{"padding-bottom": "42px", "display": "flex", "height": "99%"}}>
+            <div style={{display:"relative", height: "100%",width: "100%"}}>
+                <div className={"l-editor-wrapper"}
+                     ref={(el) => this.wrapperdiv = el}
+                     style={{"display": "flex", "height": "99%"}}>
 
-                <Suggester getElement={() => this.editor}
-                           attachTo={() => this.editor && this.editor.editorElement}
-                           actorId={this.props.actorId}
-                           triggerKeys={window.App.state.site_data.suggestors}
-                           field={this.props.elem.name}
-                           id={this.props.id}
-                           componentDidUpdate={(state) => {
-                               if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.includes("\n") ) {
-                                   this.disableEnter();
-                               }
-                               else {
-                                   this.enableEnter();
-                               }
-                           }}
-                           optionSelected={({state, props, selected}) => {
-                               let text = /*state.triggeredKey + */selected[0] + " "; // if you add the trigger key use retain-1 and delete+1 to remove the existing triggerkey
-                               this.editor.quill.updateContents([
-                                       {retain: state.startPoint},
-                                       {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
-                                       {insert: text}
-                                   ].filter(action => action[Object.keys(action)[0]])
-                               );
-                               this.editor.quill.setSelection(state.startPoint + text.length);
-                               setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)
-                           }}
-                >
-                    <Editor //style={ {{/!*height: '100%'*!/}} }
-                        headerTemplate={this.renderHeader()}
-                        value={value}
-                        ref={e => this.editor = e}
-                        onTextChange={this.onTextChange}
-                        onTextChange={this.onTextChange}/>
-                </Suggester>
-            </div>
-            :
+                    <Suggester getElement={() => this.editor}
+                               attachTo={() => this.editor && this.editor.editorElement}
+                               actorId={this.props.actorId}
+                               triggerKeys={window.App.state.site_data.suggestors}
+                               field={this.props.elem.name}
+                               id={this.props.id}
+                               componentDidUpdate={(state) => {
+                                   if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.includes("\n")) {
+                                       this.disableEnter();
+                                   }
+                                   else {
+                                       this.enableEnter();
+                                   }
+                               }}
+                               optionSelected={({state, props, selected}) => {
+                                   let text = /*state.triggeredKey + */selected[0] + " "; // if you add the trigger key use retain-1 and delete+1 to remove the existing triggerkey
+                                   this.editor.quill.updateContents([
+                                           {retain: state.startPoint},
+                                           {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
+                                           {insert: text}
+                                       ].filter(action => action[Object.keys(action)[0]])
+                                   );
+                                   this.editor.quill.setSelection(state.startPoint + text.length);
+                                   setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)
+                               }}
+                    >
+                        <Editor //style={ {{/!*height: '100%'*!/}} }
+                            headerTemplate={this.renderHeader()}
+                            value={value}
+                            ref={e => this.editor = e}
+                            onTextChange={this.onTextChange}
+                            onTextChange={this.onTextChange}/>
+                    </Suggester>
+                </div>
+            </div> :
             <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
 
         if (props.in_grid) return elem; // No wrapping needed
