@@ -38,7 +38,7 @@ class TextFieldElement extends React.Component {
         this.enableEnter = this.enableEnter.bind(this);
         this.fixHeight = this.fixHeight.bind(this);
         this.componentDidMount = this.componentDidMount.bind(this);
-
+        this.componentDidUpdate = this.componentDidUpdate.bind(this);
         if (DomHandler.getViewport().width <= 600) {
             this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
                 <span className="ql-formats">
@@ -97,8 +97,8 @@ class TextFieldElement extends React.Component {
         }
 
         let component = this.wrapperdiv.parentElement;
-        this.wrapperdiv.style["height"] = component.offsetHeight-10+"px";
-        this.wrapperdiv.style["padding-bottom"]=  "25px";
+        this.wrapperdiv.style["height"] = component.offsetHeight - 10 + "px";
+        this.wrapperdiv.style["padding-bottom"] = "25px";
     }
 
     componentDidMount(props) {
@@ -106,6 +106,13 @@ class TextFieldElement extends React.Component {
         setTimeout(() => {
             this.fixHeight()
         }, 50)
+    }
+
+    componentDidUpdate(props, state) {
+        if (this.props.editing_mode !== props.editing_mode) {
+            this.fixHeight()
+        }
+
     }
 
     render() {
@@ -118,7 +125,7 @@ class TextFieldElement extends React.Component {
             };
 
         let elem = props.editing_mode ?
-            <div style={{display:"relative", height: "100%",width: "100%"}}>
+            <div style={{display: "relative", height: "100%", width: "100%"}}>
                 <div className={"l-editor-wrapper"}
                      ref={(el) => this.wrapperdiv = el}
                      style={{"display": "flex", "height": "99%"}}>
