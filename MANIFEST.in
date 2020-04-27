@@ -1,4 +1,11 @@
-# graft lino_react/react
-global-include *.py
+graft lino_react/react/
 prune docs
-# prune lino_react/projects
+
+prune lino_react/react/components
+prune lino_react/projects
+
+prune dist
+prune cypress
+prune tests
+prune node_modules
+#
