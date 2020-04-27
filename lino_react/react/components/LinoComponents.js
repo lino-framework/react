@@ -185,13 +185,13 @@ const LinoComponents = {
                 let options = siteData.choicelists[props.elem.field_options.store];
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
                 return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                    {props.editing_mode && ! isDisabledField(props) ?
+                    {props.editing_mode && !isDisabledField(props) ?
                         <div className="l-ChoiceListFieldElement"
                              style={{margin_top: "1px"}}>
                             <Dropdown
                                 // autoWidth={false}
                                 style={{width: "100%"}}
-                                optionLabel={"text"} 
+                                optionLabel={"text"}
                                 value={{text: value, value: hidden_value}}
                                 datakey={"value"}
                                 //Todo clear tied to props.elem.field_options.blank
@@ -236,39 +236,40 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props),
                 hidden_value = getHiddenValue(props);
-                let store = props.elem.field_options.store.map(x => ({'text': x[1],'value':x[0]}));;
-                return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                    {props.editing_mode && ! isDisabledField(props) ?
-                        <div className="l-ChoiceListFieldElement"
-                             style={{margin_top: "1px"}}>
-                            <Dropdown
-                                // autoWidth={false}
-                                style={{width: "100%"}}
-                                optionLabel={"text"} 
-                                value={{text: value, value: hidden_value}}
-                                datakey={"value"}
-                                //Todo clear tied to props.elem.field_options.blank
-                                showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
-                                options={store}
-                                container={props.container}
-                                appendTo={window.App.topDiv}
-                                onChange={(e) => {
-                                    // console.log(e);
-                                    let v = e.target.value === null ? "" : e.target.value['text'],
-                                        h = e.target.value === null ? "" : e.target.value['value'];
-                                    props.update_value({
-                                            [getDataKey(props)]: v,
-                                            [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
-                                        },
-                                        props.elem,
-                                        props.column)
-                                }}
-                                ref={el => this.dropDown = el}
-                                // placeholder={""}
-                            />
-                        </div> :
-                        <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
-                    }</Labeled>
+            let store = props.elem.field_options.store.map(x => ({'text': x[1], 'value': x[0]}));
+            ;
+            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+                {props.editing_mode && !isDisabledField(props) ?
+                    <div className="l-ChoiceListFieldElement"
+                         style={{margin_top: "1px"}}>
+                        <Dropdown
+                            // autoWidth={false}
+                            style={{width: "100%"}}
+                            optionLabel={"text"}
+                            value={{text: value, value: hidden_value}}
+                            datakey={"value"}
+                            //Todo clear tied to props.elem.field_options.blank
+                            showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
+                            options={store}
+                            container={props.container}
+                            appendTo={window.App.topDiv}
+                            onChange={(e) => {
+                                // console.log(e);
+                                let v = e.target.value === null ? "" : e.target.value['text'],
+                                    h = e.target.value === null ? "" : e.target.value['value'];
+                                props.update_value({
+                                        [getDataKey(props)]: v,
+                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                    },
+                                    props.elem,
+                                    props.column)
+                            }}
+                            ref={el => this.dropDown = el}
+                            // placeholder={""}
+                        />
+                    </div> :
+                    <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
+                }</Labeled>
         }
     },
 
@@ -287,7 +288,7 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -344,7 +345,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -376,7 +377,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                keyfilter={'num'} // allows . - \d
                                value={value || ""}
@@ -409,7 +410,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
 
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                keyfilter={'int'} // allows . - \d
                                value={value || ""}
@@ -436,7 +437,7 @@ const LinoComponents = {
             this.uppercaseTextField.inputEl.focus();
         }
 
-        toInputUppercase(event){
+        toInputUppercase(event) {
             event.target.value = ("" + event.target.value).toUpperCase();
         }
 
@@ -444,7 +445,7 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -472,11 +473,13 @@ const LinoComponents = {
             this.ibanEl.inputEl.focus();
         }
 
-        iban_renderer(event){
+        iban_renderer(event) {
             event.target.value = ("" + event.target.value).toUpperCase();
             let reg = new RegExp(".{4}", "g");
-            if(event.target.value) {
-                event.target.value = event.target.value.replace(reg, function (a) { return a + ' '; });
+            if (event.target.value) {
+                event.target.value = event.target.value.replace(reg, function (a) {
+                    return a + ' ';
+                });
             }
         }
 
@@ -484,7 +487,7 @@ const LinoComponents = {
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
                                onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -543,7 +546,7 @@ const LinoComponents = {
                 value = getValue(props);
             return <React.Fragment>
                 <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                    {props.editing_mode && ! isDisabledField(props) ?
+                    {props.editing_mode && !isDisabledField(props) ?
                         <InputText style={{width: "100%"}} type="text" keyfilter="pint"
                                    value={value || ""}
                                    onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
@@ -565,9 +568,12 @@ const LinoComponents = {
                      isFilled={true} // either 1 or 0, can't be unfilled
             >
                 <Checkbox readOnly={!props.editing_mode || isDisabledField(props)}
-                          onChange={(e) => props.update_value({[getDataKey(props)]: e.checked},
-                              props.elem,
-                              props.column)}
+                          onChange={(e) => {
+                              if (props.in_grid && e.originalEvent.key === "Enter") return // Don't change when pressing enter in grid, that is for navigation.
+                              props.update_value({[getDataKey(props)]: e.checked},
+                                  props.elem,
+                                  props.column)
+                          }}
                           checked={
                               (getValue(props))
                               || false}/>
@@ -601,7 +607,7 @@ const LinoComponents = {
          */
         parse_date(value) {
             let v = this.convertValueToDate(value);
-            if (v instanceof Date){
+            if (v instanceof Date) {
                 return v
             } else {
                 return new Date();
@@ -614,7 +620,7 @@ const LinoComponents = {
                 value = (getValue(props));
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <Calendar style={{width: "100%"}}
                               appendTo={window.App.topDiv}
 
@@ -659,14 +665,14 @@ const LinoComponents = {
                 value = (getValue(props));
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}} type="text" keyfilter={/[\d\-\./]/}
-                        value={value || ""}
-                        onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
-                            props.elem,
-                            props.column)}
-                        ref={(el) => this.input = el}
-                        />
+                               value={value || ""}
+                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+                                   props.elem,
+                                   props.column)}
+                               ref={(el) => this.input = el}
+                    />
                     : <div
                         dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                 }
@@ -715,9 +721,9 @@ const LinoComponents = {
                 viewDate = this.str2date(value) || new Date();
             // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode  && ! isDisabledField(props) ?
+                {props.editing_mode && !isDisabledField(props) ?
                     <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
-                                inputStyle = {{width: "100%"}}
+                              inputStyle={{width: "100%"}}
                               value={value}
                               appendTo={window.App.topDiv}
 
@@ -879,6 +885,7 @@ LinoComponents.ComplexRemoteComboFieldElement = LinoComponents.ForeignKeyElement
 LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 LinoComponents.GenericForeignKeyElement = LinoComponents.DisplayElement;
+
 class LinoLayout extends React.Component {
 
     static propTypes = {

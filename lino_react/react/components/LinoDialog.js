@@ -55,6 +55,7 @@ export class LinoDialog extends Component {
         super();
         this.state = {
             visible: true,
+            dialogMaximised: false,
             // data: Object.assign({}, props.data)
         };
 
@@ -132,6 +133,7 @@ export class LinoDialog extends Component {
                            maximizable={true}
                            onShow={() => this.ll && this.ll.focusFirst()}
                            ref={el => this.dialog = el}
+                           onToggleMaximize={(max) => this.setState({dialogMaximised:max})}
                            closable={this.props.closable}>
                 {this.props.content
                 ||
@@ -153,6 +155,7 @@ export class LinoDialog extends Component {
                             window_layout={ActorData.ba[this.props.action.an].window_layout}
                             ref={el => this.ll = el}
                             inDialog={true}
+                            dialogMaximised={this.state.dialogMaximised}
                 />
                 }
             </Dialog></div>
