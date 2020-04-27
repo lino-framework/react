@@ -5,16 +5,11 @@
 """Views for `lino_react.react`.
 """
 
-from __future__ import division
-from past.utils import old_div
-
-import logging
+# from __future__ import division
 
 from os import environ
 
 import ast
-
-logger = logging.getLogger(__name__)
 
 from django import http
 from django.db import models
@@ -336,82 +331,14 @@ class ApiList(View):
 
 
 # Should we Refactor into lino.modlib.extjs.choicees_views.py and import?
-#
-# choices_for_field is copied line-for-line from lino.modlib.extjs.views.choices_for_field
-def choices_for_field(ar, holder, field):
-    """
-    Return the choices for the given field and the given HTTP request
-    whose `holder` is either a Model, an Actor or an Action.
-    """
-    if not holder.get_view_permission(ar.request.user.user_type):
-        raise Exception(
-            "{user} has no permission for {holder}".format(
-                user=ar.request.user, holder=holder))
-    # model = holder.get_chooser_model()
-    chooser = holder.get_chooser_for_field(field.name)
-    # logger.info('20140822 choices_for_field(%s.%s) --> %s',
-    #             holder, field.name, chooser)
-    if chooser:
-        qs = chooser.get_request_choices(ar, holder)
-        if not isiterable(qs):
-            raise Exception("%s.%s_choices() returned non-iterable %r" % (
-                holder.model, field.name, qs))
-        if chooser.simple_values:
-            def row2dict(obj, d):
-                d[constants.CHOICES_TEXT_FIELD] = str(obj)
-                d[constants.CHOICES_VALUE_FIELD] = obj
-                return d
-        elif chooser.instance_values:
-            # same code as for ForeignKey
-            def row2dict(obj, d):
-                d[constants.CHOICES_TEXT_FIELD] = holder.get_choices_text(
-                    obj, ar.request, field)
-                d[constants.CHOICES_VALUE_FIELD] = obj.pk
-                return d
-        else:  # values are (value, text) tuples
-            def row2dict(obj, d):
-                d[constants.CHOICES_TEXT_FIELD] = str(obj[1])
-                d[constants.CHOICES_VALUE_FIELD] = obj[0]
-                return d
-        return (qs, row2dict)
+# choices_for_field is copied line-for-line from
+# lino.modlib.extjs.views.choices_for_field
 
-    if field.choices:
-        qs = field.choices
+# 20200425 I saw no difference in the two versions, and I added two lines to the
+# choices_for_field in extjs.  IMO we should import it here. And before moving extjs
+# out of Lino, move choices_for_field to another module, e.g. to lino.core.fields.
 
-        def row2dict(obj, d):
-            if type(obj) is list or type(obj) is tuple:
-                d[constants.CHOICES_TEXT_FIELD] = str(obj[1])
-                d[constants.CHOICES_VALUE_FIELD] = obj[0]
-            else:
-                d[constants.CHOICES_TEXT_FIELD] = holder.get_choices_text(
-                    obj, ar.request, field)
-                d[constants.CHOICES_VALUE_FIELD] = str(obj)
-            return d
-
-        return (qs, row2dict)
-
-    if isinstance(field, fields.VirtualField):
-        field = field.return_type
-
-    if isinstance(field, fields.RemoteField):
-        field = field.field
-
-    if isinstance(field, models.ForeignKey):
-        m = field.remote_field.model
-        t = m.get_default_table()
-        qs = t.request(request=ar.request).data_iterator
-
-        # logger.info('20120710 choices_view(FK) %s --> %s', t, qs.query)
-
-        def row2dict(obj, d):
-            d[constants.CHOICES_TEXT_FIELD] = holder.get_choices_text(
-                obj, ar.request, field)
-            d[constants.CHOICES_VALUE_FIELD] = obj.pk
-            return d
-    else:
-        raise http.Http404("No choices for %s" % field)
-    return (qs, row2dict)
-
+from lino.modlib.extjs.views import choices_for_field
 
 # choices_response is copied line-for-line from lino.modlib.extjs.views.choices_response
 def choices_response(actor, request, qs, row2dict, emptyValue):
