@@ -1,0 +1,18 @@
+.. _react.changes.2020:
+
+====
+2020
+====
+
+.. Note: Changes are grouped by date. Every new day gives a new
+   heading. If a release deserves separate release notes, we create a separate
+   document and this file will have a link to it.
+
+.. contents::
+  :local:
+
+2020-04-28
+==========
+
+Released version 20.4.28 to PyPI.  Trying to fix :ticket:`3613` (book failing on
+travis with "error: package directory 'lino_react/projects' does not exist").
