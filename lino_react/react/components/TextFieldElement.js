@@ -36,7 +36,7 @@ class TextFieldElement extends React.Component {
         this.props_update_value = debounce(props.update_value, 150);
         this.disableEnter = this.disableEnter.bind(this);
         this.enableEnter = this.enableEnter.bind(this);
-        this.fixHeight = this.fixHeight.bind(this);
+        this.fixHeight = debounce(this.fixHeight.bind(this), 50);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.componentDidUpdate = this.componentDidUpdate.bind(this);
         if (DomHandler.getViewport().width <= 600) {
@@ -95,24 +95,32 @@ class TextFieldElement extends React.Component {
         if (!this.wrapperdiv) {
             return
         }
+        this.wrapperdiv.style["height"] = "100%"; // resets height
 
-        let component = this.wrapperdiv.parentElement;
-        this.wrapperdiv.style["height"] = component.offsetHeight - 10 + "px";
-        this.wrapperdiv.style["padding-bottom"] = "25px";
+        this.fhTimeout = setTimeout(() => {
+                let component = this.wrapperdiv.parentElement;
+                this.wrapperdiv.style["height"] = component.offsetHeight - 10 + "px";
+                this.wrapperdiv.style["padding-bottom"] = "25px";
+            }
+            , 20);
     }
 
     componentDidMount(props) {
-
-        setTimeout(() => {
-            this.fixHeight()
-        }, 50)
+        this.fixHeight();
+        window.addEventListener('resize', this.fixHeight);
     }
 
     componentDidUpdate(props, state) {
-        if (this.props.editing_mode !== props.editing_mode) {
-            this.fixHeight()
+        if (this.props.editing_mode !== props.editing_mode
+            ||
+            this.props.dialogMaximised!== props.dialogMaximised) {
+            this.fixHeight();
         }
 
+    }
+
+    componentDidUnmount() {
+        window.removeEventListener('resize', this.fixHeight);
     }
 
     render() {
