@@ -546,7 +546,7 @@ export class LinoGrid extends Component {
         window.App.add_su(ajax_query);
         // console.log("table pre-GET", ajax_query, this.state);
 
-        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
+        fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then(
             (data) => {

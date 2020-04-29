@@ -47,6 +47,11 @@
     {% endfor -%}
 {%- endfor -%}
 
+
+<script type="application/javascript">
+    window.url_prefix = "{{ front_end.url_prefix }}/";
+</script>
+
 <script src="{{site.build_static_url('react/main.js')}}"></script>
 
 </html>

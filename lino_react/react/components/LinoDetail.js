@@ -114,7 +114,7 @@ export class LinoDetail extends Component {
             this.props.mt && (query.mt = this.props.mt);
             this.props.mk && (query.mk = this.props.mk);
         }
-        fetchPolyfill(`/api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify(query)}`).then(
+        fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}` + `/${this.props.pk}` + `?${queryString.stringify(query)}`).then(
             window.App.handleAjaxResponse
         ).then(
             this.consume_server_responce
@@ -253,7 +253,7 @@ export class LinoDetail extends Component {
         };
         window.App.add_su(ajaxQuery);
 
-        fetchPolyfill(`/choices/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajaxQuery)}`).then(
+        fetchPolyfill(`choices/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajaxQuery)}`).then(
             window.App.handleAjaxResponse
         ).then(
             (data => {

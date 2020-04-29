@@ -77,7 +77,7 @@ export class DashboardItems extends Component {
                     window.App.setRpRef(el, `dashboard-main`)
                 }}
                 key={`${P.user}-${S.stamp}`}
-                endpoint={"/api/main_html"}
+                endpoint={"api/main_html"}
                 useEverLoaded={true}
                 hideLoading={true}
                 post_data={this.onDataGet}
@@ -89,7 +89,7 @@ export class DashboardItems extends Component {
                     ref={(el) => {
                         window.App.setRpRef(el, `dashboard-${i}`)
                     }}
-                    endpoint={`/dashboard/${i}`}
+                    endpoint={`dashboard/${i}`}
                     post_data={this.onDataGet}
                     hideLoading={true}
                     render={this.renderDashboard(true, `dashboard-${i}`)}

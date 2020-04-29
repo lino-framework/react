@@ -340,6 +340,7 @@ class ApiList(View):
 
 from lino.modlib.extjs.views import choices_for_field
 
+
 # choices_response is copied line-for-line from lino.modlib.extjs.views.choices_response
 def choices_response(actor, request, qs, row2dict, emptyValue):
     """
@@ -783,8 +784,9 @@ class App(View):
                 # title=ar.get_title(),
                 # heading=ar.get_title(),
                 # main=main,
-                request = request,
-                user = user,  # Current user
+                front_end=ui,
+                request=request,
+                user=user,  # Current user
             )
             context.update(ar=ar)
 
@@ -811,6 +813,7 @@ class UserSettings(View):
         not_anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
 
         def getit():
+            print(20200419, settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()))
             if not settings.SITE.build_js_cache_on_startup:
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
             user_settings = dict(
@@ -835,12 +838,10 @@ class UserSettings(View):
                 user_settings["user_id"] = user_settings["su_id"] = su.id
                 user_settings["su_user_type"] = su.user_type
 
-
             if not_anon:
                 user_settings["authorities"] = u.get_authorities()
 
             return json_response(user_settings)
-
 
         return with_user_profile((su or u).user_type, getit)
 

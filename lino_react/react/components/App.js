@@ -115,7 +115,7 @@ class App extends React.Component {
         this.positionChatOp = this.positionChatOp.bind(this);
         this.chatwindow = React.createRef()
 
-        this.fetch_user_settings();
+        this.fetch_user_settings(undefined, true);
 
         this.onMainWindowUpdate = this.onMainWindowUpdate.bind(this);
 
@@ -162,7 +162,7 @@ class App extends React.Component {
         }
         else {
             // log_out logout
-            fetchPolyfill("/auth").then((req) => {
+            fetchPolyfill("auth").then((req) => {
                 this.webSocketBridge && this.webSocketBridge.close();
                 this.chatOp && this.chatOp.hide();
                 this.fetch_user_settings();
@@ -502,16 +502,18 @@ class App extends React.Component {
 
     }
 
-    fetch_user_settings = (su_id) => {
-        this.setState({ // clear current settings
-            // logging_in: false,/
-            su_id: undefined,
-            site_loaded: false,
-            site_data: null,
-            menu_data: null,
-            user_settings: null,
-        })
-        let url = "/user/settings/";
+    fetch_user_settings = (su_id, init) => {
+        if (!init){
+            this.setState({ // clear current settings
+                // logging_in: false,/
+                su_id: undefined,
+                site_loaded: false,
+                site_data: null,
+                menu_data: null,
+                user_settings: null,
+            });
+        }
+        let url = "user/settings/";
         if (su_id) url += `?su=${su_id}`;
 
         fetchPolyfill(url).then(
@@ -774,7 +776,7 @@ class App extends React.Component {
 
                 // /api/comments/CommentsByRFC/-99999?_dc=1548148980130&mt=31&mk=2542&an=insert&rp=ext-comp-1376&fmt=json
                 // gets default values for this insert
-                fetchPolyfill(`/api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then(
+                fetchPolyfill(`api/${actorId.replace(".", "/")}/-99999?${queryString.stringify(args)}`).then(
                     this.handleAjaxResponse).then(
                     (data) => {
                         // console.log(data);

@@ -67,7 +67,7 @@ export class LinoChatter extends Component {
             // count: 10,
         };
         window.App.add_su(query);
-        fetchPolyfill(`/api/chat/ChatGroup/` + `${this.props.group_id || "-99998"}` + `?${queryString.stringify(query)}`).then(
+        fetchPolyfill(`api/chat/ChatGroup/` + `${this.props.group_id || "-99998"}` + `?${queryString.stringify(query)}`).then(
             window.App.handleAjaxResponse
         ).then(this.consume_server_response
         ).catch(/*error => window.App.handleAjaxException(error)*/);

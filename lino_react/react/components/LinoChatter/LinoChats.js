@@ -66,7 +66,7 @@ export class LinoChats extends Component {
             // count: 10,
         };
         window.App.add_su(query);
-        fetchPolyfill(`/api/chat/ChatGroups/-99998` + `?${queryString.stringify(query)}`).then(
+        fetchPolyfill(`api/chat/ChatGroups/-99998` + `?${queryString.stringify(query)}`).then(
             window.App.handleAjaxResponse).then(response => {
             this.setState({groups: response.rows})
             this.props.onGetGroups(response.rows);
