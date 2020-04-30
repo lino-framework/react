@@ -45,15 +45,15 @@ The central project homepage is http://react.lino-framework.org/
 SETUP_INFO.update(packages=[str(n) for n in """
 lino_react
 lino_react.react
+lino_react.projects
+lino_react.projects.teamReact
+lino_react.projects.teamReact.settings
+lino_react.projects.teamReact.tests
+lino_react.projects.lydiaReact
+lino_react.projects.lydiaReact.settings
+lino_react.projects.lydiaReact.tests
 """.splitlines() if n])
 
-# lino_react.projects
-# lino_react.projects.teamReact
-# lino_react.projects.teamReact.settings
-# lino_react.projects.teamReact.tests
-# lino_react.projects.lydiaReact
-# lino_react.projects.lydiaReact.settings
-# lino_react.projects.lydiaReact.tests
 
 
 SETUP_INFO.update(
