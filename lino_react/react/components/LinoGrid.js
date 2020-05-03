@@ -834,36 +834,7 @@ export class LinoGrid extends Component {
     }
 
     renderDataTable() {
-        return <DataTable
-            reorderableColumns={true}
-            header={this.renderHeader()}
-            footer={this.renderPaginator()}
-            responsive={actorData.react_responsive
-            }
-            resizableColumns={true}
-            value={this.state.rows} paginator={false}
-            // selectionMode="single"
-            editable={true}
-            // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
-            selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
-
-            onSelectionChange={e => this.setState({selectedRows: e.value})}
-            onColReorder={e => this.onColReorder({event: e.columns})}
-            onRowSelect={this.onRowSelect}
-            selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
-            loading={this.state.loading}
-            emptyMessage={this.state.emptyMessage}
-            ref={(ref) => this.dataTable = ref}
-            onRowDoubleClick={this.onRowDoubleClick}
-            onSort={this.onSort}
-            // sortMode={"multiple"}
-            // multiSortMeta={multiSortMeta}
-            sortField={this.state.sortField + ""}
-            sortOrder={this.state.sortOrder}
-            lazy={true}
-        >
-            {this.get_cols()}
-        </DataTable>
+        return
     }
 
     itemTemplate(rowData) {
@@ -899,7 +870,42 @@ export class LinoGrid extends Component {
     render() {
         return <React.Fragment>
             <div className={"l-grid"}>
-                {this.props.layout === "table" ? this.renderDataTable() : this.renderDataView()}
+                {this.props.layout === "table" ? <DataTable
+                        reorderableColumns={true}
+                        header={this.renderHeader()}
+                        footer={this.renderPaginator()}
+                        responsive={actorData.react_responsive
+                        }
+                        resizableColumns={true}
+                        value={this.state.rows} paginator={false}
+                        // selectionMode="single"
+                        editable={true}
+                        // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
+                        selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
+
+                        onSelectionChange={e => this.setState({selectedRows: e.value})}
+                        onColReorder={e => this.onColReorder({event: e.columns})}
+                        onRowSelect={this.onRowSelect}
+                        selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
+                        loading={this.state.loading}
+                        emptyMessage={this.state.emptyMessage}
+                        ref={(ref) => this.dataTable = ref}
+                        onRowDoubleClick={this.onRowDoubleClick}
+                        onSort={this.onSort}
+                        // sortMode={"multiple"}
+                        // multiSortMeta={multiSortMeta}
+                        sortField={this.state.sortField + ""}
+                        sortOrder={this.state.sortOrder}
+                        lazy={true}
+                    >
+                        {this.get_cols()}
+                    </DataTable>
+                    :
+                    <DataView value={this.state.rows}
+                              header={this.renderHeader()}
+                              footer={this.renderPaginator()}
+                              layout={this.props.layout}
+                              itemTemplate={this.itemTemplate}/>}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
