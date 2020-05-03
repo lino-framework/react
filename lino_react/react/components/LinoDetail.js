@@ -364,8 +364,7 @@ export class LinoDetail extends Component {
 
 
                     <ProgressBar mode="indeterminate" className={this.state.loading ? "" : "lino-transparent"}
-                                 style={{height: '5px'}}></ProgressBar>
-
+                                 style={{height: '5px'}}/>
                 </Toolbar>
                 }
                 <LinoLayout

@@ -24,7 +24,9 @@ import {ForeignKeyElement} from "./ForeignKeyElement";
 
 // import InputTrigger from 'react-input-trigger';
 // import Suggester from "./Suggester";
-import TextFieldElement from "./TextFieldElement"
+import TextFieldElement from "./TextFieldElement";
+
+import CardViewElem from "./CardViewElem";
 
 export const Labeled = (props) => {
     return <React.Fragment>
@@ -885,6 +887,7 @@ LinoComponents.ComplexRemoteComboFieldElement = LinoComponents.ForeignKeyElement
 LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 LinoComponents.GenericForeignKeyElement = LinoComponents.DisplayElement;
+LinoComponents.CardViewElem = CardViewElem;
 
 class LinoLayout extends React.Component {
 

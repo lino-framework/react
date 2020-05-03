@@ -6,6 +6,7 @@ import key from "weak-key";
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 
 import {DataTable} from 'primereact/datatable';
+import {DataView, DataViewLayoutOptions} from 'primereact/dataview';
 import {Column} from 'primereact/column';
 import {Paginator} from 'primereact/paginator';
 import {Button} from 'primereact/button';
@@ -13,8 +14,10 @@ import {InputText} from 'primereact/inputtext';
 import {Dropdown} from 'primereact/dropdown';
 import {MultiSelect} from 'primereact/multiselect';
 import {Dialog} from 'primereact/dialog';
+import {Panel} from 'primereact/panel';
 
-import {debounce, pvObj2array, isMobile, find_cellIndex} from "./LinoUtils";
+
+import {debounce, pvObj2array, isMobile, find_cellIndex, gridList2Obj} from "./LinoUtils";
 
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
@@ -33,11 +36,16 @@ export class LinoGrid extends Component {
         reload_timestamp: PropTypes.int, // used to propogate a reload
         parent_pv: PropTypes.object,
 
+        layout: PropTypes.string, // "list", // or "grid" // "table"
+
         // todo: in_detail : PropTypes.bool
     };
 
     static defaultProps = {
         inDetail: false,
+        // layout: "grid", // "list", // or  // "table"
+        layout: "list",
+
     };
 
     get_full_id() {
@@ -111,7 +119,9 @@ export class LinoGrid extends Component {
         this.onEditorOpen = this.onEditorOpen.bind(this);
         this.onSort = this.onSort.bind(this);
         this.get_URL_PARAM_COLUMNS = this.get_URL_PARAM_COLUMNS.bind(this);
-
+        this.renderDataTable = this.renderDataTable.bind(this);
+        this.itemTemplate = this.itemTemplate.bind(this);
+        this.renderDataView = this.renderDataView.bind(this);
 
     }
 
@@ -823,48 +833,73 @@ export class LinoGrid extends Component {
         this.update_url_values({'show_columns': show_columns.toString()}, this.props.match);
     }
 
-    render() {
-        const {rows} = this.state;
-        // const Comp = "Table";
-        // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-        let {actorData} = this.props;
-        const paginator = this.renderPaginator();
-        const header = this.renderHeader();
+    renderDataTable() {
+        return <DataTable
+            reorderableColumns={true}
+            header={this.renderHeader()}
+            footer={this.renderPaginator()}
+            responsive={actorData.react_responsive
+            }
+            resizableColumns={true}
+            value={this.state.rows} paginator={false}
+            // selectionMode="single"
+            editable={true}
+            // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
+            selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
 
+            onSelectionChange={e => this.setState({selectedRows: e.value})}
+            onColReorder={e => this.onColReorder({event: e.columns})}
+            onRowSelect={this.onRowSelect}
+            selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
+            loading={this.state.loading}
+            emptyMessage={this.state.emptyMessage}
+            ref={(ref) => this.dataTable = ref}
+            onRowDoubleClick={this.onRowDoubleClick}
+            onSort={this.onSort}
+            // sortMode={"multiple"}
+            // multiSortMeta={multiSortMeta}
+            sortField={this.state.sortField + ""}
+            sortOrder={this.state.sortOrder}
+            lazy={true}
+        >
+            {this.get_cols()}
+        </DataTable>
+    }
+
+    itemTemplate(rowData) {
+        return <Panel header={rowData[this.props.actorData.pk_index]} col>
+            <LinoLayout
+                window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
+                data={gridList2Obj(this.props.actorData, rowData)}
+                actorId={this.get_full_id()}
+                actorData={this.props.actorData}
+                // disabled_fields={this.state.disabled_fields} // Todo
+                // update_value={this.update_value}
+                // editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
+
+                // update_value={this.update_pv_values} //  Todo
+                // in_grid={true} // false, true not working, due to fields_index being only set in cols.
+                editing_mode={false} // keep detail as editing mode only for now, untill beautifying things/}
+                pk={rowData[this.props.actorData.pk_index]}
+                mk={this.props.mk}
+                mt={this.props.actorData.content_type}
+                match={this.props.match}
+                reload_timestamp={this.state.reload_timestamp}
+                // title={this.state.title}
+                parent_pv={this.state.pv}
+            />
+        </Panel>
+    }
+
+    renderDataView() {
+        return
+    }
+
+
+    render() {
         return <React.Fragment>
             <div className={"l-grid"}>
-                <DataTable
-                    reorderableColumns={true}
-                    header={header}
-                    footer={paginator}
-                    responsive={actorData.react_responsive
-                    }
-                    resizableColumns={true}
-                    value={rows} paginator={false}
-                    // selectionMode="single"
-                    editable={true}
-                    // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
-                    selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
-
-                    onSelectionChange={e => this.setState({selectedRows: e.value})}
-                    onColReorder={e => this.onColReorder({event: e.columns})}
-                    onRowSelect={this.onRowSelect}
-                    selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
-                    loading={this.state.loading}
-                    emptyMessage={this.state.emptyMessage}
-                    ref={(ref) => this.dataTable = ref}
-                    onRowDoubleClick={this.onRowDoubleClick}
-                    onSort={this.onSort}
-                    // sortMode={"multiple"}
-                    // multiSortMeta={multiSortMeta}
-                    sortField={this.state.sortField + ""}
-                    sortOrder={this.state.sortOrder}
-                    lazy={true}
-
-                >
-
-                    {this.get_cols()}
-                </DataTable>
+                {this.props.layout === "table" ? this.renderDataTable() : this.renderDataView()}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
@@ -885,7 +920,7 @@ export class LinoGrid extends Component {
                     actorId={this.get_full_id()}
                     update_value={this.update_pv_values}
                     editing_mode={true}
-                    mk={this.props.mt}
+                    mk={this.props.mk}
                     mt={this.props.actorData.content_type}
                     match={this.props.match}
                 />}

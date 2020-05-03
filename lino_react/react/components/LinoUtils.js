@@ -1,4 +1,3 @@
-
 // simple test to check if running on a mobile or not.
 export function isMobile() {
     return window.matchMedia("only screen and (max-width: 760px)").matches;
@@ -42,6 +41,19 @@ export function pvObj2array(obj, pv_fields) {
         if (value === undefined) value = null;
         return value
     })
+}
+
+export function gridList2Obj(actorData, list) {
+    let {col} = actorData,
+        data = {};
+    col.forEach(c => {
+        data[c.name] = list[c.fields_index];
+        if (c.fields_index_hidden) // will never be 0, as if first col, hidden will be 1,
+        {
+        data[c.name+"Hidden"] = list[c.fields_index_hidden]
+        }
+    })
+    return data
 }
 
 

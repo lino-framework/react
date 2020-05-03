@@ -119,7 +119,7 @@ class TextFieldElement extends React.Component {
 
     }
 
-    componentDidUnmount() {
+    componentWillUnmount() {
         window.removeEventListener('resize', this.fixHeight);
     }
 
