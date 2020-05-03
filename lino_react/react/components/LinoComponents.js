@@ -16,7 +16,7 @@ import DomHandler from "primereact/domhandler";
 import {FileUpload} from "primereact/fileupload"
 
 import {LinoGrid} from "./LinoGrid";
-import {debounce} from "./LinoUtils";
+import {debounce, deepCompare} from "./LinoUtils";
 import {SiteContext, ActorData, ActorContext} from "./SiteContext"
 
 import classNames from 'classnames';
@@ -25,8 +25,6 @@ import {ForeignKeyElement} from "./ForeignKeyElement";
 // import InputTrigger from 'react-input-trigger';
 // import Suggester from "./Suggester";
 import TextFieldElement from "./TextFieldElement";
-
-import CardViewElem from "./CardViewElem";
 
 export const Labeled = (props) => {
     return <React.Fragment>
@@ -63,7 +61,7 @@ export function shouldComponentUpdate(nextProps, nextState) { // requred for gri
     let {props} = this,
         value = getValue(props),
         next_value = getValue(nextProps);
-    if (!props.in_grid) return true;
+    // if (!props.in_grid) return true;
     if (nextState && //  for func components nestState === null
         nextState.value !== this.state.value) return true;
     return value !== next_value || props.editing_mode !== nextProps.editing_mode
@@ -77,7 +75,7 @@ const LinoComponents = {
     TabPanel: (props) => (
         <TabView className={classNames("lino-panel")}>
             {React.Children.map(props.children, (panel, i) => {
-                    return <TabPanel header={panel.props.elem.label} contentClassName={"lino-panel"}>
+                    return <TabPanel key={i} header={panel.props.elem.label} contentClassName={"lino-panel"}>
                         {panel}
                     </TabPanel>
                 }
@@ -95,7 +93,7 @@ const LinoComponents = {
                 // style.width = props.elem.width + "ch"
                 style.flex = `1 1 ${child.props.elem.value.flex}%`;
             }
-            return <div style={style} className={classNames("l-component")}>
+            return <div style={style} key={i} className={classNames("l-component")}>
                 {child}
             </div>
 
@@ -886,10 +884,11 @@ LinoComponents.DetailMainPanel = LinoComponents.Panel;
 LinoComponents.ComplexRemoteComboFieldElement = LinoComponents.ForeignKeyElement;
 LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto doesn't work as you need . or :
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
+LinoComponents.DateTimeFieldElement = LinoComponents.DisplayElement;
 LinoComponents.GenericForeignKeyElement = LinoComponents.DisplayElement;
-LinoComponents.CardViewElem = CardViewElem;
+// LinoComponents.CardViewElem = CardViewElem;
 
-class LinoLayout extends React.Component {
+class LinoLayout extends React.PureComponent{
 
     static propTypes = {
         window_layout: PropTypes.object,
@@ -915,8 +914,11 @@ class LinoLayout extends React.Component {
             elem: elem,
             linoLayout: this
         })
-
     }
+
+    // shouldComponentUpdate(nextProps, nextState){
+    //     return deepCompare(nextProps, this.props)
+    // }
 
     focusFirst() {
         setTimeout(() => {

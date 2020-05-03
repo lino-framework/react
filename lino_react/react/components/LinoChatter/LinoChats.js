@@ -117,7 +117,7 @@ export class LinoChats extends Component {
 
     render() {
         let unseen = this.getUnseenCount();
-        console.log("this.props.groupChatChooserMountPoint", this.props.groupChatChooserMountPoint);
+        // console.log("this.props.groupChatChooserMountPoint", this.props.groupChatChooserMountPoint);
         return <React.Fragment>
             {this.props.groupChatChooserMountPoint &&
             <GroupChatChooser OpenConversation={this.props.OpenConversation} groups={this.state.groups}

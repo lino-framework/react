@@ -15,6 +15,7 @@ import {Dropdown} from 'primereact/dropdown';
 import {MultiSelect} from 'primereact/multiselect';
 import {Dialog} from 'primereact/dialog';
 import {Panel} from 'primereact/panel';
+import {ProgressBar} from 'primereact/progressbar';
 
 
 import {debounce, pvObj2array, isMobile, find_cellIndex, gridList2Obj} from "./LinoUtils";
@@ -36,15 +37,14 @@ export class LinoGrid extends Component {
         reload_timestamp: PropTypes.int, // used to propogate a reload
         parent_pv: PropTypes.object,
 
-        layout: PropTypes.string, // "list", // or "grid" // "table"
+        display_mode: PropTypes.string, // "list", // or "grid" // "table"
 
         // todo: in_detail : PropTypes.bool
     };
 
     static defaultProps = {
         inDetail: false,
-        // layout: "grid", // "list", // or  // "table"
-        layout: "list",
+        // display_mode:"grid", // "list", // or  // "cards"
 
     };
 
@@ -79,6 +79,8 @@ export class LinoGrid extends Component {
             editingCellIndex: undefined,
             editingPK: undefined,
             editingValues: {},
+
+            display_mode: this.props.display_mode || props.actorData && props.actorData.display_mode || "grid",
 
             sortField: undefined, // Sort data index   (used in PR)
             sortFieldName: undefined, // Sort col.name (used in Lino)
@@ -119,9 +121,9 @@ export class LinoGrid extends Component {
         this.onEditorOpen = this.onEditorOpen.bind(this);
         this.onSort = this.onSort.bind(this);
         this.get_URL_PARAM_COLUMNS = this.get_URL_PARAM_COLUMNS.bind(this);
-        this.renderDataTable = this.renderDataTable.bind(this);
+        // this.renderDataTable = this.renderDataTable.bind(this);
         this.itemTemplate = this.itemTemplate.bind(this);
-        this.renderDataView = this.renderDataView.bind(this);
+        // this.renderDataView = this.renderDataView.bind(this);
 
     }
 
@@ -148,7 +150,7 @@ export class LinoGrid extends Component {
                 in_grid: true,
                 column: column,
                 match: this.props.match,
-                container: this.dataTable.table,
+                container: this.dataTable && this.dataTable.table,
                 mk: this.props.mk,
                 mt: this.props.mt,
             };
@@ -173,7 +175,7 @@ export class LinoGrid extends Component {
                 update_value: this.update_col_value,
                 hide_label: true,
                 in_grid: true,
-                container: this.dataTable.table,
+                container: this.dataTable && this.dataTable.table,
                 column: column,
                 editing_mode: true,
                 match: this.props.match,
@@ -581,6 +583,7 @@ export class LinoGrid extends Component {
                     let state = {
                         data: data,
                         rows: rows,
+                        objRows: rows.map(r => gridList2Obj(this.props.actorData, r)),
                         totalRecords: data.count,
                         topRow: (page) * this.state.rowsPerPage,
                         loading: false,
@@ -788,7 +791,13 @@ export class LinoGrid extends Component {
             <div className={"p-col p-justify-end"}>{this.props.inDetail &&
             <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                     icon="pi pi-external-link"
-                    style={{'float': 'right'}}/>}</div>
+                    style={{'unused_float': 'right'}}/>}
+                <DataViewLayoutOptions
+                    layoutChoices={["grid", "list", "cards"]}
+                    layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
+                    onChange={e => this.setState({display_mode: e.value})}
+                    layout={this.state.display_mode}
+                /></div>
             {!this.props.inDetail && !this.props.actorData.hide_top_toolbar &&
             <div className={"p-col-12"} style={{"textAlign": "left"}}>
 
@@ -796,8 +805,11 @@ export class LinoGrid extends Component {
                           srMap={(row) => row[this.props.actorData.pk_index]}
                           rp={this} an={'grid'}
                           runAction={this.runAction}/>
+
             </div>}
             {!this.props.inDetail && actorData.react_big_search && quickFilter(true)}
+            <ProgressBar mode="indeterminate" className={this.state.loading ? "" : "lino-transparent"}
+                         style={{height: '5px'}}/>
         </div>
     }
 
@@ -833,15 +845,12 @@ export class LinoGrid extends Component {
         this.update_url_values({'show_columns': show_columns.toString()}, this.props.match);
     }
 
-    renderDataTable() {
-        return
-    }
 
     itemTemplate(rowData) {
         return <Panel header={rowData[this.props.actorData.pk_index]} col>
             <LinoLayout
                 window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
-                data={gridList2Obj(this.props.actorData, rowData)}
+                data={rowData}
                 actorId={this.get_full_id()}
                 actorData={this.props.actorData}
                 // disabled_fields={this.state.disabled_fields} // Todo
@@ -862,19 +871,18 @@ export class LinoGrid extends Component {
         </Panel>
     }
 
-    renderDataView() {
-        return
-    }
-
 
     render() {
+        const header = this.renderHeader(),
+            footer = this.renderPaginator();
+
         return <React.Fragment>
             <div className={"l-grid"}>
-                {this.props.layout === "table" ? <DataTable
+                {this.state.display_mode === "grid" ? <DataTable
                         reorderableColumns={true}
-                        header={this.renderHeader()}
-                        footer={this.renderPaginator()}
-                        responsive={actorData.react_responsive
+                        header={header}
+                        footer={footer}
+                        responsive={this.props.actorData.react_responsive
                         }
                         resizableColumns={true}
                         value={this.state.rows} paginator={false}
@@ -892,7 +900,7 @@ export class LinoGrid extends Component {
                         ref={(ref) => this.dataTable = ref}
                         onRowDoubleClick={this.onRowDoubleClick}
                         onSort={this.onSort}
-                        // sortMode={"multiple"}
+                        // sortMode={"multiple"} No editable yet
                         // multiSortMeta={multiSortMeta}
                         sortField={this.state.sortField + ""}
                         sortOrder={this.state.sortOrder}
@@ -901,11 +909,14 @@ export class LinoGrid extends Component {
                         {this.get_cols()}
                     </DataTable>
                     :
-                    <DataView value={this.state.rows}
-                              header={this.renderHeader()}
-                              footer={this.renderPaginator()}
-                              layout={this.props.layout}
-                              itemTemplate={this.itemTemplate}/>}
+                    <DataView value={this.state.objRows}
+                              header={header}
+                              footer={footer}
+                              layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
+                              itemTemplate={this.itemTemplate}
+                              itemKey={(data, index) => (this.state.rows[index][this.props.actorData.pk_index])}
+
+                    />}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
