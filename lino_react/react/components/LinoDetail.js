@@ -74,7 +74,7 @@ export class LinoDetail extends Component {
     update_value(values) {
         // console.log(arguments);
         this.setState((prevState) => (
-                {data: Object.assign(prevState.data, {...values})}
+                {data: Object.assign({}, prevState.data, {...values})}
             )
         ) // copy and replace values
     }

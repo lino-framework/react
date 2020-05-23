@@ -244,14 +244,28 @@ class ApiList(View):
             return settings.SITE.kernel.run_action(ar)
 
         if fmt == constants.URL_FORMAT_JSON:
-            rows = [rh.store.row2list(ar, row)
+
+            window_type = request.GET.get(constants.URL_PARAM_WINDOW_TYPE, "g")
+            def serialize(ar, row):
+                """Use window_type to determin which serizlisation store metod and fields to use"""
+                if window_type == "g":
+                    return rh.store.row2list(ar, row)
+                else:
+                    return rh.store.row2dict(ar, row,
+                                      fields=rh.store.card_fields if window_type == "c" else rh.store.detail_fields,
+                                    card_title=ar.get_card_title(row)
+                                      )
+
+            rows = [serialize(ar, row)
                     for row in ar.sliced_data_iterator]
+
             total_count = ar.get_total_count()
-            for row in ar.create_phantom_rows():
-                if ar.limit is None or len(rows) + 1 < ar.limit or ar.limit == total_count + 1:
-                    d = rh.store.row2list(ar, row)
-                    rows.append(d)
-                total_count += 1
+            if window_type == "g":
+                for row in ar.create_phantom_rows():
+                    if ar.limit is None or len(rows) + 1 < ar.limit or ar.limit == total_count + 1:
+                        d = serialize(ar, row)
+                        rows.append(d)
+                    total_count += 1
             # assert len(rows) <= ar.limit
             kw = dict(count=total_count,
                       rows=rows,
@@ -264,68 +278,6 @@ class ApiList(View):
                     param_values=ar.actor.params_layout.params_store.pv2dict(
                         ar, ar.param_values))
             return json_response(kw)
-
-        if fmt == constants.URL_FORMAT_HTML:
-            after_show = ar.get_status()
-
-            sp = request.GET.get(
-                constants.URL_PARAM_SHOW_PARAMS_PANEL, None)
-            if sp is not None:
-                # ~ after_show.update(show_params_panel=sp)
-                after_show.update(
-                    show_params_panel=constants.parse_boolean(sp))
-
-            # if isinstance(ar.bound_action.action, actions.ShowInsert):
-            #     elem = ar.create_instance()
-            #     rec = ar.elem2rec_insert(rh, elem)
-            #     after_show.update(data_record=rec)
-
-            kw = dict(on_ready=
-            ar.renderer.action_call(
-                ar.request,
-                ar.bound_action, after_show))
-            # ~ print '20110714 on_ready', params
-            kw.update(title=ar.get_title())
-            return http.HttpResponse(ar.renderer.html_page(request, **kw))
-
-        if fmt == 'csv':
-            # ~ response = HttpResponse(mimetype='text/csv')
-            charset = settings.SITE.csv_params.get('encoding', 'utf-8')
-            response = http.HttpResponse(
-                content_type='text/csv;charset="%s"' % charset)
-            if False:
-                response['Content-Disposition'] = \
-                    'attachment; filename="%s.csv"' % ar.actor
-            else:
-                # ~ response = HttpResponse(content_type='application/csv')
-                response['Content-Disposition'] = \
-                    'inline; filename="%s.csv"' % ar.actor
-
-            # ~ response['Content-Disposition'] = 'attachment; filename=%s.csv' % ar.get_base_filename()
-            w = ucsv.UnicodeWriter(response, **settings.SITE.csv_params)
-            w.writerow(ar.ah.store.column_names())
-            if True:  # 20130418 : also column headers, not only internal names
-                column_names = None
-                fields, headers, cellwidths = ar.get_field_info(column_names)
-                w.writerow(headers)
-
-            for row in ar.data_iterator:
-                w.writerow([str(v) for v in rh.store.row2list(ar, row)])
-            return response
-
-        if fmt == constants.URL_FORMAT_PRINTER:
-            if ar.get_total_count() > MAX_ROW_COUNT:
-                raise Exception(_("List contains more than %d rows") %
-                                MAX_ROW_COUNT)
-            response = http.HttpResponse(
-                content_type='text/html;charset="utf-8"')
-            doc = xghtml.Document(force_text(ar.get_title()))
-            doc.body.append(E.h1(doc.title))
-            t = doc.add_table()
-            # ~ settings.SITE.kernel.ar2html(ar,t,ar.data_iterator)
-            ar.dump2html(t, ar.data_iterator, header_links=False)
-            doc.write(response, encoding='utf-8')
-            return response
 
         return settings.SITE.kernel.run_action(ar)
 

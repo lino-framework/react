@@ -1265,10 +1265,12 @@ class App extends React.Component {
                                             router={this.router}
                                             update_value={(values, id) => {
                                                 this.setState(previous => {
-                                                    const dia = previous.dialogs.find(e => key(e) === id),
-
-                                                        dialogs = [...previous.dialogs];
-                                                    Object.assign(dia.data, values);
+                                                    // Update the data dict with new values, recreate diag list.
+                                                    // Don't remake the dialog object as that'll remount it
+                                                    const diaIndex = previous.dialogs.findIndex(e => key(e) === id),
+                                                        dia = previous.dialogs[diaIndex];
+                                                    dia.data = Object.assign({}, dia.data, values);
+                                                    let dialogs = [...previous.dialogs];
                                                     return {dialogs: dialogs}
                                                 })
                                             }}

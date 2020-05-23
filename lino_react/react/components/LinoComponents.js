@@ -821,19 +821,24 @@ const LinoComponents = {
         let [packId, actorId] = props.elem.actor_id.split("."); // "contacts.RolesByPerson"
 
         return <ActorData key={props.elem.actor_id} actorId={props.elem.actor_id}>
-            <ActorContext.Consumer>{(actorData) => (<LinoGrid
-                reload_timestamp={props.reload_timestamp}
-                ref={window.App.setRpRef}
-                inDetail={true}
-                match={props.match} // todo
-                mk={props.pk} // pk, as this is a slave table, master key is the main's PK. older MKs don't matter.
-                mt={props.mt} // this might be wrong, if detail is a slave detail, mt will be the mt of the master.
-                parent_pv={props.parent_pv}// Correct: Should be content_type of the detail object, not of the grid actor
-                // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
-                actorId={actorId}
-                packId={packId}
-                actorData={actorData}
-            />)}</ActorContext.Consumer></ActorData>
+            <ActorContext.Consumer>{(actorData) => (
+                actorData.max_render_depth > props.depth ?
+                    <LinoGrid
+                        depth={props.depth}
+                        reload_timestamp={props.reload_timestamp}
+                        ref={window.App.setRpRef}
+                        inDetail={true}
+                        match={props.match} // todo
+                        mk={props.pk} // pk, as this is a slave table, master key is the main's PK. older MKs don't matter.
+                        mt={props.mt} // this might be wrong, if detail is a slave detail, mt will be the mt of the master.
+                        parent_pv={props.parent_pv}// Correct: Should be content_type of the detail object, not of the grid actor
+                        // mt={siteData.actors[props.elem.actor_id].content_type} // Wrong:
+                        actorId={actorId}
+                        packId={packId}
+                        actorData={actorData}
+                    />
+                    :
+                    <p> Rendering blocked </p>)}</ActorContext.Consumer></ActorData>
 
 
     },
@@ -886,15 +891,22 @@ LinoComponents.QuantityFieldElement = LinoComponents.CharFieldElement; //Auto do
 LinoComponents.HtmlBoxElement = LinoComponents.DisplayElement;
 LinoComponents.DateTimeFieldElement = LinoComponents.DisplayElement;
 LinoComponents.GenericForeignKeyElement = LinoComponents.DisplayElement;
+
 // LinoComponents.CardViewElem = CardViewElem;
 
-class LinoLayout extends React.PureComponent{
+class LinoLayout extends React.PureComponent {
 
     static propTypes = {
         window_layout: PropTypes.object,
+
         parent_pv: PropTypes.object, // used in cal
         action_dialog: PropTypes.bool, // changes the API call for getting choices.
+        depth: PropTypes.int,
 
+    };
+
+    static defaultProps = {
+        depth: 0,
     };
 
     constructor() {

@@ -36,6 +36,7 @@ export class LinoGrid extends Component {
         mk: PropTypes.string, // we want to allow str / slug pks
         reload_timestamp: PropTypes.int, // used to propogate a reload
         parent_pv: PropTypes.object,
+        depth: PropTypes.int,
 
         display_mode: PropTypes.string, // "list", // or "grid" // "table"
 
@@ -44,6 +45,7 @@ export class LinoGrid extends Component {
 
     static defaultProps = {
         inDetail: false,
+        depth: 0
         // display_mode:"grid", // "list", // or  // "cards"
 
     };
@@ -343,7 +345,7 @@ export class LinoGrid extends Component {
             if (old.editingPK === null &&
                 col.rowData[this.props.actorData.pk_index] === old.editingPK) {
                 return {
-                    editingValues: Object.assign({...this.state.editingValues}, {...v})
+                    editingValues: Object.assign({}, {...this.state.editingValues}, {...v})
                 }
             }
 
@@ -471,7 +473,7 @@ export class LinoGrid extends Component {
 
     update_url_values(vals, router) {
         let search = queryString.parse(router.history.location.search);
-        Object.assign(search, {...vals});
+        Object.assign({}, search, {...vals});
         router.history.replace({search: queryString.stringify(search)});
     }
 
@@ -500,7 +502,8 @@ export class LinoGrid extends Component {
             limit: this.state.rowsPerPage,
             start: page * this.state.rowsPerPage, // Needed due to race condition when setting-state
             query: query !== undefined ? query : this.state.query, // use given query or state-query
-            rp: this.rp
+            rp: this.rp,
+            wt: this.state.display_mode === "grid" ? "g" : "c"
         };
 
         if (sortCol !== undefined) {
@@ -583,7 +586,7 @@ export class LinoGrid extends Component {
                     let state = {
                         data: data,
                         rows: rows,
-                        objRows: rows.map(r => gridList2Obj(this.props.actorData, r)),
+                        // objRows: rows.map(r => gridList2Obj(this.props.actorData, r)),
                         totalRecords: data.count,
                         topRow: (page) * this.state.rowsPerPage,
                         loading: false,
@@ -644,7 +647,7 @@ export class LinoGrid extends Component {
         // console.log(v);
         this.setState((prevState) => {
             let old_pv_values = pvObj2array(prevState.pv_values, this.props.actorData.pv_fields);
-            let updated_pv = Object.assign(prevState.pv_values, {...values});
+            let updated_pv = Object.assign({}, prevState.pv_values, {...values});
             let updated_array_pv = pvObj2array(updated_pv, this.props.actorData.pv_fields);
 
             if (queryString.stringify(old_pv_values) !== queryString.stringify(updated_array_pv)) {
@@ -706,7 +709,7 @@ export class LinoGrid extends Component {
                             // validaterEvent={"blur"}
                                 isDisabled={
                                     (props) => (props.rowData[props.rowData.length - 1] ||
-                                        (props.rowData[props.rowData.length - 2] !== null
+                                        (props.rowData[props.rowData.length - 2]
                                             && //if null / phantom row / not disabled
                                             Object.keys(props.rowData[props.rowData.length - 2]).find(
                                                 (e) => e === props.col.name
@@ -795,7 +798,10 @@ export class LinoGrid extends Component {
                 <DataViewLayoutOptions
                     layoutChoices={["grid", "list", "cards"]}
                     layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
-                    onChange={e => this.setState({display_mode: e.value})}
+                    onChange={e => {
+                        this.setState({display_mode: e.value, rows: []});
+                        this.reload()
+                    }}
                     layout={this.state.display_mode}
                 /></div>
             {!this.props.inDetail && !this.props.actorData.hide_top_toolbar &&
@@ -847,9 +853,10 @@ export class LinoGrid extends Component {
 
 
     itemTemplate(rowData) {
-        return <Panel header={rowData[this.props.actorData.pk_index]} col>
+        return <Panel header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>} >
             <LinoLayout
-                window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
+                // window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
+                window_layout={this.props.actorData.card_layout}
                 data={rowData}
                 actorId={this.get_full_id()}
                 actorData={this.props.actorData}
@@ -860,9 +867,10 @@ export class LinoGrid extends Component {
                 // update_value={this.update_pv_values} //  Todo
                 // in_grid={true} // false, true not working, due to fields_index being only set in cols.
                 editing_mode={false} // keep detail as editing mode only for now, untill beautifying things/}
-                pk={rowData[this.props.actorData.pk_index]}
+                pk={rowData["id"]}
                 mk={this.props.mk}
                 mt={this.props.actorData.content_type}
+                depth={this.props.depth + 1}
                 match={this.props.match}
                 reload_timestamp={this.state.reload_timestamp}
                 // title={this.state.title}
@@ -878,7 +886,7 @@ export class LinoGrid extends Component {
 
         return <React.Fragment>
             <div className={"l-grid"}>
-                {this.state.display_mode === "grid" ? <DataTable
+                {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ? <DataTable
                         reorderableColumns={true}
                         header={header}
                         footer={footer}
@@ -909,12 +917,12 @@ export class LinoGrid extends Component {
                         {this.get_cols()}
                     </DataTable>
                     :
-                    <DataView value={this.state.objRows}
+                    <DataView value={this.state.rows}
                               header={header}
                               footer={footer}
                               layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
                               itemTemplate={this.itemTemplate}
-                              itemKey={(data, index) => (this.state.rows[index][this.props.actorData.pk_index])}
+                              itemKey={(data, index) => (this.state.rows[index].id)}
 
                     />}
             </div>

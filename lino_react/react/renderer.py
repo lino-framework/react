@@ -385,7 +385,12 @@ class Renderer(JsRenderer, JsCacheRenderer):
                                       "use_detail_params_value "
                                       "react_responsive " 
                                       "react_big_search "
-                                      "display_mode"))
+                                      "display_mode "
+                                      "max_render_depth "))
+
+            card_layout = getattr(v, "card_layout", None)
+            if card_layout is not None:
+                result.update(card_layout=card_layout.get_layout_handle())
             # mt + slave-tables
 
             chooser_dict = getattr(v.model, "_choosers_dict", {})
