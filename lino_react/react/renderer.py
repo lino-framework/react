@@ -288,8 +288,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result = dict(label=v.get_label(),
                           repr=repr(v),
                           react_name=v.__class__.__name__)  # Used for choosing correct react component
-            if hasattr(v, "elements"): #dd
-                result['items'] = [ e for e in v.elements if  e.get_view_permission(get_user_profile()) ]
+            if hasattr(v, "elements"):  # dd
+                result['items'] = [e for e in v.elements if e.get_view_permission(get_user_profile())]
             result.update(obj2dict(v, " fields_index fields_index_hidden editable vertical hpad is_fieldset name width preferred_width\
                                       hidden value hflex vflex"))
             # result["width"] = v.width or v.preferred_width
@@ -349,11 +349,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
                             previous = [previous]
                         previous.append(ba.action.action_name)
                         tba.append(previous)
-                    else: # is normal
+                    else:  # is normal
                         tba.append(ba.action.action_name)
                         combo_group = ba.action.combo_group
                 result["toolbarActions"] = tba
-
 
             return result
         if isclass(v) and issubclass(v, Actor):
@@ -383,10 +382,15 @@ class Renderer(JsRenderer, JsCacheRenderer):
                                       "use_detail_params_value "  # in grid, use parrent PV values
                                       "hide_top_toolbar "  # No selection and toolbar
                                       "use_detail_params_value "
-                                      "react_responsive " 
+                                      "react_responsive "
                                       "react_big_search "
                                       "display_mode "
-                                      "max_render_depth "))
+                                      "max_render_depth "
+                                      "simple_slavegrid_header "
+                                      "paginator_template "
+                                      "hide_if_empty "
+                                      "borderless_list_mode "
+                                   ))
 
             card_layout = getattr(v, "card_layout", None)
             if card_layout is not None:

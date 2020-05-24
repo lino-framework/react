@@ -126,6 +126,15 @@ export class LinoGrid extends Component {
         // this.renderDataTable = this.renderDataTable.bind(this);
         this.itemTemplate = this.itemTemplate.bind(this);
         // this.renderDataView = this.renderDataView.bind(this);
+        this.renderParamValueControls = this.renderParamValueControls.bind(this);
+        this.renderToggle_colControls = this.renderToggle_colControls.bind(this);
+        this.renderDataViewLayout = this.renderDataViewLayout.bind(this);
+        this.renderExpandButton = this.renderExpandButton.bind(this);
+        this.renderQuickFilter = this.renderQuickFilter.bind(this);
+        this.renderActionBar = this.renderActionBar.bind(this);
+        this.renderSimpleHeader = this.renderSimpleHeader.bind(this);
+        this.renderDetailHeader = this.renderDetailHeader.bind(this);
+        this.renderMainGridHeader = this.renderMainGridHeader.bind(this);
 
     }
 
@@ -542,7 +551,7 @@ export class LinoGrid extends Component {
         else if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
             // use either, pv passed with reload method, current state, or failing all, in url
-            if (pv === undefined && Object.keys(this.state.pv_values).length === 0) {
+            if (!this.props.inDetail && pv === undefined && Object.keys(this.state.pv_values).length === 0) {
                 ajax_query.pv = search.pv
             }
             else {
@@ -728,101 +737,174 @@ export class LinoGrid extends Component {
         return this.cols
     }
 
-    renderHeader() {
-        let mobile = isMobile();
+    /*
+    used in deteail slave tables if actordata."simple_slavegrid_header "
+     */
+
+    renderParamValueControls() {
+        return this.props.actorData.pv_layout && <React.Fragment>
+            <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
+            {Object.keys(this.state.pv || {}).length !== 0 &&
+            <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>}
+        </React.Fragment>
+
+    }
+
+    renderToggle_colControls() {
+        return this.state.toggle_col ?
+            <MultiSelect value={this.state.show_columns} options={this.state.cols}
+                         ref={(el) => this.show_col_selector = el}
+                         onChange={(e) => {
+                             this.cols = undefined;
+                             clearTimeout(this.show_col_timeout);
+                             this.show_col_selector.focusInput.focus();
+                             setTimeout(() => (this.show_col_selector.dont_blur = false), 400);
+                             this.show_col_selector.dont_blur = true;
+                             this.setState({show_columns: e.value});
+                         }
+                         }
+                         onBlur={e => this.show_col_timeout = setTimeout(() => {
+                                 {
+                                     if (this.show_col_selector && this.show_col_selector.dont_blur) {
+                                         this.show_col_selector.focusInput.focus();
+                                     } else {
+                                         this.setState({toggle_col: false})
+                                     }
+                                 }
+                             },
+                             200)
+                         }
+            /> :
+            <Button icon={"pi pi-list"} onClick={() => {
+                this.setState({toggle_col: true})
+                setTimeout(() => {
+                        this.show_col_selector.focusInput.focus();
+                        this.show_col_selector.show();
+                    },
+                    25
+                )
+            }}/>
+    }
+
+    renderDataViewLayout() {
+        return <DataViewLayoutOptions
+            layoutChoices={["grid", "list", "cards"]}
+            layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
+            onChange={e => {
+                this.setState({display_mode: e.value, rows: []});
+                this.reload()
+            }}
+            layout={this.state.display_mode}
+        />
+    }
+
+    renderExpandButton() {
+        return <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
+                       icon="pi pi-external-link"
+                       style={{'unused_float': 'right'}}/>
+    }
+
+    renderQuickFilter(wide) {
+        return <InputText className="l-grid-quickfilter"
+                          style={{
+                              width: wide ? "100%" : undefined,
+                              marginRight: wide ? "1ch" : undefined,
+                              marginLeft: wide ? "1ch" : undefined,
+                          }}
+                          placeholder="QuickSearch" /*value={this.state.query}*/
+                          onChange={(e) => this.quickFilter(e.target.value)}/>
+    }
+
+    renderActionBar() {
+        return <div className={"p-col-12"} style={{"textAlign": "left"}}>
+            <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
+                      srMap={(row) => row[this.props.actorData.pk_index]}
+                      rp={this} an={'grid'}
+                      runAction={this.runAction}/>
+
+        </div>
+    }
+
+    renderSimpleHeader() {
+        return <div>
+            <div
+                className="l-grid-header">{this.state.title || this.props.actorData.label}
+                <div style={{float: "right", marginTop: "-.5ch"}}>
+                    {this.renderExpandButton()}
+                </div>
+            </div>
+            {this.renderProgressBar()}
+        </div>
+    }
+
+
+    renderDetailHeader() {
+        // let mobile = isMobile();
         let {actorData} = this.props;
-        let quickFilter = (wide) => <InputText className="l-grid-quickfilter"
-                                               style={{
-                                                   width: wide ? "100%" : undefined,
-                                                   marginRight: wide ? "1ch" : undefined,
-                                                   marginLeft: wide ? "1ch" : undefined,
-                                               }}
-                                               placeholder="QuickSearch" /*value={this.state.query}*/
-                                               onChange={(e) => this.quickFilter(e.target.value)}/>;
+
+        if (this.props.actorData.simple_slavegrid_header) {
+            return this.renderSimpleHeader();
+        }
 
         return <div className="p-clearfix p-grid"
             // style={{'lineHeight': '1.87em'}}
         >
+            <div>
+                <div className={"p-col p-justify"}><span
+                    className="l-grid-header">{this.state.title || this.props.actorData.label}</span></div>
+
+                <div className={"p-col p-justify-end"}>
+                    {this.renderExpandButton()}
+                    {this.renderDataViewLayout()}
+                </div>
+            </div>
+            {this.renderProgressBar()}
+        </div>
+    }
+
+    renderMainGridHeader() {
+        let {actorData} = this.props;
+        return <div className="p-clearfix p-grid"
+            // style={{'lineHeight': '1.87em'}}
+        >
             <div className={"p-col p-justify-end"} style={{"textAlign": "left"}}>
-                {!this.props.inDetail && <React.Fragment>
-                    {!actorData.react_big_search && quickFilter()}
-
-                    {this.props.actorData.pv_layout && <React.Fragment>
-                        <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
-                        <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>
-                    </React.Fragment>}
-                    {this.state.toggle_col ?
-                        <MultiSelect value={this.state.show_columns} options={this.state.cols}
-                                     ref={(el) => this.show_col_selector = el}
-                                     onChange={(e) => {
-                                         this.cols = undefined;
-                                         clearTimeout(this.show_col_timeout);
-                                         this.show_col_selector.focusInput.focus();
-                                         setTimeout(() => (this.show_col_selector.dont_blur = false), 400);
-                                         this.show_col_selector.dont_blur = true;
-                                         this.setState({show_columns: e.value});
-                                     }
-                                     }
-                                     onBlur={e => this.show_col_timeout = setTimeout(() => {
-                                             {
-                                                 if (this.show_col_selector && this.show_col_selector.dont_blur) {
-                                                     this.show_col_selector.focusInput.focus();
-                                                 } else {
-                                                     this.setState({toggle_col: false})
-                                                 }
-                                             }
-                                         },
-                                         200)
-                                     }
-                        /> :
-                        <Button icon={"pi pi-list"} onClick={() => {
-                            this.setState({toggle_col: true})
-                            setTimeout(() => {
-                                    this.show_col_selector.focusInput.focus();
-                                    this.show_col_selector.show();
-                                },
-                                25
-                            )
-                        }}/>}
-                </React.Fragment>}
-
+                {!actorData.react_big_search && this.renderQuickFilter()}
+                {this.renderParamValueControls()}
+                {this.renderToggle_colControls()}
 
             </div>
-            <div className={"p-col p-justify-center"}><span
-                className="l-grid-header">{this.state.title || this.props.actorData.label}</span></div>
+            <div>
+                <div className={"p-col p-justify-center"}><span
+                    className="l-grid-header">{this.state.title || this.props.actorData.label}</span></div>
 
-            <div className={"p-col p-justify-end"}>{this.props.inDetail &&
-            <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
-                    icon="pi pi-external-link"
-                    style={{'unused_float': 'right'}}/>}
-                <DataViewLayoutOptions
-                    layoutChoices={["grid", "list", "cards"]}
-                    layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
-                    onChange={e => {
-                        this.setState({display_mode: e.value, rows: []});
-                        this.reload()
-                    }}
-                    layout={this.state.display_mode}
-                /></div>
-            {!this.props.inDetail && !this.props.actorData.hide_top_toolbar &&
-            <div className={"p-col-12"} style={{"textAlign": "left"}}>
-
-                <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
-                          srMap={(row) => row[this.props.actorData.pk_index]}
-                          rp={this} an={'grid'}
-                          runAction={this.runAction}/>
-
-            </div>}
-            {!this.props.inDetail && actorData.react_big_search && quickFilter(true)}
-            <ProgressBar mode="indeterminate" className={this.state.loading ? "" : "lino-transparent"}
-                         style={{height: '5px'}}/>
+                <div className={"p-col p-justify-end"}>
+                    {this.renderDataViewLayout()}
+                </div>
+            </div>
+            {this.renderActionBar()}
+            {actorData.react_big_search && this.renderQuickFilter(true)}
+            {this.renderProgressBar()}
         </div>
+    }
+
+    renderProgressBar() {
+        return <ProgressBar mode="indeterminate" className={this.state.loading ? "" : "lino-transparent"}
+                            style={{height: '5px'}}/>
+    }
+
+    renderHeader() {
+        // let mobile = isMobile();
+        return this.props.inDetail ? this.renderDetailHeader() : this.renderMainGridHeader()
     }
 
     renderPaginator() {
 
-        if (this.props.actorData.preview_limit === 0) {
+        if (this.props.actorData.preview_limit === 0 ||
+            this.state.rows.length === 0 ||
+            this.state.rows.length < this.state.rowsPerPage) {
             return undefined
+        } else if (this.props.actorData.simple_paginator) {
+            return
         }
 
         return <Paginator
@@ -830,6 +912,7 @@ export class LinoGrid extends Component {
             paginator={true}
             first={this.state.topRow}
             totalRecords={this.state.totalRecords}
+            template={this.props.actorData.paginator_template || undefined}
             /*paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
             rowsPerPageOptions={[5, 10, 20]}*/
             onPageChange={(e) => {
@@ -853,7 +936,7 @@ export class LinoGrid extends Component {
 
 
     itemTemplate(rowData) {
-        return <Panel header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>} >
+        return <Panel className={"l-itemTemplate"} header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>} toggleable={true}>
             <LinoLayout
                 // window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
                 window_layout={this.props.actorData.card_layout}
@@ -874,19 +957,28 @@ export class LinoGrid extends Component {
                 match={this.props.match}
                 reload_timestamp={this.state.reload_timestamp}
                 // title={this.state.title}
-                parent_pv={this.state.pv}
+                // parent_pv={this.state.pv}
             />
         </Panel>
     }
 
+    renderMinamized() {
+
+    }
+
 
     render() {
+
+        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0){
+            return null
+        }
         const header = this.renderHeader(),
             footer = this.renderPaginator();
 
         return <React.Fragment>
             <div className={"l-grid"}>
-                {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ? <DataTable
+                {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ?
+                    <DataTable
                         reorderableColumns={true}
                         header={header}
                         footer={footer}
@@ -917,13 +1009,20 @@ export class LinoGrid extends Component {
                         {this.get_cols()}
                     </DataTable>
                     :
-                    <DataView value={this.state.rows}
+                    this.props.actorData.borderless_list_mode ?
+                        <div>
+                        {this.state.rows.map((row, index )=> (
+                            <div key={this.state.rows[index].id}>{this.itemTemplate(row)}</div>
+                        ))}
+                        </div>
+                        :
+
+                        <DataView value={this.state.rows}
                               header={header}
                               footer={footer}
                               layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
                               itemTemplate={this.itemTemplate}
                               itemKey={(data, index) => (this.state.rows[index].id)}
-
                     />}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&

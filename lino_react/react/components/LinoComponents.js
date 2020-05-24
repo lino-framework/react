@@ -822,7 +822,6 @@ const LinoComponents = {
 
         return <ActorData key={props.elem.actor_id} actorId={props.elem.actor_id}>
             <ActorContext.Consumer>{(actorData) => (
-                actorData.max_render_depth > props.depth ?
                     <LinoGrid
                         depth={props.depth}
                         reload_timestamp={props.reload_timestamp}
@@ -837,8 +836,7 @@ const LinoComponents = {
                         packId={packId}
                         actorData={actorData}
                     />
-                    :
-                    <p> Rendering blocked </p>)}</ActorContext.Consumer></ActorData>
+            )}</ActorContext.Consumer></ActorData>
 
 
     },
