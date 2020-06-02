@@ -936,29 +936,31 @@ export class LinoGrid extends Component {
 
 
     itemTemplate(rowData) {
-        return <Panel className={"l-itemTemplate"} header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>} toggleable={true}>
-            <LinoLayout
-                // window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
-                window_layout={this.props.actorData.card_layout}
-                data={rowData}
-                actorId={this.get_full_id()}
-                actorData={this.props.actorData}
-                // disabled_fields={this.state.disabled_fields} // Todo
-                // update_value={this.update_value}
-                // editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
+        return <Panel className={"l-itemTemplate"}
+                      header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>} toggleable={true}>
+            {rowData.main_card_body ? <div dangerouslySetInnerHTML={{__html: rowData.main_card_body}}/> :
+                <LinoLayout
+                    // window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
+                    window_layout={this.props.actorData.card_layout}
+                    data={rowData}
+                    actorId={this.get_full_id()}
+                    actorData={this.props.actorData}
+                    // disabled_fields={this.state.disabled_fields} // Todo
+                    // update_value={this.update_value}
+                    // editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
 
-                // update_value={this.update_pv_values} //  Todo
-                // in_grid={true} // false, true not working, due to fields_index being only set in cols.
-                editing_mode={false} // keep detail as editing mode only for now, untill beautifying things/}
-                pk={rowData["id"]}
-                mk={this.props.mk}
-                mt={this.props.actorData.content_type}
-                depth={this.props.depth + 1}
-                match={this.props.match}
-                reload_timestamp={this.state.reload_timestamp}
-                // title={this.state.title}
-                // parent_pv={this.state.pv}
-            />
+                    // update_value={this.update_pv_values} //  Todo
+                    // in_grid={true} // false, true not working, due to fields_index being only set in cols.
+                    editing_mode={false} // keep detail as editing mode only for now, untill beautifying things/}
+                    pk={rowData["id"]}
+                    mk={this.props.mk}
+                    mt={this.props.actorData.content_type}
+                    depth={this.props.depth + 1}
+                    match={this.props.match}
+                    reload_timestamp={this.state.reload_timestamp}
+                    // title={this.state.title}
+                    // parent_pv={this.state.pv}
+                />}
         </Panel>
     }
 
@@ -969,7 +971,7 @@ export class LinoGrid extends Component {
 
     render() {
 
-        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0){
+        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0) {
             return null
         }
         const header = this.renderHeader(),
@@ -1018,12 +1020,12 @@ export class LinoGrid extends Component {
                         :
 
                         <DataView value={this.state.rows}
-                              header={header}
-                              footer={footer}
-                              layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
-                              itemTemplate={this.itemTemplate}
-                              itemKey={(data, index) => (this.state.rows[index].id)}
-                    />}
+                                  header={header}
+                                  footer={footer}
+                                  layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
+                                  itemTemplate={this.itemTemplate}
+                                  itemKey={(data, index) => (this.state.rows[index].id)}
+                        />}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
@@ -1039,6 +1041,7 @@ export class LinoGrid extends Component {
                 {this.props.actorData.pv_layout && this.state.showPVDialog &&
                 <LinoLayout
                     window_layout={this.props.actorData.pv_layout}
+                    window_type={"p"} // param value layout, used for blank filter val
                     actorData={this.props.actorData}
                     data={this.state.pv_values}
                     actorId={this.get_full_id()}

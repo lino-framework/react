@@ -246,15 +246,16 @@ class ApiList(View):
         if fmt == constants.URL_FORMAT_JSON:
 
             window_type = request.GET.get(constants.URL_PARAM_WINDOW_TYPE, "g")
+
             def serialize(ar, row):
                 """Use window_type to determin which serizlisation store metod and fields to use"""
                 if window_type == "g":
                     return rh.store.row2list(ar, row)
                 else:
                     return rh.store.row2dict(ar, row,
-                                      fields=rh.store.card_fields if window_type == "c" else rh.store.detail_fields,
-                                    card_title=ar.get_card_title(row)
-                                      )
+                                             fields=rh.store.card_fields if window_type == "c" else rh.store.detail_fields,
+                                             card_title=ar.get_card_title(row)
+                                             )
 
             rows = [serialize(ar, row)
                     for row in ar.sliced_data_iterator]
@@ -271,8 +272,11 @@ class ApiList(View):
                       rows=rows,
                       success=True,
                       no_data_text=ar.no_data_text,
-                      # title=str(ar.get_title()),
                       title=ar.get_title())
+            if window_type != "g":
+                mc = ar.get_main_card()
+                if mc is not None:
+                    rows.insert(0, mc)
             if ar.actor.parameters:
                 kw.update(
                     param_values=ar.actor.params_layout.params_store.pv2dict(
@@ -294,13 +298,16 @@ from lino.modlib.extjs.views import choices_for_field
 
 
 # choices_response is copied line-for-line from lino.modlib.extjs.views.choices_response
-def choices_response(actor, request, qs, row2dict, emptyValue):
+def choices_response(actor, request, qs, row2dict, emptyValue, field=None):
     """
     :param actor: requesting Actor
     :param request: web request
     :param qs: list of django model QS,
     :param row2dict: function for converting data set into a dict for json
     :param emptyValue: The Text value to represent None in the choice-list
+    :param is_blank_value: The Text value to represent filtering rows that are blank in PV the choice-list
+    :param is_not_blank_value: The Text value to represent filtering rows that are not blank in PV the choice-list
+
     :return: json web responce
 
     Filters data-set acording to quickseach
@@ -312,6 +319,8 @@ def choices_response(actor, request, qs, row2dict, emptyValue):
     quick_search = request.GET.get(constants.URL_PARAM_FILTER, None)
     offset = request.GET.get(constants.URL_PARAM_START, None)
     limit = request.GET.get(constants.URL_PARAM_LIMIT, None)
+    wt = request.GET.get(constants.URL_PARAM_WINDOW_TYPE, None)
+
     if isinstance(qs, models.QuerySet):
         qs = qs.filter(qs.model.quick_search_filter(quick_search)) if quick_search else qs
         count = qs.count()
@@ -336,6 +345,18 @@ def choices_response(actor, request, qs, row2dict, emptyValue):
         count = len(rows)
         rows = rows[int(offset):] if offset else rows
         rows = rows[:int(limit)] if limit else rows
+
+    if wt == constants.WINDOW_TYPE_PV and field and field.blank:
+        rows.insert(0, {
+            # constants.CHOICES_TEXT_FIELD: actor.get_blank_filter_text(),
+            constants.CHOICES_TEXT_FIELD: _("Blank"),
+            constants.CHOICES_VALUE_FIELD: constants.CHOICES_BLANK_FILTER_VALUE
+        })
+        rows.insert(1, {
+            # constants.CHOICES_TEXT_FIELD: actor.get_not_blank_filter_text(),
+            constants.CHOICES_TEXT_FIELD: _("Not Blank"),
+            constants.CHOICES_VALUE_FIELD: constants.CHOICES_NOT_BLANK_FILTER_VALUE
+        })
 
     # Add None choice
     if emptyValue is not None and not quick_search:
@@ -365,7 +386,7 @@ class ChoiceListModel(View):
 
 # Copied from lino.modlib.extjs.views.Choices line for line.
 class Choices(View):
-    def get(self, request, app_label=None, rptname=None, fldname=None, **kw):
+    def get(self, request, app_label=None, actor=None, field=None, **kw):
         """If `fldname` is specified, return a JSON object with two
         attributes `count` and `rows`, where `rows` is a list of
         `(display_text, value)` tuples.  Used by ComboBoxes or similar
@@ -375,9 +396,9 @@ class Choices(View):
         `record_selector` widget.
 
         """
-        rpt = requested_actor(app_label, rptname)
+        rpt = requested_actor(app_label, actor)
         emptyValue = None
-        if fldname is None:
+        if field is None:
             ar = rpt.request(request=request)
             # ~ rh = rpt.get_handle(self)
             # ~ ar = ViewReportRequest(request,rh,rpt.default_action)
@@ -397,15 +418,13 @@ class Choices(View):
             # NOTE: if you define a *parameter* with the same name as
             # some existing *data element* name, then the parameter
             # will override the data element here in choices view.
-            field = rpt.get_param_elem(fldname)
-            if field is None:
-                field = rpt.get_data_elem(fldname)
+            field = rpt.get_param_elem(field) or rpt.get_data_elem(field)
             if field.blank:
                 # logger.info("views.Choices: %r is blank",field)
                 emptyValue = ''
             qs, row2dict = choices_for_field(rpt.request(request=request), rpt, field)
 
-        return choices_response(rpt, request, qs, row2dict, emptyValue)
+        return choices_response(rpt, request, qs, row2dict, emptyValue, field=field)
 
 
 # Also coppied from extjs.views line for line
@@ -422,7 +441,7 @@ class ActionParamChoices(View):
             emptyValue = '<br/>'
         else:
             emptyValue = None
-        return choices_response(actor, request, qs, row2dict, emptyValue)
+        return choices_response(actor, request, qs, row2dict, emptyValue, field=field)
 
 
 class Restful(View):

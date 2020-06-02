@@ -74,6 +74,7 @@ export class ForeignKeyElement extends Component {
         let ajaxQuery = {
             query: query,
             start: 0,
+            wt: this.props.window_type
             //todo have pageing / some sort of max amount
         };
         let chooser_data = {},
