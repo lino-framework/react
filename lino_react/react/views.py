@@ -784,7 +784,7 @@ class UserSettings(View):
         not_anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
 
         def getit():
-            print(20200419, settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()))
+            # print(20200419, settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()))
             if not settings.SITE.build_js_cache_on_startup:
                 settings.SITE.plugins.react.renderer.build_js_cache(False)
             user_settings = dict(
