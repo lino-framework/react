@@ -19,7 +19,7 @@ import {Actor} from "./Actor";
 import {LinoDialog} from './LinoDialog'
 import {LinoChats} from './LinoChatter/LinoChats'
 import LinoBbar from "./LinoBbar";
-import {pvObj2array, deepCompare} from "./LinoUtils"
+import {pvObj2array, deepCompare, setRpRefFactory, rpRefObjGetter} from "./LinoUtils"
 
 
 import {Sidebar} from 'primereact/sidebar';
@@ -85,7 +85,11 @@ class App extends React.Component {
         };
 
         this.rps = {}; // used for rp
+        this.setRpRef = setRpRefFactory(this.rps);
+
         this.dialogRefs = {}; // used for getting and focusing on the previous dialog from dialog props obj.
+        this.setupDialogRefs = setRpRefFactory(this.dialogRefs);
+
         this.response_callbacks = {}; // Used to store respnce callback functions when using confirmation callbacks.
         this.onWrapperClick = this.onWrapperClick.bind(this);
         this.onToggleMenu = this.onToggleMenu.bind(this);
@@ -201,13 +205,6 @@ class App extends React.Component {
     //
     // }
 
-    setRpRef(el, manual_rp) {
-        if (el) {
-            let rp = manual_rp === undefined ? key(el) : manual_rp;
-            window.App.rps[rp] = el;
-            el.rp = rp;
-        }
-    }
 
     onAuthoritiesSelect(auth_obj) {
         let id = auth_obj[0];
@@ -423,6 +420,7 @@ class App extends React.Component {
             )
         )
     }
+
     sendSeenAction(group_id, messages) {
         this.webSocketBridge.send(
             JSON.stringify(
@@ -441,7 +439,7 @@ class App extends React.Component {
         Push.Permission.request(onGranted, onDenied);
     }
 
-    pushChat(subject, body, icon = undefined, chat=undefined) {
+    pushChat(subject, body, icon = undefined, chat = undefined) {
         var app = this;
         this.pushPermission();
         try {
@@ -503,7 +501,7 @@ class App extends React.Component {
     }
 
     fetch_user_settings = (su_id, init) => {
-        if (!init){
+        if (!init) {
             this.setState({ // clear current settings
                 // logging_in: false,/
                 su_id: undefined,
@@ -649,13 +647,9 @@ class App extends React.Component {
         // have rp_obj be the instance
         // the rp argument can be either,
 
-        let rp_obj;
-        if (typeof rp === "string") {
-            rp_obj = this.rps[rp];
-        } else if (rp) { // if required as rp can be undefined or null
-            rp_obj = rp;
-            rp = key(rp_obj);
-        }
+        let x = rpRefObjGetter(rp, this.rps, true);
+        let {rp_obj} = x;
+        rp = x.rp;
 
         rp_obj && rp_obj.save && an !== "submit_detail" && rp_obj.save(); // auto save
 
@@ -954,6 +948,7 @@ class App extends React.Component {
                             return {dialogs: diags};
                         });
                     },
+                    rp: rp, // pass rp of spawning panel to dialog.
                     closable: false,
                     footer:
                         <div> {buttons.map((button) =>
@@ -1002,7 +997,7 @@ class App extends React.Component {
             if (this.state.dialogs) {
                 this.state.dialogs[this.state.dialogs.length - 1] && this.state.dialogs[this.state.dialogs.length - 1].onClose();
 
-                    this.setState((old) => {
+                this.setState((old) => {
                     old.dialogs.pop();  // remove last item, use shift for first
                     if (rp && rp.reload && old.dialogs.length === 0) rp.reload();
                     return {dialogs: [...old.dialogs]}
@@ -1274,9 +1269,7 @@ class App extends React.Component {
                                                     return {dialogs: dialogs}
                                                 })
                                             }}
-                                            ref={(el) => {
-                                                this.dialogRefs[key(d)] = el
-                                            }}
+                                            ref={this.setupDialogRefs}
 
                                 />
 

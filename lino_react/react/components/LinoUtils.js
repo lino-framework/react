@@ -1,3 +1,7 @@
+
+import key from "weak-key";
+
+
 // simple test to check if running on a mobile or not.
 export function isMobile() {
     return window.matchMedia("only screen and (max-width: 760px)").matches;
@@ -21,6 +25,52 @@ export function debounce(func, wait, immediate) {
         if (callNow) func.apply(context, args);
     };
 };
+
+
+export function setRpRefFactory(rpStore) {
+    return function (el, manual_rp) {
+        let rp;
+        if (el) {
+            rp = manual_rp === undefined ? key(el) : manual_rp;
+            rpStore[rp] = el;
+            el.rp = rp;
+        }
+        Object.keys(rpStore).forEach(rp => {
+            if (rpStore[rp] === null) {
+                delete rpStore[rp]
+            }
+        });
+    }
+}
+
+/**
+ *
+ * @param rp either string or obj
+ * @param rpStore object holding mapping
+ * @param saveRp if rp is an obj save the object in the store
+ */
+
+export function rpRefObjGetter(rp, rpStore, saveRp) {
+    let data = {rp:undefined, rp_obj:undefined};
+    if (typeof rp === "string") {
+        data.rp_obj = rpStore[rp];
+    } else if (rp) { // if required as rp can be undefined or null
+        let hash_rp = key(rp);
+        if (rpStore[hash_rp]){
+            data.rp = hash_rp;
+            data.rp_obj = rpStore[hash_rp];
+        } else if (saveRp){ // obj not in store, save?
+            // obj not in store, save in store.
+            data.rp=hash_rp;
+            data.rp_obj=rp;
+            setRpRefFactory(rpStore)(rp, hash_rp);
+        }
+    }
+    return data
+
+}
+
+
 
 /**
  *
@@ -50,7 +100,7 @@ export function gridList2Obj(actorData, list) {
         data[c.name] = list[c.fields_index];
         if (c.fields_index_hidden) // will never be 0, as if first col, hidden will be 1,
         {
-        data[c.name+"Hidden"] = list[c.fields_index_hidden]
+            data[c.name + "Hidden"] = list[c.fields_index_hidden]
         }
     })
     return data

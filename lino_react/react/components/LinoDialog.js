@@ -33,6 +33,7 @@ export class LinoDialog extends Component {
         onClose: PropTypes.func,   // Some sort of callback
         onOk: PropTypes.func,   // callback for submitting forms. Only for action panel form, not insert.
         // baseData: PropTypes.object,
+        rp: PropTypes.string, // string rp code for owning panel
         footer: PropTypes.element,
         actorId: PropTypes.string, // Full id, with . ie: tickets.Alltickets
         title: PropTypes.string,
