@@ -736,6 +736,9 @@ class App extends React.Component {
                 },
                 onOk: () => {
                     excecute_args.data = diag_props.data;
+                    if (excecute_args.status && excecute_args.status.fv) {
+                        delete(excecute_args.status.fv);
+                    }
                     this.excuteAction(excecute_args);
                     // console.log("Action Dialog OK Callback")
                 },
@@ -903,6 +906,7 @@ class App extends React.Component {
         }
 
         if (status && status.fv !== undefined) {
+            console.log("fv", status.fv, status);
             Object.assign(args, {'fv': status.fv})
         }
         if (an === "grid_put" || an === "grid_post") {
