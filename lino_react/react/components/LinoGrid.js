@@ -554,7 +554,7 @@ export class LinoGrid extends Component {
             if (!this.props.inDetail && pv === undefined && Object.keys(this.state.pv_values).length === 0) {
                 ajax_query.pv = search.pv
             }
-            else {
+            else if (Object.keys(this.state.pv_values).length !== 0){ // only apply when there's some data there to insure getting of default values form server
                 ajax_query.pv = pvObj2array(pv || this.state.pv_values, this.props.actorData.pv_fields);
             }
             // convert pv values from obj to array and add to ajax call
