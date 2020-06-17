@@ -266,7 +266,8 @@ export class LinoDetail extends Component {
     }
 
     onKeyDown(event) {
-        // console.log("keydown", event);
+        // console.log("keydown", event)
+        if (window.App.state.dialogs.length) return // No action when dialogs are open
         if ((event.ctrlKey || event.metaKey) && String.fromCharCode(event.which).toLowerCase() === "s") {
             event.preventDefault();
             if (this.state.editing_mode) {
@@ -275,7 +276,7 @@ export class LinoDetail extends Component {
                 this.setState({editing_mode: true});
             }
         }
-        if (! event.ctrlKey && !event.altKey && event.key === "Insert") {
+        if (event.key === "Insert" && event.ctrlKey && !event.altKey ) {
             event.preventDefault();
             window.App.runAction({
                 an: "insert",

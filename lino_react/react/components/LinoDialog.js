@@ -61,40 +61,60 @@ export class LinoDialog extends Component {
         };
 
         this.onClose = this.onClose.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
     };
 
     onClose() {
-        if (this.props.isClosable(this)){ // can have side-effects ( Mainly a close confermation window )
+        if (this.props.isClosable(this)) { // can have side-effects ( Mainly a close confermation window )
             this.setState({visible: false});
             this.props.onClose(this);
         }
 
     };
 
-    renderDialogStyle(ActorData){
+    renderDialogStyle(ActorData) {
         if (this.props.action === undefined) return {};
         const win_size = ActorData.ba[this.props.action.an].window_layout.window_size;
 
-        let style = {
-        };
+        let style = {};
         if (win_size && win_size[0]) // width
         {
-            style.width = Math.floor((win_size[0] * 1.5 )) + "ch";
+            style.width = Math.floor((win_size[0] * 1.5)) + "ch";
         }
         return style
     }
-    renderDialogContentStyle(ActorData){
+
+    renderDialogContentStyle(ActorData) {
         if (this.props.action === undefined) return {};
         const win_size = ActorData.ba[this.props.action.an].window_layout.window_size;
 
-        let style = {
-        };
-        if (win_size && win_size[1] && win_size[1] !== "auto"){
+        let style = {};
+        if (win_size && win_size[1] && win_size[1] !== "auto") {
             style.height = win_size[1] * 3 + "ch";
             // style.margin_top = (win_size[1] / 2) * -1 + "ch";
         } // height
         return style
     }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.onKeyDown);
+        // console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
+    };
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.onKeyDown);
+    };
+
+    onKeyDown(event) {
+        // console.log("Dialogkeydown", event);
+        if ((event.ctrlKey || event.metaKey) && String.fromCharCode(event.which).toLowerCase() === "s") {
+            event.preventDefault();
+            event.stopPropagation();
+            // hacky solution for clicking submit, likely won't work for action param windows.
+            this.div.getElementsByClassName("l-bbar")[0].children[0].click()
+        }
+    }
+
     render() {
 
         return <ActorContext.Consumer>{(ActorData) => {
@@ -125,17 +145,19 @@ export class LinoDialog extends Component {
                 onDrop={(e) => {
                     stop(e);
                     this.ll.fileUpload.onDrop(e);
-                }}><Dialog onHide={this.onClose} visible={this.state.visible}
-                           header={this.props.title || this.props.action.label}
-                           footer={footer}
-                           style={this.renderDialogStyle(ActorData)}
-                           contentStyle={this.renderDialogContentStyle(ActorData)}
-                           closeOnEscape={this.props.closeOnEscape}
-                           maximizable={true}
-                           onShow={() => this.ll && this.ll.focusFirst()}
-                           ref={el => this.dialog = el}
-                           onToggleMaximize={(max) => this.setState({dialogMaximised:max})}
-                           closable={this.props.closable}>
+                }}
+                ref={el => this.div = el}
+            ><Dialog onHide={this.onClose} visible={this.state.visible}
+                     header={this.props.title || this.props.action.label}
+                     footer={footer}
+                     style={this.renderDialogStyle(ActorData)}
+                     contentStyle={this.renderDialogContentStyle(ActorData)}
+                     closeOnEscape={this.props.closeOnEscape}
+                     maximizable={true}
+                     onShow={() => this.ll && this.ll.focusFirst()}
+                     ref={el => this.dialog = el}
+                     onToggleMaximize={(max) => this.setState({dialogMaximised: max})}
+                     closable={this.props.closable}>
                 {this.props.content
                 ||
 
@@ -162,5 +184,6 @@ export class LinoDialog extends Component {
             </Dialog></div>
         }}</ActorContext.Consumer>
 
-    };
+    }
+    ;
 }
