@@ -11,7 +11,7 @@ describe("Basic tests for TeamReact", () => {
         cy.get(".profile-expanded > li > a > span").click();
         cy.get(":nth-child(1) > .p-inputtext").type("robin"); // username field
         cy.get(":nth-child(2) > .p-inputtext").type("1234");  // pw field
-        cy.get(":nth-child(1) > .p-button-text").click();
+        cy.get(".p-dialog-footer :nth-child(1) > .p-button-text").click();
         // logged in
         // cy.wait("@logIn");
         cy.wait("@SiteData",{timeout:120000}); // Wait 30sec max for siteData gen

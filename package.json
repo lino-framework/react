@@ -42,7 +42,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "css-loader": "^1.0.1",
-    "cypress": "^3.8.3",
+    "cypress": "^4.8.0",
     "file-loader": "^2.0.0",
     "node-sass": "^4.14.1",
     "node-sass-chokidar": "^1.4.0",

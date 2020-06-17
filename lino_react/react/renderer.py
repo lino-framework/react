@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 from builtins import str
 import six
 
-from cgi import escape
+from html import escape
 from os import path
 from django.conf import settings
 from django.db import models
@@ -492,7 +492,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
         # Convert to string as currently window actions are py2js => dict
         if not isinstance(js, six.string_types):
             js = str(js)
-        js = escape(js)
+        js = escape(js, quote=False)
         return 'javascript:' + js
 
     def show_menu(self, ar, mnu, level=1):
