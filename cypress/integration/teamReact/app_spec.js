@@ -59,7 +59,8 @@ describe("Basic tests for TeamReact", () => {
 
     it("Should be possible to login and out", () => {
         cy.get(".layout-menu-button > .pi").click();
-        cy.get(".profile-expanded > li > a > span").click();
+        cy.get(".profile-link > .username").click();
+        cy.get(".profile-expanded > :nth-child(1) > a > span").click();
         // logged out
 
         // cy.wait('@getUserSettings');
