@@ -69,9 +69,9 @@ describe("Basic tests for TeamReact", () => {
     it("Should be possible to log in again and navigate around ", () => {
         cy.route('/api/**').as('getData');
 
-        cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click().wait("@getData"); // goto allTickets via html
-        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').dblclick().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
-
+        //cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click().wait("@getData"); // goto allTickets via html
+        //cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').dblclick().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
+        cy.get('a[style="text-decoration:none"]').eq(4).click().wait("@getData"); // goto allTickets via html
         // Test nav arrows
         cy.get('.l-nav-last:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
         cy.get('.l-nav-first:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
@@ -92,7 +92,8 @@ describe("Basic tests for TeamReact", () => {
         cy.get('.p-paginator-pages > :nth-child(2)').click().wait("@getData");
         cy.get('.p-paginator-prev').click().wait("@getData");
         cy.get('.p-paginator-next').click().wait("@getData");
-
+        
+        cy.go('back')
         // opens Site again
         cy.get('.l-button-fk:first').click().wait("@getData");
         cy.get('.layout-home-button').click();
