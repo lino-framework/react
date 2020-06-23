@@ -34,9 +34,9 @@ describe("Basic tests for TeamReact", () => {
         cy.get('.l-nav-next > .pi').click().wait("@getTicketData");
         cy.get('.l-button-expand-grid:last').click().wait("@getTicketData");
         cy.get(".l-grid-header").contains("Tickets");
-        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(2)').dblclick(); // 3ed row, 1st cell
+        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click(); // 3ed row, 1st cell
         cy.get(".l-detail-header").contains("Tickets");
-        cy.get(".l-slave-summary-expand-button:first").click().wait("@getSessionData");
+        cy.get(".l-slave-summary-expand-button:first").click();
 
 
     });
@@ -71,12 +71,19 @@ describe("Basic tests for TeamReact", () => {
 
         //cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click().wait("@getData"); // goto allTickets via html
         //cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').dblclick().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
-        cy.get('a[style="text-decoration:none"]').eq(4).click().wait("@getData"); // goto allTickets via html
+        //cy.get('a[style="text-decoration:none"]').eq(5).click().wait("@getData"); // goto allTickets via html
+        cy.get(".layout-menu-button > .pi").click(); // open menu
+
+        cy.get(".layout-main-menu > :nth-child(3) > :nth-child(2)").click();
+        cy.get(".active-menuitem > ul > :nth-child(3) > a").click().wait("@getData");
+        //cy.get('.layout-main-menu > :nth-child(1) > :nth-child(2)').click();
+        cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(2)').dblclick();
+
         // Test nav arrows
-        cy.get('.l-nav-last:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-first:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-next:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-prev:not(.p-disabled) > .pi').click().wait("@getData").wait(100);
+        cy.get('.l-nav-last').click().wait("@getData").wait(100);
+        cy.get('.l-nav-first').click().wait("@getData").wait(100);
+        cy.get('.l-nav-next').click().wait("@getData").wait(100);
+        cy.get('.l-nav-prev').click().wait("@getData").wait(100);
 
         // test detail -> other detail
         cy.get('.l-button-fk:first').click(); // opens Site
@@ -93,9 +100,11 @@ describe("Basic tests for TeamReact", () => {
         cy.get('.p-paginator-prev').click().wait("@getData");
         cy.get('.p-paginator-next').click().wait("@getData");
         
-        cy.go('back')
+        //cy.go('/').wait(1000);
+        //cy.go('back').wait(1000);
+        //cy.visit('/')
         // opens Site again
-        cy.get('.l-button-fk:first').click().wait("@getData");
+        //cy.get('.l-button-fk:first').click().wait("@getData");
         cy.get('.layout-home-button').click();
 
         cy.get(".layout-menu-button > .pi").click(); // open menu
@@ -109,7 +118,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/api/**').as('getData');
 
         cy.visit("http://127.0.0.1:8000/#/api/tickets/Sites/1");
-        cy.get(".p-tabview-nav > :nth-child(3)").click().wait("@getData");
+        cy.get(".p-tabview-nav > :nth-child(2)").click().wait("@getData");
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(2)').click();
         cy.log("Entering last session record for this site");
         cy.get('.l-nav-first > .pi').click().wait("@getData");
@@ -130,7 +139,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/api/**').as('getData');
         cy.route('/choices/**').as('getChoices');
         cy.visit("http://127.0.0.1:8000/#/api/tickets/Tickets/1").wait("@getData");
-        cy.get(".l-detail-quicksearch input").type("68");
+        cy.get(".l-detail-quicksearch input").type("68").wait(1000);
         cy.get('.p-autocomplete-list-item').click();
         cy.get(".l-detail-header").contains("#68");
 
