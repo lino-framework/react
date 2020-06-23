@@ -30,8 +30,8 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/api/working/**').as('getSessionData');
 
         cy.visit("http://127.0.0.1:8000/#/api/tickets/Sites/1").wait("@getTicketData");
-        cy.wait(200);
-        cy.get('.l-nav-next > .pi').click().cy.wait(200).wait("@getTicketData");
+        //cy.wait(200);
+        cy.get('.l-nav-next > .pi').click().cy.wait("@getTicketData");
         cy.get('.l-button-expand-grid:last').click().wait("@getTicketData");
         cy.get(".l-grid-header").contains("Tickets");
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click(); // 3ed row, 1st cell
