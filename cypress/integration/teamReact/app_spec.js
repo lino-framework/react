@@ -1,11 +1,23 @@
 describe("Basic tests for TeamReact", () => {
     beforeEach(() => {
+
+        Cypress.on('uncaught:exception', (err, runnable) => {
+            // debugger
+            return false
+
+        })
+
+        // Cypress.on('fail', (err) => {
+        //     debugger
+        // })
+
+
         cy.server();
         cy.route("POST", '/auth').as('logIn');
         cy.route('/auth').as('logOut');
         cy.route("/media/cache/json/*.json").as("SiteData");
         cy.visit("/");
-        cy.wait("@SiteData",{timeout:120000}); // Wait 30sec max for siteData gen
+        cy.wait("@SiteData", {timeout: 120000}); // Wait 30sec max for siteData gen
         cy.get('.layout-menu-button ').click();
         cy.get('.username').click();
         cy.get(".profile-expanded > li > a > span").click();
@@ -14,7 +26,7 @@ describe("Basic tests for TeamReact", () => {
         cy.get(".p-dialog-footer :nth-child(1) > .p-button-text").click();
         // logged in
         // cy.wait("@logIn");
-        cy.wait("@SiteData",{timeout:120000}); // Wait 30sec max for siteData gen
+        cy.wait("@SiteData", {timeout: 120000}); // Wait 30sec max for siteData gen
         cy.wait(3000);
     });
 
@@ -31,7 +43,7 @@ describe("Basic tests for TeamReact", () => {
 
         cy.visit("http://127.0.0.1:8000/#/api/tickets/Sites/1").wait("@getTicketData");
         //cy.wait(200);
-        cy.get('.l-nav-next > .pi').click().cy.wait("@getTicketData");
+        cy.get('.l-nav-next > .pi').click().wait("@getTicketData");
         cy.get('.l-button-expand-grid:last').click().wait("@getTicketData");
         cy.get(".l-grid-header").contains("Tickets");
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').click(); // 3ed row, 1st cell
@@ -68,6 +80,7 @@ describe("Basic tests for TeamReact", () => {
 
     it("Should be possible to log in again and navigate around ", () => {
         cy.route('/api/**').as('getData');
+        cy.route('/api/tickets/**').as('getTicketData');
 
         //cy.get('[style="margin:5px"] > :nth-child(1) > :nth-child(4)').click().wait("@getData"); // goto allTickets via html
         //cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(3)').dblclick().wait("@getData",{timeout:10000}); // 3ed row, 3ed cell
@@ -75,15 +88,15 @@ describe("Basic tests for TeamReact", () => {
         cy.get(".layout-menu-button > .pi").click(); // open menu
 
         cy.get(".layout-main-menu > :nth-child(3) > :nth-child(2)").click();
-        cy.get(".active-menuitem > ul > :nth-child(3) > a").click().wait("@getData");
+        cy.get(".active-menuitem > ul > :nth-child(3) > a").click().wait("@getTicketData");
         //cy.get('.layout-main-menu > :nth-child(1) > :nth-child(2)').click();
         cy.get('.p-datatable-tbody > :nth-child(3) > :nth-child(2)').dblclick().wait(1000);
 
         // Test nav arrows
-        cy.get('.l-nav-last > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-first > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-next > .pi').click().wait("@getData").wait(100);
-        cy.get('.l-nav-prev > .pi').click().wait("@getData").wait(100);
+        cy.get('.l-nav-last:not(.p-disabled) > .pi').click().wait("@getTicketData").wait(100);
+        cy.get('.l-nav-first:not(.p-disabled) > .pi').click().wait("@getTicketData").wait(100);
+        cy.get('.l-nav-next:not(.p-disabled) > .pi').click().wait("@getTicketData").wait(100);
+        cy.get('.l-nav-prev:not(.p-disabled) > .pi').click().wait("@getTicketData").wait(100);
 
         // test detail -> other detail
         cy.get('.l-button-fk:first').click(); // opens Site
@@ -93,25 +106,26 @@ describe("Basic tests for TeamReact", () => {
 
         cy.get(".layout-menu-button > .pi").click(); // open menu
 
-        cy.get(".layout-main-menu > :nth-child(3) > :nth-child(2)").click();
-        cy.get(".active-menuitem > ul > :nth-child(3) > a").click().wait("@getData");
+        // cy.get(".layout-main-menu > :nth-child(3) > :nth-child(2)").click();
+        cy.get(".active-menuitem > ul > :nth-child(3) > a").click().wait("@getTicketData");
 
-        cy.get('.p-paginator-pages > :nth-child(2)').click().wait("@getData");
-        cy.get('.p-paginator-prev').click().wait("@getData");
-        cy.get('.p-paginator-next').click().wait("@getData");
-        
+        cy.get('.p-paginator-pages > :nth-child(2)').click().wait("@getTicketData");
+        cy.get('.p-paginator-prev').click().wait("@getTicketData");
+        cy.get('.p-paginator-next').click().wait("@getTicketData");
+
         //cy.go('/').wait(1000);
-        //cy.go('back').wait(1000);
-        //cy.visit('/')
+        cy.go('back').wait(1000);
+        cy.visit('/')
         // opens Site again
         //cy.get('.l-button-fk:first').click().wait("@getData");
         cy.get('.layout-home-button').click();
 
+        // Todo move into a seperate test for about page
         cy.get(".layout-menu-button > .pi").click(); // open menu
         cy.get(".layout-main-menu > :last ").click();
-        cy.get(".active-menuitem > ul > :last > a").click();
+        cy.get(".active-menuitem > ul > :last > a").click().wait("@getData");
 
-        cy.get('h1').contains("About");
+        cy.get('.l-detail-header').contains("About");
     });
 
     it("Should use mt + mk to allow navigation of slave-details", () => {
@@ -139,7 +153,7 @@ describe("Basic tests for TeamReact", () => {
         cy.route('/api/**').as('getData');
         cy.route('/choices/**').as('getChoices');
         cy.visit("http://127.0.0.1:8000/#/api/tickets/Tickets/1").wait("@getData");
-        cy.get(".l-detail-quicksearch input").type("68").wait(1000);
+        cy.get(".l-detail-quicksearch input").type("68").wait("@getChoices");
         cy.get('.p-autocomplete-list-item').click();
         cy.get(".l-detail-header").contains("#68");
 
