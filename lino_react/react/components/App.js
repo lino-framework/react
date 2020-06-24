@@ -1268,6 +1268,10 @@ class App extends React.Component {
                                                     // Don't remake the dialog object as that'll remount it
                                                     const diaIndex = previous.dialogs.findIndex(e => key(e) === id),
                                                         dia = previous.dialogs[diaIndex];
+                                                    // Sometimes after submiting and closing an update is fired... just ignore
+                                                    if (dia === undefined) {
+                                                        return {}
+                                                    }
                                                     dia.data = Object.assign({}, dia.data, values);
                                                     let dialogs = [...previous.dialogs];
                                                     return {dialogs: dialogs}
