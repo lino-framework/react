@@ -20,7 +20,6 @@ install:
   - pip install coveralls
   - pip install -r requirements.python3.txt
   - # test -e "requirements.$TRAVIS_BRANCH.txt" && ( pip install -r "requirements.$TRAVIS_BRANCH.txt" ) || ( pip install -r requirements.txt )
-  - npm install
   - pip install -e .
 
 script:
@@ -32,6 +31,7 @@ script:
   - python manage.py runserver -v 0 > /dev/null 2>&1 &
   - cd -
   - sleep 15
+  - npm install
   - npm run cy:run -- --spec cypress/integration/teamReact/* --config video=false
   - kill $(jobs -p) || true
   - inv cov
