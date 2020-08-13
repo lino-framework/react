@@ -12,7 +12,7 @@ import {Dialog} from 'primereact/dialog';
 import {SiteContext, ActorContext} from "./SiteContext";
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
-import { DomHandler } from "primereact/domhandler";
+import DomHandler from "primereact/domhandler";
 
 // better onOpen focusing logic.
 Dialog.prototype.focus = function focus() {
