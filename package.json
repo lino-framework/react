@@ -1,7 +1,7 @@
 {
   "name": "lino_react",
   "version": "1.0.0",
-  "description": "Experimental frontend for the Lino framework using FaceBook's React js Frameowrk",
+  "description": "Alternative front end for the Lino framework using FaceBook's React js Frameowrk",
   "main": "index.js",
   "directories": {
     "doc": "docs",

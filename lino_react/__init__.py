@@ -7,12 +7,8 @@
 
 """
 
+from .setup_info import SETUP_INFO
 
-import os
-
-from os.path import join, dirname
-fn = join(dirname(__file__), 'setup_info.py')
-exec(compile(open(fn, "rb").read(), fn, 'exec'))
 __version__ = SETUP_INFO['version']
 
 # intersphinx_urls = dict(docs="http://react.lino-framework.org")

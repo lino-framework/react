@@ -781,7 +781,8 @@ class UserSettings(View):
         su = request.subst_user
         su_name = request.subst_user.get_full_name() if su else ""
 
-        not_anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
+        # not_anon = u.is_authenticated if type(u.is_authenticated) == bool else u.is_authenticated()
+        not_anon = u.is_authenticated
 
         def getit():
             # print(20200419, settings.SITE.build_media_url(*settings.SITE.plugins.react.renderer.lino_js_parts()))

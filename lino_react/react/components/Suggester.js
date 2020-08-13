@@ -33,6 +33,7 @@ import InputTrigger from 'react-input-trigger';
 
 
 class Suggester extends React.Component {
+    // a lino-specific react component
     static propTypes = {
         actorData: PropTypes.object,
         actorId: PropTypes.string, // foo.bar
@@ -65,7 +66,7 @@ class Suggester extends React.Component {
     }
 
     stopDialogClose(e) {
-        console.log("sug keyDown");
+        console.log("20200705 Suggester.stopDialogClose");
         if (this.state.triggered && (e.key === "Escape" || event.which === 27)) {
             console.log("escBubble sug stop");
             e.preventDefault();
@@ -85,7 +86,7 @@ class Suggester extends React.Component {
         this.inputTrigger.resetState();
         this.div.removeEventListener('keydown', this.stopDialogClose)
 
-    }   
+    }
 
     getSuggestions(text, triggeredKey) {
         // this.props.getSuggestions();
