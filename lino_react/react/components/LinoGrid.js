@@ -82,7 +82,7 @@ export class LinoGrid extends Component {
             editingPK: undefined,
             editingValues: {},
 
-            display_mode: this.props.display_mode || props.actorData && props.actorData.display_mode || "grid",
+            display_mode: this.props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
 
             sortField: undefined, // Sort data index   (used in PR)
             sortFieldName: undefined, // Sort col.name (used in Lino)
