@@ -643,7 +643,7 @@ export class LinoGrid extends Component {
         //         // this.dataTable.closeEditingCell(); // Doesn't exist in local version,
         //         document.body.click(); // What closeEditingCell actually does.
         //         this.setState({editingValues: {}});
-        //         break;
+        //         ;
         //     case "Enter":
         //         if (Object.keys(this.state.editingValues).length){
         //             console.log("submittion")

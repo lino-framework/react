@@ -815,6 +815,15 @@ body .l-grid .p-datatable {
         }
     }
 
+    .l-DateFieldElement {
+        input {
+            margin-right: -2.357em;
+        }
+        .p-datepicker-trigger {
+            width: 2.357em !important;
+        }
+    }
+
 }
 
 .no-ws {

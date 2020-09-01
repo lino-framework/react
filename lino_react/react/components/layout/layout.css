@@ -669,6 +669,12 @@ body .l-grid .p-datatable .p-paginator {
     right: 2ch;
     transform: translateY(-50%); }
 
+body .l-grid .p-datatable .l-DateFieldElement input {
+  margin-right: -2.357em; }
+
+body .l-grid .p-datatable .l-DateFieldElement .p-datepicker-trigger {
+  width: 2.357em !important; }
+
 .no-ws {
   color: grey !important; }
 

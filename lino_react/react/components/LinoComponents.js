@@ -623,7 +623,7 @@ const LinoComponents = {
                 {props.editing_mode && !isDisabledField(props) ?
                     <Calendar style={{width: "100%"}}
                               appendTo={window.App.topDiv}
-
+                              showIcon={true}
                               value={value}
                               dateFormat="dd.mm.yy"
                               onChange={(e) => {
@@ -638,11 +638,13 @@ const LinoComponents = {
                                       props.column);
                               }
                               }
+                              showOnFocus={false}
                               showButtonBar={true}
                         // showIcon={true}
                               viewDate={this.parse_date(value)}
                               ref={(el) => this.cal = el}
                               convertValueToDate={this.convertValueToDate}
+                              className={"l-DateFieldElement"}
                     />
                     :
                     <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
