@@ -1,12 +1,7 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2012-2019 Rumma & Ko Ltd
+# Copyright 2012-2020 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
-
-from __future__ import unicode_literals
-
-from builtins import str
-import six
 
 from html import escape
 from os import path
@@ -490,7 +485,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
         if not js:
             return None
         # Convert to string as currently window actions are py2js => dict
-        if not isinstance(js, six.string_types):
+        if not isinstance(js, str):
             js = str(js)
         js = escape(js, quote=False)
         return 'javascript:' + js
