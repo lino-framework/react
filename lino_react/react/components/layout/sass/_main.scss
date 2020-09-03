@@ -751,79 +751,89 @@ body .l-bbar > * {
     margin-bottom: 1px;
 }
 
-body .l-grid .p-datatable {
-    .p-datatable-thead > tr > th {
-        //box-sizing: content-box;
+body .l-grid {
+
+    .p-dataview p{
+        margin: unset;
     }
 
-    div.p-datatable-wrapper > table {
-        //table-layout: unset; /* allows for smaller tables and seems to resize better*/
-    }
-    .p-datatable-tbody > tr > td.p-cell-editing {
-        overflow: unset;
+    .p-datatable {
+        .p-datatable-thead > tr > th {
+            //box-sizing: content-box;
+        }
 
-        //.p-autocomplete-panel {
-        //    min-width: max-content;
-        //    position: fixed;
-        //    left: unset !important;
-        //    top: unset !important;
-        //    width: auto;
-        //    margin-top: 32px; // Should be changed if we try to go for a more compact view.
-        //    max-height: unset !important;
-        //}
+        div.p-datatable-wrapper > table {
+            //table-layout: unset; /* allows for smaller tables and seems to resize better*/
+        }
 
-        .p-datepicker {
-            min-width: max-content;
-            position: fixed;
-            left: unset !important;
-            top: unset !important;
-            width: auto;
-            table.p-datepicker-calendar {
-                display: block;
+        .p-datatable-tbody > tr > td.p-cell-editing {
+            overflow: unset;
+
+            //.p-autocomplete-panel {
+            //    min-width: max-content;
+            //    position: fixed;
+            //    left: unset !important;
+            //    top: unset !important;
+            //    width: auto;
+            //    margin-top: 32px; // Should be changed if we try to go for a more compact view.
+            //    max-height: unset !important;
+            //}
+
+            .p-datepicker {
+                min-width: max-content;
+                position: fixed;
+                left: unset !important;
+                top: unset !important;
+                width: auto;
+
+                table.p-datepicker-calendar {
+                    display: block;
+                }
+            }
+        }
+
+        .p-datatable-header {
+            padding: 0.15em 0.25em;
+            //display: inline-block;
+            //position: absolute;
+            //left: 0;
+            //right: 0;
+            //z-index: -1;
+
+            .p-button {
+                //margin-right: 2px;
+                //margin-bottom: 1px;
+                // Possiblly make the action button smaller...
+                //.p-button-text-only .p-button-text {
+                //    padding: 0 1em;
+                //}
+                //.p-button-icon-only .p-button-icon {
+                //    padding: 0 0.5em;
+                //}
+            }
+        }
+
+        .p-paginator {
+            position: relative;
+
+            .p-paginator-right-content {
+                position: absolute;
+                top: 50%;
+                right: 2ch;
+                transform: translateY(-50%);
+            }
+        }
+
+        .l-DateFieldElement {
+            input {
+                margin-right: -2.357em;
+            }
+
+            .p-datepicker-trigger {
+                width: 2.357em !important;
             }
         }
     }
-
-    .p-datatable-header {
-        padding: 0.15em 0.25em;
-        //display: inline-block;
-        //position: absolute;
-        //left: 0;
-        //right: 0;
-        //z-index: -1;
-
-        .p-button {
-            //margin-right: 2px;
-            //margin-bottom: 1px;
-            // Possiblly make the action button smaller...
-            //.p-button-text-only .p-button-text {
-            //    padding: 0 1em;
-            //}
-            //.p-button-icon-only .p-button-icon {
-            //    padding: 0 0.5em;
-            //}
-        }
-    }
-
-    .p-paginator {
-        position: relative;
-        .p-paginator-right-content {
-            position: absolute;
-            top: 50%;
-            right: 2ch;
-            transform: translateY(-50%);
-        }
-    }
-
-    .l-DateFieldElement {
-        input {
-            margin-right: -2.357em;
-        }
-        .p-datepicker-trigger {
-            width: 2.357em !important;
-        }
-    }
-
 }
 
 .no-ws {
