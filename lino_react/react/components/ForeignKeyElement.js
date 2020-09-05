@@ -11,8 +11,6 @@ import {fetch as fetchPolyfill} from "whatwg-fetch";
 
 import {ActorData, ActorContext} from "./SiteContext"
 
-import DomHandler from 'primereact/domhandler';
-
 export class ForeignKeyElement extends Component {
 
     static propTypes = {
@@ -58,7 +56,7 @@ export class ForeignKeyElement extends Component {
         if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && this.autoComplete && !this.autoComplete.isPanelVisible()) {
             this.autoComplete.search(event, "", "dropdown"); // open suggestions with keyboard
         } else if (event.key === "Enter" && this.autoComplete && this.autoComplete.isPanelVisible()) {
-            let highlight = DomHandler.findSingle(this.autoComplete.panel.element, 'li.p-highlight');
+            let highlight = this.autoComplete.panel.element.querySelector('li.p-highlight');
             if (!highlight) {
                 this.autoComplete.selectItem(event, this.state.rows[0]); // sets value but doesn't close panel
                 this.autoComplete.hidePanel();

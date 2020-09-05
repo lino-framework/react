@@ -12,13 +12,12 @@ import {Dialog} from 'primereact/dialog';
 import {SiteContext, ActorContext} from "./SiteContext";
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
-import DomHandler from "primereact/domhandler";
 
 // better onOpen focusing logic.
 Dialog.prototype.focus = function focus() {
     let focusable;
     [this.contentElement, this.footerElement, this.headerElement].filter(e => e).some(elem => {
-        focusable = DomHandler.findSingle(elem, 'button,input,textarea');
+        focusable = elem.querySelector('button,input,textarea');
         return focusable; // if true breaks loop
     });
     if (focusable) {

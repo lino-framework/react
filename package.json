@@ -49,7 +49,6 @@
     "postcss-flexbugs-fixes": "^4.2.1",
     "postcss-loader": "^3.0.0",
     "primeflex": "^1.1.0",
-    "primereact": "github:lino-framework/primereact",
     "prop-types": "^15.6.2",
     "query-string": "^6.12.1",
     "style-loader": "^0.23.1",
@@ -62,6 +61,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "primeicons": "^2.0.0",
+    "primereact": "^5.0.0-rc.1",
     "quill": "^1.3.7",
     "rc-collapse": "^1.11.8",
     "react": "^16.13.1",

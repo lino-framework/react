@@ -647,6 +647,9 @@ body .l-bbar > * {
   margin-right: 2px;
   margin-bottom: 1px; }
 
+body .l-grid .p-dataview p {
+  margin: unset; }
+
 body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing {
   overflow: unset; }
   body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing .p-datepicker {

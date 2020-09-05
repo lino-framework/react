@@ -28,10 +28,9 @@ import {Button} from 'primereact/button';
 import {ScrollPanel} from 'primereact/components/scrollpanel/ScrollPanel';
 import {OverlayPanel} from 'primereact/overlaypanel';
 import {ProgressSpinner} from 'primereact/progressspinner';
-import {Growl} from 'primereact/growl';
-import DomHandler from 'primereact/domhandler';
+import {Toast} from 'primereact/toast';
 
-import 'primereact/resources/themes/nova-light/theme.css';
+import 'primereact/resources/themes/nova/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
@@ -351,7 +350,7 @@ class App extends React.Component {
             if (this.state.WS) {
                 // lost connection from server for first time atm.
                 // Commented out, too distracting, pops up also when closed normally, via a page refresh
-                /*this.growl.show({
+                /*this.toast.show({
                     severity: "error",
                     summary: "Connection to Lino server lost",
                     detail: "Please wait, and contact system administrator if the problem persists."
@@ -576,7 +575,7 @@ class App extends React.Component {
                     };
                 }
                 resp.text().then((text) => {
-                    this.growl.show({
+                    this.toast.show({
                         severity: "error",
                         summary: "Bad Request",
                         detail: text,
@@ -593,7 +592,7 @@ class App extends React.Component {
                         message: "Permission denied"
                     };
                 }
-                this.growl.show({
+                this.toast.show({
                     severity: "error",
                     summary: "Permission denied",
                     detail: "You have no permission to see this resource."
@@ -608,7 +607,7 @@ class App extends React.Component {
                         message: "Internal Error"
                     };
                 }
-                this.growl.show({
+                this.toast.show({
                     severity: "error",
                     summary: "Internal Error",
                     detail: "Lino has experienced an internal server error, please contact the system administer if" +
@@ -625,7 +624,7 @@ class App extends React.Component {
 
     handleAjaxException = (error) => {
         console.error(error);
-        this.growl.show({
+        this.toast.show({
             severity: "error",
             summary: "Error",
             detail: error.message,
@@ -980,7 +979,7 @@ class App extends React.Component {
         }
 
         if (response.record_deleted && response.success) {
-            this.growl.show({
+            this.toast.show({
                 // severity: "error",
                 severity: "success",
                 summary: "Success",
@@ -1018,7 +1017,7 @@ class App extends React.Component {
         }
 
         if (response.message) {
-            this.growl.show({
+            this.toast.show({
                 // severity: "error",
                 severity: response.alert ? response.alert.toLowerCase() : response.success ? "success" : "info",
                 summary: response.alert || (response.success ? "Success" : "Info"),
@@ -1206,7 +1205,7 @@ class App extends React.Component {
 
                     </div>
                     <div className="layout-main">
-                        <Growl ref={(el) => this.growl = el}/>
+                        <Toast ref={(el) => this.toast = el}/>
 
                         <Route exact path="/" render={(match) => (
                             <DashboardItems ref={(el) => {

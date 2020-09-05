@@ -12,7 +12,6 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
 import {Calendar} from 'primereact/calendar';
-import DomHandler from "primereact/domhandler";
 import {FileUpload} from "primereact/fileupload"
 
 import {LinoGrid} from "./LinoGrid";

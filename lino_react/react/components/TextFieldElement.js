@@ -12,10 +12,9 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
 import {Calendar} from 'primereact/calendar';
-import DomHandler from "primereact/domhandler";
 
 import {LinoGrid} from "./LinoGrid";
-import {debounce} from "./LinoUtils";
+import {debounce, getViewport} from "./LinoUtils";
 
 import classNames from 'classnames';
 // import {ForeignKeyElement} from "./ForeignKeyElement";
@@ -39,7 +38,7 @@ class TextFieldElement extends React.Component {
         this.fixHeight = debounce(this.fixHeight.bind(this), 50);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.componentDidUpdate = this.componentDidUpdate.bind(this);
-        if (DomHandler.getViewport().width <= 600) {
+        if (getViewport().width <= 600) {
             this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
                 <span className="ql-formats">
                     <button className="ql-bold" aria-label="Bold"/>

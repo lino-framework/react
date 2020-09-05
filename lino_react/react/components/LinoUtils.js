@@ -7,6 +7,20 @@ export function isMobile() {
     return window.matchMedia("only screen and (max-width: 760px)").matches;
 }
 
+
+export function getViewport(){
+    let win = window,
+        d = document,
+        e = d.documentElement,
+        g = d.getElementsByTagName('body')[0],
+        w = win.innerWidth || e.clientWidth || g.clientWidth,
+        h = win.innerHeight || e.clientHeight || g.clientHeight;
+    return {
+      width: w,
+      height: h
+    };
+  }
+
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
