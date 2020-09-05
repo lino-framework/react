@@ -53,9 +53,9 @@ export class ForeignKeyElement extends Component {
     };
 
     onKeyPress(event) {
-        if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && this.autoComplete && !this.autoComplete.isPanelVisible()) {
+        if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && this.autoComplete && !this.autoComplete.state.overlayVisible) {
             this.autoComplete.search(event, "", "dropdown"); // open suggestions with keyboard
-        } else if (event.key === "Enter" && this.autoComplete && this.autoComplete.isPanelVisible()) {
+        } else if (event.key === "Enter" && this.autoComplete && this.autoComplete.state.overlayVisible) {
             let highlight = this.autoComplete.panel.element.querySelector('li.p-highlight');
             if (!highlight) {
                 this.autoComplete.selectItem(event, this.state.rows[0]); // sets value but doesn't close panel
@@ -188,7 +188,7 @@ export class ForeignKeyElement extends Component {
         // props.update_value({[props.elem.name]: e.value})
         return <ActorContext.Consumer>{(this_actorData) => (
             <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                <div className="l-ForeignKeyElement">
+                <div className="l-ForeignKeyElement" onKeyDown={this.onKeyPress}>
                     {editing_mode ?
                         <React.Fragment> <AutoComplete value={value}
                                                        appendTo={window.App.topDiv} onChange={this.onChange}
@@ -199,7 +199,7 @@ export class ForeignKeyElement extends Component {
                                                        completeMethod={(e) => this.getChoices(e.query, this_actorData)}
                                                        container={this.props.container}
                                                        ref={(el) => this.autoComplete = el}
-                                                       onKeyDown={this.onKeyPress}
+
                                                        onShowLoader={() => {
                                                            if (this.clearButton) {
                                                                this.clearButton.style.visibility = 'hidden'
