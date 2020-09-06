@@ -196,7 +196,6 @@ const LinoComponents = {
                                 //Todo clear tied to props.elem.field_options.blank
                                 showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
                                 options={options}
-                                container={props.container}
                                 appendTo={window.App.topDiv}
                                 onChange={(e) => {
                                     // console.log(e);
@@ -250,7 +249,6 @@ const LinoComponents = {
                             //Todo clear tied to props.elem.field_options.blank
                             showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
                             options={store}
-                            container={props.container}
                             appendTo={window.App.topDiv}
                             onChange={(e) => {
                                 // console.log(e);

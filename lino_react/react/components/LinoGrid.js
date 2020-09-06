@@ -244,8 +244,7 @@ export class LinoGrid extends Component {
                                     // console.log("Try go find and start editing cell", target, tr)
                                 }, 200)
                             }
-                        }
-                        else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
+                        } else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
                             state.editingValues = Object.assign({}, {...data.rows[0]}) // update editing values
                         }
                         rows[rowIndex] = data.rows[0];
@@ -277,8 +276,7 @@ export class LinoGrid extends Component {
 
                 }, 20)
             }
-        }
-        else {
+        } else {
             submit()
         }
     }
@@ -306,8 +304,7 @@ export class LinoGrid extends Component {
                             old.editingValues[field] = !old.editingValues[field];
                         }
                         return {editingValues: Object.assign({}, {...old.editingValues})} // keep old editing values
-                    }
-                    else if (rowData[this.props.actorData.pk_index] === null) {
+                    } else if (rowData[this.props.actorData.pk_index] === null) {
                         if (boolField) {
                             this.editorDirty = true;
                             editingValues[field] = true
@@ -316,8 +313,7 @@ export class LinoGrid extends Component {
                             editingPK: null, // start editing a phantom with empty values not null values.
                             editingValues: editingValues
                         }
-                    }
-                    else {
+                    } else {
                         if (boolField) {
                             // When we edit BooleanFieldElement field we change its value
                             this.editorDirty = true; // Make the editor dirty as we want to edit on first click
@@ -499,8 +495,7 @@ export class LinoGrid extends Component {
         // Allow setting of page via reload method params, (requried for paginator)
         if (page !== undefined) {
             state.page = page;
-        }
-        else {
+        } else {
             page = this.state.page;
         }
 
@@ -547,14 +542,12 @@ export class LinoGrid extends Component {
 
         if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
             ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
-        }
-        else if (this.props.actorData.pv_layout) {
+        } else if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
             // use either, pv passed with reload method, current state, or failing all, in url
             if (!this.props.inDetail && pv === undefined && Object.keys(this.state.pv_values).length === 0) {
                 ajax_query.pv = search.pv
-            }
-            else if (Object.keys(this.state.pv_values).length !== 0){ // only apply when there's some data there to insure getting of default values form server
+            } else if (Object.keys(this.state.pv_values).length !== 0) { // only apply when there's some data there to insure getting of default values form server
                 ajax_query.pv = pvObj2array(pv || this.state.pv_values, this.props.actorData.pv_fields);
             }
             // convert pv values from obj to array and add to ajax call
@@ -711,7 +704,7 @@ export class LinoGrid extends Component {
                                 style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
                                 className={`l-grid-col l-grid-col-${col.name} ${
                                     this.state.editingCellIndex === i ? 'p-cell-editing' : ''
-                                    }`}
+                                }`}
                                 onEditorCancel={this.onCancel}
                                 onEditorSubmit={this.onSubmit}
                                 onEditorOpen={this.onEditorOpen}
@@ -801,7 +794,11 @@ export class LinoGrid extends Component {
     renderExpandButton() {
         return <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
                        icon="pi pi-external-link"
-                       style={{'unused_float': 'right'}}/>
+                       style={{
+                           width: "1.2em",
+                           height: "1.2em",
+                           padding: "unset",
+                           marginBottom: "2px"}}/>
     }
 
     renderQuickFilter(wide) {
@@ -846,45 +843,37 @@ export class LinoGrid extends Component {
             return this.renderSimpleHeader();
         }
 
-        return <div className="p-clearfix p-grid"
-            // style={{'lineHeight': '1.87em'}}
-        >
-            <div>
-                <div className={"p-col p-justify"}><span
-                    className="l-grid-header">{this.state.title || this.props.actorData.label}</span></div>
+        return <React.Fragment>
+            <div className="table-header">
+                <div>{this.state.title || this.props.actorData.label} {this.renderExpandButton()}</div>
+                {this.renderDataViewLayout()}
 
-                <div className={"p-col p-justify-end"}>
-                    {this.renderExpandButton()}
-                    {this.renderDataViewLayout()}
-                </div>
             </div>
             {this.renderProgressBar()}
-        </div>
+        </React.Fragment>
     }
 
     renderMainGridHeader() {
         let {actorData} = this.props;
-        return <div className="p-clearfix p-grid"
-            // style={{'lineHeight': '1.87em'}}
-        >
-            <div className={"p-col p-justify-end"} style={{"textAlign": "left"}}>
-                {!actorData.react_big_search && this.renderQuickFilter()}
-                {this.renderParamValueControls()}
-                {this.renderToggle_colControls()}
+        return <React.Fragment>
+            <div className={"table-header"}>
 
-            </div>
-            <div>
-                <div className={"p-col p-justify-center"}><span
-                    className="l-grid-header">{this.state.title || this.props.actorData.label}</span></div>
-
-                <div className={"p-col p-justify-end"}>
-                    {this.renderDataViewLayout()}
+                <div>
+                    {!actorData.react_big_search && this.renderQuickFilter()}
+                    {this.renderParamValueControls()}
+                    {this.renderToggle_colControls()}
                 </div>
+                                {this.state.title || this.props.actorData.label}
+
+                {this.renderDataViewLayout()}
+
             </div>
+            <div className={"table-header"}>
             {this.renderActionBar()}
+            </div>
             {actorData.react_big_search && this.renderQuickFilter(true)}
             {this.renderProgressBar()}
-        </div>
+        </React.Fragment>
     }
 
     renderProgressBar() {
@@ -1013,9 +1002,9 @@ export class LinoGrid extends Component {
                     :
                     this.props.actorData.borderless_list_mode ?
                         <div>
-                        {this.state.rows.map((row, index )=> (
-                            <div key={this.state.rows[index].id}>{this.itemTemplate(row)}</div>
-                        ))}
+                            {this.state.rows.map((row, index) => (
+                                <div key={this.state.rows[index].id}>{this.itemTemplate(row)}</div>
+                            ))}
                         </div>
                         :
 

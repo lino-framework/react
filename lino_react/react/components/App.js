@@ -1104,7 +1104,7 @@ class App extends React.Component {
                     let diags = old.dialogs.filter((x) => x !== diag_props);
                     return {dialogs: diags};
                 });
-                !closeParent && ParentlinoDialog && ParentlinoDialog.dialog.show();
+                // !closeParent && ParentlinoDialog && ParentlinoDialog.dialog.show();
 
             },
             closeOnEscape: true,

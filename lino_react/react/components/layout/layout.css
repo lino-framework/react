@@ -647,8 +647,24 @@ body .l-bbar > * {
   margin-right: 2px;
   margin-bottom: 1px; }
 
+body .l-grid .p-dataview .p-panel-header {
+  padding: 0px 1ch; }
+
+body .l-grid .p-dataview .p-panel-content {
+  padding-top: 1ch;
+  padding-left: 1ch; }
+
 body .l-grid .p-dataview p {
   margin: unset; }
+
+body .l-grid .table-header {
+  display: flex;
+  justify-content: space-between; }
+  body .l-grid .table-header .l-DataViewLayoutOptions {
+    display: inline; }
+
+body .l-grid .p-datatable .p-datatable-thead > tr > th {
+  border-bottom-width: 3px; }
 
 body .l-grid .p-datatable .p-datatable-tbody > tr > td.p-cell-editing {
   overflow: unset; }
@@ -680,6 +696,9 @@ body .l-grid .p-datatable .l-DateFieldElement .p-datepicker-trigger {
 
 .no-ws {
   color: grey !important; }
+
+.l-itemTemplate {
+  width: 100%; }
 
 .chatwindow-chats > .p-scrollpanel-content {
   display: flex;
@@ -716,6 +735,9 @@ body .l-grid .p-datatable .l-DateFieldElement .p-datepicker-trigger {
     padding: unset !important; }
   .chatwindow .p-editor-container {
     padding-bottom: unset; }
+
+body .l-detail-toolbar .p-toolbar-group-left {
+  display: block; }
 
 body .l-detail-toolbar .p-button {
   margin-right: 2px;

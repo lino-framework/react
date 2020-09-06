@@ -753,13 +753,32 @@ body .l-bbar > * {
 
 body .l-grid {
 
-    .p-dataview p{
-        margin: unset;
+    .p-dataview {
+        .p-panel-header {
+            padding: 0px 1ch;
+        }
+        .p-panel-content{
+            padding-top: 1ch;
+            padding-left: 1ch;
+        }
+        p {
+            margin: unset;
+        }
+    }
+    .table-header {
+        .l-DataViewLayoutOptions {
+          display: inline;
+        }
+
+        display: flex;
+        justify-content: space-between;
     }
 
     .p-datatable {
+
         .p-datatable-thead > tr > th {
             //box-sizing: content-box;
+            border-bottom-width: 3px;
         }
 
         div.p-datatable-wrapper > table {
@@ -842,7 +861,7 @@ body .l-grid {
 
 
 .l-itemTemplate {
-
+    width: 100%;
 }
 
 .chatwindow-chats > .p-scrollpanel-content {
