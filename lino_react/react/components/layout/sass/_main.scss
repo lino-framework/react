@@ -902,9 +902,15 @@ body .l-grid {
     }
 }
 
-body .l-detail-toolbar .p-button {
+body .l-detail-toolbar {
+
+  .p-toolbar-group-left {
+    display: block;
+  }
+  .p-button {
     margin-right: 2px;
     margin-bottom: 1px;
+  }
 }
 
 @media (max-width: 600px) {
