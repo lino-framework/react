@@ -11,7 +11,7 @@ import {Editor} from 'primereact/editor';
 import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
-import {Calendar} from 'primereact/calendar';
+import Calendar from './primereact/calendar';
 import {FileUpload} from "primereact/fileupload"
 
 import {LinoGrid} from "./LinoGrid";
@@ -565,6 +565,12 @@ const LinoComponents = {
                      isFilled={true} // either 1 or 0, can't be unfilled
             >
                 <Checkbox readOnly={!props.editing_mode || isDisabledField(props)}
+                          onMouseDown={(e) => {
+                              if (props.in_grid && !props.editing_mode){
+                                  document.boolFieldClick = true
+                                  setTimeout(()=>{document.boolFieldClick = false}, 200)
+                              }
+                          }}
                           onChange={(e) => {
                               if (props.in_grid && e.originalEvent.key === "Enter") return // Don't change when pressing enter in grid, that is for navigation.
                               props.update_value({[getDataKey(props)]: e.checked},
@@ -725,7 +731,7 @@ const LinoComponents = {
                               inputStyle={{width: "100%"}}
                               value={value}
                               appendTo={window.App.topDiv}
-
+                              keepInvalid={true}
                         // dateFormat="dd.mm.yy"
                               onChange={(e) => {
                                   let time;

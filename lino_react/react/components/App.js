@@ -310,7 +310,7 @@ class App extends React.Component {
     }
 
     positionChatOp(e) {
-        if (this.chatOp && this.chatOp.isVisible()) {
+        if (this.chatOp && this.chatOp.state.visible) {
             this.chatOp.hide();
             this.chatOp.show({target: window.App.chatButton});
         }
@@ -1122,8 +1122,8 @@ class App extends React.Component {
                     // }, 50)
                 }}/>
                 <Button className={"p-button-secondary"} label={"no"} onClick={() => {
-                    window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
-                    window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
+                    // window.App.dialogRefs[key(diag_props)].dialog.unbindMaskClickListener();
+                    // window.App.dialogRefs[key(diag_props)].dialog.unbindGlobalListeners();
                     diag_props.onClose();
                 }}/>
             </div>,

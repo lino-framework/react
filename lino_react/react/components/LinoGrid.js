@@ -120,7 +120,7 @@ export class LinoGrid extends Component {
         this.handelKeydown = this.handelKeydown.bind(this);
         this.onCancel = this.onCancel.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-        this.onEditorOpen = this.onEditorOpen.bind(this);
+        this.onEditorInit = this.onEditorInit.bind(this);
         this.onSort = this.onSort.bind(this);
         this.get_URL_PARAM_COLUMNS = this.get_URL_PARAM_COLUMNS.bind(this);
         // this.renderDataTable = this.renderDataTable.bind(this);
@@ -194,7 +194,54 @@ export class LinoGrid extends Component {
                 mt: this.props.mt,
 
             };
-            return <LinoLayout {...prop_bundle} elem={col}/>;
+            return <div
+            onKeyDown={(event) => {
+                let el = event.target,
+                    tr = el.closest("tr");
+                if (event.key === "Enter") {
+                    tr = event.shiftKey ? tr.previousSibling :
+                        tr.nextSibling;
+                    let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
+
+                    if (tr) { //might be end of table
+                        tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
+                        // if (helper.length) {
+                        //     helper[0].focus()
+                    }
+
+                    document.gridEnterPress = true
+                    document.gridShiftPress = event.shiftKey
+                    document.gridEntertd = el.closest("td")
+                    document.gridTdIndex = cellIndex
+                    setTimeout(()=>{
+                        delete(document.gridEnterPress)
+                        delete(document.gridShiftPress)
+                        delete(document.gridEntertd)
+                        delete(document.gridTdIndex)
+
+                    }, 2000)
+
+                }
+                if (event.key === "Tab") {
+                    let tbl = el.closest("table");
+                    // bad logic, should just find all of that class, find the one containing self, and + / - 1 and focus.
+                    let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
+                        i = cols.findIndex((n) => n.parentElement.contains(el));
+                    i = event.shiftKey ? i - 1 : i + 1;
+                    // if (i === cols.length || i < 0) { // if out of index range of cols
+                    // Gotta goto next tr..
+                    // tr = event.shiftKey ? tr.previousSibling :
+                    //                       tr.nextSibling;
+                    // cols = Array(...tr.getElementsByClassName("p-cell-editor-key-helper"));
+                    // i = i < 0 ? cols.length-1 : 0; // last or first col.
+                    // }
+                    cols[i].focus() // Open next / prev editor
+
+
+                }
+
+            }}>
+                <LinoLayout {...prop_bundle} elem={col}/></div>;
         }
     }
 
@@ -202,7 +249,7 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(event, cellProps, bodyCell) {
+    onSubmit(cellProps,event, bodyCell) {
         let {rowData, field, rowIndex} = cellProps;
         // check if new row
         // save row index
@@ -210,13 +257,13 @@ export class LinoGrid extends Component {
         // Objects.assign over this.state.rows[rowIndex]
         // console.log("onSubmit", cellProps, this.state.editingValues);
         let editingPK = this.state.editingPK;
-        let {key, which, target} = event;
+        // let {key, which, target} = event;
         if (!this.editorDirty) {
             return
         }
 
-        let td = bodyCell.container,
-            tdIndex = Array.prototype.indexOf.call(td.parentElement.children, td);
+        // let td = bodyCell.container,
+        //     tdIndex = Array.prototype.indexOf.call(td.parentElement.children, td);
 
         let submit = (openNextCell) => {
             window.App.runAction({
@@ -240,7 +287,7 @@ export class LinoGrid extends Component {
                             if (openNextCell) {
                                 this.editPhantomRowAgain = setTimeout(() => {
                                     //TODO open phantom row
-                                    td.parentElement.nextSibling.children[tdIndex].click();
+                                    document.gridEntertd.parentElement.nextSibling.children[document.gridTdIndex].click();
                                     // console.log("Try go find and start editing cell", target, tr)
                                 }, 200)
                             }
@@ -256,8 +303,8 @@ export class LinoGrid extends Component {
 
         if (editingPK === null) {
 
-            if (key === "Enter") {
-                submit(!event.shiftKey);
+            if (document.gridEnterPress) {
+                submit(!document.gridShiftPress);
 
             } else {
                 this.phantomSubmit = setTimeout(() => {
@@ -281,11 +328,12 @@ export class LinoGrid extends Component {
         }
     }
 
-    onEditorOpen(event, cellProps) {
+    onEditorInit(cellProps) {
         let {rowData, field} = cellProps;
         console.log("editor Open");
         let was_dirty = this.editorDirty;
-        let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
+        // let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
+        let boolField = document.boolFieldClick; // undefined for now. Boolfield should set it
 
         setTimeout(() => { // delay as we should submit before clearing editing values.
                 this.editorDirty = false;
@@ -300,10 +348,6 @@ export class LinoGrid extends Component {
                     if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
                         this.editorDirty = true; // we have old values so still dirty.
                         clearTimeout(this.phantomSubmit);
-                        if (boolField) {
-                            old.editingValues[field] = !old.editingValues[field];
-                        }
-                        return {editingValues: Object.assign({}, {...old.editingValues})} // keep old editing values
                     } else if (rowData[this.props.actorData.pk_index] === null) {
                         if (boolField) {
                             this.editorDirty = true;
@@ -707,7 +751,7 @@ export class LinoGrid extends Component {
                                 }`}
                                 onEditorCancel={this.onCancel}
                                 onEditorSubmit={this.onSubmit}
-                                onEditorOpen={this.onEditorOpen}
+                                onEditorInit={this.onEditorInit}
                             // validaterEvent={"blur"}
                                 isDisabled={
                                     (props) => (props.rowData[props.rowData.length - 1] ||
@@ -798,7 +842,8 @@ export class LinoGrid extends Component {
                            width: "1.2em",
                            height: "1.2em",
                            padding: "unset",
-                           marginBottom: "2px"}}/>
+                           marginBottom: "2px"
+                       }}/>
     }
 
     renderQuickFilter(wide) {
@@ -863,13 +908,13 @@ export class LinoGrid extends Component {
                     {this.renderParamValueControls()}
                     {this.renderToggle_colControls()}
                 </div>
-                                {this.state.title || this.props.actorData.label}
+                {this.state.title || this.props.actorData.label}
 
                 {this.renderDataViewLayout()}
 
             </div>
             <div className={"table-header"}>
-            {this.renderActionBar()}
+                {this.renderActionBar()}
             </div>
             {actorData.react_big_search && this.renderQuickFilter(true)}
             {this.renderProgressBar()}
@@ -967,7 +1012,7 @@ export class LinoGrid extends Component {
             footer = this.renderPaginator();
 
         return <React.Fragment>
-            <div className={"l-grid"}>
+            <div className={"l-grid"} >
                 {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ?
                     <DataTable
                         reorderableColumns={true}
