@@ -12,7 +12,7 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
 import Calendar from './primereact/calendar';
-import {FileUpload} from "primereact/fileupload"
+import FileUpload from "./primereact/fileupload"
 
 import {LinoGrid} from "./LinoGrid";
 import {debounce, deepCompare} from "./LinoUtils";
