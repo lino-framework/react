@@ -1,3 +1,7 @@
+
+
+
+
 {
   "name": "lino_react",
   "version": "1.0.0",
@@ -9,10 +13,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "webpack --mode none ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
-    "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
-    "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js; npm run move_static",
-    "move_static": "rm -rf ./lino_react/react/static/media; mv  ./lino_react/react/static/react/static/media ./lino_react/react/static/;",
+    "debug": "webpack --mode none ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
+    "dev": "webpack --mode development ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
+    "build": "webpack --mode production ./lino_react/react/index.js --output ./lino_react/react/static/react/main.js",
     "build_css": "node_modules/node-sass-chokidar/bin/node-sass-chokidar ./lino_react/react/components/layout -o ./lino_react/react/components/layout",
     "cy:open": "./node_modules/.bin/cypress open",
     "cy:run": "./node_modules/.bin/cypress run"
