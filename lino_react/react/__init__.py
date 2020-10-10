@@ -21,7 +21,7 @@ class Plugin(Plugin):
     # ui_label = _("React")
     ui_handle_attr_name = 'react_handle'
 
-    needs_plugins = ['lino.modlib.jinja']
+    needs_plugins = ['lino.modlib.jinja', 'lino.modlib.memo']
 
     url_prefix = 'react'
 
