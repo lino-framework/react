@@ -56,7 +56,7 @@ export function isDisabledField(props) {
     return props.disabled_fields ? props.disabled_fields.hasOwnProperty(getDataKey(props)) : false;
 }
 
-export function shouldComponentUpdate(nextProps, nextState) { // requred for grid editing, otherwise it's very slow to type
+export function shouldComponentUpdate(nextProps, nextState) { // required for grid editing, otherwise it's very slow to type
     let {props} = this,
         value = getValue(props),
         next_value = getValue(nextProps);
@@ -166,23 +166,25 @@ const LinoComponents = {
     },
 
     ChoiceListFieldElement: class ChoiceListFieldElement extends React.Component {
-        constructor() {
-            super();
-            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-        }
+        // TODO : restore shouldComponentUpdate after 20201003?
+        // constructor() {
+        //     super();
+        //     this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        // }
 
         focus() {
             this.dropDown && this.dropDown.focusInput.focus();
         }
 
         render() {
-            // console.log("choice render")
             let {props} = this,
                 value = getValue(props),
                 hidden_value = getHiddenValue(props);
             return <SiteContext.Consumer>{(siteData) => {
                 let options = siteData.choicelists[props.elem.field_options.store];
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
+                // console.log("20201002 ChoiceListFieldElement.render()",
+                //   value, hidden_value, options)
                 return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                     {props.editing_mode && !isDisabledField(props) ?
                         <div className="l-ChoiceListFieldElement"
@@ -190,20 +192,27 @@ const LinoComponents = {
                             <Dropdown
                                 // autoWidth={false}
                                 style={{width: "100%"}}
-                                optionLabel={"text"}
-                                value={{text: value, value: hidden_value}}
-                                datakey={"value"}
-                                //Todo clear tied to props.elem.field_options.blank
-                                showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
+                                optionLabel="text"
+                                // optionValue="value"
+                                value={hidden_value}
+                                // value={{text: value, value: hidden_value}}
+                                // dataKey="value"
+                                showClear={props.elem.field_options.allowBlank} // no need to include a blank option, if we allow for a clear button.
                                 options={options}
                                 appendTo={window.App.topDiv}
                                 onChange={(e) => {
-                                    // console.log(e);
-                                    let v = e.target.value === null ? "" : e.target.value['text'],
-                                        h = e.target.value === null ? "" : e.target.value['value'];
+                                    // console.log("20201002 onChange", e);
+                                    let v = e.value === null ? "" : e.value;
+                                    // let v = e.value === null ? "" : e.value['text'],
+                                    //     h = e.value === null ? "" : e.value['value'];
+                                    // props.update_value({
+                                    //         [getDataKey(props)]: v,
+                                    //         [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                    //     },
+                                    //     props.elem,
+                                    //     props.column)
                                     props.update_value({
-                                            [getDataKey(props)]: v,
-                                            [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                            [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: v,
                                         },
                                         props.elem,
                                         props.column)
@@ -220,10 +229,11 @@ const LinoComponents = {
         }
     },
     ChoicesFieldElement: class ChoicesFieldElement extends React.Component {
-        constructor() {
-            super();
-            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-        }
+        // TODO : restore shouldComponentUpdate after 20201003?
+        // constructor() {
+        //     super();
+        //     this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+        // }
 
         focus() {
             this.dropDown && this.dropDown.focusInput.focus();
@@ -235,7 +245,7 @@ const LinoComponents = {
                 value = getValue(props),
                 hidden_value = getHiddenValue(props);
             let store = props.elem.field_options.store.map(x => ({'text': x[1], 'value': x[0]}));
-            ;
+            console.log("20201003 ChoicesFieldElement.render()", props, value, hidden_value, store);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode && !isDisabledField(props) ?
                     <div className="l-ChoiceListFieldElement"
@@ -243,20 +253,23 @@ const LinoComponents = {
                         <Dropdown
                             // autoWidth={false}
                             style={{width: "100%"}}
-                            optionLabel={"text"}
-                            value={{text: value, value: hidden_value}}
-                            datakey={"value"}
-                            //Todo clear tied to props.elem.field_options.blank
-                            showClear={props.elem.field_options.blank} // no need to include a blank option, if we allow for a clear button.
                             options={store}
+                            optionLabel="text"
+                            // optionValue="value"
+                            value={hidden_value}
+                            // value={{text: value, value: hidden_value}}
+                            // dataKey="value"
+                            showClear={props.elem.field_options.allowBlank}
                             appendTo={window.App.topDiv}
                             onChange={(e) => {
-                                // console.log(e);
-                                let v = e.target.value === null ? "" : e.target.value['text'],
-                                    h = e.target.value === null ? "" : e.target.value['value'];
+                                let v = e.value;
+                                // let v = e.target.value === null ? "" : e.target.value['text'],
+                                //     h = e.target.value === null ? "" : e.target.value['value'];
+                                let k = props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden";
+                                console.log("20201003 ChoicesField.onChange()", e, k, v);
                                 props.update_value({
-                                        [getDataKey(props)]: v,
-                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
+                                        // [getDataKey(props)]: v,
+                                        [k]: v
                                     },
                                     props.elem,
                                     props.column)
@@ -270,7 +283,7 @@ const LinoComponents = {
         }
     },
 
-    URLFieldElement: class ChoiceListFieldElement extends React.Component {
+    URLFieldElement: class URLFieldElement extends React.Component {
         constructor() {
             super();
             this.shouldComponentUpdate = shouldComponentUpdate.bind(this);

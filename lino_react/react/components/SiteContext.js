@@ -58,7 +58,7 @@ export class ActorData extends React.Component {
             fetchPolyfill(`/media/cache/json/Lino_${id}_${su || user_type}_${lang}.json`).then(
                 window.App.handleAjaxResponse
             ).then((data) => {
-                    console.log(`Fetched data for ${id}`, data);
+                    // console.log(`Fetched data for ${id}`, data);
                     store.setObject(key, data);
                     fn(data)
                 }

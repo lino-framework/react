@@ -29,7 +29,7 @@ export class Actor extends Component {
         super();
         this.state = {};
         // this.method = this.method.bind(this);
-        console.log(props.match.location.search)
+        // console.log(props.match.location.search)
 
     }
 
