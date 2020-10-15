@@ -1,9 +1,11 @@
 .. _react.changes:
 
 
-===============================
- Release Roadmap For LinoReact
-===============================
+=========
+Changelog
+=========
+
+See https://www.lino-framework.org/changes/index.html
 
 .. toctree::
    :maxdepth: 1
