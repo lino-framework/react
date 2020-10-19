@@ -245,7 +245,7 @@ const LinoComponents = {
                 value = getValue(props),
                 hidden_value = getHiddenValue(props);
             let store = props.elem.field_options.store.map(x => ({'text': x[1], 'value': x[0]}));
-            console.log("20201003 ChoicesFieldElement.render()", props, value, hidden_value, store);
+            // console.log("20201003 ChoicesFieldElement.render()", props, value, hidden_value, store);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                 {props.editing_mode && !isDisabledField(props) ?
                     <div className="l-ChoiceListFieldElement"
@@ -266,7 +266,7 @@ const LinoComponents = {
                                 // let v = e.target.value === null ? "" : e.target.value['text'],
                                 //     h = e.target.value === null ? "" : e.target.value['value'];
                                 let k = props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden";
-                                console.log("20201003 ChoicesField.onChange()", e, k, v);
+                                // console.log("20201003 ChoicesField.onChange()", e, k, v);
                                 props.update_value({
                                         // [getDataKey(props)]: v,
                                         [k]: v
