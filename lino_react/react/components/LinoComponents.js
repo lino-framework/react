@@ -177,14 +177,13 @@ const LinoComponents = {
         }
 
         render() {
-            let {props} = this,
+            let {props} = this, // equivalent (or almost) to let props = this.props;
                 value = getValue(props),
                 hidden_value = getHiddenValue(props);
             return <SiteContext.Consumer>{(siteData) => {
                 let options = siteData.choicelists[props.elem.field_options.store];
                 // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
-                // console.log("20201002 ChoiceListFieldElement.render()",
-                //   value, hidden_value, options)
+                // console.log("20201002 ChoiceListFieldElement.render()", options)
                 return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
                     {props.editing_mode && !isDisabledField(props) ?
                         <div className="l-ChoiceListFieldElement"
@@ -201,21 +200,17 @@ const LinoComponents = {
                                 options={options}
                                 appendTo={window.App.topDiv}
                                 onChange={(e) => {
-                                    // console.log("20201002 onChange", e);
+                                    // console.log("20201121 a onChange", e, props);
                                     let v = e.value === null ? "" : e.value;
                                     // let v = e.value === null ? "" : e.value['text'],
                                     //     h = e.value === null ? "" : e.value['value'];
-                                    // props.update_value({
-                                    //         [getDataKey(props)]: v,
-                                    //         [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: h,
-                                    //     },
-                                    //     props.elem,
-                                    //     props.column)
                                     props.update_value({
                                             [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: v,
+                                            [getDataKey(props)]: v
                                         },
                                         props.elem,
                                         props.column)
+                                    // console.log("20201121 b onChange", e, props);
                                 }}
                                 ref={el => this.dropDown = el}
                                 // placeholder={""}
@@ -265,11 +260,11 @@ const LinoComponents = {
                                 let v = e.value;
                                 // let v = e.target.value === null ? "" : e.target.value['text'],
                                 //     h = e.target.value === null ? "" : e.target.value['value'];
-                                let k = props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden";
+                                // let k = props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden";
                                 // console.log("20201003 ChoicesField.onChange()", e, k, v);
                                 props.update_value({
-                                        // [getDataKey(props)]: v,
-                                        [k]: v
+                                        [getDataKey(props)]: v,
+                                        [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: v
                                     },
                                     props.elem,
                                     props.column)

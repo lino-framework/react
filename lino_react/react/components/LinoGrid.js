@@ -255,7 +255,7 @@ export class LinoGrid extends Component {
         // save row index
         // run ajax call on this.get_full_id url
         // Objects.assign over this.state.rows[rowIndex]
-        // console.log("onSubmit", cellProps, this.state.editingValues);
+        // console.log("20201121 onSubmit", cellProps, this.state.editingValues);
         let editingPK = this.state.editingPK;
         // let {key, which, target} = event;
         if (!this.editorDirty) {
@@ -330,7 +330,7 @@ export class LinoGrid extends Component {
 
     onEditorInit(cellProps) {
         let {rowData, field} = cellProps;
-        console.log("editor Open");
+        // console.log("editor Open");
         let was_dirty = this.editorDirty;
         // let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
         let boolField = document.boolFieldClick; // undefined for now. Boolfield should set it
@@ -386,7 +386,7 @@ export class LinoGrid extends Component {
 
     update_col_value(v, elem, col) { // on change method for cell editing.
         this.editorDirty = true;
-        console.log("update_col_val");
+        // console.log("update_col_val");
 
         this.setState((old => {
             // Object.assign(state.rows[col.rowIndex],{...v});

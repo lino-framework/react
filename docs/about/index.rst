@@ -20,8 +20,8 @@ How to try it:
 
 - Run ``pip install lino-react``.
 
-- In your :xfile:`settings.py` file, set the :attr:`default_ui`
-  attribute to :mod:`lino_react.react`::
+- In your :xfile:`settings.py` file, set the :attr:`default_ui
+  <lino.core.site.Site.default_ui>` attribute to :mod:`lino_react.react`::
 
     class Site(Site):
         ...
@@ -32,6 +32,6 @@ How to try it:
 
     $ python manage.py collectstatic
 
-- Run a development server::
+- Start the development server::
 
     $ python manage.py runserver
