@@ -539,19 +539,6 @@ def XML_response(ar, tplname, context):
     return response
 
 
-def layout2html(ar, elem):
-    wl = ar.bound_action.get_window_layout()
-    # ~ print 20120901, wl.main
-    lh = wl.get_layout_handle(settings.SITE.kernel.default_ui)
-
-    items = list(lh.main.as_plain_html(ar, elem))
-    # if navigator:
-    #     items.insert(0, navigator)
-    # ~ print tostring(E.div())
-    # ~ if len(items) == 0: return ""
-    return E.form(*items)
-
-
 class MainHtml(View):
     def get(self, request, *args, **kw):
         """Returns a json struct for the main user dashboard."""

@@ -31,6 +31,8 @@ import {ProgressSpinner} from 'primereact/progressspinner';
 import {Toast} from 'primereact/toast';
 
 import 'primereact/resources/themes/nova/theme.css';
+// import 'primereact/resources/themes/saga-green/theme.css';
+// import 'primereact/resources/themes/luna-green/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
@@ -136,7 +138,7 @@ class App extends React.Component {
         // console.log("Change in main window" + WSM.isMainWindow())
     }
 
-    // #3070: Add function to open the settings page of the current user 
+    // #3070: Add function to open the settings page of the current user
     onMysettings(event) {
         // Open the detail view of the current user settings.
         Notifier.start("Title", "Here is context", "www.google.com", "validated image url");

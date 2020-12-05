@@ -31,7 +31,7 @@ export const Labeled = (props) => {
             <label className={classNames(
                 "l-label",
                 {"l-label--unfilled": !props.isFilled},
-            )}> {props.elem.label}:</label>
+            )} title={props.elem.help_text}>{props.elem.label}:</label>
             <br/>
         </React.Fragment>}
         {props.children}

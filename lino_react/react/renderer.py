@@ -27,7 +27,7 @@ from lino.core.boundaction import BoundAction
 from lino.core.choicelists import ChoiceListMeta
 from lino.core.actors import Actor
 from lino.core.layouts import LayoutHandle
-from lino.core.elems import LayoutElement, ComboFieldElement, SimpleRemoteComboFieldElement
+from lino.core.elems import LayoutElement, ComboFieldElement, SimpleRemoteComboFieldElement, FieldElement
 from lino.core import kernel
 
 from etgen.html import E
@@ -285,7 +285,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                           react_name=v.__class__.__name__)  # Used for choosing correct react component
             if hasattr(v, "elements"):  # dd
                 result['items'] = [e for e in v.elements if e.get_view_permission(get_user_profile())]
-            result.update(obj2dict(v, " fields_index fields_index_hidden editable vertical hpad is_fieldset name width preferred_width\
+            result.update(obj2dict(v, "fields_index fields_index_hidden editable vertical hpad is_fieldset name width preferred_width\
                                       hidden value hflex vflex"))
             # result["width"] = v.width or v.preferred_width
             # Slave tables
@@ -293,8 +293,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 # reference to actor data for slave-grids
                 result.update(obj2dict(v.actor, "actor_id"))  # to get siteDate layout index
 
-            if hasattr(v, "get_field_options"):
+            # if hasattr(v, "get_field_options"):
+            if issubclass(v.__class__, FieldElement):
                 result.update(field_options=v.get_field_options())
+                result.update(help_text=v.field.help_text)
 
             return result
         if isinstance(v, LayoutHandle):

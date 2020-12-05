@@ -91,6 +91,7 @@ class TextFieldElement extends React.Component {
     }
 
     fixHeight() {
+        // console.log("20201205 fixHeight()", this.wrapperdiv);
         if (!this.wrapperdiv) {
             return
         }
@@ -110,6 +111,7 @@ class TextFieldElement extends React.Component {
     }
 
     componentDidUpdate(props, state) {
+        // console.log("20201205 componentDidUpdate()");
         if (this.props.editing_mode !== props.editing_mode
             ||
             this.props.dialogMaximised!== props.dialogMaximised) {
