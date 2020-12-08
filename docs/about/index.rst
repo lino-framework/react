@@ -3,8 +3,8 @@ About the Lino React front end
 ==============================
 
 The "modern" React front end is an alternative to the "classical" ExtJS front
-end. Here are two screenshots of the :mod:`lino_book.projects.team` project,
-once with ExtJS and one with React:
+end. Here are two screenshots of a same Lino site, one with ExtJS and one with
+React:
 
 .. image:: noi-robin-extjs.png
   :width: 48%

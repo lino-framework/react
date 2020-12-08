@@ -21,6 +21,5 @@ Content
 
    about/index
    guide/index
-   specs/index
    changes/index
    API <api/index>

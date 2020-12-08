@@ -1,9 +1,0 @@
-
-"""
-.. autosummary::
-   :toctree:
-
-    teamReact
-    lydiaReact
-
-"""

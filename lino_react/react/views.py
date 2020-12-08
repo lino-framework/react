@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2009-2018 Rumma & Ko Ltd
+# Copyright 2009-2020 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
 """Views for `lino_react.react`.

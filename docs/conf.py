@@ -12,7 +12,7 @@ extensions = []
 extlinks = {}
 
 from lino.sphinxcontrib import configure
-configure(globals(), 'lino_react.projects.teamReact.settings.demo')
+configure(globals())
 
 #from django.conf import settings
 #settings.SITE.title = "Lino ExtJS 6 Documentation"
@@ -38,7 +38,7 @@ import lino_react
 
 # General information about the project.
 project = "Lino React Documentation"
-copyright = '2015-2018 Luc Saffre'
+copyright = '2015-2020 Rumma & Ko Ltd'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -95,7 +95,7 @@ pygments_style = 'sphinx'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = u"Lino react"
+html_title = "Lino React"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 # html_short_title = u"Lino react"
