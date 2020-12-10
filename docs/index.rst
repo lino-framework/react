@@ -22,4 +22,3 @@ Content
    about/index
    guide/index
    changes/index
-   API <api/index>
