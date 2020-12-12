@@ -5,8 +5,6 @@
 """Views for `lino_react.react`.
 """
 
-# from __future__ import division
-
 from os import environ
 
 import ast
@@ -630,7 +628,7 @@ class Authenticate(View):
         # return ar.renderer.render_action_response(ar)
 
 
-class App(View):
+class Index(View):
     """
     Main app entry point,
     Also builds linoweb file for current user type.
@@ -645,11 +643,9 @@ class App(View):
                 user = request.subst_user
 
         def getit():
-
             ui = settings.SITE.plugins.react
             # if not settings.SITE.build_js_cache_on_startup:
             #     ui.renderer.build_js_cache(False)
-
             ar = BaseRequest(
                 # user=user,
                 request=request,
@@ -663,7 +659,6 @@ class App(View):
                 user=user,  # Current user
             )
             context.update(ar=ar)
-
             context = ar.get_printable_context(**context)
             env = settings.SITE.plugins.jinja.renderer.jinja_env
             template = env.get_template("react/main.html")
@@ -729,37 +724,3 @@ class Suggestions(View):
         return json_response(
             {"suggestions": list(suggesters[trigger].get_suggestions(query))}
         )
-
-# class Index(View):
-#     """
-#     Render the main dashboard.
-#     """
-
-#     def get(self, request, *args, **kw):
-#         # raise Exception("20171122 {} {}".format(
-#         #     get_language(), settings.MIDDLEWARE_CLASSES))
-#         ui = settings.SITE.plugins.openui5
-#         # print("20170607", request.user)
-#         # assert ui.renderer is not None
-#         ar = BaseRequest(
-#             # user=user,
-#             request=request,
-#             renderer=ui.renderer)
-#         return index_response(ar)
-
-
-# def index_response(ar):
-#     ui = settings.SITE.plugins.openui5
-
-#     main = settings.SITE.get_main_html(ar.request, extjs=ui)
-#     main = ui.renderer.html_text(main)
-#     context = dict(
-#         title=settings.SITE.title,
-#         main=main,
-#     )
-#     # if settings.SITE.user_model is None:
-#     #     user = auth.AnonymousUser.instance()
-#     # else:
-#     #     user = request.subst_user or request.user
-#     # context.update(ar=ar)
-#     return http_response(ar, 'bootstrap3/index.html', context)

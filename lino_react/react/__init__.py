@@ -47,7 +47,7 @@ class Plugin(Plugin):
         self.renderer.build_site_cache()
 
         urls = [
-            url(rx + r'$', views.App.as_view()),
+            url(rx + r'$', views.Index.as_view()),
             url(rx + r'user/settings', views.UserSettings.as_view()),
             url(rx + r'auth$', views.Authenticate.as_view()),
             url(rx + r"null/", views.Null.as_view()),
@@ -97,7 +97,3 @@ class Plugin(Plugin):
     def get_used_libs(self, html=False):
         if html is not None:
             yield ("React", '16.6', "https://reactjs.org/")
-
-    # def get_index_view(self):
-    #     from . import views
-    #     return views.App.as_view()

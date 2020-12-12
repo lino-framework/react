@@ -7,30 +7,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport" />
-
     <title>{% block title %}{{site.title or site.verbose_name}}{% endblock %}</title>
-
-
     <!--<link rel="stylesheet" href="{{site.build_static_url('bootstrap.css')}}" type="text/css">-->
     <!--<script src="https://cdn.jsdelivr.net/npm/font-awesome-openui5@^3"></script>-->
-
-    <script>
-    </script>
-
-
+    <script></script>
 </head>
 <body>
-    <noscript>
-        You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root">
-        <div class="splash-screen">
-            <div class="splash-container">
-                <div class="splash-double-bounce1"></div>
-                <div class="splash-double-bounce2"></div>
-            </div>
-        </div>
-</div>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root">
+    <div class="splash-screen">
+      <div class="splash-container">
+        <div class="splash-double-bounce1"></div>
+        <div class="splash-double-bounce2"></div>
+      </div>
+    </div>
+  </div>
 </body>
 
 {%- for p in site.installed_plugins -%}
@@ -46,7 +37,6 @@
         {{ ln }}
     {% endfor -%}
 {%- endfor -%}
-
 
 <script type="application/javascript">
     window.url_prefix = "{{ front_end.url_prefix }}/";
