@@ -6,8 +6,13 @@
 """
 
 from os import environ
-
+import re
+import cgi
 import ast
+import json
+from jinja2.exceptions import TemplateNotFound
+from etgen.html import E, tostring
+from etgen import html as xghtml
 
 from django import http
 from django.db import models
@@ -23,34 +28,21 @@ from lino.core import auth
 from lino.utils import isiterable
 from lino.utils.jsgen import py2js
 from lino.core import fields
+from lino.core.elems import ComboFieldElement
 from lino.core.fields import choices_for_field
-
 from lino.core.gfks import ContentType
-
-# from lino.api import dd
 from lino.core import constants
-# from lino.core import auth
 from lino.core.requests import BaseRequest
 from lino.core.tablerequest import TableRequest
-import json
-
 from lino.core.views import requested_actor, action_request
 from lino.core.views import json_response, json_response_kw
 from lino.core.views import choices_response
 from lino.core.utils import navinfo
-from etgen.html import E, tostring
-from etgen import html as xghtml
 from lino.core import kernel
 
 from lino.modlib.users.utils import get_user_profile, with_user_profile
-
 from lino.api import rt
-import re
-import cgi
-
-from lino.core.elems import ComboFieldElement
-
-from jinja2.exceptions import TemplateNotFound
+from lino.modlib.extjs.views import ApiElement, elem2rec_empty
 
 
 def find(itter, target, key=None):
@@ -69,106 +61,11 @@ def find(itter, target, key=None):
 # Taken from lino.modlib.extjs.views
 NOT_FOUND = "%s has no row with primary key %r"
 
-
-def elem2rec_empty(ar, ah, elem, **rec):
-    """
-    Returns a dict of this record, designed for usage by an EmptyTable.
-    """
-    # ~ rec.update(data=rh.store.row2dict(ar,elem))
-    rec.update(data=elem._data)
-    # ~ rec = elem2rec1(ar,ah,elem)
-    # ~ rec.update(title=_("Insert into %s...") % ar.get_title())
-    rec.update(title=ar.get_action_title())
-    rec.update(id=-99998)
-    # ~ rec.update(id=elem.pk) or -99999)
-    if ar.actor.parameters:
-        rec.update(
-            param_values=ar.actor.params_layout.params_store.pv2dict(
-                ar, ar.param_values))
-    return rec
-
-
 # class Callbacks(View):
 #     def get(self, request, thread_id, button_id):
 #         return settings.SITE.kernel.run_callback(request, thread_id, button_id)
 
-
-class ApiElement(View):
-    def get(self, request, app_label=None, actor=None, pk=None):
-        ui = settings.SITE.kernel
-        rpt = requested_actor(app_label, actor)
-
-        action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME,
-                                      rpt.default_elem_action_name)
-        ba = rpt.get_url_action(action_name)
-        if ba is None:
-            raise http.Http404("%s has no action %r" % (rpt, action_name))
-
-        if pk and pk != '-99999' and pk != '-99998':
-            # ~ ar = ba.request(request=request,selected_pks=[pk])
-            # ~ print 20131004, ba.actor
-            # Use url selected rows as selected PKs if defined, otherwise use the PK defined in the url path
-            sr = request.GET.getlist(constants.URL_PARAM_SELECTED)
-            if not sr:
-                sr = [pk]
-            ar = ba.request(request=request, selected_pks=sr)
-            elem = ar.selected_rows[0]
-        else:
-            ar = ba.request(request=request)
-            elem = None
-
-        ar.renderer = ui.default_renderer
-        ah = ar.ah
-
-        fmt = request.GET.get(
-            constants.URL_PARAM_FORMAT, ba.action.default_format)
-
-        if not ar.get_permission():
-            msg = "No permission to run {}".format(ar)
-            # raise Exception(msg)
-            raise PermissionDenied(msg)
-
-        if ba.action.opens_a_window:
-            # print("15022019", action_name)
-            if fmt == constants.URL_FORMAT_JSON:
-                if pk == '-99999':
-                    elem = ar.create_instance()
-                    datarec = ar.elem2rec_insert(ah, elem)
-                elif pk == '-99998':
-                    elem = ar.create_instance()
-                    datarec = elem2rec_empty(ar, ah, elem)
-                elif elem is None:
-                    datarec = dict(
-                        success=False, message=NOT_FOUND % (rpt, pk))
-                else:
-                    datarec = ar.elem2rec_detailed(elem)
-                return json_response(datarec)
-
-            after_show = ar.get_status(record_id=pk)
-            tab = request.GET.get(constants.URL_PARAM_TAB, None)
-            if tab is not None:
-                tab = int(tab)
-                after_show.update(active_tab=tab)
-
-            return http.HttpResponse(
-                ui.default_renderer.html_page(
-                    request, ba.action.label,
-                    on_ready=ui.default_renderer.action_call(
-                        request, ba, after_show)))
-
-        # if isinstance(ba.action, actions.RedirectAction):
-        #     target = ba.action.get_target_url(elem)
-        #     if target is None:
-        #         raise http.Http404("%s failed for %r" % (ba, elem))
-        #     return http.HttpResponseRedirect(target)
-
-        if pk == '-99998':
-            assert elem is None
-            elem = ar.create_instance()
-            ar.selected_rows = [elem]
-        elif elem is None:
-            raise http.Http404(NOT_FOUND % (rpt, pk))
-        return settings.SITE.kernel.run_action(ar)
+class ApiElement(ApiElement):
 
     def post(self, request, app_label=None, actor=None, pk=None):
         data = http.QueryDict(request.body)
