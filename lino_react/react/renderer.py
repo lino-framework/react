@@ -79,9 +79,9 @@ class Renderer(JsRenderer, JsCacheRenderer):
         """
         self.serialise_js_code = True
         choicelists_data = {
-            ID: [{"value": py2js(c[0]).strip('"'), "text": py2js(c[1]).strip('"')} for c in cl.get_choices()] for
-            ID, cl in
-            kernel.CHOICELISTS.items()}
+            # ID: [{"value": py2js(c[0]).strip('"'), "text": py2js(c[1]).strip('"')} for c in cl.get_choices()] for
+            ID: [{"value": c[0].value, "text": str(c[1])} for c in cl.get_choices()]
+                for ID, cl in kernel.CHOICELISTS.items()}
 
         actions = set()
         for rpt in self.actors_list:
