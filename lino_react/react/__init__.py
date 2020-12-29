@@ -22,6 +22,7 @@ class Plugin(Plugin):
     ui_handle_attr_name = 'react_handle'
 
     needs_plugins = ['lino.modlib.jinja', 'lino.modlib.memo']
+    disables_plugins = ['tinymce', 'extensible']
 
     url_prefix = 'react'
 

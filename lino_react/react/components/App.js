@@ -1316,7 +1316,6 @@ const wrapper = document.getElementById("root");
 
 wrapper ? ReactDOM.render(<App/>, wrapper) : null;
 
-
-import * as serviceWorker from './serviceWorker';
-
-serviceWorker.register();
+// 20201229 Deactivated usage of service worker. Why was it used for? Notify chatter?
+// import * as serviceWorker from './serviceWorker';
+// serviceWorker.register();

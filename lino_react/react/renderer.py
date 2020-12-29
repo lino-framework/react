@@ -77,7 +77,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
         :param f: File object
         :return: 1
         """
-        self.serialise_js_code = True
         choicelists_data = {
             # ID: [{"value": py2js(c[0]).strip('"'), "text": py2js(c[1]).strip('"')} for c in cl.get_choices()] for
             ID: [{"value": c[0].value, "text": str(c[1])} for c in cl.get_choices()]
@@ -90,6 +89,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 if ba.action not in actions:
                     actions.add(ba.action)
 
+        self.serialise_js_code = True
         f.write(py2js(dict(
             actions={a.action_name: a for a in actions},
             # actors={a.actor_id: a for a in self.actors_list},
