@@ -27,7 +27,7 @@ Calendar.prototype.renderInputElement = function renderInputElement() {
         if (!this.props.inline) {
             const className = classNames('p-inputtext p-component', this.props.inputClassName);
             const value = this.getValueToRender();
-            console.log("render", value)
+            // console.log("render", value)
             return (
                 <InputText ref={(el) => this.inputElement = ReactDOM.findDOMNode(el)} id={this.props.inputId} name={this.props.name} value={value} type="text" className={className} style={this.props.inputStyle}
                     readOnly={this.props.readOnlyInput} disabled={this.props.disabled} tabIndex={this.props.tabIndex} required={this.props.required} autoComplete="off" placeholder={this.props.placeholder}
@@ -76,4 +76,4 @@ Calendar.prototype.getValueToRender = function getValueToRender() {
         return formattedValue;
     }
 
-export default Calendar;
+export {Calendar};

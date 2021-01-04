@@ -308,7 +308,7 @@ export class LinoGrid extends Component {
 
             } else {
                 this.phantomSubmit = setTimeout(() => {
-                    console.log("on submit timeout");
+                    // console.log("on submit timeout");
 
                     if (editingPK === null && !this.editorDirty) {// we've opened a new editer in phantom row
 

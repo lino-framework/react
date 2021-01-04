@@ -319,7 +319,7 @@ class App extends React.Component {
     }
 
     OpenConversation(conversation_id) {
-        console.log('conversation_id', conversation_id)
+        // console.log('conversation_id', conversation_id)
         if (!this.state.openedconversations.includes(conversation_id)) {
             this.setState(prevState => ({openedconversations: prevState.openedconversations.concat(conversation_id)}));
         }
@@ -348,7 +348,7 @@ class App extends React.Component {
 
         // Helpful debugging
         this.webSocketBridge.onclose = (e) => {
-            console.log(e, "WS closed");
+            // console.log(e, "WS closed");
             if (this.state.WS) {
                 // lost connection from server for first time atm.
                 // Commented out, too distracting, pops up also when closed normally, via a page refresh
@@ -370,7 +370,7 @@ class App extends React.Component {
 
         // this.webSocketBridge.connect();
         this.webSocketBridge.addEventListener('open', () => {
-            console.log("lino connecting ...");
+            // console.log("lino connecting ...");
             // this.webSocketBridge.send(JSON.stringify({
             //     "command": "user_connect",
             //     "username": user_id
@@ -384,7 +384,7 @@ class App extends React.Component {
         this.webSocketBridge.onmessage = (e) => {
 
             let data = JSON.parse(e.data);
-            console.log("Recived message ", data);
+            // console.log("Received message ", data);
             if (data.type === "NOTIFICATION") {
                 this.push(data)
             } else if (data.type === "CHAT") {
@@ -907,7 +907,7 @@ class App extends React.Component {
         }
 
         if (status && status.fv !== undefined) {
-            console.log("fv", status.fv, status);
+            // console.log("fv", status.fv, status);
             Object.assign(args, {'fv': status.fv})
         }
         if (an === "grid_put" || an === "grid_post") {
