@@ -169,7 +169,6 @@ class TextFieldElement extends React.Component {
                             headerTemplate={this.renderHeader()}
                             value={value}
                             ref={e => this.editor = e}
-                            onTextChange={this.onTextChange}
                             onTextChange={this.onTextChange}/>
                     </Suggester>
                 </div>
