@@ -1553,7 +1553,7 @@ var App = /*#__PURE__*/function (_React$Component) {
             ,
             su: _this6.state.user_settings.su_name,
             key: route.match.params.packId + "." + route.match.params.actorId + "." + _this6.state.user_settings.su_name // Should it look at SiteContext?
-            //                                actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}
+            // actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}
 
           }) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_progressspinner__WEBPACK_IMPORTED_MODULE_22__["ProgressSpinner"], null);
         }
@@ -32906,15 +32906,16 @@ var Actor = /*#__PURE__*/function (_Component) {
     value: function componentDidMount() {// console.log("Actor mount");
     }
   }, {
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(nextProps) {// const changedProps = _.reduce(this.props, function (result, value, key) {
+      //     return _.isEqual(value, nextProps[key])
+      //         ? result
+      //         : result.concat(key)
+      // }, []);
+      // console.log('changedProps: ', changedProps)
+    }
+  }, {
     key: "render",
-    // componentWillReceiveProps(nextProps) {
-    // const changedProps = _.reduce(this.props, function (result, value, key) {
-    //     return _.isEqual(value, nextProps[key])
-    //         ? result
-    //         : result.concat(key)
-    // }, []);
-    // console.log('changedProps: ', changedProps)
-    // }
     value: function render() {
       var _this2 = this;
 
@@ -68090,14 +68091,14 @@ var TextFieldElement = /*#__PURE__*/function (_React$Component) {
           }, 10);
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(primereact_editor__WEBPACK_IMPORTED_MODULE_7__["Editor"] //style={ {{/!*height: '100%'*!/}} }
-      , _defineProperty({
+      , {
         headerTemplate: this.renderHeader(),
         value: value,
         ref: function ref(e) {
           return _this3.editor = e;
         },
         onTextChange: this.onTextChange
-      }, "onTextChange", this.onTextChange))))) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      })))) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         dangerouslySetInnerHTML: {
           __html: value || "\xA0"
         }
@@ -73274,8 +73275,7 @@ primereact_calendar__WEBPACK_IMPORTED_MODULE_2__["Calendar"].prototype.renderInp
 };
 
 primereact_calendar__WEBPACK_IMPORTED_MODULE_2__["Calendar"].prototype.getValueToRender = function getValueToRender() {
-  var formattedValue = '';
-  debugger;
+  var formattedValue = ''; // debugger;
 
   if (this.props.value) {
     try {
