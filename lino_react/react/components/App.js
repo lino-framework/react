@@ -1208,14 +1208,11 @@ class App extends React.Component {
                     </div>
                     <div className="layout-main">
                         <Toast ref={(el) => this.toast = el}/>
-
                         <Route exact path="/" render={(match) => (
-                            <DashboardItems ref={(el) => {
-                                this.dashboard = el;
-                                this.setRpRef(el)
-                            }}
-                                            dashboard_items={this.state.user_settings ? this.state.user_settings.dashboard_items : 0}
-                                            user={this.state.user_settings ? this.state.user_settings.username : "notloaded"}
+                            <DashboardItems
+                              ref={(el) => { this.dashboard = el; this.setRpRef(el)}}
+                              dashboard_items={this.state.user_settings ? this.state.user_settings.dashboard_items : 0}
+                              user={this.state.user_settings ? this.state.user_settings.username : "notloaded"}
                             />
                         )}/>
                         <SiteContext.Provider value={this.state.site_data}>
@@ -1230,17 +1227,17 @@ class App extends React.Component {
                                 //     </div>;
                                 // }
 
-                                return this.state.site_loaded ? <Actor match={route}
-                                                                       actorId={route.match.params.actorId}
-                                                                       packId={route.match.params.packId}
-                                                                       mk={parms.get("mk")}
-                                                                       mt={parms.get("mt")}
-                                        // makes react recreate the LinoGrid instance
-                                                                       su={this.state.user_settings.su_name}
-                                                                       key={route.match.params.packId + "." + route.match.params.actorId + "." + this.state.user_settings.su_name}
-
-                                        // Should it look at SiteContext?
-                                        //                                actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}
+                                return this.state.site_loaded ?
+                                    <Actor match={route}
+                                       actorId={route.match.params.actorId}
+                                       packId={route.match.params.packId}
+                                       mk={parms.get("mk")}
+                                       mt={parms.get("mt")}
+                                       // makes react recreate the LinoGrid instance
+                                       su={this.state.user_settings.su_name}
+                                       key={route.match.params.packId + "." + route.match.params.actorId + "." + this.state.user_settings.su_name}
+                                       // Should it look at SiteContext?
+                                       // actorData={this.state.site_data.actors[[route.match.params.packId, route.match.params.actorId].join(".")]}
                                     />
                                     : <ProgressSpinner/>
                             }}/>
