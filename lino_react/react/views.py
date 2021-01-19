@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2009-2020 Rumma & Ko Ltd
+# Copyright 2009-2021 Rumma & Ko Ltd
 # License: BSD (see file COPYING for details)
 
 """Views for `lino_react.react`.
@@ -458,7 +458,10 @@ class DashboardItem(View):
         ar.requesting_panel = f"dashboard-{index}"
         dash = ar.get_user().get_preferences().dashboard_items
         if len(dash) > index:
-            html = ar.show_story([dash[index]])
+            item = dash[index]
+            # print("20210112 DashboardItem.get()", index, item.actor)
+            # html = ar.show_story([dash[index]])
+            html = ''.join(item.render(ar))
         else:
             html = ""
         ar.success(html=html)

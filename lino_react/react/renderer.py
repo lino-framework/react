@@ -492,49 +492,6 @@ class Renderer(JsRenderer, JsCacheRenderer):
         js = escape(js, quote=False)
         return 'javascript:' + js
 
-    def show_menu(self, ar, mnu, level=1):
-        """
-        Render the given menu as an HTML element.
-        Used for writing test cases.
-        """
-        if not isinstance(mnu, Menu):
-            assert isinstance(mnu, MenuItem)
-            if mnu.bound_action:
-                sar = mnu.bound_action.actor.request(
-                    action=mnu.bound_action,
-                    user=ar.user, subst_user=ar.subst_user,
-                    requesting_panel=ar.requesting_panel,
-                    renderer=self, **mnu.params)
-                # print("20170113", sar)
-                url = sar.get_request_url()
-            else:
-                url = mnu.href
-            assert mnu.label is not None
-            if url is None:
-                return E.p()  # spacer
-            return E.li(E.a(mnu.label, href=url, tabindex="-1"))
-
-        items = [self.show_menu(ar, mi, level + 1) for mi in mnu.items]
-        # ~ print 20120901, items
-        if level == 1:
-            return E.ul(*items, **{'class': 'nav navbar-nav'})
-        if mnu.label is None:
-            raise Exception("%s has no label" % mnu)
-        if level == 2:
-            cl = 'dropdown'
-            menu_title = E.a(
-                str(mnu.label), E.b(' ', **{'class': "caret"}), href="#",
-                data_toggle="dropdown", **{'class': 'dropdown-toggle'})
-        elif level == 3:
-            menu_title = E.a(str(mnu.label), href="#")
-            cl = 'dropdown-submenu'
-        else:
-            raise Exception("Menu with more than three levels")
-        return E.li(
-            menu_title,
-            E.ul(*items, **{'class': 'dropdown-menu'}),
-            **{'class': cl})
-
     def add_help_text(self, kw, help_text, title, datasource, fieldname):
         if settings.SITE.use_quicktips:
             if settings.SITE.show_internal_field_names:
