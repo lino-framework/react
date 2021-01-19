@@ -41,7 +41,7 @@ Calendar.prototype.renderInputElement = function renderInputElement() {
 
 Calendar.prototype.getValueToRender = function getValueToRender() {
         let formattedValue = '';
-        debugger;
+        // debugger;
         if(this.props.value) {
             try {
                 if(this.isSingleSelection()) {
