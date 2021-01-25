@@ -76,4 +76,5 @@ Calendar.prototype.getValueToRender = function getValueToRender() {
         return formattedValue;
     }
 
-export {Calendar};
+export default Calendar;
+// export {Calendar};
