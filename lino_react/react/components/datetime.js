@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {InputText} from 'primereact/inputtext';
-import {Calendar} from './primereact/calendar';
+import Calendar from './primereact/calendar';
 import {Labeled, getValue, getDataKey, shouldComponentUpdate, isDisabledField} from "./LinoComponents";
 
 export class DateFieldElement extends React.Component {
