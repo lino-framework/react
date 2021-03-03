@@ -546,7 +546,6 @@ class App extends React.Component {
                 return this.handleAjaxResponse(response);
             })
             .then(data => {
-
                 let menu_data = data.menu;
                 delete data.menu;
                 this.setState({

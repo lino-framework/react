@@ -32,14 +32,12 @@ export class LinoGrid extends Component {
         actorId: PropTypes.string, // AllTickets
         packId: PropTypes.string,  // tickets
         actorData: PropTypes.object,
-        mt: PropTypes.int,
+        mt: PropTypes.number,
         mk: PropTypes.string, // we want to allow str / slug pks
-        reload_timestamp: PropTypes.int, // used to propogate a reload
+        reload_timestamp: PropTypes.number, // used to propogate a reload
         parent_pv: PropTypes.object,
-        depth: PropTypes.int,
-
+        depth: PropTypes.number,
         display_mode: PropTypes.string, // "list", // or "grid" // "table"
-
         // todo: in_detail : PropTypes.bool
     };
 
@@ -47,7 +45,6 @@ export class LinoGrid extends Component {
         inDetail: false,
         depth: 0
         // display_mode:"grid", // "list", // or  // "cards"
-
     };
 
     get_full_id() {
@@ -76,7 +73,6 @@ export class LinoGrid extends Component {
             selectedRows: [],
             title: "", // defaults to actor label?
             loading: true,
-
             pv_values: {},
             editingCellIndex: undefined,
             editingPK: undefined,
@@ -175,7 +171,7 @@ export class LinoGrid extends Component {
      * @param col : json Lino site data, the col value.
      */
     columnEditor(col) {
-        // console.log(col);
+        // console.log("20210216 columnEditor", col);
         if (!col.editable) return undefined;
         return (column) => {
             const prop_bundle = {
@@ -196,6 +192,7 @@ export class LinoGrid extends Component {
             };
             return <div
             onKeyDown={(event) => {
+                // console.log("20210226 onKeyDown", event, col);
                 let el = event.target,
                     tr = el.closest("tr");
                 if (event.key === "Enter") {
@@ -237,7 +234,6 @@ export class LinoGrid extends Component {
                     // }
                     cols[i].focus() // Open next / prev editor
 
-
                 }
 
             }}>
@@ -249,13 +245,13 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(cellProps,event, bodyCell) {
+    onSubmit(cellProps, event, bodyCell) {
         let {rowData, field, rowIndex} = cellProps;
         // check if new row
         // save row index
         // run ajax call on this.get_full_id url
         // Objects.assign over this.state.rows[rowIndex]
-        // console.log("20201121 onSubmit", cellProps, this.state.editingValues);
+        // console.log("20210216 onSubmit", cellProps, this.state);
         let editingPK = this.state.editingPK;
         // let {key, which, target} = event;
         if (!this.editorDirty) {
@@ -328,16 +324,16 @@ export class LinoGrid extends Component {
         }
     }
 
-    onEditorInit(cellProps) {
-        let {rowData, field} = cellProps;
-        // console.log("editor Open");
+    onEditorInit(e) {
+        console.log("20210223 onEditorInit", e);
+        let {rowData, field} = e.columnProps;
         let was_dirty = this.editorDirty;
         // let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
         let boolField = document.boolFieldClick; // undefined for now. Boolfield should set it
 
         setTimeout(() => { // delay as we should submit before clearing editing values.
                 this.editorDirty = false;
-                // console.log("editor Open timeout");
+                console.log("20210223 editor open timeout");
                 // console.log('this.props',this.props);
                 // console.log('rowData',rowData);
                 // console.log('field',field);
@@ -386,8 +382,7 @@ export class LinoGrid extends Component {
 
     update_col_value(v, elem, col) { // on change method for cell editing.
         this.editorDirty = true;
-        // console.log("update_col_val");
-
+        // console.log("20210216 update_col_valule", elem, col);
         this.setState((old => {
             // Object.assign(state.rows[col.rowIndex],{...v});
 
@@ -435,7 +430,7 @@ export class LinoGrid extends Component {
      * @param type ``"radio" | "checkbox" | "row"` ``
      */
     onRowSelect({originalEvent, data, type}) {
-        // console.log("onRowSelect", originalEvent, data, type);
+        // console.log("20210216 onRowSelect", originalEvent, data, type);
         // let cellIndex = find_cellIndex(originalEvent.target);
         // First thing is to determine which cell was selected, as opposed to row.
         originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
@@ -446,6 +441,7 @@ export class LinoGrid extends Component {
     }
 
     onRowDoubleClick({originalEvent, data, type}) {
+        // console.log("20210216 onRowDoubleClick", this.props.actorData.pk_index, data);
         let pk = data[this.props.actorData.pk_index];
         // todo check orginalEvent.target to see if it's in an editing cell. if so return
         if (pk != undefined) {
@@ -662,7 +658,7 @@ export class LinoGrid extends Component {
     }
 
     componentDidMount() {
-        // console.log("Reload from DidUpdate method")
+        console.log("20210223 componentDidMount()")
         this.cols = undefined;
         document.addEventListener("keydown", this.handelKeydown, false);
         this.reload();
@@ -670,6 +666,7 @@ export class LinoGrid extends Component {
     }
 
     componentWillUnmount() {
+        console.log("20210223 componentWillUnmount()")
         document.removeEventListener("keydown", this.handelKeydown, false);
     }
 
@@ -909,9 +906,7 @@ export class LinoGrid extends Component {
                     {this.renderToggle_colControls()}
                 </div>
                 {this.state.title || this.props.actorData.label}
-
                 {this.renderDataViewLayout()}
-
             </div>
             <div className={"table-header"}>
                 {this.renderActionBar()}
@@ -1004,6 +999,7 @@ export class LinoGrid extends Component {
 
 
     render() {
+        // console.log("20210216 render");
 
         if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0) {
             return null
@@ -1018,15 +1014,13 @@ export class LinoGrid extends Component {
                         reorderableColumns={true}
                         header={header}
                         footer={footer}
-                        responsive={this.props.actorData.react_responsive
-                        }
+                        responsive={this.props.actorData.react_responsive}
                         resizableColumns={true}
                         value={this.state.rows} paginator={false}
                         // selectionMode="single"
                         editable={true}
                         // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
                         selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
-
                         onSelectionChange={e => this.setState({selectedRows: e.value})}
                         onColReorder={e => this.onColReorder({event: e.columns})}
                         onRowSelect={this.onRowSelect}
@@ -1052,7 +1046,6 @@ export class LinoGrid extends Component {
                             ))}
                         </div>
                         :
-
                         <DataView value={this.state.rows}
                                   header={header}
                                   footer={footer}

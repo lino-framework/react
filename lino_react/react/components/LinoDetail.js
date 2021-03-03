@@ -29,7 +29,7 @@ export class LinoDetail extends Component {
         actorData: PropTypes.object,
         pk: PropTypes.string,
 
-        mt: PropTypes.int,
+        mt: PropTypes.number,
         mk: PropTypes.string, // we want to allow str / slug pks
 
         noToolbar: PropTypes.bool

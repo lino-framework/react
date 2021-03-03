@@ -19,7 +19,7 @@ from django.db import models
 from django.conf import settings
 from django.views.generic import View
 from django.core import exceptions
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from django.core.exceptions import PermissionDenied
 
@@ -65,10 +65,12 @@ NOT_FOUND = "%s has no row with primary key %r"
 #     def get(self, request, thread_id, button_id):
 #         return settings.SITE.kernel.run_callback(request, thread_id, button_id)
 
+
 class ApiElement(ApiElement):
 
     def post(self, request, app_label=None, actor=None, pk=None):
-        data = http.QueryDict(request.body)
+        # data = http.QueryDict(request.body)
+        data = request.POST
         ar = action_request(
             app_label, actor, request, data, True,
             renderer=settings.SITE.plugins.react.renderer)

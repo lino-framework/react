@@ -1,6 +1,12 @@
 const autoprefixer = require('autoprefixer');
+const path = require('path');
+
 module.exports = {
-    // entry: ["./lino_react/react/index.js"],
+    entry: ["./lino_react/react/index.js"],
+    output: {
+      filename: 'main.js',
+      path: path.resolve(__dirname, './lino_react/react/static/react'),
+    },
     module: {
         rules: [
             // {
@@ -40,11 +46,11 @@ module.exports = {
                             cacheDirectory: true,
                         },
                     },
-                    // "postcss" loader applies autoprefixer to our CSS.
-                    // "css" loader resolves paths in CSS and adds assets as dependencies.
-                    // "style" loader turns CSS into JS modules that inject <style> tags.
+                    // css-loader resolves paths in CSS and adds assets as dependencies.
+                    // style-loader turns CSS into JS modules that inject <style> tags.
+                    // postcss-loader applies autoprefixer to our CSS.
                     // In production, we use a plugin to extract that CSS to a file, but
-                    // in development "style" loader enables hot editing of CSS.
+                    // in development style-loader enables hot editing of CSS.
                     {
                         test: /\.css$/,
                         use: [
@@ -60,6 +66,7 @@ module.exports = {
                                 options: {
                                     // Necessary for external CSS imports to work
                                     // https://github.com/facebookincubator/create-react-app/issues/2677
+                                    postcssOptions: {
                                     ident: 'postcss',
                                     plugins: () => [
                                         require('postcss-flexbugs-fixes'),
@@ -67,6 +74,7 @@ module.exports = {
                                             flexbox: 'no-2009',
                                         }),
                                     ],
+                                    }
                                 },
                             },
                         ],

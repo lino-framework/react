@@ -6,6 +6,12 @@ import {ProgressSpinner} from 'primereact/progressspinner';
 import {fetch as fetchPolyfill} from 'whatwg-fetch';
 import {LoadingMask} from "./LoadingMask";
 
+// from https://www.npmjs.com/package/whatwg-fetch
+import 'yet-another-abortcontroller-polyfill'
+
+// use native browser implementation if it supports aborting
+const abortableFetch = ('signal' in new Request('')) ? window.fetch : fetchPolyfill
+
 
 class DataProvider extends Component {
     static propTypes = {
@@ -29,6 +35,7 @@ class DataProvider extends Component {
             loaded: false,
             placeholder: "Loading..."
         };
+        this.controller = new AbortController();
         this.reloadData = this.reloadData.bind(this);
         this.reload = this.reloadData;
     }
@@ -37,14 +44,20 @@ class DataProvider extends Component {
         this.reloadData();
     }
 
+    componentWillUnmount() {
+        this.controller.abort();
+    }
+
     reloadData() {
         this.setState({loaded: false});
         let query = {fmt: "json"}
         window.App.add_su(query);
-        fetchPolyfill(this.props.endpoint + `?${queryString.stringify(query)}`)
+        abortableFetch(this.props.endpoint + `?${queryString.stringify(query)}`, {
+            signal: this.controller.signal})
             .then(response => {
                 if (response.status !== 200) {
                     this.setState({placeholder: "Something went wrong"});
+                    // console.log("20210223 Something went wrong");
                     return {status:response.status$} //
                 }
                 return response.json();
@@ -52,6 +65,10 @@ class DataProvider extends Component {
             .then(data => {
                 this.props.post_data(data);
                 this.setState({data: data, loaded: true, everloaded: true});
+            }).catch(function(ex) {
+              if (ex.name === 'AbortError') {
+                console.log('request aborted', ex)
+              }
             })
     };
 
@@ -76,4 +93,3 @@ class DataProvider extends Component {
 }
 
 export default DataProvider;
-

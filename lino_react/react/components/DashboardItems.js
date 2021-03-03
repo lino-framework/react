@@ -6,7 +6,7 @@ import {Button} from 'primereact/button';
 
 export class DashboardItems extends Component {
     static propTypes = {
-        // dashboard_items: PropTypes.int.
+        // dashboard_items: PropTypes.number.
         user: PropTypes.string
     };
     static defaultProps = {
@@ -46,7 +46,6 @@ export class DashboardItems extends Component {
     };
 
     renderDashboard(showReloadButton, rp) {
-
         return (data) => {
             if (data.html) {
                 return <div>
@@ -58,7 +57,6 @@ export class DashboardItems extends Component {
                     <div dangerouslySetInnerHTML={{__html: data.html}}></div>
                 </div>
             }
-
         }
     }
 

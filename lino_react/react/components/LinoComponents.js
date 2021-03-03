@@ -346,16 +346,17 @@ const LinoComponents = {
         }
 
         render() {
+            console.log("20210216 CharField.render()", this);
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-
                 {props.editing_mode && !isDisabledField(props) ?
                     <InputText style={{width: "100%"}}
                                value={value || ""}
-                               onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
-                                   props.elem,
-                                   props.column)}
+                               onChange={(e) =>
+                                   props.update_value(
+                                     {[getDataKey(props)]: e.target.value},
+                                     props.elem, props.column)}
                                autoFocus={props.in_grid ? true : undefined}
                                ref={(el) => this.input = el}
                     />
@@ -732,7 +733,7 @@ class LinoLayout extends React.PureComponent {
 
         parent_pv: PropTypes.object, // used in cal
         action_dialog: PropTypes.bool, // changes the API call for getting choices.
-        depth: PropTypes.int,
+        depth: PropTypes.number,
 
     };
 

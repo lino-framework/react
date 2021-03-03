@@ -21,7 +21,9 @@ Then here we go::
 
     $ npm run build
 
-TODO: Now let's do a local change and test it.
+Now let's do a local change and test it.
+
+TODO
 
 
 Introduction to NodeJS, npx, npm and React
@@ -70,7 +72,6 @@ not for *using* it.
 
 webpack
 =======
-
 
 https://webpack.js.org/guides/code-splitting/
 

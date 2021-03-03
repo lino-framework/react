@@ -20,7 +20,7 @@ export class Actor extends Component {
         su: PropTypes.string,
         // actorData: PropTypes.object,
 
-        mt: PropTypes.int,
+        mt: PropTypes.number,
         mk: PropTypes.string // we want to allow str / slug pks
     };
     static defaultProps = {};

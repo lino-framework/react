@@ -137,6 +137,7 @@ class LinoBbar extends Component {
         });
         return <SplitButton appendTo={window.App.topDiv} {...this.action2buttonProps(actionArray[0], true)}
                             onClick={() => this.props.runWrapper(() => this.runAction(actionArray[0].an))}
+                            key={Math.random()}
                             model={model}/>
     }
 
