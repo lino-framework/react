@@ -28,10 +28,6 @@ How to try it:
         default_ui = 'lino_react.react'
         ...
 
-- Run :manage:`collectstatic`::
-
-    $ python manage.py collectstatic
-
 - Start the development server::
 
     $ python manage.py runserver
