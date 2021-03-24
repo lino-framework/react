@@ -346,7 +346,7 @@ const LinoComponents = {
         }
 
         render() {
-            console.log("20210216 CharField.render()", this);
+            // console.log("20210216 CharField.render()", this);
             let {props} = this,
                 value = getValue(props);
             return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
