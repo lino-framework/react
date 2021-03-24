@@ -39,7 +39,7 @@ export class Actor extends Component {
         // console.log("Actor mount");
     };
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         // const changedProps = _.reduce(this.props, function (result, value, key) {
         //     return _.isEqual(value, nextProps[key])
         //         ? result

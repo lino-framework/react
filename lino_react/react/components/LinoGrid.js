@@ -139,6 +139,7 @@ export class LinoGrid extends Component {
      * Looks up the correct template and passes in correct data.
      * @param col : json Lino site data, the col value.
      */
+
     columnTemplate(col) {
         // console.log(col);
         return (rowData, column) => {
@@ -274,7 +275,11 @@ export class LinoGrid extends Component {
                     // this.setState({editing_mode: false});
                     // this.consume_server_responce(data.data_record);
                     data.rows && this.setState((old) => { // update just the row
-                        let state = {},
+                        const getIndex = (row) => {
+                            return row[0] === data.rows[0][0]
+                        }
+                        let rowIndex = old.rows.findIndex(getIndex),
+                            state = {},
                             rows = old.rows.slice(); // make data copy
                         state.rows = rows;
                         if (editingPK === null) {
@@ -325,7 +330,7 @@ export class LinoGrid extends Component {
     }
 
     onEditorInit(e) {
-        console.log("20210223 onEditorInit", e);
+        // console.log("20210223 onEditorInit", e);
         let {rowData, field} = e.columnProps;
         let was_dirty = this.editorDirty;
         // let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
@@ -333,7 +338,7 @@ export class LinoGrid extends Component {
 
         setTimeout(() => { // delay as we should submit before clearing editing values.
                 this.editorDirty = false;
-                console.log("20210223 editor open timeout");
+                // console.log("20210223 editor open timeout");
                 // console.log('this.props',this.props);
                 // console.log('rowData',rowData);
                 // console.log('field',field);
@@ -658,7 +663,7 @@ export class LinoGrid extends Component {
     }
 
     componentDidMount() {
-        console.log("20210223 componentDidMount()")
+        // console.log("20210223 componentDidMount()")
         this.cols = undefined;
         document.addEventListener("keydown", this.handelKeydown, false);
         this.reload();
@@ -666,7 +671,7 @@ export class LinoGrid extends Component {
     }
 
     componentWillUnmount() {
-        console.log("20210223 componentWillUnmount()")
+        // console.log("20210223 componentWillUnmount()")
         document.removeEventListener("keydown", this.handelKeydown, false);
     }
 
