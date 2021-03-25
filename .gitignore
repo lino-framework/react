@@ -41,3 +41,4 @@ yarn\.lock
 # Testing media recordings
 cypress/screenshots/
 cypress/videos/
+package-lock.json
