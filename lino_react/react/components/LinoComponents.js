@@ -746,7 +746,6 @@ class LinoLayout extends React.PureComponent {
         this.firstFocusable = false;
         [this.renderComponent, this.focusFirst].forEach((e) =>
             this[e.name] = e.bind(this));
-
     }
 
     render() {

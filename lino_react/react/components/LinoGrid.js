@@ -141,7 +141,6 @@ export class LinoGrid extends Component {
      */
 
     columnTemplate(col) {
-        // console.log(col);
         return (rowData, column) => {
             let pk = rowData[this.props.actorData.pk_index];
             let cellIndex = column.cellIndex;
@@ -247,7 +246,7 @@ export class LinoGrid extends Component {
     }
 
     onSubmit(cellProps, event, bodyCell) {
-        let {rowData, field, rowIndex} = cellProps;
+        let {rowData, field, rowIndex} = cellProps.columnProps;
         // check if new row
         // save row index
         // run ajax call on this.get_full_id url
@@ -275,11 +274,7 @@ export class LinoGrid extends Component {
                     // this.setState({editing_mode: false});
                     // this.consume_server_responce(data.data_record);
                     data.rows && this.setState((old) => { // update just the row
-                        const getIndex = (row) => {
-                            return row[0] === data.rows[0][0]
-                        }
-                        let rowIndex = old.rows.findIndex(getIndex),
-                            state = {},
+                        let state = {},
                             rows = old.rows.slice(); // make data copy
                         state.rows = rows;
                         if (editingPK === null) {
@@ -725,7 +720,6 @@ export class LinoGrid extends Component {
             // this.state.show_columns.map((i) => (this.props.actorData.col[i - 0])).forEach(
             //     (col) => total_widths += (col.width || col.preferred_width)
             // );
-
             this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
             this.update_url_values({'show_columns': this.state.show_columns.toString()}, this.props.match);
             this.cols = this.cols.concat(
@@ -1005,7 +999,6 @@ export class LinoGrid extends Component {
 
     render() {
         // console.log("20210216 render");
-
         if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0) {
             return null
         }
@@ -1021,7 +1014,8 @@ export class LinoGrid extends Component {
                         footer={footer}
                         responsive={this.props.actorData.react_responsive}
                         resizableColumns={true}
-                        value={this.state.rows} paginator={false}
+                        value={this.state.rows}
+                        paginator={false}
                         // selectionMode="single"
                         editable={true}
                         // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
@@ -1031,7 +1025,7 @@ export class LinoGrid extends Component {
                         onRowSelect={this.onRowSelect}
                         selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
                         loading={this.state.loading}
-                        emptyMessage={this.state.emptyMessage}
+                        // emptyMessage={this.state.emptyMessage} // this.state.emptyMessage is not defined.
                         ref={(ref) => this.dataTable = ref}
                         onRowDoubleClick={this.onRowDoubleClick}
                         onSort={this.onSort}
