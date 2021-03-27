@@ -16,7 +16,7 @@ import {MultiSelect} from 'primereact/multiselect';
 import {Dialog} from 'primereact/dialog';
 import {Panel} from 'primereact/panel';
 import {ProgressBar} from 'primereact/progressbar';
-
+import {ToggleButton} from 'primereact/togglebutton';
 
 import {debounce, pvObj2array, isMobile, find_cellIndex, gridList2Obj} from "./LinoUtils";
 
@@ -38,7 +38,7 @@ export class LinoGrid extends Component {
         parent_pv: PropTypes.object,
         depth: PropTypes.number,
         display_mode: PropTypes.string, // "list", // or "grid" // "table"
-        // todo: in_detail : PropTypes.bool
+        show_top_toolbar: PropTypes.bool,
     };
 
     static defaultProps = {
@@ -85,8 +85,9 @@ export class LinoGrid extends Component {
             // sortOrder: undefined
 
             sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined,
-            sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined
+            sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined,
 
+            show_top_toolbar: isMobile() ? false : true,
         };
         this.state.cols = props.actorData.col.map((column, i) => (
             {
@@ -131,6 +132,7 @@ export class LinoGrid extends Component {
         this.renderSimpleHeader = this.renderSimpleHeader.bind(this);
         this.renderDetailHeader = this.renderDetailHeader.bind(this);
         this.renderMainGridHeader = this.renderMainGridHeader.bind(this);
+        this.handleWindowChange = this.handleWindowChange.bind(this);
 
     }
 
@@ -662,12 +664,18 @@ export class LinoGrid extends Component {
         this.cols = undefined;
         document.addEventListener("keydown", this.handelKeydown, false);
         this.reload();
+        window.addEventListener("resize", this.handleWindowChange);
         // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
 
     componentWillUnmount() {
         // console.log("20210223 componentWillUnmount()")
         document.removeEventListener("keydown", this.handelKeydown, false);
+        window.removeEventListener("resize", this.handleWindowChange);
+    }
+
+    handleWindowChange(e) {
+        this.setState({show_top_toolbar: isMobile() ? false : true});
     }
 
     handelKeydown(event) {
@@ -849,7 +857,8 @@ export class LinoGrid extends Component {
                               marginRight: wide ? "1ch" : undefined,
                               marginLeft: wide ? "1ch" : undefined,
                           }}
-                          placeholder="QuickSearch" /*value={this.state.query}*/
+                          placeholder="QuickSearch"
+                          value={this.state.query}
                           onChange={(e) => this.quickFilter(e.target.value)}/>
     }
 
@@ -897,21 +906,29 @@ export class LinoGrid extends Component {
     renderMainGridHeader() {
         let {actorData} = this.props;
         return <React.Fragment>
-            <div className={"table-header"}>
-
-                <div>
+            <div className={"table-header"}><span>
+                { isMobile() ? <ToggleButton
+                    onChange={e => this.setState({
+                        show_top_toolbar: !this.state.show_top_toolbar
+                    })}
+                    onLabel=''
+                    offLabel=''
+                    onIcon='pi pi-bars'
+                    offIcon='pi pi-bars'
+                /> : null }</span>
+                {this.state.show_top_toolbar ? <div>
                     {!actorData.react_big_search && this.renderQuickFilter()}
                     {this.renderParamValueControls()}
                     {this.renderToggle_colControls()}
-                </div>
+                </div> : null}
                 {this.state.title || this.props.actorData.label}
                 {this.renderDataViewLayout()}
             </div>
-            <div className={"table-header"}>
+            {this.state.show_top_toolbar ? <div className={"table-header"}>
                 {this.renderActionBar()}
-            </div>
-            {actorData.react_big_search && this.renderQuickFilter(true)}
-            {this.renderProgressBar()}
+                {actorData.react_big_search && this.renderQuickFilter(true)}
+                {this.renderProgressBar()}
+            </div> : null }
         </React.Fragment>
     }
 
@@ -921,7 +938,6 @@ export class LinoGrid extends Component {
     }
 
     renderHeader() {
-        // let mobile = isMobile();
         return this.props.inDetail ? this.renderDetailHeader() : this.renderMainGridHeader()
     }
 
@@ -992,7 +1008,7 @@ export class LinoGrid extends Component {
         </Panel>
     }
 
-    renderMinamized() {
+    renderMinimized() {
 
     }
 
@@ -1004,7 +1020,6 @@ export class LinoGrid extends Component {
         }
         const header = this.renderHeader(),
             footer = this.renderPaginator();
-
         return <React.Fragment>
             <div className={"l-grid"} >
                 {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ?
@@ -1041,7 +1056,7 @@ export class LinoGrid extends Component {
                     this.props.actorData.borderless_list_mode ?
                         <div>
                             {this.state.rows.map((row, index) => (
-                                <div key={this.state.rows[index].id}>{this.itemTemplate(row)}</div>
+                                <div key={this.state.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
                             ))}
                         </div>
                         :
@@ -1050,7 +1065,7 @@ export class LinoGrid extends Component {
                                   footer={footer}
                                   layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
                                   itemTemplate={this.itemTemplate}
-                                  itemKey={(data, index) => (this.state.rows[index].id)}
+                                  itemKey={(data, index) => (this.state.rows[index][this.props.actorData.pk_index])}
                         />}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&

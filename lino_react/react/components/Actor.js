@@ -39,14 +39,14 @@ export class Actor extends Component {
         // console.log("Actor mount");
     };
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    //UNSAFE_componentWillReceiveProps(nextProps) {
         // const changedProps = _.reduce(this.props, function (result, value, key) {
         //     return _.isEqual(value, nextProps[key])
         //         ? result
         //         : result.concat(key)
         // }, []);
         // console.log('changedProps: ', changedProps)
-    }
+    //}
 
     render() {
         return <ActorData key={this.props.actorId+this.props.su} actorId={this.props.packId + "." + this.props.actorId}>
