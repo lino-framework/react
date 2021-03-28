@@ -380,7 +380,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                                       "hide_top_toolbar "  # No selection and toolbar
                                       "use_detail_params_value "
                                       "react_responsive "
-                                      "react_big_search "
+                                      #"react_big_search "
                                       "display_mode "
                                       "max_render_depth "
                                       "simple_slavegrid_header "

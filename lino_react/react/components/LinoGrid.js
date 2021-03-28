@@ -674,7 +674,7 @@ export class LinoGrid extends Component {
         window.removeEventListener("resize", this.handleWindowChange);
     }
 
-    handleWindowChange(e) {
+    handleWindowChange() {
         this.setState({show_top_toolbar: isMobile() ? false : true});
     }
 
@@ -829,6 +829,7 @@ export class LinoGrid extends Component {
 
     renderDataViewLayout() {
         return <DataViewLayoutOptions
+            style={{marginTop: "5px"}}
             layoutChoices={["grid", "list", "cards"]}
             layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
             onChange={e => {
@@ -863,7 +864,7 @@ export class LinoGrid extends Component {
     }
 
     renderActionBar() {
-        return <div className={"p-col-12"} style={{"textAlign": "left"}}>
+        return <div style={{"textAlign": "left"}}>
             <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
                       srMap={(row) => row[this.props.actorData.pk_index]}
                       rp={this} an={'grid'}
@@ -906,8 +907,14 @@ export class LinoGrid extends Component {
     renderMainGridHeader() {
         let {actorData} = this.props;
         return <React.Fragment>
-            <div className={"table-header"}><span>
-                { isMobile() ? <ToggleButton
+            <div className={"table-header"}>
+                {this.state.show_top_toolbar ? <div>
+                    {this.renderQuickFilter()}
+                    {this.renderParamValueControls()}
+                    {this.renderToggle_colControls()}
+                </div> : <div></div>}
+                <ToggleButton
+                    checked={this.state.show_top_toolbar}
                     onChange={e => this.setState({
                         show_top_toolbar: !this.state.show_top_toolbar
                     })}
@@ -915,20 +922,17 @@ export class LinoGrid extends Component {
                     offLabel=''
                     onIcon='pi pi-bars'
                     offIcon='pi pi-bars'
-                /> : null }</span>
-                {this.state.show_top_toolbar ? <div>
-                    {!actorData.react_big_search && this.renderQuickFilter()}
-                    {this.renderParamValueControls()}
-                    {this.renderToggle_colControls()}
-                </div> : null}
-                {this.state.title || this.props.actorData.label}
-                {this.renderDataViewLayout()}
+                    iconPos="right"
+                />
             </div>
             {this.state.show_top_toolbar ? <div className={"table-header"}>
                 {this.renderActionBar()}
-                {actorData.react_big_search && this.renderQuickFilter(true)}
                 {this.renderProgressBar()}
-            </div> : null }
+                {this.renderDataViewLayout()}
+            </div> : <div className={"table-header"}>
+                <div></div>
+                {this.renderDataViewLayout()}
+            </div>}
         </React.Fragment>
     }
 
@@ -1021,6 +1025,9 @@ export class LinoGrid extends Component {
         const header = this.renderHeader(),
             footer = this.renderPaginator();
         return <React.Fragment>
+            <h1 className={"l-detail-header"}>
+                <div dangerouslySetInnerHTML={{ __html:this.state.title || this.props.actorData.label || "\u00a0" }}></div>
+            </h1>
             <div className={"l-grid"} >
                 {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ?
                     <DataTable
