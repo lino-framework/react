@@ -674,7 +674,7 @@ export class LinoGrid extends Component {
         window.removeEventListener("resize", this.handleWindowChange);
     }
 
-    handleWindowChange(e) {
+    handleWindowChange() {
         this.setState({show_top_toolbar: isMobile() ? false : true});
     }
 

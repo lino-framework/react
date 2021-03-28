@@ -11,7 +11,7 @@ import {AutoComplete} from 'primereact/autocomplete';
 import {ToggleButton} from 'primereact/togglebutton';
 
 import LinoLayout from "./LinoComponents"
-import {debounce, deepCompare} from "./LinoUtils";
+import {debounce, deepCompare, isMobile} from "./LinoUtils";
 import LinoBbar from "./LinoBbar";
 // import {LoadingMask} from "./LoadingMask"
 import {ProgressBar} from 'primereact/progressbar';
@@ -32,7 +32,8 @@ export class LinoDetail extends Component {
         mt: PropTypes.number,
         mk: PropTypes.string, // we want to allow str / slug pks
 
-        noToolbar: PropTypes.bool
+        noToolbar: PropTypes.bool,
+        show_top_toolbar: PropTypes.bool,
     };
     static defaultProps = {
         noToolbar: false,
@@ -52,7 +53,8 @@ export class LinoDetail extends Component {
             pv: {},
             quickSearchQuery: "",
             reload_timestamp: 0, //Date.now() // 0 used to prevent reload after mount // used to propgate down to cause reloading of slave-grids on realod.
-            loading: true
+            loading: true,
+            show_top_toolbar: isMobile() ? false : true,
         };
         this.reload = this.reload.bind(this);
         this.update_value = this.update_value.bind(this);
@@ -63,7 +65,7 @@ export class LinoDetail extends Component {
         this.saveThenDo = this.saveThenDo.bind(this);
         this.onDirtyLeave = this.onDirtyLeave.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
-
+        this.handleWindowChange = this.handleWindowChange.bind(this);
     }
 
     /**
@@ -224,10 +226,12 @@ export class LinoDetail extends Component {
         document.addEventListener('keydown', this.onKeyDown);
         this.reload();
         // console.log(this.props.actorId, "LinoDetail ComponentMount", this.props);
+        window.addEventListener('resize', this.handleWindowChange);
     };
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('resize', this.handleWindowChange);
     };
 
     onNavClick(pk) {
@@ -287,6 +291,10 @@ export class LinoDetail extends Component {
         }
     }
 
+    handleWindowChange() {
+        this.setState({show_top_toolbar: isMobile() ? false : true})
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -301,7 +309,7 @@ export class LinoDetail extends Component {
 
                 {!this.props.noToolbar &&
                 <Toolbar className={"l-detail-toolbar"}
-                         left={<React.Fragment><AutoComplete placeholder={"Quick Search"}
+                         left={this.state.show_top_toolbar && <React.Fragment><AutoComplete placeholder={"Quick Search"}
                                                              value={this.state.quickSearchQuery}
                                                              onChange={(e) => this.setState({quickSearchQuery: e.value})}
                                                              suggestions={this.state.searchSuggestions}
@@ -338,7 +346,6 @@ export class LinoDetail extends Component {
                                  className="l-nav-last"
                                  icon="pi pi-angle-double-right"
                                  onClick={() => this.onNavClick(this.state.navinfo.last)}/>
-                             <br/>
                              <LinoBbar sr={[this.props.pk]} reload={this.reload}
                                        actorData={this.props.actorData} rp={this}
                                        an={'detail'} runWrapper={this.saveThenDo}
@@ -350,8 +357,8 @@ export class LinoDetail extends Component {
                                           style={{height: '5px'}}/>
 
                          </React.Fragment>}
-                         right={this.props.actorData.editable && !this.state.data.disable_editing &&
-                         <React.Fragment>
+                         right={<React.Fragment>
+                             {this.props.actorData.editable && !this.state.data.disable_editing && this.state.show_top_toolbar &&
                              <ToggleButton style={{"float": "right"}}
                                            checked={this.state.editing_mode}
                                            onChange={(e) => {
@@ -364,8 +371,8 @@ export class LinoDetail extends Component {
                                            onLabel="Save" offLabel="Edit"
                                            onIcon="pi pi-save"
                                            offIcon="pi pi-pencil"
-                             />
-                             {this.state.editing_mode &&
+                             />}
+                             {this.state.editing_mode && this.state.show_top_toolbar &&
                              <Button label={"Cancel"}
                                      onClick={() => {
                                          this.setState({
@@ -373,11 +380,20 @@ export class LinoDetail extends Component {
                                              editing_mode: false
                                          })
                                      }}/>}
-                         </React.Fragment>
-                         }
-                >
-                </Toolbar>
-                }
+                             <ToggleButton
+                                checked={this.state.show_top_toolbar}
+                                 onChange={e => this.setState({
+                                     show_top_toolbar: !this.state.show_top_toolbar
+                                 })}
+                                 onLabel=''
+                                 offLabel=''
+                                 onIcon='pi pi-bars'
+                                 offIcon='pi pi-bars'
+                                 iconPos="right"
+                             />
+                         </React.Fragment>}
+                    >
+                </Toolbar>}
                 <LinoLayout
                     window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
                     data={this.state.data}
