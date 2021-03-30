@@ -722,7 +722,6 @@ export class LinoGrid extends Component {
      * @returns {JSX columns for PR's DataTable}
      */
     get_cols() {
-
         if (this.cols === undefined) {
             // let total_widths = 0; // get total of all width values to use % rather than ch.
             // this.state.show_columns.map((i) => (this.props.actorData.col[i - 0])).forEach(
@@ -1018,7 +1017,6 @@ export class LinoGrid extends Component {
 
 
     render() {
-        // console.log("20210216 render");
         if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0) {
             return null
         }
