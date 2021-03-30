@@ -13,12 +13,15 @@ export class DateFieldElement extends React.Component {
 
     update_props(e) {
         this.props.update_value(
-            {[getDataKey(this.props)]: e.value},
+            {[getDataKey(this.props)]: this.formatedDate(e.value)},
             this.props.elem,
             this.props.column);
     }
 
     convertValueToDate(value) {
+        if (value instanceof Date) {
+            return value
+        }
         let parts = value ? value.split(".") : [];
         if (parts.length === 3) {
             return new Date(parts[2], parts[1] - 1, parts[0]);
@@ -27,6 +30,9 @@ export class DateFieldElement extends React.Component {
     }
 
     formatedDate(date) {
+        if (date instanceof String) {
+            return date
+        }
         if (date instanceof Date) {
             let date_str = ("0" + date.getDate()).slice(-2) + "." +
                 ("0" + (date.getMonth() + 1)).slice(-2) + "." +
@@ -42,18 +48,22 @@ export class DateFieldElement extends React.Component {
         return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
             {props.editing_mode && !isDisabledField(props) ?
                 <Calendar style={{width: "100%"}}
-                          appendTo={window.App.topDiv}
-                          showIcon={false}
+                          //appendTo={window.App.topDiv}
+                          showIcon={true}
                           keepInvalid={true}
                           value={this.convertValueToDate(value)}
                           dateFormat="dd.mm.yy"
                           onChange={(e) => {
-                              if (!(e.originalEvent.target.value.length < 10)) {
+                              if (e.originalEvent.target.value !== undefined && !(e.originalEvent.target.value.length < 10)) {
                                   if (this.convertValueToDate(e.value) instanceof Date) {
                                       this.update_props(e);
                                   }
                               }
                           }}
+                          onSelect={this.update_props}
+                          onClearButtonClick={(e) => {e.value = ""; this.update_props(e)}}
+                          yearNavigator yearRange="1900:2900"
+                          showButtonBar={true}
                           showOnFocus={false}
                           ref={(el) => this.cal = el}
                           className={"l-DateFieldElement"}
