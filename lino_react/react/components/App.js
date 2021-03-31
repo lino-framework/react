@@ -1259,19 +1259,19 @@ class App extends React.Component {
                                             closable={d.closable}
                                             footer={d.footer}
                                             router={this.router}
-                                            update_value={(values, id) => {
+                                            update_value={(values) => {
                                                 this.setState(previous => {
                                                     // Update the data dict with new values, recreate diag list.
                                                     // Don't remake the dialog object as that'll remount it
-                                                    const diaIndex = previous.dialogs.findIndex(e => key(e) === id),
-                                                        dia = previous.dialogs[diaIndex];
+                                                    // const diaIndex = previous.dialogs.findIndex(e => key(e) === id),
+                                                    const dia = previous.dialogs[0];
                                                     // Sometimes after submiting and closing an update is fired... just ignore
                                                     if (dia === undefined) {
                                                         return {}
                                                     }
                                                     dia.data = Object.assign({}, dia.data, values);
-                                                    let dialogs = [...previous.dialogs];
-                                                    return {dialogs: dialogs}
+                                                    //let dialogs = [...previous.dialogs];
+                                                    return {dialogs: [dia]}
                                                 })
                                             }}
                                             ref={this.setupDialogRefs}
