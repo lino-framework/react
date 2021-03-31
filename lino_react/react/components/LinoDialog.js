@@ -164,7 +164,7 @@ export class LinoDialog extends Component {
                             actorId={this.props.actorId}
                             actorData={ActorData}
                             action={this.props.action}
-                            update_value={(v) => this.props.update_value(v, this._reactInternalFiber.key)}
+                            update_value={(v) => this.props.update_value(v)}
                             editing_mode={true}
                             match={this.props.router}
                             onSubmit={this.props.onOk}

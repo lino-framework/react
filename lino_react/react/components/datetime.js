@@ -56,11 +56,21 @@ export class DateFieldElement extends React.Component {
                           onChange={(e) => {
                               if (e.originalEvent.target.value !== undefined && !(e.originalEvent.target.value.length < 10)) {
                                   if (this.convertValueToDate(e.value) instanceof Date) {
-                                      this.update_props(e);
+                                      if (this.props.inDialog) {
+                                          this.props.update_value(this.formatedDate(e.value));
+                                      } else {
+                                          this.update_props(e);
+                                      }
                                   }
                               }
                           }}
-                          onSelect={this.update_props}
+                          onSelect={(e) => {
+                              if (this.props.inDialog) {
+                                  this.props.update_value(this.formatedDate(e.value));
+                              } else {
+                                  this.update_props(e);
+                              }
+                          }}
                           onClearButtonClick={(e) => {e.value = ""; this.update_props(e)}}
                           yearNavigator yearRange="1900:2900"
                           showButtonBar={true}
@@ -172,9 +182,6 @@ export class TimeFieldElement extends React.Component {
                               }
                           }}
                     // showIcon={true}
-                          onViewDateChange={(e) => {
-                          }}
-                          viewDate={viewDate}
                           ref={(el) => this.cal = el}
 
                 />
