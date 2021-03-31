@@ -1,20 +1,27 @@
 import React, {Component} from "react";
+import PropTypes from 'prop-types';
 import {InputText} from 'primereact/inputtext';
-import Calendar from './primereact/calendar';
+import {Calendar} from 'primereact/calendar';
 import {Labeled, getValue, getDataKey, shouldComponentUpdate, isDisabledField} from "./LinoComponents";
+
 
 export class DateFieldElement extends React.Component {
     constructor() {
         super();
-        this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-        this.parse_date = this.parse_date.bind(this);
+        this.update_props = this.update_props.bind(this);
     }
 
-    focus() {
-        this.cal.inputElement.focus()
+    update_props(e) {
+        this.props.update_value(
+            {[getDataKey(this.props)]: this.formatedDate(e.value)},
+            this.props.elem,
+            this.props.column);
     }
 
     convertValueToDate(value) {
+        if (value instanceof Date) {
+            return value
+        }
         let parts = value ? value.split(".") : [];
         if (parts.length === 3) {
             return new Date(parts[2], parts[1] - 1, parts[0]);
@@ -22,52 +29,46 @@ export class DateFieldElement extends React.Component {
         return value
     }
 
-    /*
-    Attempts to convert the value into a date object.
-     */
-    parse_date(value) {
-        let v = this.convertValueToDate(value);
-        if (v instanceof Date) {
-            return v
-        } else {
-            return new Date();
+    formatedDate(date) {
+        if (date instanceof String) {
+            return date
         }
-
+        if (date instanceof Date) {
+            let date_str = ("0" + date.getDate()).slice(-2) + "." +
+                ("0" + (date.getMonth() + 1)).slice(-2) + "." +
+                date.getFullYear();
+            return date_str
+        }
+        return
     }
 
     render() {
         let {props} = this,
-            value = (getValue(props));
-        // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+            value = getValue(props);
         return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
             {props.editing_mode && !isDisabledField(props) ?
                 <Calendar style={{width: "100%"}}
-                          appendTo={window.App.topDiv}
+                          //appendTo={window.App.topDiv}
                           showIcon={true}
-                          value={value}
+                          keepInvalid={true}
+                          value={this.convertValueToDate(value)}
                           dateFormat="dd.mm.yy"
                           onChange={(e) => {
-                              let formatedDate;
-                              if (e.value instanceof Date) {
-                                  formatedDate = ("0" + e.value.getDate()).slice(-2) + "." +
-                                      ("0" + (e.value.getMonth() + 1)).slice(-2) + "." +
-                                      e.value.getFullYear();
+                              if (e.originalEvent.target.value !== undefined && !(e.originalEvent.target.value.length < 10)) {
+                                  if (this.convertValueToDate(e.value) instanceof Date) {
+                                      this.update_props(e);
+                                  }
                               }
-                              props.update_value({[getDataKey(props)]: formatedDate || e.value || ""},
-                                  props.elem,
-                                  props.column);
-                          }
-                          }
-                          showOnFocus={false}
+                          }}
+                          onSelect={(e) => this.update_props(e)}
+                          onClearButtonClick={(e) => {e.value = ""; this.update_props(e)}}
+                          yearNavigator yearRange="1900:2900"
                           showButtonBar={true}
-                          // showIcon={true}
-                          viewDate={this.parse_date(value)}
+                          showOnFocus={false}
                           ref={(el) => this.cal = el}
-                          convertValueToDate={this.convertValueToDate}
                           className={"l-DateFieldElement"}
-                />
-                :
-                <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>}
+                /> : <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+            }
         </Labeled>
     }
 }
@@ -137,43 +138,26 @@ export class TimeFieldElement extends React.Component {
 
     render() {
         let {props} = this,
-            value = (getValue(props)),
-            viewDate = this.str2date(value) || new Date();
+            value = (getValue(props));
         // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
         return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
             {props.editing_mode && !isDisabledField(props) ?
                 <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
                           inputStyle={{width: "100%"}}
-                          value={value}
+                          value={this.str2date(value)}
                           appendTo={window.App.topDiv}
                           keepInvalid={true}
-                    // dateFormat="dd.mm.yy"
+                          hourFormat='12'
                           onChange={(e) => {
                               let time;
                               if (e.value instanceof Date) {
                                   time = this.date2str(e.value)
                               }
-                              props.update_value({[getDataKey(props)]: time || e.value || ""},
+                              props.update_value({[getDataKey(props)]: time},
                                   props.elem,
-                                  props.column)
+                                  props.column
+                              );
                           }}
-                          onBlur={(e) => {
-                              let value = getValue(props),
-                                  dateValue = this.str2date(value);
-                              // console.log(e, value, dateValue);
-                              if (dateValue) {
-                                  dateValue = this.date2str(dateValue)
-                              } // convert to string
-                              if (dateValue !== value) {
-                                  props.update_value({[getDataKey(props)]: dateValue ? this.date2str(dateValue) : value},
-                                      props.elem,
-                                      props.column)
-                              }
-                          }}
-                    // showIcon={true}
-                          onViewDateChange={(e) => {
-                          }}
-                          viewDate={viewDate}
                           ref={(el) => this.cal = el}
 
                 />

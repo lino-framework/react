@@ -56,7 +56,6 @@ export class LinoDialog extends Component {
         this.state = {
             visible: true,
             dialogMaximised: false,
-            // data: Object.assign({}, props.data)
         };
 
         this.onClose = this.onClose.bind(this);
@@ -115,7 +114,6 @@ export class LinoDialog extends Component {
     }
 
     render() {
-
         return <ActorContext.Consumer>{(ActorData) => {
             const footer = this.props.footer || <div><LinoBbar rp={this} actorData={ActorData}
                                                                an={this.props.action.an} sr={[undefined]}/></div>;
@@ -164,7 +162,7 @@ export class LinoDialog extends Component {
                             actorId={this.props.actorId}
                             actorData={ActorData}
                             action={this.props.action}
-                            update_value={(v) => this.props.update_value(v, this._reactInternalFiber.key)}
+                            update_value={this.props.update_value}
                             editing_mode={true}
                             match={this.props.router}
                             onSubmit={this.props.onOk}
