@@ -377,7 +377,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
             result.update(obj2dict(v, "preview_limit "  # number of rows to render # if 0 no paginator.
                                       "use_detail_param_panel "  # show PV panel in detail
                                       "use_detail_params_value "  # in grid, use parrent PV values
-                                      "hide_top_toolbar "  # No selection and toolbar
+                                      "hide_navigator "
                                       "use_detail_params_value "
                                       "react_responsive "
                                       #"react_big_search "
