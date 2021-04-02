@@ -296,6 +296,16 @@ export class LinoDetail extends Component {
     }
 
     render() {
+        let title = this.state.title;
+        if (this.props.actorData.hide_navigator) {
+            let rest = title.split("»").slice(1);
+            let rest_str = rest.length > 1 ? rest.join("»") : rest.length == 1 ? rest[0] : undefined;
+            if (rest_str){
+                title = this.props.actorData.label + " »" + rest_str;
+            }else {
+                title = this.props.actorData.label;
+            }
+        }
         return (
             <React.Fragment>
 
@@ -304,99 +314,89 @@ export class LinoDetail extends Component {
                 />
 
                 <h1 className={"l-detail-header"}>
-                    <div dangerouslySetInnerHTML={{__html: this.state.title || "\u00a0"}}></div>
+                    <span dangerouslySetInnerHTML={{__html: title || "\u00a0"}}></span>
+                    {!this.props.actorData.slave && <ToggleButton
+                        style={{'float': 'right'}}
+                        checked={this.state.show_top_toolbar}
+                        onChange={e => this.setState({
+                            show_top_toolbar: !this.state.show_top_toolbar
+                        })}
+                        onLabel=''
+                        offLabel=''
+                        onIcon='pi pi-bars'
+                        offIcon='pi pi-bars'
+                        iconPos="right"
+                    />}
                 </h1>
 
-                {!this.props.noToolbar &&
-                <Toolbar className={"l-detail-toolbar"}
-                         left={this.state.show_top_toolbar &&
-                             <React.Fragment>
-                                 {!this.props.actorData.hide_navigator && <React.Fragment>
-                                 <AutoComplete
-                                     placeholder={"Quick Search"}
-                                     value={this.state.quickSearchQuery}
-                                     onChange={(e) => this.setState({quickSearchQuery: e.value})}
-                                     suggestions={this.state.searchSuggestions}
-                                     field={"text"} dropdown={true}
-                                     minLength={2}
-                                     completeMethod={(e) => this.quickSearch(e.query)}
-                                     className={"l-detail-quicksearch"}
-                                     onSelect={(e) => {
-                                         // console.log("Search selection onSelect", e);
-                                         this.setState({quickSearchQuery: ""});
-                                         this.onNavClick(e.value.value)
-                                     }}/>
-                                 <i className="pi pi-bars p-toolbar-separator"
-                                     style={{marginRight: '.25em'}}/>
-                                 <Button
-                                     disabled={!this.state.navinfo || this.state.navinfo.first === null || this.props.pk == this.state.navinfo.first}
-                                     className="l-nav-first"
-                                     icon="pi pi-angle-double-left"
-                                     onClick={() => this.onNavClick(this.state.navinfo.first)}/>
-                                 <Button
-                                     disabled={!this.state.navinfo || this.state.navinfo.prev === null || this.props.pk == this.state.navinfo.prev}
-                                     className="l-nav-prev"
-                                     icon="pi pi-angle-left"
-                                     onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
-                                 <Button
-                                     disabled={!this.state.navinfo || this.state.navinfo.next === null || this.props.pk == this.state.navinfo.next}
-                                     className="l-nav-next"
-                                     icon="pi pi-angle-right"
-                                     onClick={() => this.onNavClick(this.state.navinfo.next)}/>
-                                 <Button
-                                     disabled={!this.state.navinfo || this.state.navinfo.last === null || this.props.pk == this.state.navinfo.last}
-                                     className="l-nav-last"
-                                     icon="pi pi-angle-double-right"
-                                     onClick={() => this.onNavClick(this.state.navinfo.last)}/>
-                                 </React.Fragment>}
-                             <LinoBbar sr={[this.props.pk]} reload={this.reload}
-                                       actorData={this.props.actorData} rp={this}
-                                       an={'detail'} runWrapper={this.saveThenDo}
-                                       disabledFields={this.state.disabled_fields}/>
-
-
-                             <ProgressBar mode="indeterminate"
-                                          className={this.state.loading ? "" : "lino-transparent"}
-                                          style={{height: '5px'}}/>
-
-                         </React.Fragment>}
-                         right={<React.Fragment>
-                             {this.props.actorData.editable && !this.state.data.disable_editing && this.state.show_top_toolbar &&
-                             <ToggleButton style={{"float": "right"}}
-                                           checked={this.state.editing_mode}
-                                           onChange={(e) => {
-                                               if (this.state.editing_mode && this.isDirty()) {
-                                                   this.save();
-                                               } else {
-                                                   this.setState({editing_mode: e.value})
-                                               }
-                                           }}
-                                           onLabel="Save" offLabel="Edit"
-                                           onIcon="pi pi-save"
-                                           offIcon="pi pi-pencil"
-                             />}
-                             {this.state.editing_mode && this.state.show_top_toolbar &&
-                             <Button label={"Cancel"}
-                                     onClick={() => {
-                                         this.setState({
-                                             data: Object.assign({}, this.state.original_data),
-                                             editing_mode: false
-                                         })
-                                     }}/>}
-                             <ToggleButton
-                                checked={this.state.show_top_toolbar}
-                                 onChange={e => this.setState({
-                                     show_top_toolbar: !this.state.show_top_toolbar
-                                 })}
-                                 onLabel=''
-                                 offLabel=''
-                                 onIcon='pi pi-bars'
-                                 offIcon='pi pi-bars'
-                                 iconPos="right"
-                             />
-                         </React.Fragment>}
-                    >
-                </Toolbar>}
+                {!this.props.noToolbar && this.state.show_top_toolbar && <Toolbar
+                    className={"l-detail-toolbar"}
+                    left={<React.Fragment>
+                        {!this.props.actorData.hide_navigator && <React.Fragment>
+                            <AutoComplete
+                                placeholder={"Quick Search"}
+                                value={this.state.quickSearchQuery}
+                                onChange={(e) => this.setState({quickSearchQuery: e.value})}
+                                suggestions={this.state.searchSuggestions}
+                                field={"text"} dropdown={true}
+                                minLength={2}
+                                completeMethod={(e) => this.quickSearch(e.query)}
+                                className={"l-detail-quicksearch"}
+                                onSelect={(e) => {
+                                    // console.log("Search selection onSelect", e);
+                                    this.setState({quickSearchQuery: ""});
+                                    this.onNavClick(e.value.value)
+                                }}/>
+                            <i className="pi pi-bars p-toolbar-separator"
+                                style={{marginRight: '.25em'}}/>
+                            <Button
+                                disabled={!this.state.navinfo || this.state.navinfo.first === null || this.props.pk == this.state.navinfo.first}
+                                className="l-nav-first"
+                                icon="pi pi-angle-double-left"
+                                onClick={() => this.onNavClick(this.state.navinfo.first)}/>
+                            <Button
+                                disabled={!this.state.navinfo || this.state.navinfo.prev === null || this.props.pk == this.state.navinfo.prev}
+                                className="l-nav-prev"
+                                icon="pi pi-angle-left"
+                                onClick={() => this.onNavClick(this.state.navinfo.prev)}/>
+                            <Button
+                                disabled={!this.state.navinfo || this.state.navinfo.next === null || this.props.pk == this.state.navinfo.next}
+                                className="l-nav-next"
+                                icon="pi pi-angle-right"
+                                onClick={() => this.onNavClick(this.state.navinfo.next)}/>
+                            <Button
+                                disabled={!this.state.navinfo || this.state.navinfo.last === null || this.props.pk == this.state.navinfo.last}
+                                className="l-nav-last"
+                                icon="pi pi-angle-double-right"
+                                onClick={() => this.onNavClick(this.state.navinfo.last)}/>
+                        </React.Fragment>}
+                        <LinoBbar
+                            sr={[this.props.pk]} reload={this.reload}
+                            actorData={this.props.actorData} rp={this}
+                            an={'detail'} runWrapper={this.saveThenDo}
+                            disabledFields={this.state.disabled_fields}/>
+                        {this.props.actorData.editable && !this.state.data.disable_editing &&
+                        <ToggleButton
+                            checked={this.state.editing_mode}
+                            onChange={(e) => {
+                                if (this.state.editing_mode && this.isDirty()) {
+                                    this.setState({
+                                        data: Object.assign({}, this.state.original_data),
+                                        editing_mode: false
+                                    });
+                                } else {
+                                    this.setState({editing_mode: e.value})
+                                }
+                            }}
+                            onLabel=""
+                            offLabel=""
+                            onIcon="pi pi-times"
+                            offIcon="pi pi-pencil"
+                            tooltip={this.state.editing_mode ? "Cancel" : "Edit"}/>}
+                        <ProgressBar mode="indeterminate"
+                            className={this.state.loading ? "" : "lino-transparent"}
+                            style={{height: '5px'}}/>
+                    </React.Fragment>}/>}
                 <LinoLayout
                     window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
                     data={this.state.data}
