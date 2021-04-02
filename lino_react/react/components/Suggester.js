@@ -221,10 +221,7 @@ class Suggester extends React.Component {
         let {props} = this;
 
         let sugestions = this.renderSuggestion();
-
-        return <div ref={(el) => {
-            this.div = el
-        }}
+        return <div ref={(el) => this.div = el}
                     onKeyDownCapture={(e) => {
                         // console.log("onKeyPressCapture");
                         if (!this.state.triggered) {
@@ -266,26 +263,25 @@ class Suggester extends React.Component {
                             this.resetState();
                         }
                     }}
-        >
-            <InputTrigger getElement={this.props.getElement} trigger={{
-                keys: this.props.triggerKeys
-            }}
-                          onStart={this.onStart}
-                          onCancel={(obj) => {
-                              this.resetState();
-                              this.setState({...obj, triggered: false});
-                              this.props.onCancel && this.props.onCancel();
-                          }
-                          }
-                          onType={this.onType
-                          }
-                          ref={(e) => {
-                              this.inputTrigger = e
-                          }}
-            >
-                {sugestions}
-                {props.children}
-            </InputTrigger></div>
+        >{
+            <InputTrigger
+                getElement={this.props.getElement}
+                trigger={{keys: this.props.triggerKeys}}
+                onStart={this.onStart}
+                onCancel={(obj) => {
+                    this.resetState();
+                    this.setState({...obj, triggered: false});
+                    this.props.onCancel && this.props.onCancel();
+                }}
+                onType={this.onType}
+                ref={(e) => {this.inputTrigger = e}}>
+                <React.Fragment>
+                    {sugestions}
+                    {props.children}
+                </React.Fragment>
+            </InputTrigger>
+        }
+        </div>
     }
 }
 
