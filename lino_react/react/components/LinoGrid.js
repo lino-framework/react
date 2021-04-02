@@ -905,39 +905,25 @@ export class LinoGrid extends Component {
 
     renderMainGridHeader() {
         let {actorData} = this.props;
-        return <React.Fragment>
+        return this.state.show_top_toolbar && <React.Fragment>
             <div className={"table-header"}>
-                {this.state.show_top_toolbar ? <div>
+                <div>
                     {this.renderQuickFilter()}
                     {this.renderParamValueControls()}
                     {this.renderToggle_colControls()}
-                </div> : <div></div>}
-                <ToggleButton
-                    checked={this.state.show_top_toolbar}
-                    onChange={e => this.setState({
-                        show_top_toolbar: !this.state.show_top_toolbar
-                    })}
-                    onLabel=''
-                    offLabel=''
-                    onIcon='pi pi-bars'
-                    offIcon='pi pi-bars'
-                    iconPos="right"
-                />
+                </div>
             </div>
-            {this.state.show_top_toolbar ? <div className={"table-header"}>
+            <div className={"table-header"}>
                 {this.renderActionBar()}
                 {this.renderProgressBar()}
                 {this.renderDataViewLayout()}
-            </div> : <div className={"table-header"}>
-                <div></div>
-                {this.renderDataViewLayout()}
-            </div>}
+            </div>
         </React.Fragment>
     }
 
     renderProgressBar() {
         return <ProgressBar mode="indeterminate" className={this.state.loading ? "" : "lino-transparent"}
-                            style={{height: '5px'}}/>
+                style={{height: '5px'}}/>
     }
 
     renderHeader() {
@@ -1024,7 +1010,19 @@ export class LinoGrid extends Component {
             footer = this.renderPaginator();
         return <React.Fragment>
             <h1 className={"l-detail-header"}>
-                <div dangerouslySetInnerHTML={{ __html:this.state.title || this.props.actorData.label || "\u00a0" }}></div>
+                <span dangerouslySetInnerHTML={{ __html:this.state.title || this.props.actorData.label || "\u00a0" }}></span>
+                {!this.props.actorData.slave && <ToggleButton
+                    style={{'float': 'right'}}
+                    checked={this.state.show_top_toolbar}
+                    onChange={e => this.setState({
+                        show_top_toolbar: !this.state.show_top_toolbar
+                    })}
+                    onLabel=''
+                    offLabel=''
+                    onIcon='pi pi-bars'
+                    offIcon='pi pi-bars'
+                    iconPos="right"
+                />}
             </h1>
             <div className={"l-grid"} >
                 {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ?

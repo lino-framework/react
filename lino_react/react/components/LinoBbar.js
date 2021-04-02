@@ -159,18 +159,19 @@ class LinoBbar extends Component {
     render() {
         // const Comp = "Table";
         // return loaded ? this.props.render(data, Comp) : <p>{placeholder}</p>;
-        return <div className={"l-bbar"} ref={el => this.main = el}
+        return <span className={"l-bbar"} ref={el => this.main = el}
                     style={{
                         overflow: "hidden",
                         width: "100%",
                         // whiteSpace: "nowrap",
                         display: "relative",
                         opacity: this.state.width ? 1 : 0
-                    }}>
+                    }}
+                    >
             {this.props.reload && <Button icon={"pi pi-refresh"} onClick={this.props.reload}/>}
             {this.render_buttons()}
             {/*{this.render_overflow()}*/}
-        </div>
+        </span>
     }
 };
 
