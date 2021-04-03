@@ -296,16 +296,6 @@ export class LinoDetail extends Component {
     }
 
     render() {
-        let title = this.state.title;
-        if (this.props.actorData.hide_navigator) {
-            let rest = title.split("»").slice(1);
-            let rest_str = rest.length > 1 ? rest.join("»") : rest.length == 1 ? rest[0] : undefined;
-            if (rest_str){
-                title = this.props.actorData.label + " »" + rest_str;
-            }else {
-                title = this.props.actorData.label;
-            }
-        }
         return (
             <React.Fragment>
 
@@ -314,8 +304,8 @@ export class LinoDetail extends Component {
                 />
 
                 <h1 className={"l-detail-header"}>
-                    <span dangerouslySetInnerHTML={{__html: title || "\u00a0"}}></span>
-                    {!this.props.actorData.slave && <ToggleButton
+                    <span dangerouslySetInnerHTML={{__html: this.state.title || "\u00a0"}}></span>
+                    {!this.props.actorData.slave && !this.props.noToolbar && <ToggleButton
                         style={{'float': 'right'}}
                         checked={this.state.show_top_toolbar}
                         onChange={e => this.setState({
