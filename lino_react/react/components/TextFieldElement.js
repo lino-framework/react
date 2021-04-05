@@ -96,7 +96,7 @@ class TextFieldElement extends React.Component {
                     }}
                     onTextChange={this.onTextChange}/>
             </React.Fragment> :
-            <div dangerouslySetInnerHTML={{__html: this.state.value || "\u00a0"}}/>;
+            <div dangerouslySetInnerHTML={{__html: getValue(this.props) || "\u00a0"}}/>;
 
         if (this.props.in_grid) return elem; // No wrapping needed
 
