@@ -616,11 +616,11 @@ class UserSettings(View):
         return with_user_profile((su or u).user_type, getit)
 
 
-class Suggestions(View):
-    def get(self, request, app_label=None, actor=None, pk=None, field=None):
-        suggesters = settings.SITE.plugins.memo.parser.suggesters
-        trigger = request.GET.get("trigger")
-        query = request.GET.get("query")
-        return json_response(
-            {"suggestions": list(suggesters[trigger].get_suggestions(query))}
-        )
+# class Suggestions(View):
+#     def get(self, request, char, text=None):
+#         suggesters = settings.SITE.plugins.memo.parser.suggesters
+#         trigger = request.GET.get("trigger")
+#         query = request.GET.get("query")
+#         return json_response(
+#             {"suggestions": list(suggesters[trigger].get_suggestions(query))}
+#         )
