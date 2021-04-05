@@ -106,15 +106,12 @@ class TextFieldElement extends React.Component {
         window.removeEventListener('resize', this.fixHeight);
     }
 
-    getSuggestions(text, mentionChar) {
+    getSuggestions(searchTerm, mentionChar) {
         let ajax_query = {
-            query: text,
-            trigger: mentionChar,
-            start: 0,
-            limit: 8,},
-            id = this.props.id === undefined ? "-99999" : this.props.id,
-            actorID = this.props.actorId.replace(".", "/");
-        fetchPolyfill(`api/${actorID}/${id}/${this.props.elem.name}/suggestions?${queryString.stringify(ajax_query)}`).then(
+            query: searchTerm,
+            trigger: mentionChar};
+
+        fetchPolyfill(`suggestions?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then((data) => {
             return data.suggestions
