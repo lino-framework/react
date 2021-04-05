@@ -38,6 +38,7 @@ from lino.core.views import requested_actor, action_request
 from lino.core.views import json_response, json_response_kw
 from lino.core.views import choices_response
 from lino.core.utils import navinfo
+from lino.core.actions import ShowEmptyTable
 from lino.core import kernel
 
 from lino.modlib.users.utils import get_user_profile, with_user_profile
@@ -85,7 +86,6 @@ class ApiElement(ApiElement):
         data = http.QueryDict(request.body)  # raw_post_data before Django 1.4
         # data = json.loads(request.body)
         # logger.info("20150130 %s", data)
-
         ar = action_request(
             app_label, actor, request, data, False,
             renderer=settings.SITE.plugins.react.renderer)
@@ -99,13 +99,6 @@ class ApiElement(ApiElement):
             renderer=settings.SITE.plugins.react.renderer)
         ar.set_selected_pks(pk)
         return settings.SITE.kernel.run_action(ar)
-
-    def old_delete(self, request, app_label=None, actor=None, pk=None):
-        rpt = requested_actor(app_label, actor)
-        ar = rpt.request(request=request)
-        ar.set_selected_pks(pk)
-        elem = ar.selected_rows[0]
-        return delete_element(ar, elem)
 
 
 class ApiList(View):
@@ -141,11 +134,15 @@ class ApiList(View):
             return settings.SITE.kernel.run_action(ar)
 
         if fmt == constants.URL_FORMAT_JSON:
+            if isinstance(ar.bound_action.action, ShowEmptyTable):
+                elem = ar.create_instance()
+                datarec = elem2rec_empty(ar, ar.ah, elem)
+                return json_response(datarec)
 
             window_type = request.GET.get(constants.URL_PARAM_WINDOW_TYPE, "g")
 
             def serialize(ar, row):
-                """Use window_type to determin which serizlisation store metod and fields to use"""
+                """Use window_type to determin which serilisation store metod and fields to use"""
                 if window_type == "g":
                     return rh.store.row2list(ar, row)
                 else:
@@ -294,8 +291,7 @@ class Restful(View):
         """
         rpt = requested_actor(app_label, actor)
 
-        action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME,
-                                      rpt.default_elem_action_name)
+        action_name = request.GET.get(constants.URL_PARAM_ACTION_NAME, None)
         fmt = request.GET.get(
             constants.URL_PARAM_FORMAT, constants.URL_FORMAT_JSON)
         sr = request.GET.getlist(constants.URL_PARAM_SELECTED)
@@ -312,8 +308,10 @@ class Restful(View):
             return json_response(kw)
 
         else:  # action_name=="detail": #ba.action.opens_a_window:
-
-            ba = rpt.get_url_action(action_name)
+            if action_name:
+                ba = rpt.get_url_action(action_name)
+            else:
+                ba = rpt.detail_action
             ah = ar.ah
             ar = ba.request(request=request, selected_pks=sr)
             elem = ar.selected_rows[0]
@@ -618,11 +616,11 @@ class UserSettings(View):
         return with_user_profile((su or u).user_type, getit)
 
 
-class Suggestions(View):
-    def get(self, request, app_label=None, actor=None, pk=None, field=None):
-        suggesters = settings.SITE.plugins.memo.parser.suggesters
-        trigger = request.GET.get("trigger")
-        query = request.GET.get("query")
-        return json_response(
-            {"suggestions": list(suggesters[trigger].get_suggestions(query))}
-        )
+# class Suggestions(View):
+#     def get(self, request, char, text=None):
+#         suggesters = settings.SITE.plugins.memo.parser.suggesters
+#         trigger = request.GET.get("trigger")
+#         query = request.GET.get("query")
+#         return json_response(
+#             {"suggestions": list(suggesters[trigger].get_suggestions(query))}
+#         )
