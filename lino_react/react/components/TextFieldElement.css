@@ -1,0 +1,14 @@
+.l-l-suggester-suggestions {
+    list-style: none;
+    list-style-type: none;
+    list-style-position: inside;
+    padding: 5px;
+    margin: 0;
+}
+.l-s-selected {
+    background-color: #d1eeff;
+}
+.l-suggester-suggestions {
+    border: 1px solid gray;
+    border-radius: 5px;
+}

@@ -1,3 +1,6 @@
+import 'quill-mention';
+import './TextFieldElement.css';
+
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
@@ -13,31 +16,30 @@ import {Dropdown} from 'primereact/dropdown';
 import {Password} from 'primereact/password';
 import {Calendar} from 'primereact/calendar';
 
+import queryString from 'query-string';
+import {fetch as fetchPolyfill} from 'whatwg-fetch';
+
 import {LinoGrid} from "./LinoGrid";
 import {debounce, getViewport} from "./LinoUtils";
 
 import classNames from 'classnames';
-// import {ForeignKeyElement} from "./ForeignKeyElement";
 import {Labeled, getValue, getHiddenValue, getDataKey, shouldComponentUpdate} from "./LinoComponents"
 
-
-import Suggester from "./Suggester";
-
+const atValue = [{ value: "Mention @People" }], hashValue = [{ value: "Tag #content" }];
 
 class TextFieldElement extends React.Component {
     constructor(props) {
         super();
         this.state = {
-            value: (getValue(props))
+            value: (getValue(props)),
         };
-        this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
         this.onTextChange = this.onTextChange.bind(this);
         this.props_update_value = debounce(props.update_value, 150);
-        this.disableEnter = this.disableEnter.bind(this);
-        this.enableEnter = this.enableEnter.bind(this);
         this.fixHeight = debounce(this.fixHeight.bind(this), 50);
         this.componentDidMount = this.componentDidMount.bind(this);
         this.componentDidUpdate = this.componentDidUpdate.bind(this);
+        this.mentionSource = this.mentionSource.bind(this);
+        this.getSuggestions = this.getSuggestions.bind(this);
         if (getViewport().width <= 600) {
             this.header = ( // This will onlyl update on remounting, but thats OK as quill doesn't like changing header
                 <span className="ql-formats">
@@ -71,25 +73,6 @@ class TextFieldElement extends React.Component {
 
     }
 
-    focus() {
-        this.editor.quill.focus();
-    }
-
-
-    disableEnter() {
-        if (this.editor.quill.keyboard.bindings[13]) {
-            this.EnterHack = this.EnterHack ? this.EnterHack : this.editor.quill.keyboard.bindings[13];
-            delete this.editor.quill.keyboard.bindings[13];
-        }
-
-    }
-
-    enableEnter() {
-        if (this.EnterHack) {
-            this.editor.quill.keyboard.bindings[13] = this.EnterHack;
-        }
-    }
-
     fixHeight() {
         // console.log("20201205 fixHeight()", this.wrapperdiv);
         if (!this.wrapperdiv) {
@@ -117,11 +100,35 @@ class TextFieldElement extends React.Component {
             this.props.dialogMaximised!== props.dialogMaximised) {
             this.fixHeight();
         }
-
     }
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.fixHeight);
+    }
+
+    getSuggestions(text, mentionChar) {
+        let ajax_query = {
+            query: text,
+            trigger: mentionChar,
+            start: 0,
+            limit: 8,},
+            id = this.props.id === undefined ? "-99999" : this.props.id,
+            actorID = this.props.actorId.replace(".", "/");
+        fetchPolyfill(`api/${actorID}/${id}/${this.props.elem.name}/suggestions?${queryString.stringify(ajax_query)}`).then(
+            window.App.handleAjaxResponse
+        ).then((data) => {
+            return data.suggestions
+        }).catch(error => window.App.handleAjaxException(error));
+    }
+
+    mentionSource(searchTerm, renderList, mentionChar) {
+        let values = mentionChar === "@" ? atValue : hashValue;
+        if (searchTerm.length === 0) {
+            renderList(values, searchTerm);
+        } else {
+            values = this.getSuggestions(searchTerm, mentionChar);
+        }
+        renderList(values, searchTerm);
     }
 
     render() {
@@ -138,39 +145,21 @@ class TextFieldElement extends React.Component {
                 <div className={"l-editor-wrapper"}
                      ref={(el) => this.wrapperdiv = el}
                      style={{"display": "flex", "height": "99%"}}>
-
-                    <Suggester getElement={() => this.editor}
-                               attachTo={() => this.editor && this.editor.editorElement}
-                               actorId={this.props.actorId}
-                               triggerKeys={window.App.state.site_data.suggestors}
-                               field={this.props.elem.name}
-                               id={this.props.id}
-                               componentDidUpdate={(state) => {
-                                   if (state.triggered && state.suggestions.length && state.startPoint <= state.cursor.selectionStart && !state.text.includes("\n")) {
-                                       this.disableEnter();
-                                   }
-                                   else {
-                                       this.enableEnter();
-                                   }
-                               }}
-                               optionSelected={({state, props, selected}) => {
-                                   let text = /*state.triggeredKey + */selected[0] + " "; // if you add the trigger key use retain-1 and delete+1 to remove the existing triggerkey
-                                   this.editor.quill.updateContents([
-                                           {retain: state.startPoint},
-                                           {delete: state.text.length},//obj.cursor.selection - obj.cursor.startPoint},// 'World' is deleted
-                                           {insert: text}
-                                       ].filter(action => action[Object.keys(action)[0]])
-                                   );
-                                   this.editor.quill.setSelection(state.startPoint + text.length);
-                                   setTimeout(() => this.editor.quill.keyboard.bindings[13] = this.EnterHack, 10)
-                               }}
-                    >
                         <Editor //style={ {{/!*height: '100%'*!/}} }
                             headerTemplate={this.renderHeader()}
                             value={value}
+                            modules={{
+                                mention: {
+                                    allowedChars: /^[A-Za-z0-9\s]*$/,
+                                    mentionDenotationChars: window.App.state.site_data.suggestors,
+                                    source: this.mentionSource,
+                                    listItemClass: "l-s-selected",
+                                    mentionContainerClass: "l-suggester-suggestions",
+                                    mentionListClass: "l-l-suggester-suggestions",
+                                }
+                            }}
                             ref={e => this.editor = e}
                             onTextChange={this.onTextChange}/>
-                    </Suggester>
                 </div>
             </div> :
             <div dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>;
