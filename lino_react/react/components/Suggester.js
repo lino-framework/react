@@ -29,7 +29,7 @@ import {debounce} from "./LinoUtils";
 
 // import {ForeignKeyElement} from "./ForeignKeyElement";
 
-import InputTrigger from 'react-input-trigger';
+// import InputTrigger from 'react-input-trigger';
 
 
 class Suggester extends React.Component {
@@ -264,22 +264,22 @@ class Suggester extends React.Component {
                         }
                     }}
         >{
-            <InputTrigger
-                getElement={this.props.getElement}
-                trigger={{keys: this.props.triggerKeys}}
-                onStart={this.onStart}
-                onCancel={(obj) => {
-                    this.resetState();
-                    this.setState({...obj, triggered: false});
-                    this.props.onCancel && this.props.onCancel();
-                }}
-                onType={this.onType}
-                ref={(e) => {this.inputTrigger = e}}>
-                <React.Fragment>
-                    {sugestions}
-                    {props.children}
-                </React.Fragment>
-            </InputTrigger>
+            // <InputTrigger
+            //     getElement={this.props.getElement}
+            //     trigger={{keys: this.props.triggerKeys}}
+            //     onStart={this.onStart}
+            //     onCancel={(obj) => {
+            //         this.resetState();
+            //         this.setState({...obj, triggered: false});
+            //         this.props.onCancel && this.props.onCancel();
+            //     }}
+            //     onType={this.onType}
+            //     ref={(e) => {this.inputTrigger = e}}>
+            //     <React.Fragment>
+            //         {sugestions}
+            //         {props.children}
+            //     </React.Fragment>
+            // </InputTrigger>
         }
         </div>
     }

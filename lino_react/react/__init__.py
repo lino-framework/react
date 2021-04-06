@@ -68,8 +68,8 @@ class Plugin(Plugin):
                 views.ApiList.as_view()),
             url(rx + r'api/(?P<app_label>\w+)/(?P<actor>\w+)/(?P<pk>[^/]+)$',
                 views.ApiElement.as_view()),
-            url(rx + r'api/(?P<app_label>\w+)/(?P<actor>\w+)/(?P<pk>[^/]+)/(?P<field>\w+)/suggestions$',
-                views.Suggestions.as_view()),
+            # url(rx + r'api/(?P<app_label>\w+)/(?P<actor>\w+)/(?P<pk>[^/]+)/(?P<field>\w+)/suggestions$',
+            #     views.Suggestions.as_view()),
             url(rx + r'choices/(?P<app_label>\w+)/(?P<actor>\w+)$',
                 views.Choices.as_view()),
             url(rx + r'choices/(?P<app_label>\w+)/(?P<actor>\w+)/'
