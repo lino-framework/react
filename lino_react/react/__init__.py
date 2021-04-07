@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # Copyright 2018-2021 Rumma & Ko Ltd
-# License: BSD (see file COPYING for details)
+# License: GNU Affero General Public License v3 (see file COPYING for details)
 
 """
 A user interface for Lino applications that uses FaceBooks React JS framework.

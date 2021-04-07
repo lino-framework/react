@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # Copyright 2015-2020 Rumma & Ko Ltd
-# License: BSD (see file COPYING for details)
+# License: GNU Affero General Public License v3 (see file COPYING for details)
 
 SETUP_INFO = dict(
     name='lino_react',
@@ -9,12 +9,12 @@ SETUP_INFO = dict(
     tests_require=[],
     test_suite='tests',
     description="The React user interface for Lino",
-    license='BSD-2-Clause',
+    license_files=['COPYING'],
     include_package_data=False,
     zip_safe=False,
     author='Rumma & Ko Ltd',
     author_email='info@lino-framework.org',
-    url="http://www.lino-framework.org",
+    url="https://github.com/lino-framework/react",
     classifiers="""\
   Programming Language :: Python
   Programming Language :: Python :: 3
@@ -23,10 +23,8 @@ SETUP_INFO = dict(
   Framework :: Django
   Intended Audience :: Developers
   Intended Audience :: System Administrators
-  License :: OSI Approved :: BSD License
+  License :: OSI Approved :: GNU Affero General Public License v3
   Natural Language :: English
-  Natural Language :: French
-  Natural Language :: German
   Operating System :: OS Independent
   Topic :: Database :: Front-Ends
   Topic :: Home Automation
