@@ -145,7 +145,7 @@ export class TimeFieldElement extends React.Component {
                           inputStyle={{width: "100%"}}
                           value={this.str2date(value)}
                           keepInvalid={true}
-                          hourFormat='12'
+                          hourFormat='24'
                           onChange={(e) => {
                               let time;
                               if (e.value instanceof Date) {
