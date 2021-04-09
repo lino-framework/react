@@ -8,7 +8,9 @@ import {Panel} from 'primereact/panel';
 import {Editor} from 'primereact/editor';
 
 import queryString from 'query-string';
+import AbortController from 'abort-controller';
 import {fetch as fetchPolyfill} from 'whatwg-fetch';
+import regeneratorRuntime from "regenerator-runtime"; // require for async request (in getting mention/tag suggestion)
 
 import {Labeled, getValue, getDataKey} from "./LinoComponents"
 
@@ -18,33 +20,43 @@ const atValue = [{ value: "Mention @People" }], hashValue = [{ value: "Tag #cont
 class TextFieldElement extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            value: getValue(props),
+        }
         this.onTextChange = this.onTextChange.bind(this);
-        this.componentDidMount = this.componentDidMount.bind(this);
         this.mentionSource = this.mentionSource.bind(this);
-        this.getSuggestions = this.getSuggestions.bind(this);
+    }
+
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        if (getValue(prevProps) !== getValue(this.props)) {
+            return false
+        }
+        return true
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!snapshot) {
+            let value = getValue(this.props);
+            if (this.state.value !== value) {
+                this.setState({value: value});
+            }
+        }
+    }
+
+    componentDidMount() {
+        this.controller = new AbortController();
+    }
+
+    componentWillUnmount() {
+        this.controller.abort();
     }
 
     onTextChange(e) {
         let value = e.htmlValue || "";
+        this.setState({value: value});
         this.props.update_value({[getDataKey(this.props)]: value},
             this.props.elem,
-            this.props.column)
-    }
-
-    componentDidMount() {
-        this.suggestions = [];
-    }
-
-    getSuggestions(searchTerm, mentionChar) {
-        let ajax_query = {
-            query: searchTerm,
-            trigger: mentionChar};
-
-        fetchPolyfill(`suggestions?${queryString.stringify(ajax_query)}`).then(
-            window.App.handleAjaxResponse
-        ).then((data => {
-            this.suggestions = data.suggestions;
-        })).catch(error => window.App.handleAjaxException(error));
+            this.props.column);
     }
 
     renderItem(item, searchTerm) {
@@ -61,48 +73,59 @@ class TextFieldElement extends React.Component {
     }
 
     mentionSource(searchTerm, renderList, mentionChar) {
-        let values = mentionChar === "@" ? atValue : hashValue;
         if (searchTerm.length === 0) {
+            let values = mentionChar === "@" ? atValue : hashValue;
             renderList(values, searchTerm);
         } else {
-            this.getSuggestions(searchTerm, mentionChar);
-            values = this.suggestions;
+            async function asyncFetch(searchTerm, renderList, mentionChar, signal) {
+                let ajax_query = {
+                    query: searchTerm,
+                    trigger: mentionChar};
+                const abortableFetch = ('signal' in new Request('')) ? window.fetch : fetchPolyfill;
+                await abortableFetch(`suggestions?${queryString.stringify(ajax_query)}`, {signal: signal}).then(window.App.handleAjaxResponse).then(data => {
+                    renderList(data.suggestions, searchTerm);
+                }).catch(error => {
+                    if (error.name === "AbortError") {
+                        console.log("Request Aborted due to component unmount!");
+                    } else {
+                        window.App.handleAjaxException(error);
+                    }
+                });
+            }
+            asyncFetch(searchTerm, renderList, mentionChar, this.controller.signal);
         }
-        renderList(values, searchTerm);
     }
 
     render() {
         let style = {
-                // height: "100%",
-                // display: "flex",
-                // flexDirection: "column"
+                height: "90%",
+                display: "flex",
+                flexDirection: "column"
             };
 
         let elem = this.props.editing_mode ?
-            <React.Fragment>
-                <Editor
-                    style={{height: '90%', minHeight: '100px'}}
-                    value={getValue(this.props)}
-                    modules={{
-                        mention: {
-                            allowedChars: /^[A-Za-z0-9\s]*$/,
-                            mentionDenotationChars: window.App.state.site_data.suggestors,
-                            source: this.mentionSource,
-                            renderItem: this.renderItem,
-                            listItemClass: "l-s-selected",
-                            mentionContainerClass: "l-suggester-suggestions",
-                            mentionListClass: "l-l-suggester-suggestions",
-                        }
-                    }}
-                    onTextChange={this.onTextChange}/>
-            </React.Fragment> :
-            <div dangerouslySetInnerHTML={{__html: getValue(this.props) || "\u00a0"}}/>;
+            <Editor
+                style={{height: '75%', minHeight: '80px'}}
+                value={this.state.value}
+                modules={{
+                    mention: {
+                        allowedChars: /^[A-Za-z0-9\s]*$/,
+                        mentionDenotationChars: window.App.state.site_data.suggestors,
+                        source: this.mentionSource,
+                        renderItem: this.renderItem,
+                        listItemClass: "l-s-selected",
+                        mentionContainerClass: "l-suggester-suggestions",
+                        mentionListClass: "l-l-suggester-suggestions",
+                    }
+                }}
+                onTextChange={this.onTextChange}/> :
+            <div dangerouslySetInnerHTML={{__html: this.state.value || "\u00a0"}}/>;
 
-        if (this.props.in_grid) return elem; // No wrapping needed
+        if (this.props.in_grid) return elem;
 
         if (this.props.editing_mode) {
             elem = <Labeled {...this.props} elem={this.props.elem} labeled={this.props.labeled}
-                            isFilled={true} // either 1 or 0, can't be unfilled
+                            isFilled={this.state.value}
             > {elem} </Labeled>
         } else {
             elem = <Panel header={this.props.elem.label} style={style}>

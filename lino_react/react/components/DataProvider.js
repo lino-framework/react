@@ -7,7 +7,7 @@ import {fetch as fetchPolyfill} from 'whatwg-fetch';
 import {LoadingMask} from "./LoadingMask";
 
 // from https://www.npmjs.com/package/whatwg-fetch
-import 'yet-another-abortcontroller-polyfill'
+import AbortController from 'abort-controller';
 
 // use native browser implementation if it supports aborting
 const abortableFetch = ('signal' in new Request('')) ? window.fetch : fetchPolyfill

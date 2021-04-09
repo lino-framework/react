@@ -124,36 +124,44 @@ class LinoBbar extends Component {
     }
 
     render_actionbutton(action) {
-        let icon_and_label = this.action2buttonProps(action, true);
-        return <Button {...icon_and_label} key={action.an}
-                       onClick={() => this.props.runWrapper(() => this.runAction(action.an))}/>
+        if (action) {
+            let icon_and_label = this.action2buttonProps(action, true);
+            return <Button {...icon_and_label}
+                key={action.an}
+                onClick={() => this.props.runWrapper(() => this.runAction(action.an))}
+            />
+        } else {
+            console.warn("undefined action(s) are back in action!");
+        }
     }
 
     render_splitActionButton(actionArray) {
-        let model = actionArray.map(action => {
-            let props = this.action2buttonProps(action);
-            props.command = () => this.props.runWrapper(() => this.runAction(action.an));
-            return props;
-        });
-        return <SplitButton appendTo={window.App.topDiv} {...this.action2buttonProps(actionArray[0], true)}
-                            onClick={() => this.props.runWrapper(() => this.runAction(actionArray[0].an))}
-                            key={Math.random()}
-                            model={model}/>
+        if (actionArray[0]) {
+            let model = actionArray.map(action => {
+                let props = this.action2buttonProps(action);
+                props.command = () => this.props.runWrapper(() => this.runAction(action.an));
+                return props;
+            });
+            return <SplitButton
+                appendTo={window.App.topDiv} {...this.action2buttonProps(actionArray[0], true)}
+                onClick={() => this.props.runWrapper(() => this.runAction(actionArray[0].an))}
+                key={Math.random()}
+                model={model}
+            />
+        } else {
+            console.warn("undefined action(s) are back in action!");
+        }
     }
 
     render_buttons() {
         const {actorData} = this.props;
-
         return actorData.ba[this.props.an].toolbarActions && actorData.ba[this.props.an].toolbarActions.map((an, i) => {
             if (Array.isArray(an)) {
                 return this.render_splitActionButton(an.map(n => window.App.state.site_data.actions[n]))
             } else {
                 return this.render_actionbutton(window.App.state.site_data.actions[an])
             }
-
         })
-
-
     }
 
     render() {

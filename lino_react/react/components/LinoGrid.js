@@ -43,7 +43,7 @@ export class LinoGrid extends Component {
 
     static defaultProps = {
         inDetail: false,
-        depth: 0
+        depth: 0,
         // display_mode:"grid", // "list", // or  // "cards"
     };
 
@@ -89,6 +89,10 @@ export class LinoGrid extends Component {
 
             show_top_toolbar: isMobile() ? false : true,
         };
+        // Move data that does not require render() call from this.state to this.gridData
+        this.gridData = {
+            editingValues: {},
+        };
         this.state.cols = props.actorData.col.map((column, i) => (
             {
                 label: column.label,
@@ -133,7 +137,6 @@ export class LinoGrid extends Component {
         this.renderDetailHeader = this.renderDetailHeader.bind(this);
         this.renderMainGridHeader = this.renderMainGridHeader.bind(this);
         this.handleWindowChange = this.handleWindowChange.bind(this);
-
     }
 
     /**
@@ -151,7 +154,7 @@ export class LinoGrid extends Component {
             const prop_bundle = {
                 actorId: this.get_full_id(),
                 actorData: this.props.actorData,
-                data: (pk === null && this.state.editingPK === null) ? this.state.editingValues : rowData,
+                data: (pk === null && this.state.editingPK === null) ? this.gridData.editingValues : rowData,
                 disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value, // No editable yet
                 editing_mode: false,
@@ -173,12 +176,12 @@ export class LinoGrid extends Component {
      * @param col : json Lino site data, the col value.
      */
     columnEditor(col) {
-        // console.log("20210216 columnEditor", col);
         if (!col.editable) return undefined;
         return (column) => {
             const prop_bundle = {
+                onKeyDown: this.onKeyDown,
                 actorId: this.get_full_id(),
-                data: this.state.editingValues,
+                data: column.rowData || this.gridData.editingValues,
                 actorData: this.props.actorData,
                 disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value,
@@ -190,56 +193,40 @@ export class LinoGrid extends Component {
                 match: this.props.match,
                 mk: this.props.mk,
                 mt: this.props.mt,
-
             };
             return <div
-            onKeyDown={(event) => {
-                // console.log("20210226 onKeyDown", event, col);
-                let el = event.target,
-                    tr = el.closest("tr");
-                if (event.key === "Enter") {
-                    tr = event.shiftKey ? tr.previousSibling :
-                        tr.nextSibling;
-                    let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
+                onKeyDown={(event) => {
+                    let el = event.target,
+                        tr = el.closest("tr");
+                    if (event.key === "Enter") {
+                        tr = event.shiftKey ? tr.previousSibling :
+                            tr.nextSibling;
+                        let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
 
-                    if (tr) { //might be end of table
-                        tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
-                        // if (helper.length) {
-                        //     helper[0].focus()
+                        if (tr) { //might be end of table
+                            tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
+                            // if (helper.length) {
+                            //     helper[0].focus()
+                        }
                     }
-
-                    document.gridEnterPress = true
-                    document.gridShiftPress = event.shiftKey
-                    document.gridEntertd = el.closest("td")
-                    document.gridTdIndex = cellIndex
-                    setTimeout(()=>{
-                        delete(document.gridEnterPress)
-                        delete(document.gridShiftPress)
-                        delete(document.gridEntertd)
-                        delete(document.gridTdIndex)
-
-                    }, 2000)
-
-                }
-                if (event.key === "Tab") {
-                    let tbl = el.closest("table");
-                    // bad logic, should just find all of that class, find the one containing self, and + / - 1 and focus.
-                    let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
-                        i = cols.findIndex((n) => n.parentElement.contains(el));
-                    i = event.shiftKey ? i - 1 : i + 1;
-                    // if (i === cols.length || i < 0) { // if out of index range of cols
-                    // Gotta goto next tr..
-                    // tr = event.shiftKey ? tr.previousSibling :
-                    //                       tr.nextSibling;
-                    // cols = Array(...tr.getElementsByClassName("p-cell-editor-key-helper"));
-                    // i = i < 0 ? cols.length-1 : 0; // last or first col.
-                    // }
-                    cols[i].focus() // Open next / prev editor
-
-                }
-
-            }}>
-                <LinoLayout {...prop_bundle} elem={col}/></div>;
+                    if (event.key === "Tab") {
+                        let tbl = el.closest("table");
+                        // bad logic, should just find all of that class, find the one containing self, and + / - 1 and focus.
+                        let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
+                            i = cols.findIndex((n) => n.parentElement.contains(el));
+                        i = event.shiftKey ? i - 1 : i + 1;
+                        // if (i === cols.length || i < 0) { // if out of index range of cols
+                        // Gotta goto next tr..
+                        // tr = event.shiftKey ? tr.previousSibling :
+                        //                       tr.nextSibling;
+                        // cols = Array(...tr.getElementsByClassName("p-cell-editor-key-helper"));
+                        // i = i < 0 ? cols.length-1 : 0; // last or first col.
+                        // }
+                        cols[i].focus() // Open next / prev editor
+                    }
+                }}>
+                <LinoLayout {...prop_bundle} elem={col}/>
+            </div>
         }
     }
 
@@ -249,19 +236,11 @@ export class LinoGrid extends Component {
 
     onSubmit(cellProps, event, bodyCell) {
         let {rowData, field, rowIndex} = cellProps.columnProps;
-        // check if new row
-        // save row index
-        // run ajax call on this.get_full_id url
-        // Objects.assign over this.state.rows[rowIndex]
-        // console.log("20210216 onSubmit", cellProps, this.state);
         let editingPK = this.state.editingPK;
-        // let {key, which, target} = event;
         if (!this.editorDirty) {
             return
         }
-
-        // let td = bodyCell.container,
-        //     tdIndex = Array.prototype.indexOf.call(td.parentElement.children, td);
+        this.state.editingValues = this.gridData.editingValues;
 
         let submit = (openNextCell) => {
             window.App.runAction({
@@ -273,24 +252,26 @@ export class LinoGrid extends Component {
                     base_params: {mk: this.props.mk, mt: this.props.mt}
                 },
                 response_callback: (data) => {
-                    // this.setState({editing_mode: false});
-                    // this.consume_server_responce(data.data_record);
                     data.rows && this.setState((old) => { // update just the row
                         let state = {},
                             rows = old.rows.slice(); // make data copy
                         state.rows = rows;
-                        if (editingPK === null) {
-                            rows.push(rows[rowIndex].slice()); // create copy phantom row
-                            state.editingPK = undefined;
-                            if (openNextCell) {
-                                this.editPhantomRowAgain = setTimeout(() => {
-                                    //TODO open phantom row
-                                    document.gridEntertd.parentElement.nextSibling.children[document.gridTdIndex].click();
-                                    // console.log("Try go find and start editing cell", target, tr)
-                                }, 200)
-                            }
-                        } else if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
-                            state.editingValues = Object.assign({}, {...data.rows[0]}) // update editing values
+                        // What is a phantom row? And why do we need it?
+                        // if (editingPK === null) {
+                        //     rows.push(rows[rowIndex].slice()); // create copy phantom row
+                        //     state.editingPK = undefined;
+                        //     this.gridData.editingPK = undefined;
+                        //     if (openNextCell) {
+                        //         this.editPhantomRowAgain = setTimeout(() => {
+                        //             //TODO open phantom row
+                        //             document.gridEntertd.parentElement.nextSibling.children[document.gridTdIndex].click();
+                        //             // console.log("Try go find and start editing cell", target, tr)
+                        //         }, 200)
+                        //     }
+                        // } else
+                        if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
+                            state.editingValues = Object.assign({}, {...data.rows[0]}); // update editing values
+                            this.gridData.editingValues = state.editingValues;
                         }
                         rows[rowIndex] = data.rows[0];
                         return state
@@ -302,7 +283,7 @@ export class LinoGrid extends Component {
         if (editingPK === null) {
 
             if (document.gridEnterPress) {
-                submit(!document.gridShiftPress);
+                submit(!document.gridShiftPress); // !document.gridShiftPress Not implemented
 
             } else {
                 this.phantomSubmit = setTimeout(() => {
@@ -327,53 +308,49 @@ export class LinoGrid extends Component {
     }
 
     onEditorInit(e) {
-        // console.log("20210223 onEditorInit", e);
         let {rowData, field} = e.columnProps;
         let was_dirty = this.editorDirty;
-        // let boolField = event.type === "click" && cellProps.col.react_name === 'BooleanFieldElement';
         let boolField = document.boolFieldClick; // undefined for now. Boolfield should set it
+        this.editorDirty = false;
+        this.setState((old) => {
+            // console.log('old',old);
+            let editingPK, editingValues = {};
 
-        setTimeout(() => { // delay as we should submit before clearing editing values.
-                this.editorDirty = false;
-                // console.log("20210223 editor open timeout");
-                // console.log('this.props',this.props);
-                // console.log('rowData',rowData);
-                // console.log('field',field);
-                this.setState((old) => {
-                    // console.log('old',old);
-                    let editingPK, editingValues = {};
-
-                    if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
-                        this.editorDirty = true; // we have old values so still dirty.
-                        clearTimeout(this.phantomSubmit);
-                    } else if (rowData[this.props.actorData.pk_index] === null) {
-                        if (boolField) {
-                            this.editorDirty = true;
-                            editingValues[field] = true
-                        }
-                        return {
-                            editingPK: null, // start editing a phantom with empty values not null values.
-                            editingValues: editingValues
-                        }
-                    } else {
-                        if (boolField) {
-                            // When we edit BooleanFieldElement field we change its value
-                            this.editorDirty = true; // Make the editor dirty as we want to edit on first click
-                            return {
-                                editingPK: rowData[this.props.actorData.pk_index],
-                                editingValues: {[field]: !rowData[field]}
-                            }
-                        }
-                        return {
-                            // editingCellIndex:cellIndex,
-                            editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
-                            editingValues: Object.assign({}, {...rowData}) // made copy of all row data
-                        }
+            if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
+                console.warn("Your assumption was wrong!");
+            //     this.editorDirty = true; // we have old values so still dirty.
+            //     clearTimeout(this.phantomSubmit);
+            }
+            // else
+            if (rowData[this.props.actorData.pk_index] === null) {
+                if (boolField) {
+                    this.editorDirty = true;
+                    editingValues[field] = true
+                }
+                this.gridData.editingValues = editingValues;
+                return {
+                    editingPK: null, // start editing a phantom with empty values not null values.
+                    editingValues: editingValues
+                }
+            } else {
+                if (boolField) {
+                    // When we edit BooleanFieldElement field we change its value
+                    this.editorDirty = true; // Make the editor dirty as we want to edit on first click
+                    this.gridData.editingValues = {[field]: !rowData[field]};
+                    return {
+                        editingPK: rowData[this.props.actorData.pk_index],
+                        editingValues: {[field]: !rowData[field]}
                     }
+                }
+                this.gridData.editingValues = Object.assign({}, {...rowData});
+                return {
+                    // editingCellIndex:cellIndex,
+                    editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
+                    editingValues: Object.assign({}, {...rowData}) // made copy of all row data
+                }
+            }
 
-                })
-            },
-            5)
+        })
     }
 
     onSort(e) {
@@ -382,26 +359,26 @@ export class LinoGrid extends Component {
         this.reload({sortCol: col, sortOrder: sortOrder})
     }
 
-    update_col_value(v, elem, col) { // on change method for cell editing.
+    update_col_value(v, elem, col) {
         this.editorDirty = true;
-        // console.log("20210216 update_col_valule", elem, col);
-        this.setState((old => {
-            // Object.assign(state.rows[col.rowIndex],{...v});
-
-            if (old.editingPK === null &&
-                col.rowData[this.props.actorData.pk_index] === old.editingPK) {
-                return {
-                    editingValues: Object.assign({}, {...this.state.editingValues}, {...v})
+        this.gridData.editingValues = Object.assign({}, {...v});
+            this.setState((old => {
+        //         // Object.assign(state.rows[col.rowIndex],{...v});
+        //
+                if (old.editingPK === null && col.rowData[this.props.actorData.pk_index] === old.editingPK) {
+        //             // editingPK cannot have any value when it is null, so the above comparison in invalid
+        //             // hance this block of code will never execute and unnecessary.
+                    console.warn("Your assumption was wrong!");
+        //             // this.gridData.editingValues = Object.assign({}, {...this.state.editingValues}, {...v});
+        //             // return {
+        //             //     editingValues: Object.assign({}, {...this.state.editingValues}, {...v})
+        //             // }
                 }
-            }
-
-            return {
-                // rows:state.rows,
-                editingValues: Object.assign({}, {...v})
-            }
-        }));
-        // if (Object.keys(v).length > 1) {
-        //     setTimeout(() => document.body.click(), 100);
+        //         this.gridData.editingValues = Object.assign({}, {...v});
+        //         return {
+        //             editingValues: Object.assign({}, {...v})
+        //         }
+            }));
         // }
     }
 
@@ -508,7 +485,7 @@ export class LinoGrid extends Component {
      * Opens PV dialog for filtering rows server-side
      */
     showParamValueDialog(e) {
-        this.setState({showPVDialog: true})
+        this.setState({showPVDialog: true});
     }
 
     quickFilter(query) {
@@ -562,7 +539,7 @@ export class LinoGrid extends Component {
             sortFieldName = this.state.sortCol.name;
         } else if (this.state.sortField !== undefined) {
             // sortField = this.state.sortField;
-            sortFieldName = this.state.sortFieldName
+            sortFieldName = this.state.sortFieldName;
         }
         if (sortFieldName !== undefined) {
             ajax_query.sort = sortFieldName;
@@ -732,42 +709,45 @@ export class LinoGrid extends Component {
             this.cols = this.cols.concat(
                 this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
-                    col === "SelectCol" ? <Column selectionMode="multiple"
-                                                  style={{
-                                                      width: '2em',
-                                                      "padding": "unset",
-                                                      "textAlign": "center"
-                                                  }}
+                    col === "SelectCol" ?
+                        <Column selectionMode="multiple"
+                            style={{
+                                width: '2em',
+                                "padding": "unset",
+                                "textAlign": "center"
+                            }}
                             // editor={this.columnEditor(col)}
 
                         /> :
-                        <Column cellIndex={i}
-                                field={String(col.fields_index)}
-                                body={this.columnTemplate(col)}
-                                editor={this.columnEditor(col)}
-                                header={col.label}
-                                key={key(col)}
-                                col={col}
-                                style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
-                                className={`l-grid-col l-grid-col-${col.name} ${
-                                    this.state.editingCellIndex === i ? 'p-cell-editing' : ''
-                                }`}
-                                onEditorCancel={this.onCancel}
-                                onEditorSubmit={this.onSubmit}
-                                onEditorInit={this.onEditorInit}
+                        <Column
+                            cellIndex={i}
+                            field={String(col.fields_index)}
+                            body={this.columnTemplate(col)}
+                            editor={this.columnEditor(col)}
+                            header={col.label}
+                            key={key(col)}
+                            col={col}
+                            style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
+                            className={`l-grid-col l-grid-col-${col.name} ${
+                                this.state.editingCellIndex === i ? 'p-cell-editing' : ''
+                            }`}
+                            onEditorCancel={this.onCancel}
+                            onEditorSubmit={this.onSubmit}
+                            onEditorInit={this.onEditorInit}
                             // validaterEvent={"blur"}
-                                isDisabled={
-                                    (props) => (props.rowData[props.rowData.length - 1] ||
-                                        (props.rowData[props.rowData.length - 2]
-                                            && //if null / phantom row / not disabled
-                                            Object.keys(props.rowData[props.rowData.length - 2]).find(
-                                                (e) => e === props.col.name
-                                            )
-                                        ))
-                                }
+                            isDisabled={
+                                (props) => (props.rowData[props.rowData.length - 1] ||
+                                    (props.rowData[props.rowData.length - 2]
+                                        && //if null / phantom row / not disabled
+                                        Object.keys(props.rowData[props.rowData.length - 2]).find(
+                                            (e) => e === props.col.name
+                                        )
+                                    )
+                                )
+                            }
                             // editorValidator={() => {console.log("validate");
                             //                         return false}}
-                                sortable={true}
+                            sortable={true}
                             // sortFunction={(e)=> return }
                             // columnSortFunction={() => 1}
                         />
@@ -1038,7 +1018,9 @@ export class LinoGrid extends Component {
                         editable={true}
                         // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
                         selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
-                        onSelectionChange={e => this.setState({selectedRows: e.value})}
+                        onSelectionChange={(e) => {
+                            this.setState({selectedRows: e.value});
+                        }}
                         onColReorder={e => this.onColReorder({event: e.columns})}
                         onRowSelect={this.onRowSelect}
                         selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
@@ -1076,8 +1058,12 @@ export class LinoGrid extends Component {
                     footer={<div>
                         <Button style={{width: "33px"}} icon={"pi pi-times-circle"}
                                 onClick={() => this.reload({pv: {}})}/>
-                        <Button style={{width: "33px"}} icon={"pi pi-check"}
-                                onClick={(e) => this.setState({showPVDialog: false})}/>
+                        <Button
+                            style={{width: "33px"}}
+                            icon={"pi pi-check"}
+                            onClick={(e) => {
+                                this.setState({showPVDialog: false});
+                            }}/>
                     </div>}
                     visible={this.state.showPVDialog} modal={true}
                     onHide={(e) => this.setState({showPVDialog: false})}>

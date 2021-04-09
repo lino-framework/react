@@ -35,6 +35,7 @@
   "homepage": "https://github.com/lino-framework/react#readme",
   "devDependencies": {
     "@babel/core": "^7.13.1",
+    "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-env": "^7.13.5",
     "@babel/preset-react": "^7.12.13",
     "autoprefixer": "^10.2.4",
@@ -58,6 +59,7 @@
     "whatwg-fetch": "^3.6.1"
   },
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "classnames": "^2.2.6",
     "primeicons": "^4.1.0",
     "primereact": "latest",
@@ -68,7 +70,6 @@
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
     "react-transition-group": "^4.4.1",
-    "reconnecting-websocket": "^4.4.0",
-    "yet-another-abortcontroller-polyfill": "^0.0.3"
+    "reconnecting-websocket": "^4.4.0"
   }
 }
