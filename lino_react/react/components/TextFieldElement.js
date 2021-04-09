@@ -49,7 +49,7 @@ class TextFieldElement extends React.Component {
     componentWillUnmount() {
         this.controller.abort();
     }
-    
+
     onTextChange(e) {
         let value = e.htmlValue || "";
         this.setState({value: value});
@@ -103,7 +103,7 @@ class TextFieldElement extends React.Component {
             elem = this.props.editing_mode ?
                 <div
                     onKeyDown={(e) => {
-                        if (this.props.in_grid && e.keyCode === 13) {
+                        if (this.props.in_grid && (e.keyCode === 13 || e.keyCode === 9)) {
                             e.stopPropagation();
                         }
                     }}>
