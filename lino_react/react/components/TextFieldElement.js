@@ -103,7 +103,7 @@ class TextFieldElement extends React.Component {
             elem = this.props.editing_mode ?
                 <div
                     onKeyDown={(e) => {
-                        if (this.props.in_grid && (e.keyCode === 13 || e.keyCode === 9)) {
+                        if (this.props.in_grid && (((!e.shiftKey) && e.keyCode === 13) || e.keyCode === 9)) {
                             e.stopPropagation();
                         }
                     }}>
