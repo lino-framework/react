@@ -48,7 +48,6 @@ export class DateFieldElement extends React.Component {
         return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
             {props.editing_mode && !isDisabledField(props) ?
                 <Calendar style={{width: "100%"}}
-                          //appendTo={window.App.topDiv}
                           showIcon={true}
                           keepInvalid={true}
                           value={this.convertValueToDate(value)}
@@ -73,35 +72,35 @@ export class DateFieldElement extends React.Component {
     }
 }
 
-export class IncompleteDateFieldElement extends React.Component {
-    constructor() {
-        super();
-        this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-    }
-
-    focus() {
-        this.cal.inputElement.focus()
-    }
-
-    render() {
-        let {props} = this,
-            value = (getValue(props));
-        // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
-        return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-            {props.editing_mode && !isDisabledField(props) ?
-                <InputText style={{width: "100%"}} type="text" keyfilter={/[\d\-\./]/}
-                           value={value || ""}
-                           onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
-                               props.elem,
-                               props.column)}
-                           ref={(el) => this.input = el}
-                />
-                : <div
-                    dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
-            }
-        </Labeled>
-    }
-}
+// export class IncompleteDateFieldElement extends React.Component {
+//     constructor() {
+//         super();
+//         this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
+//     }
+//
+//     focus() {
+//         this.cal.inputElement.focus()
+//     }
+//
+//     render() {
+//         let {props} = this,
+//             value = (getValue(props));
+//         // if (typeof( value) === "string") value = new Date(value.replace(/\./g, '/'));
+//         return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
+//             {props.editing_mode && !isDisabledField(props) ?
+//                 <InputText style={{width: "100%"}} type="text" keyfilter={/[\d\-\./]/}
+//                            value={value || ""}
+//                            onChange={(e) => props.update_value({[getDataKey(props)]: e.target.value},
+//                                props.elem,
+//                                props.column)}
+//                            ref={(el) => this.input = el}
+//                 />
+//                 : <div
+//                     dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
+//             }
+//         </Labeled>
+//     }
+// }
 
 
 export class TimeFieldElement extends React.Component {
@@ -145,7 +144,6 @@ export class TimeFieldElement extends React.Component {
                 <Calendar style={{width: "100%"}} timeOnly={true} showTime={true}
                           inputStyle={{width: "100%"}}
                           value={this.str2date(value)}
-                          appendTo={window.App.topDiv}
                           keepInvalid={true}
                           hourFormat='12'
                           onChange={(e) => {

@@ -605,7 +605,7 @@ body .l-ForeignKeyElement {
 
 .p-editor-container {
   height: 100%;
-  padding-bottom: 42px;
+  padding-bottom: .5ch;
   padding-top: .5ch;
   width: 100%; }
 

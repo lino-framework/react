@@ -23,7 +23,7 @@ import {ForeignKeyElement} from "./ForeignKeyElement";
 // import InputTrigger from 'react-input-trigger';
 // import Suggester from "./Suggester";
 import TextFieldElement from "./TextFieldElement";
-import {DateFieldElement, IncompleteDateFieldElement, TimeFieldElement} from "./datetime";
+import {DateFieldElement,/* IncompleteDateFieldElement,*/ TimeFieldElement} from "./datetime";
 
 export const Labeled = (props) => {
     return <React.Fragment>
@@ -331,37 +331,48 @@ const LinoComponents = {
         const value = props.elem.value.html;
         return <div
             dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
-    }
-    ,
+    },
 
     CharFieldElement: class CharFieldElement extends React.Component {
-        constructor() {
-            super();
-            this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-            this.focus = this.focus.bind(this);
+        constructor(props) {
+            super(props);
+            this.state = {
+                value: getValue(props),
+            }
         }
 
-        focus() {
-            this.input.element.focus();
+        getSnapshotBeforeUpdate(prevProps, prevState) {
+            if (getValue(prevProps) === getValue(this.props)){
+                return true
+            }
+            return false
+        }
+
+        componentDidUpdate(prevProps, prevState, snapshot) {
+            if (!snapshot) {
+                let value = getValue(this.props);
+                if (this.state.value !== value) {
+                    this.setState({value: value});
+                }
+            }
         }
 
         render() {
-            // console.log("20210216 CharField.render()", this);
-            let {props} = this,
-                value = getValue(props);
-            return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                {props.editing_mode && !isDisabledField(props) ?
-                    <InputText style={{width: "100%"}}
-                               value={value || ""}
-                               onChange={(e) =>
-                                   props.update_value(
-                                     {[getDataKey(props)]: e.target.value},
-                                     props.elem, props.column)}
-                               autoFocus={props.in_grid ? true : undefined}
-                               ref={(el) => this.input = el}
+            return <Labeled {...this.props} elem={this.props.elem} labeled={this.props.labeled} isFilled={this.state.value}>
+                {this.props.editing_mode && !isDisabledField(this.props) ?
+                    <InputText
+                        style={{width: "100%"}}
+                        value={this.state.value || ""}
+                        onChange={(e) => {
+                            this.setState({value: e.target.value});
+                            this.props.update_value(
+                                {[getDataKey(this.props)]: e.target.value},
+                                this.props.elem, this.props.column);
+                        }}
+                        autoFocus={this.props.in_grid ? true : undefined}
+                        ref={(el) => this.input = el}
                     />
-                    :
-                    <div>{value || "\u00a0"}</div>
+                    : <div dangerouslySetInnerHTML={{__html: this.state.value || "\u00a0"}}/>
                 }
             </Labeled>
         }
@@ -595,7 +606,7 @@ const LinoComponents = {
 
     TextFieldElement: TextFieldElement,
     DateFieldElement: DateFieldElement,
-    IncompleteDateFieldElement: IncompleteDateFieldElement,
+    // IncompleteDateFieldElement: IncompleteDateFieldElement,
     TimeFieldElement: TimeFieldElement,
     ForeignKeyElement: ForeignKeyElement,
 

@@ -264,9 +264,9 @@ class App extends React.Component {
 
     onSidebarClick(event) {
         this.menuClick = true;
-        setTimeout(() => {
-            this.layoutMenuScroller.moveBar();
-        }, 500);
+        // setTimeout(() => {
+        //     this.layoutMenuScroller.moveBar();
+        // }, 500);
     }
 
     onMenuItemClick(event) {
@@ -646,7 +646,6 @@ class App extends React.Component {
         // have rp be the key for the rp
         // have rp_obj be the instance
         // the rp argument can be either,
-
         let x = rpRefObjGetter(rp, this.rps, true);
         let {rp_obj} = x;
         rp = x.rp;
@@ -1159,7 +1158,7 @@ class App extends React.Component {
                         // searchSuggestions={}
                     />
                     <div ref={(el) => this.sidebar = el} className={sidebarClassName} onClick={this.onSidebarClick}>
-                        <ScrollPanel ref={(el) => this.layoutMenuScroller = el} style={{height: '100%'}}>
+                        <ScrollPanel /*ref={(el) => this.layoutMenuScroller = el}*/ style={{height: '100%'}}>
                             <div className="layout-sidebar-scroll-content">
                                 {/*<div className="layout-logo">*/}
                                 {/*<img alt="Logo" src={logo}/>*/}
