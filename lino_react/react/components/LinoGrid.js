@@ -196,33 +196,35 @@ export class LinoGrid extends Component {
             };
             return <div
                 onKeyDown={(event) => {
-                    let el = event.target,
-                        tr = el.closest("tr");
-                    if (event.key === "Enter") {
-                        tr = event.shiftKey ? tr.previousSibling :
-                            tr.nextSibling;
-                        let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
+                    if (event.target.className !== "ql-editor") {
+                        let el = event.target,
+                            tr = el.closest("tr");
+                        if (event.key === "Enter") {
+                            tr = event.shiftKey ? tr.previousSibling :
+                                tr.nextSibling;
+                            let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
 
-                        if (tr) { //might be end of table
-                            tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
-                            // if (helper.length) {
-                            //     helper[0].focus()
+                            if (tr) { //might be end of table
+                                tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
+                                // if (helper.length) {
+                                //     helper[0].focus()
+                            }
                         }
-                    }
-                    if (event.key === "Tab") {
-                        let tbl = el.closest("table");
-                        // bad logic, should just find all of that class, find the one containing self, and + / - 1 and focus.
-                        let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
-                            i = cols.findIndex((n) => n.parentElement.contains(el));
-                        i = event.shiftKey ? i - 1 : i + 1;
-                        // if (i === cols.length || i < 0) { // if out of index range of cols
-                        // Gotta goto next tr..
-                        // tr = event.shiftKey ? tr.previousSibling :
-                        //                       tr.nextSibling;
-                        // cols = Array(...tr.getElementsByClassName("p-cell-editor-key-helper"));
-                        // i = i < 0 ? cols.length-1 : 0; // last or first col.
-                        // }
-                        cols[i].focus() // Open next / prev editor
+                        if (event.key === "Tab") {
+                            let tbl = el.closest("table");
+                            // bad logic, should just find all of that class, find the one containing self, and + / - 1 and focus.
+                            let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
+                                i = cols.findIndex((n) => n.parentElement.contains(el));
+                            i = event.shiftKey ? i - 1 : i + 1;
+                            // if (i === cols.length || i < 0) { // if out of index range of cols
+                            // Gotta goto next tr..
+                            // tr = event.shiftKey ? tr.previousSibling :
+                            //                       tr.nextSibling;
+                            // cols = Array(...tr.getElementsByClassName("p-cell-editor-key-helper"));
+                            // i = i < 0 ? cols.length-1 : 0; // last or first col.
+                            // }
+                            cols[i].focus() // Open next / prev editor
+                        }
                     }
                 }}>
                 <LinoLayout {...prop_bundle} elem={col}/>
@@ -420,7 +422,6 @@ export class LinoGrid extends Component {
     }
 
     onRowDoubleClick({originalEvent, data, type}) {
-        // console.log("20210216 onRowDoubleClick", this.props.actorData.pk_index, data);
         let pk = data[this.props.actorData.pk_index];
         // todo check orginalEvent.target to see if it's in an editing cell. if so return
         if (pk != undefined) {
@@ -441,9 +442,7 @@ export class LinoGrid extends Component {
                 rp: this,
                 status: status
             });
-            // this.props.match.history.push(`/api/${this.props.packId}/${this.props.actorId}/${pk}`);
         }
-        // console.log(data);
     }
 
     get_URL_PARAM_COLUMNS(ajaxArgs = {}) /* names */ {

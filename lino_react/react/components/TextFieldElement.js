@@ -21,7 +21,7 @@ class TextFieldElement extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: getValue(props),
+            value: getValue(props) || "",
         }
         this.onTextChange = this.onTextChange.bind(this);
         this.mentionSource = this.mentionSource.bind(this);
@@ -29,13 +29,12 @@ class TextFieldElement extends React.Component {
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
         if (getValue(prevProps) !== getValue(this.props)) {
-            return false
+            return "newValue"
         }
-        return true
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!snapshot) {
+        if (snapshot === "newValue") {
             let value = getValue(this.props);
             if (this.state.value !== value) {
                 this.setState({value: value});
@@ -50,7 +49,7 @@ class TextFieldElement extends React.Component {
     componentWillUnmount() {
         this.controller.abort();
     }
-
+    
     onTextChange(e) {
         let value = e.htmlValue || "";
         this.setState({value: value});
@@ -100,26 +99,32 @@ class TextFieldElement extends React.Component {
         let style = {
                 height: "90%",
                 display: "flex",
-                flexDirection: "column"
-            };
-
-        let elem = this.props.editing_mode ?
-            <Editor
-                style={{height: '75%', minHeight: '80px'}}
-                value={this.state.value}
-                modules={{
-                    mention: {
-                        allowedChars: /^[A-Za-z0-9\s]*$/,
-                        mentionDenotationChars: window.App.state.site_data.suggestors,
-                        source: this.mentionSource,
-                        renderItem: this.renderItem,
-                        listItemClass: "l-s-selected",
-                        mentionContainerClass: "l-suggester-suggestions",
-                        mentionListClass: "l-l-suggester-suggestions",
-                    }
-                }}
-                onTextChange={this.onTextChange}/> :
-            <div dangerouslySetInnerHTML={{__html: this.state.value || "\u00a0"}}/>;
+                flexDirection: "column",},
+            elem = this.props.editing_mode ?
+                <div
+                    onKeyDown={(e) => {
+                        if (this.props.in_grid && e.keyCode === 13) {
+                            e.stopPropagation();
+                        }
+                    }}>
+                    <Editor
+                        ref={(e) => this.editor = e}
+                        style={{height: '75%', minHeight: '80px'}}
+                        value={this.state.value}
+                        modules={{
+                            mention: {
+                                allowedChars: /^[A-Za-z0-9\s]*$/,
+                                mentionDenotationChars: window.App.state.site_data.suggestors,
+                                source: this.mentionSource,
+                                renderItem: this.renderItem,
+                                listItemClass: "l-s-selected",
+                                mentionContainerClass: "l-suggester-suggestions",
+                                mentionListClass: "l-l-suggester-suggestions",
+                            },
+                        }}
+                        onTextChange={this.onTextChange}/>
+                </div>
+                : <div dangerouslySetInnerHTML={{__html: this.state.value || "\u00a0"}}/>;
 
         if (this.props.in_grid) return elem;
 
