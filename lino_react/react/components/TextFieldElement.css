@@ -1,14 +1,24 @@
-.l-l-suggester-suggestions {
+.ql-mention-list {
     list-style: none;
     list-style-type: none;
     list-style-position: inside;
-    padding: 5px;
+    padding: 0;
     margin: 0;
 }
-.l-s-selected {
-    background-color: #d1eeff;
+.ql-mention-list-item {
+    padding: 6px;
 }
-.l-suggester-suggestions {
-    border: 1px solid gray;
+.ql-mention-list-item.selected {
+    background-color: #002c932e;
+    border: 0px solid white;
+    border-radius: 2px;
+    font-size: 110%;
+}
+.ql-mention-list-container {
+    border: 2px solid #7d7d7d1f;
     border-radius: 5px;
+    background-color: white;
+}
+.search-match {
+    background-color: #f7f7f7b5;
 }

@@ -64,11 +64,13 @@ class TextFieldElement extends React.Component {
             if (item.value) {
                 value += item.value;
             }
-            if (item.description) {
-                value += ": " + item.description;
+            if (item.title) {
+                value += ": " + item.title;
             }
         }
-        return value
+        return value.toLowerCase().split(searchTerm.toLowerCase()).join(
+            "<span class='search-match'>" + searchTerm + "</span>"
+        )
     }
 
     mentionSource(searchTerm, renderList, mentionChar) {
@@ -117,9 +119,10 @@ class TextFieldElement extends React.Component {
                                 mentionDenotationChars: window.App.state.site_data.suggestors,
                                 source: this.mentionSource,
                                 renderItem: this.renderItem,
-                                listItemClass: "l-s-selected",
-                                mentionContainerClass: "l-suggester-suggestions",
-                                mentionListClass: "l-l-suggester-suggestions",
+                                listItemClass: "ql-mention-list-item",
+                                mentionContainerClass: "ql-mention-list-container",
+                                mentionListClass: "ql-mention-list",
+                                dataAttributes: ["value", "link", "title", "denotationChar"],
                             },
                         }}
                         onTextChange={this.onTextChange}/>
