@@ -443,7 +443,7 @@ export class LinoGrid extends Component {
                     pv_values: this.props.inDetail ? {} : data.param_values,
                 });
             }
-        });
+        }).catch(window.App.handleAjaxException);
     }
 
     componentDidUpdate(prevProps) {
