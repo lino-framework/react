@@ -722,10 +722,9 @@ export class LinoGrid extends Component {
     }
 
     renderPaginator() {
-
         if (this.props.actorData.preview_limit === 0 ||
             this.gridData.rows.length === 0 ||
-            this.gridData.rows.length < this.state.rowsPerPage) {
+            this.state.count < this.state.rowsPerPage) {
             return undefined
         } else if (this.props.actorData.simple_paginator) {
             return
@@ -737,13 +736,13 @@ export class LinoGrid extends Component {
             first={this.state.topRow}
             totalRecords={this.state.count}
             template={this.props.actorData.paginator_template || undefined}
-            /*paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
-            rowsPerPageOptions={[5, 10, 20]}*/
-            // onPageChange={(e) => {
-            //     /*Can't be set via set-state, as we need to
-            //       do an ajax call to change the data not state*/
-            //     this.reload({page: e.page});
-            // }}
+            // paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
+            // rowsPerPageOptions={[5, 10, 20]}
+            onPageChange={(e) => {
+                /*Can't be set via set-state, as we need to
+                  do an ajax call to change the data not state*/
+                this.reload({page: e.page});
+            }}
             rightContent={
                 this.state.count && <span className={"l-grid-count"}><span>{this.state.count}</span> rows</span>
             }
@@ -791,7 +790,6 @@ export class LinoGrid extends Component {
     renderMinimized() {
 
     }
-
 
     render() {
         if (this.props.actorData.hide_if_empty && this.props.inDetail && this.gridData.rows.length === 0) {
