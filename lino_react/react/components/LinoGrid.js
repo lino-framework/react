@@ -83,7 +83,7 @@ export class LinoGrid extends Component {
             sortFieldName: undefined, // Sort col.name (used in Lino) //====================> NotCosmetic
             // sortOrder: undefined
 
-            sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined, //====================> NotCosmetic
+            // sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined, //====================> NotCosmetic
             //====================> NotCosmetic
             sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined,
 
@@ -98,6 +98,7 @@ export class LinoGrid extends Component {
             editingPK: undefined,
             editingValues: {},
             rows: [],
+            sortOrder: undefined,
         };
         this.get_data();
         // Why do we need to create another copy of cols?
@@ -263,7 +264,8 @@ export class LinoGrid extends Component {
     onSort(e) {
         let {sortField, sortOrder} = e,
             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
-        this.get_data({sortCol: col, sortOrder: sortOrder})
+        this.gridData.sortOrder = this.gridData.sortOrder === 1 ? -1 : 1;
+        this.get_data({sortCol: col, sortOrder: this.gridData.sortOrder})
     }
 
     update_col_value(v, elem, col) {
@@ -356,8 +358,8 @@ export class LinoGrid extends Component {
         }
 
 
-        if (this.state.sortFieldName && this.state.sortOrder) { // if table is sorted add sort.
-            ajaxArgs.dir = this.state.sortOrder === 1 ? "ASC" : "DESC";
+        if (this.state.sortFieldName && this.gridData.sortOrder) { // if table is sorted add sort.
+            ajaxArgs.dir = this.gridData.sortOrder === 1 ? "ASC" : "DESC";
             ajaxArgs.sort = this.state.sortFieldName;
         }
 
@@ -391,12 +393,10 @@ export class LinoGrid extends Component {
     get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}) {
         this.setState({loading: true});
         let pass = {loading: true};
-        query !== undefined ? pass.query = query : pass.query = this.state.query;
-        page !== undefined ? pass.page = page : pass.page = this.state.page;
-        sortCol !== undefined ?
-            pass.sortFieldName = sortCol.name :
-            pass.sortFieldName = this.state.sortFieldName;
-        sortOrder !== undefined ? pass.sortOrder = sortOrder : pass.sortOrder = this.state.sortOrder;
+        pass.query = query !== undefined ? query : this.state.query;
+        pass.page =  page !== undefined ? page : this.state.page;
+        pass.sortFieldName = sortCol !== undefined ? sortCol.name : this.state.sortFieldName;
+        pass.sortOrder = sortOrder !== undefined ? sortOrder : this.gridData.sortOrder;
         let ajax_query = {
             fmt: "json",
             start: pass.page * this.state.rowsPerPage,
@@ -438,7 +438,7 @@ export class LinoGrid extends Component {
                     loading: false,
                     data: data,
                     title: data.title,
-                    count: data.count, // redundent! why?
+                    count: data.count,
                     topRow: (pass.page) * this.state.rowsPerPage,
                     pv_values: this.props.inDetail ? {} : data.param_values,
                 });
@@ -547,7 +547,7 @@ export class LinoGrid extends Component {
                             // editorValidator={() => {console.log("validate");
                             //                         return false}}
                             sortable={true}
-                            // sortFunction={(e)=> return }
+                            // sortFunction={this.onSort}
                             // columnSortFunction={() => 1}
                         />
                 )
@@ -843,7 +843,7 @@ export class LinoGrid extends Component {
                         // sortMode={"multiple"} No editable yet
                         // multiSortMeta={multiSortMeta}
                         sortField={this.state.sortField + ""}
-                        sortOrder={this.state.sortOrder}
+                        sortOrder={this.gridData.sortOrder}
                         lazy={true}
                     >
                         {this.get_cols()}
