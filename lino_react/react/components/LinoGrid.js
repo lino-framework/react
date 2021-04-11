@@ -39,6 +39,7 @@ export class LinoGrid extends Component {
         depth: PropTypes.number,
         display_mode: PropTypes.string, // "list", // or "grid" // "table"
         show_top_toolbar: PropTypes.bool,
+        data_view: PropTypes.bool,
     };
 
     static defaultProps = {
@@ -55,44 +56,52 @@ export class LinoGrid extends Component {
         super(props);
         let search = queryString.parse(this.props.match.history.location.search);
         let page_key = `${this.props.inDetail ? this.get_full_id() + "." : ""}page`;
+        // Categorization adjuscent to each state depending on the type whether Cosmetic or not.
+        // Cosmetic & Static will stay and the NotCosmetic have to go away. There's also ===NOTSURE===.
         this.state = {
-            data: null,
-            rows: [],
-            toggle_col: false, // show multiselect elem for thing
-            cols: undefined,
+            data: null, //====================> NotCosmetic
+            toggle_col: false, // show multiselect elem for thing && ===NOTSURE===
+            cols: undefined, //====================> NotCosmetic
             //show_columns: search['show_columns'] ? search['show_columns'].split(",") : undefined,
-            show_columns: undefined,
-            // for pager
-            totalRecords: 0,
+            show_columns: undefined, //====================> NotCosmetic
+            //===STATIC===
             rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
-            page: search[page_key] ? search[page_key] - 1 : 0,
-            topRow: 0,
-            count: undefined,
+            page: search[page_key] ? search[page_key] - 1 : 0, //====================> NotCosmetic
+            topRow: 0, //====================> NotCosmetic
+            count: undefined, //====================> NotCosmetic
             // todo pvs: paramValues: [],
-            query: "",
-            selectedRows: [],
-            title: "", // defaults to actor label?
-            loading: true,
-            pv_values: {},
-            editingCellIndex: undefined,
-            editingPK: undefined,
-            editingValues: {},
+            query: "", //====================> NotCosmetic
+            selectedRows: [], //====================> NotCosmetic
+            title: "", // defaults to actor label? //===STATIC===
+            loading: true, //===COSMETIC===
+            pv_values: {}, //====================> NotCosmetic
+            editingCellIndex: undefined, //====================> NotCosmetic
+            // ===COSMETIC===
+            display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
 
-            display_mode: this.props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
-
-            sortField: undefined, // Sort data index   (used in PR)
-            sortFieldName: undefined, // Sort col.name (used in Lino)
+            sortField: undefined, // Sort data index   (used in PR) //====================> NotCosmetic
+            sortFieldName: undefined, // Sort col.name (used in Lino) //====================> NotCosmetic
             // sortOrder: undefined
 
-            sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined,
+            // sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined, //====================> NotCosmetic
+            //====================> NotCosmetic
             sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined,
 
-            show_top_toolbar: isMobile() ? false : true,
+            show_top_toolbar: isMobile() ? false : true, //===COSMETIC===
+            data_view: props.actorData.display_mode === "grid" ? false : true, //===COSMETIC===
         };
+        if (props.display_mode) {
+            console.warn("there's a display_mode prop in LinoGrid!");
+        }
         // Move data that does not require render() call from this.state to this.gridData
         this.gridData = {
+            editingPK: undefined,
             editingValues: {},
+            rows: [],
+            sortOrder: undefined,
         };
+        this.get_data();
+        // Why do we need to create another copy of cols?
         this.state.cols = props.actorData.col.map((column, i) => (
             {
                 label: column.label,
@@ -102,9 +111,8 @@ export class LinoGrid extends Component {
         if (this.state.show_columns === undefined) {
             this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
         }
-
-        this.reload = debounce(this.reload.bind(this), 200);
-        this.refresh = this.reload;
+        this.get_data = this.get_data.bind(this);
+        this.reload = this.get_data;
 //        this.log = debounce(this.log.bind(this), 200);
         this.onRowSelect = this.onRowSelect.bind(this);
         this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
@@ -118,7 +126,7 @@ export class LinoGrid extends Component {
         this.update_col_value = this.update_col_value.bind(this);
         this.get_full_id = this.get_full_id.bind(this);
         this.get_cols = this.get_cols.bind(this);
-        this.handelKeydown = this.handelKeydown.bind(this);
+        // this.handelKeydown = this.handelKeydown.bind(this);
         this.onCancel = this.onCancel.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onEditorInit = this.onEditorInit.bind(this);
@@ -149,12 +157,13 @@ export class LinoGrid extends Component {
         return (rowData, column) => {
             let pk = rowData[this.props.actorData.pk_index];
             let cellIndex = column.cellIndex;
-            let {editingCellIndex, editingPK} = this.state;
+            let {editingCellIndex} = this.state;
+            let editingPK = this.gridData.editingPK;
             // let editing = pk == editingPK && cellIndex == editingCellIndex;
             const prop_bundle = {
                 actorId: this.get_full_id(),
                 actorData: this.props.actorData,
-                data: (pk === null && this.state.editingPK === null) ? this.gridData.editingValues : rowData,
+                data: rowData,
                 disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value, // No editable yet
                 editing_mode: false,
@@ -179,9 +188,8 @@ export class LinoGrid extends Component {
         if (!col.editable) return undefined;
         return (column) => {
             const prop_bundle = {
-                onKeyDown: this.onKeyDown,
                 actorId: this.get_full_id(),
-                data: column.rowData || this.gridData.editingValues,
+                data: column.rowData,
                 actorData: this.props.actorData,
                 disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value,
@@ -204,25 +212,15 @@ export class LinoGrid extends Component {
                                 tr.nextSibling;
                             let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
 
-                            if (tr) { //might be end of table
+                            if (tr) {
                                 tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
-                                // if (helper.length) {
-                                //     helper[0].focus()
                             }
                         }
                         if (event.key === "Tab") {
                             let tbl = el.closest("table");
-                            // bad logic, should just find all of that class, find the one containing self, and + / - 1 and focus.
                             let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
                                 i = cols.findIndex((n) => n.parentElement.contains(el));
                             i = event.shiftKey ? i - 1 : i + 1;
-                            // if (i === cols.length || i < 0) { // if out of index range of cols
-                            // Gotta goto next tr..
-                            // tr = event.shiftKey ? tr.previousSibling :
-                            //                       tr.nextSibling;
-                            // cols = Array(...tr.getElementsByClassName("p-cell-editor-key-helper"));
-                            // i = i < 0 ? cols.length-1 : 0; // last or first col.
-                            // }
                             cols[i].focus() // Open next / prev editor
                         }
                     }
@@ -236,152 +234,43 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(cellProps, event, bodyCell) {
+    onSubmit(cellProps) {
         let {rowData, field, rowIndex} = cellProps.columnProps;
-        let editingPK = this.state.editingPK;
+        let editingPK = this.gridData.editingPK;
         if (!this.editorDirty) {
             return
         }
-        this.state.editingValues = this.gridData.editingValues;
-
-        let submit = (openNextCell) => {
-            window.App.runAction({
-                rp: this,
-                an: editingPK === null ? "grid_post" : "grid_put",
-                actorId: `${this.props.packId}.${this.props.actorId}`,
-                sr: editingPK === null ? undefined : editingPK,
-                status: {
-                    base_params: {mk: this.props.mk, mt: this.props.mt}
-                },
-                response_callback: (data) => {
-                    data.rows && this.setState((old) => { // update just the row
-                        let state = {},
-                            rows = old.rows.slice(); // make data copy
-                        state.rows = rows;
-                        // What is a phantom row? And why do we need it?
-                        // if (editingPK === null) {
-                        //     rows.push(rows[rowIndex].slice()); // create copy phantom row
-                        //     state.editingPK = undefined;
-                        //     this.gridData.editingPK = undefined;
-                        //     if (openNextCell) {
-                        //         this.editPhantomRowAgain = setTimeout(() => {
-                        //             //TODO open phantom row
-                        //             document.gridEntertd.parentElement.nextSibling.children[document.gridTdIndex].click();
-                        //             // console.log("Try go find and start editing cell", target, tr)
-                        //         }, 200)
-                        //     }
-                        // } else
-                        if (this.state.editingPK === data.rows[0][this.props.actorData.pk_index]) {
-                            state.editingValues = Object.assign({}, {...data.rows[0]}); // update editing values
-                            this.gridData.editingValues = state.editingValues;
-                        }
-                        rows[rowIndex] = data.rows[0];
-                        return state
-                    })
-                }
-            })
-        };
-
-        if (editingPK === null) {
-
-            if (document.gridEnterPress) {
-                submit(!document.gridShiftPress); // !document.gridShiftPress Not implemented
-
-            } else {
-                this.phantomSubmit = setTimeout(() => {
-                    // console.log("on submit timeout");
-
-                    if (editingPK === null && !this.editorDirty) {// we've opened a new editer in phantom row
-
-                    } else {
-                        submit();
-                        // this.setState((old) => {
-                        //     let rows = old.rows.slice();
-                        //     rows.push(rows[rows.length-1].slice());
-                        //     return {rows:rows} // add new phantom rows, old will be overwriten by post callback.
-                        // } )
-                    }
-
-                }, 20)
+        window.App.runAction({
+            rp: this,
+            an: editingPK === null ? "grid_post" : "grid_put",
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            sr: editingPK === null ? undefined : editingPK,
+            status: {
+                base_params: {mk: this.props.mk, mt: this.props.mt}
+            },
+            response_callback: (data) => {
+                this.gridData.rows[rowIndex] = data.rows[0];
+                this.setState({loading: false});
             }
-        } else {
-            submit()
-        }
+        });
     }
 
     onEditorInit(e) {
-        let {rowData, field} = e.columnProps;
-        let was_dirty = this.editorDirty;
-        let boolField = document.boolFieldClick; // undefined for now. Boolfield should set it
         this.editorDirty = false;
-        this.setState((old) => {
-            // console.log('old',old);
-            let editingPK, editingValues = {};
-
-            if (old.editingPK === null && rowData[this.props.actorData.pk_index] === old.editingPK && was_dirty) {
-                console.warn("Your assumption was wrong!");
-            //     this.editorDirty = true; // we have old values so still dirty.
-            //     clearTimeout(this.phantomSubmit);
-            }
-            // else
-            if (rowData[this.props.actorData.pk_index] === null) {
-                if (boolField) {
-                    this.editorDirty = true;
-                    editingValues[field] = true
-                }
-                this.gridData.editingValues = editingValues;
-                return {
-                    editingPK: null, // start editing a phantom with empty values not null values.
-                    editingValues: editingValues
-                }
-            } else {
-                if (boolField) {
-                    // When we edit BooleanFieldElement field we change its value
-                    this.editorDirty = true; // Make the editor dirty as we want to edit on first click
-                    this.gridData.editingValues = {[field]: !rowData[field]};
-                    return {
-                        editingPK: rowData[this.props.actorData.pk_index],
-                        editingValues: {[field]: !rowData[field]}
-                    }
-                }
-                this.gridData.editingValues = Object.assign({}, {...rowData});
-                return {
-                    // editingCellIndex:cellIndex,
-                    editingPK: rowData[this.props.actorData.pk_index], // used when getting return data from row save, in that case, we set new data as editingValues
-                    editingValues: Object.assign({}, {...rowData}) // made copy of all row data
-                }
-            }
-
-        })
+        this.gridData.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
+        this.gridData.editingValues = Object.assign({}, {...e.columnProps.rowData});
     }
 
     onSort(e) {
         let {sortField, sortOrder} = e,
             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
-        this.reload({sortCol: col, sortOrder: sortOrder})
+        this.gridData.sortOrder = this.gridData.sortOrder === 1 ? -1 : 1;
+        this.get_data({sortCol: col, sortOrder: this.gridData.sortOrder})
     }
 
     update_col_value(v, elem, col) {
-        this.editorDirty = true;
+        (!this.editorDirty) && (this.editorDirty = true);
         this.gridData.editingValues = Object.assign({}, {...v});
-            this.setState((old => {
-        //         // Object.assign(state.rows[col.rowIndex],{...v});
-        //
-                if (old.editingPK === null && col.rowData[this.props.actorData.pk_index] === old.editingPK) {
-        //             // editingPK cannot have any value when it is null, so the above comparison in invalid
-        //             // hance this block of code will never execute and unnecessary.
-                    console.warn("Your assumption was wrong!");
-        //             // this.gridData.editingValues = Object.assign({}, {...this.state.editingValues}, {...v});
-        //             // return {
-        //             //     editingValues: Object.assign({}, {...this.state.editingValues}, {...v})
-        //             // }
-                }
-        //         this.gridData.editingValues = Object.assign({}, {...v});
-        //         return {
-        //             editingValues: Object.assign({}, {...v})
-        //         }
-            }));
-        // }
     }
 
     expand(e) {
@@ -469,8 +358,8 @@ export class LinoGrid extends Component {
         }
 
 
-        if (this.state.sortFieldName && this.state.sortOrder) { // if table is sorted add sort.
-            ajaxArgs.dir = this.state.sortOrder === 1 ? "ASC" : "DESC";
+        if (this.state.sortFieldName && this.gridData.sortOrder) { // if table is sorted add sort.
+            ajaxArgs.dir = this.gridData.sortOrder === 1 ? "ASC" : "DESC";
             ajaxArgs.sort = this.state.sortFieldName;
         }
 
@@ -489,75 +378,35 @@ export class LinoGrid extends Component {
 
     quickFilter(query) {
         // in own method so we can use it as a debouce
-        this.setState({query: query});
-        this.reload({query: query});
+        // this.setState({query: query});
+        this.get_data({query: query});
 //        this.log(query);
     }
 
     update_url_values(vals, router) {
+        // Does nothing.
         let search = queryString.parse(router.history.location.search);
-        Object.assign({}, search, {...vals});
+        Object.assign({}, search, {...vals}); // We are not catching the values here!!!
         router.history.replace({search: queryString.stringify(search)});
     }
 
-    reload({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}) {
-        let sortField;
-        let sortFieldName
-        let state = {
-            // data: null,
-            // rows: [],
-            loading: true,
-        };
-        query !== undefined && (state.query = query); // update state if query passed to method // QuickSearch string
-
-        // Allow setting of page via reload method params, (requried for paginator)
-        if (page !== undefined) {
-            state.page = page;
-        } else {
-            page = this.state.page;
-        }
-
-        this.update_url_values({[`${this.props.inDetail ? this.get_full_id() + "." : ""}page`]: page + 1}, this.props.match);
-
+    get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}) {
+        this.setState({loading: true});
+        let pass = {loading: true};
+        pass.query = query !== undefined ? query : this.state.query;
+        pass.page =  page !== undefined ? page : this.state.page;
+        pass.sortFieldName = sortCol !== undefined ? sortCol.name : this.state.sortFieldName;
+        pass.sortOrder = sortOrder !== undefined ? sortOrder : this.gridData.sortOrder;
         let ajax_query = {
             fmt: "json",
+            start: pass.page * this.state.rowsPerPage,
             limit: this.state.rowsPerPage,
-            start: page * this.state.rowsPerPage, // Needed due to race condition when setting-state
-            query: query !== undefined ? query : this.state.query, // use given query or state-query
+            query: pass.query,
             rp: this.rp,
-            wt: this.state.display_mode === "grid" ? "g" : "c"
+            wt: this.state.display_mode === "grid" ? "g" : "c",
         };
-
-        if (sortCol !== undefined) {
-            state.sortField = sortCol.fields_index;
-            state.sortFieldName = sortCol.name;
-            sortFieldName = sortCol.name;
-        } else if (this.state.sortCol !== undefined) {
-            state.sortField = this.state.sortCol.fields_index;
-            state.sortFieldName = this.state.sortCol.name;
-            sortFieldName = this.state.sortCol.name;
-        } else if (this.state.sortField !== undefined) {
-            // sortField = this.state.sortField;
-            sortFieldName = this.state.sortFieldName;
-        }
-        if (sortFieldName !== undefined) {
-            ajax_query.sort = sortFieldName;
-        }
-
-        if (sortOrder !== undefined) {
-            state.sortOrder = sortOrder;
-        } else if (this.state.sortOrder !== undefined) {
-            sortOrder = this.state.sortOrder;
-        }
-        if (sortOrder !== undefined) {
-            ajax_query.dir = sortOrder === 1 ? "ASC" : "DESC";
-        }
-
-        this.setState(state);
-
-        let sort_values = {'sortOrder': sortOrder, 'sortField': state.sortField};
-        this.update_url_values(sort_values, this.props.match);
-
+        pass.sortFieldName !== undefined && (ajax_query.sort = pass.sortFieldName);
+        pass.sortOrder !== undefined && (ajax_query.dir = pass.sortOrder === 1 ? "ASC" : "DESC");
         if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
             ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
         } else if (this.props.actorData.pv_layout) {
@@ -570,56 +419,31 @@ export class LinoGrid extends Component {
             }
             // convert pv values from obj to array and add to ajax call
         }
-
-        if (this.props.mk !== undefined) {
-            this.props.mk && (ajax_query.mk = this.props.mk);
-        }
-        if (this.props.mt !== undefined) {
-            this.props.mt && (ajax_query.mt = this.props.mt);
-        }
-
+        this.props.mk !== undefined && (ajax_query.mk = this.props.mk);
+        this.props.mt !== undefined && (ajax_query.mt = this.props.mt);
         window.App.add_su(ajax_query);
-        // console.log("table pre-GET", ajax_query, this.state);
-
         fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
-        ).then(
-            (data) => {
-                if (!data.success) {
-                    // failed for some reason.
-                    this.setState({
-                        loading: false,
-                        data: null,
-                        rows: [],
-                        // for pager
-                        totalRecords: 0,
-                    });
-                    return
-                }
-                // console.log("table GET", data);
-                let rows = data.rows;
-                delete data.rows;
-                let pv_values = data.param_values;
-                delete data.param_values;
-
-                this.setState((prevState) => {
-                    let state = {
-                        data: data,
-                        rows: rows,
-                        // objRows: rows.map(r => gridList2Obj(this.props.actorData, r)),
-                        totalRecords: data.count,
-                        topRow: (page) * this.state.rowsPerPage,
-                        loading: false,
-                        title: data.title,
-                        count: data.count
-                        // page: page
-                    };
-                    // condition because we only want to use default PV values inside of detail views.
-                    if (!this.props.inDetail) state.pv_values = pv_values; // This might cause race conditions with editing may PV's quickly.
-                    return state;
+        ).then(data => {
+            if (!data.success) {
+                Object.assign(this.gridData, {rows: []});
+                this.setState({
+                    loading: false,
+                    data: null,
+                    count: 0,
+                });
+            } else {
+                Object.assign(this.gridData, {rows: data.rows});
+                this.setState({
+                    loading: false,
+                    data: data,
+                    title: data.title,
+                    count: data.count,
+                    topRow: (pass.page) * this.state.rowsPerPage,
+                    pv_values: this.props.inDetail ? {} : data.param_values,
                 });
             }
-        ).catch(error => window.App.handleAjaxException(error));
+        }).catch(window.App.handleAjaxException);
     }
 
     componentDidUpdate(prevProps) {
@@ -629,45 +453,21 @@ export class LinoGrid extends Component {
             this.props.mt !== prevProps.mt ||
             (prevProps.reload_timestamp !== 0 && this.props.reload_timestamp !== prevProps.reload_timestamp)
         ) {
-            console.log("Reload from DidUpdate method")
-
             this.reload();
         }
     }
 
     componentDidMount() {
-        // console.log("20210223 componentDidMount()")
         this.cols = undefined;
-        document.addEventListener("keydown", this.handelKeydown, false);
-        this.reload();
         window.addEventListener("resize", this.handleWindowChange);
-        // console.log(this.props.actorId, "LinoGrid ComponentMount", this.props);
     }
 
     componentWillUnmount() {
-        // console.log("20210223 componentWillUnmount()")
-        document.removeEventListener("keydown", this.handelKeydown, false);
         window.removeEventListener("resize", this.handleWindowChange);
     }
 
     handleWindowChange() {
         this.setState({show_top_toolbar: isMobile() ? false : true});
-    }
-
-    handelKeydown(event) {
-        // switch (event.key) {
-        //     case "Escape":
-        //         // cancel editing, close editor and clear editing values.
-        //         // this.dataTable.closeEditingCell(); // Doesn't exist in local version,
-        //         document.body.click(); // What closeEditingCell actually does.
-        //         this.setState({editingValues: {}});
-        //         ;
-        //     case "Enter":
-        //         if (Object.keys(this.state.editingValues).length){
-        //             console.log("submittion")
-        //         };
-        //
-        // }
     }
 
     update_pv_values(values) {
@@ -686,7 +486,7 @@ export class LinoGrid extends Component {
                 this.props.match.history.replace({search: queryString.stringify(search)});
 
 
-                this.reload();
+                // this.reload();
                 return {pv_values: updated_pv};
             }
         });
@@ -747,7 +547,7 @@ export class LinoGrid extends Component {
                             // editorValidator={() => {console.log("validate");
                             //                         return false}}
                             sortable={true}
-                            // sortFunction={(e)=> return }
+                            // sortFunction={this.onSort}
                             // columnSortFunction={() => 1}
                         />
                 )
@@ -810,10 +610,10 @@ export class LinoGrid extends Component {
             style={{marginTop: "5px"}}
             layoutChoices={["grid", "list", "cards"]}
             layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
-            onChange={e => {
-                this.setState({display_mode: e.value, rows: []});
-                this.reload()
-            }}
+            // onChange={e => {
+            //     this.setState({display_mode: e.value, rows: []});
+            //     this.reload()
+            // }}
             layout={this.state.display_mode}
         />
     }
@@ -843,11 +643,13 @@ export class LinoGrid extends Component {
 
     renderActionBar() {
         return <div style={{"textAlign": "left"}}>
-            <LinoBbar actorData={this.props.actorData} sr={this.state.selectedRows} reload={this.reload}
-                      srMap={(row) => row[this.props.actorData.pk_index]}
-                      rp={this} an={'grid'}
-                      runAction={this.runAction}/>
-
+            <LinoBbar
+                actorData={this.props.actorData}
+                sr={this.state.selectedRows}
+                reload={this.reload}
+                srMap={(row) => row[this.props.actorData.pk_index]}
+                rp={this} an={'grid'}
+                runAction={this.runAction}/>
         </div>
     }
 
@@ -865,7 +667,6 @@ export class LinoGrid extends Component {
 
 
     renderDetailHeader() {
-        // let mobile = isMobile();
         let {actorData} = this.props;
 
         if (this.props.actorData.simple_slavegrid_header) {
@@ -894,8 +695,19 @@ export class LinoGrid extends Component {
             </div>
             <div className={"table-header"}>
                 {this.renderActionBar()}
+                {this.state.data_view && this.renderDataViewLayout()}
+                <ToggleButton
+                    className="data_view-toggle"
+                    style={{marginLeft: "-20px"}}
+                    checked={this.state.data_view}
+                    onChange={() => this.setState({data_view: !this.state.data_view})}
+                    onIcon="pi pi-table"
+                    offIcon="pi pi-list"
+                    onLabel=""
+                    offLabel=""/>
+            </div>
+            <div className={"table-header"}>
                 {this.renderProgressBar()}
-                {this.renderDataViewLayout()}
             </div>
         </React.Fragment>
     }
@@ -910,10 +722,9 @@ export class LinoGrid extends Component {
     }
 
     renderPaginator() {
-
         if (this.props.actorData.preview_limit === 0 ||
-            this.state.rows.length === 0 ||
-            this.state.rows.length < this.state.rowsPerPage) {
+            this.gridData.rows.length === 0 ||
+            this.state.count < this.state.rowsPerPage) {
             return undefined
         } else if (this.props.actorData.simple_paginator) {
             return
@@ -923,10 +734,10 @@ export class LinoGrid extends Component {
             rows={this.state.rowsPerPage}
             paginator={true}
             first={this.state.topRow}
-            totalRecords={this.state.totalRecords}
+            totalRecords={this.state.count}
             template={this.props.actorData.paginator_template || undefined}
-            /*paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
-            rowsPerPageOptions={[5, 10, 20]}*/
+            // paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
+            // rowsPerPageOptions={[5, 10, 20]}
             onPageChange={(e) => {
                 /*Can't be set via set-state, as we need to
                   do an ajax call to change the data not state*/
@@ -980,9 +791,8 @@ export class LinoGrid extends Component {
 
     }
 
-
     render() {
-        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0) {
+        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.gridData.rows.length === 0) {
             return null
         }
         const header = this.renderHeader(),
@@ -998,8 +808,8 @@ export class LinoGrid extends Component {
                     })}
                     onLabel=''
                     offLabel=''
-                    onIcon='pi pi-bars'
-                    offIcon='pi pi-bars'
+                    onIcon='pi pi-caret-up'
+                    offIcon='pi pi-caret-down'
                     iconPos="right"
                 />}
             </h1>
@@ -1011,7 +821,7 @@ export class LinoGrid extends Component {
                         footer={footer}
                         responsive={this.props.actorData.react_responsive}
                         resizableColumns={true}
-                        value={this.state.rows}
+                        value={this.gridData.rows}
                         paginator={false}
                         // selectionMode="single"
                         editable={true}
@@ -1031,7 +841,7 @@ export class LinoGrid extends Component {
                         // sortMode={"multiple"} No editable yet
                         // multiSortMeta={multiSortMeta}
                         sortField={this.state.sortField + ""}
-                        sortOrder={this.state.sortOrder}
+                        sortOrder={this.gridData.sortOrder}
                         lazy={true}
                     >
                         {this.get_cols()}
@@ -1039,24 +849,27 @@ export class LinoGrid extends Component {
                     :
                     this.props.actorData.borderless_list_mode ?
                         <div>
-                            {this.state.rows.map((row, index) => (
-                                <div key={this.state.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
+                            {this.gridData.rows.map((row, index) => (
+                                <div key={this.gridData.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
                             ))}
                         </div>
                         :
-                        <DataView value={this.state.rows}
+                        <DataView value={this.gridData.rows}
                                   header={header}
                                   footer={footer}
                                   layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
                                   itemTemplate={this.itemTemplate}
-                                  itemKey={(data, index) => (this.state.rows[index][this.props.actorData.pk_index])}
+                                  itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}
                         />}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
                     footer={<div>
-                        <Button style={{width: "33px"}} icon={"pi pi-times-circle"}
-                                onClick={() => this.reload({pv: {}})}/>
+                        <Button
+                            style={{width: "33px"}}
+                            icon={"pi pi-times-circle"}
+                            onClick={() => this.reload({pv: {}})}
+                            />
                         <Button
                             style={{width: "33px"}}
                             icon={"pi pi-check"}

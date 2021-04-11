@@ -313,8 +313,8 @@ export class LinoDetail extends Component {
                         })}
                         onLabel=''
                         offLabel=''
-                        onIcon='pi pi-bars'
-                        offIcon='pi pi-bars'
+                        onIcon='pi pi-caret-up'
+                        offIcon='pi pi-caret-down'
                         iconPos="right"
                     />}
                 </h1>
