@@ -15,9 +15,9 @@
     font-size: 110%;
 }
 .ql-mention-list-container {
-    border: 2px solid #7d7d7d1f;
-    border-radius: 5px;
+    border: 2px solid gray;
     background-color: white;
+    box-shadow: 0 5px 5px 0 gray, 0 5px 5px 0 gray;
 }
 .search-match {
     background-color: #f7f7f7b5;

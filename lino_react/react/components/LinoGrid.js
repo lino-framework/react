@@ -60,7 +60,6 @@ export class LinoGrid extends Component {
         // Cosmetic & Static will stay and the NotCosmetic have to go away. There's also ===NOTSURE===.
         this.state = {
             data: null, //====================> NotCosmetic
-            rows: [], //====================> NotCosmetic
             toggle_col: false, // show multiselect elem for thing && ===NOTSURE===
             cols: undefined, //====================> NotCosmetic
             //show_columns: search['show_columns'] ? search['show_columns'].split(",") : undefined,
@@ -77,8 +76,6 @@ export class LinoGrid extends Component {
             loading: true, //===COSMETIC===
             pv_values: {}, //====================> NotCosmetic
             editingCellIndex: undefined, //====================> NotCosmetic
-            editingPK: undefined, //====================> NotCosmetic
-            editingValues: {}, //====================> NotCosmetic
             // ===COSMETIC===
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
 
@@ -100,6 +97,7 @@ export class LinoGrid extends Component {
         this.gridData = {
             editingPK: undefined,
             editingValues: {},
+            rows: [],
         };
         this.get_data();
         // Why do we need to create another copy of cols?
@@ -112,9 +110,8 @@ export class LinoGrid extends Component {
         if (this.state.show_columns === undefined) {
             this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
         }
-        // what is the purpose of explicitly defining a reload?
-        // this.reload = debounce(this.reload.bind(this), 200);
-        // this.refresh = this.reload;
+        this.get_data = this.get_data.bind(this);
+        this.reload = this.get_data;
 //        this.log = debounce(this.log.bind(this), 200);
         this.onRowSelect = this.onRowSelect.bind(this);
         this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
@@ -165,7 +162,7 @@ export class LinoGrid extends Component {
             const prop_bundle = {
                 actorId: this.get_full_id(),
                 actorData: this.props.actorData,
-                data: (pk === null && this.gridData.editingPK === null) ? this.gridData.editingValues : rowData,
+                data: rowData,
                 disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value, // No editable yet
                 editing_mode: false,
@@ -191,7 +188,7 @@ export class LinoGrid extends Component {
         return (column) => {
             const prop_bundle = {
                 actorId: this.get_full_id(),
-                data: column.rowData || this.gridData.editingValues,
+                data: column.rowData,
                 actorData: this.props.actorData,
                 disabled_fields: this.state.disabled_fields || [],
                 update_value: this.update_col_value,
@@ -242,10 +239,6 @@ export class LinoGrid extends Component {
         if (!this.editorDirty) {
             return
         }
-        this.state.editingPK = this.gridData.editingPK;
-        this.state.editingValues = this.gridData.editingValues;
-        delete this.gridData.editingPK;
-        delete this.gridData.editingValues;
         window.App.runAction({
             rp: this,
             an: editingPK === null ? "grid_post" : "grid_put",
@@ -255,24 +248,16 @@ export class LinoGrid extends Component {
                 base_params: {mk: this.props.mk, mt: this.props.mt}
             },
             response_callback: (data) => {
-                data.rows && this.setState((old) => { // update just the row
-                    let state = {},
-                        rows = old.rows.slice(); // make data copy
-                    state.rows = rows;
-                    // if (this.gridData.editingPK === data.rows[0][this.props.actorData.pk_index]) {
-                    //     state.editingValues = Object.assign({}, {...data.rows[0]}); // update editing values
-                    // }
-                    // this.gridData.editingValues = Object.assign({}, {data.rows[0]});
-                    rows[rowIndex] = data.rows[0];
-                    return state
-                })
+                this.gridData.rows[rowIndex] = data.rows[0];
+                this.setState({loading: false});
             }
         });
     }
 
     onEditorInit(e) {
+        this.editorDirty = false;
         this.gridData.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
-        this.gridData.editingValues = Object.assign({}, {...e.columnProps.rowData})
+        this.gridData.editingValues = Object.assign({}, {...e.columnProps.rowData});
     }
 
     onSort(e) {
@@ -440,20 +425,18 @@ export class LinoGrid extends Component {
         fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
             window.App.handleAjaxResponse
         ).then(data => {
-            console.log("blurry LinoGrid data", data);
-            console.log('blurry LinoGrid from get_data', this);
             if (!data.success) {
+                Object.assign(this.gridData, {rows: []});
                 this.setState({
                     loading: false,
                     data: null,
-                    rows: [],
                     count: 0,
                 });
             } else {
+                Object.assign(this.gridData, {rows: data.rows});
                 this.setState({
                     loading: false,
                     data: data,
-                    rows: data.rows,
                     title: data.title,
                     count: data.count, // redundent! why?
                     topRow: (pass.page) * this.state.rowsPerPage,
@@ -463,127 +446,6 @@ export class LinoGrid extends Component {
         });
     }
 
-    // reload({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}) {
-    //     let sortField;
-    //     let sortFieldName
-    //     let state = {
-    //         // data: null,
-    //         // rows: [],
-    //         loading: true,
-    //     };
-    //     query !== undefined && (state.query = query); // update state if query passed to method // QuickSearch string
-    //
-    //     // Allow setting of page via reload method params, (requried for paginator)
-    //     if (page !== undefined) {
-    //         state.page = page;
-    //     } else {
-    //         page = this.state.page;
-    //     }
-    //
-    //     // ===========================================================================================
-    //     // But why?
-    //     this.update_url_values({[`${this.props.inDetail ? this.get_full_id() + "." : ""}page`]: page + 1}, this.props.match);
-    //
-    //     let ajax_query = {
-    //         fmt: "json",
-    //         limit: this.state.rowsPerPage,
-    //         start: page * this.state.rowsPerPage, // Needed due to race condition when setting-state
-    //         query: query !== undefined ? query : this.state.query, // use given query or state-query
-    //         rp: this.rp,
-    //         wt: this.state.display_mode === "grid" ? "g" : "c"
-    //     };
-    //
-    //     if (sortCol !== undefined) {
-    //         state.sortField = sortCol.fields_index;
-    //         state.sortFieldName = sortCol.name;
-    //         sortFieldName = sortCol.name;
-    //     } else if (this.state.sortCol !== undefined) {
-    //         state.sortField = this.state.sortCol.fields_index;
-    //         state.sortFieldName = this.state.sortCol.name;
-    //         sortFieldName = this.state.sortCol.name;
-    //     } else if (this.state.sortField !== undefined) {
-    //         // sortField = this.state.sortField;
-    //         sortFieldName = this.state.sortFieldName;
-    //     }
-    //     if (sortFieldName !== undefined) {
-    //         ajax_query.sort = sortFieldName;
-    //     }
-    //
-    //     if (sortOrder !== undefined) {
-    //         state.sortOrder = sortOrder;
-    //     } else if (this.state.sortOrder !== undefined) {
-    //         sortOrder = this.state.sortOrder;
-    //     }
-    //     if (sortOrder !== undefined) {
-    //         ajax_query.dir = sortOrder === 1 ? "ASC" : "DESC";
-    //     }
-    //
-    //     this.setState(state);
-    //
-    //     let sort_values = {'sortOrder': sortOrder, 'sortField': state.sortField};
-    //     this.update_url_values(sort_values, this.props.match);
-    //
-    //     if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
-    //         ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
-    //     } else if (this.props.actorData.pv_layout) {
-    //         let search = queryString.parse(this.props.match.history.location.search);
-    //         // use either, pv passed with reload method, current state, or failing all, in url
-    //         if (!this.props.inDetail && pv === undefined && Object.keys(this.state.pv_values).length === 0) {
-    //             ajax_query.pv = search.pv
-    //         } else if (Object.keys(this.state.pv_values).length !== 0) { // only apply when there's some data there to insure getting of default values form server
-    //             ajax_query.pv = pvObj2array(pv || this.state.pv_values, this.props.actorData.pv_fields);
-    //         }
-    //         // convert pv values from obj to array and add to ajax call
-    //     }
-    //
-    //     if (this.props.mk !== undefined) {
-    //         this.props.mk && (ajax_query.mk = this.props.mk);
-    //     }
-    //     if (this.props.mt !== undefined) {
-    //         this.props.mt && (ajax_query.mt = this.props.mt);
-    //     }
-    //
-    //     window.App.add_su(ajax_query);
-    //     // console.log("table pre-GET", ajax_query, this.state);
-    //
-    //     fetchPolyfill(`api/${this.props.packId}/${this.props.actorId}?${queryString.stringify(ajax_query)}`).then(
-    //         window.App.handleAjaxResponse
-    //     ).then(
-    //         (data) => {
-    //             if (!data.success) {
-    //                 // failed for some reason.
-    //                 this.setState({
-    //                     loading: false,
-    //                     data: null,
-    //                     rows: [],
-    //                 });
-    //                 return
-    //             }
-    //             // console.log("table GET", data);
-    //             let rows = data.rows;
-    //             delete data.rows;
-    //             let pv_values = data.param_values;
-    //             delete data.param_values;
-    //
-    //             this.setState((prevState) => {
-    //                 let state = {
-    //                     data: data,
-    //                     rows: rows,
-    //                     // objRows: rows.map(r => gridList2Obj(this.props.actorData, r)),
-    //                     topRow: (page) * this.state.rowsPerPage,
-    //                     loading: false,
-    //                     title: data.title,
-    //                     count: data.count
-    //                     // page: page
-    //                 };
-    //                 // condition because we only want to use default PV values inside of detail views.
-    //                 if (!this.props.inDetail) state.pv_values = pv_values; // This might cause race conditions with editing may PV's quickly.
-    //                 return state;
-    //             });
-    //         }
-    //     ).catch(error => window.App.handleAjaxException(error));
-    // }
-
     componentDidUpdate(prevProps) {
         // console.log("Detail compDidUpdate")
         if (this.props.pk !== prevProps.pk ||
@@ -591,31 +453,22 @@ export class LinoGrid extends Component {
             this.props.mt !== prevProps.mt ||
             (prevProps.reload_timestamp !== 0 && this.props.reload_timestamp !== prevProps.reload_timestamp)
         ) {
-            console.log("Reload from DidUpdate method")
-
-            // this.reload();
+            this.reload();
         }
     }
 
     componentDidMount() {
         this.cols = undefined;
-        // document.addEventListener("keydown", this.handelKeydown, false);
-        // this.reload();
         window.addEventListener("resize", this.handleWindowChange);
     }
 
     componentWillUnmount() {
-        // document.removeEventListener("keydown", this.handelKeydown, false);
         window.removeEventListener("resize", this.handleWindowChange);
     }
 
     handleWindowChange() {
         this.setState({show_top_toolbar: isMobile() ? false : true});
     }
-
-    // handelKeydown(event) {
-    //     // Everything breaks if I remove this empty function. Why?
-    // }
 
     update_pv_values(values) {
         // console.log(v);
@@ -710,10 +563,8 @@ export class LinoGrid extends Component {
     renderParamValueControls() {
         return this.props.actorData.pv_layout && <React.Fragment>
             <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
-            {
-                // Object.keys(this.state.pv || {}).length !== 0 &&
-                // <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>
-            }
+            {Object.keys(this.state.pv || {}).length !== 0 &&
+            <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>}
         </React.Fragment>
 
     }
@@ -795,7 +646,7 @@ export class LinoGrid extends Component {
             <LinoBbar
                 actorData={this.props.actorData}
                 sr={this.state.selectedRows}
-                // reload={this.reload}
+                reload={this.reload}
                 srMap={(row) => row[this.props.actorData.pk_index]}
                 rp={this} an={'grid'}
                 runAction={this.runAction}/>
@@ -873,8 +724,8 @@ export class LinoGrid extends Component {
     renderPaginator() {
 
         if (this.props.actorData.preview_limit === 0 ||
-            this.state.rows.length === 0 ||
-            this.state.rows.length < this.state.rowsPerPage) {
+            this.gridData.rows.length === 0 ||
+            this.gridData.rows.length < this.state.rowsPerPage) {
             return undefined
         } else if (this.props.actorData.simple_paginator) {
             return
@@ -943,8 +794,7 @@ export class LinoGrid extends Component {
 
 
     render() {
-        console.log('blurry LinoGrid', this);
-        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.state.rows.length === 0) {
+        if (this.props.actorData.hide_if_empty && this.props.inDetail && this.gridData.rows.length === 0) {
             return null
         }
         const header = this.renderHeader(),
@@ -973,7 +823,7 @@ export class LinoGrid extends Component {
                         footer={footer}
                         responsive={this.props.actorData.react_responsive}
                         resizableColumns={true}
-                        value={this.state.rows}
+                        value={this.gridData.rows}
                         paginator={false}
                         // selectionMode="single"
                         editable={true}
@@ -1001,17 +851,17 @@ export class LinoGrid extends Component {
                     :
                     this.props.actorData.borderless_list_mode ?
                         <div>
-                            {this.state.rows.map((row, index) => (
-                                <div key={this.state.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
+                            {this.gridData.rows.map((row, index) => (
+                                <div key={this.gridData.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
                             ))}
                         </div>
                         :
-                        <DataView value={this.state.rows}
+                        <DataView value={this.gridData.rows}
                                   header={header}
                                   footer={footer}
                                   layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
                                   itemTemplate={this.itemTemplate}
-                                  itemKey={(data, index) => (this.state.rows[index][this.props.actorData.pk_index])}
+                                  itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}
                         />}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
@@ -1020,7 +870,7 @@ export class LinoGrid extends Component {
                         <Button
                             style={{width: "33px"}}
                             icon={"pi pi-times-circle"}
-                            // onClick={() => this.reload({pv: {}})}
+                            onClick={() => this.reload({pv: {}})}
                             />
                         <Button
                             style={{width: "33px"}}
