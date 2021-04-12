@@ -59,31 +59,16 @@ export class LinoGrid extends Component {
         // Categorization adjuscent to each state depending on the type whether Cosmetic or not.
         // Cosmetic & Static will stay and the NotCosmetic have to go away. There's also ===NOTSURE===.
         this.state = {
-            data: null, //====================> NotCosmetic
-            toggle_col: false, // show multiselect elem for thing && ===NOTSURE===
-            cols: undefined, //====================> NotCosmetic
-            //show_columns: search['show_columns'] ? search['show_columns'].split(",") : undefined,
-            show_columns: undefined, //====================> NotCosmetic
+            toggle_col: false, // show multiselect elem for thing && ===COSMETIC===
             //===STATIC===
             rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
-            page: search[page_key] ? search[page_key] - 1 : 0, //====================> NotCosmetic
-            topRow: 0, //====================> NotCosmetic
-            count: undefined, //====================> NotCosmetic
-            // todo pvs: paramValues: [],
-            query: "", //====================> NotCosmetic
             selectedRows: [], //====================> NotCosmetic
-            title: "", // defaults to actor label? //===STATIC===
-            loading: true, //===COSMETIC===
-            pv_values: {}, //====================> NotCosmetic
+            loading: false, //===COSMETIC===
             editingCellIndex: undefined, //====================> NotCosmetic
             // ===COSMETIC===
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
 
             sortField: undefined, // Sort data index   (used in PR) //====================> NotCosmetic
-            sortFieldName: undefined, // Sort col.name (used in Lino) //====================> NotCosmetic
-            // sortOrder: undefined
-
-            // sortOrder: search['sortOrder'] ? search['sortOrder'] : undefined, //====================> NotCosmetic
             //====================> NotCosmetic
             sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined,
 
@@ -95,38 +80,45 @@ export class LinoGrid extends Component {
         }
         // Move data that does not require render() call from this.state to this.gridData
         this.gridData = {
+            cols: undefined,
+            component: {},
+            count: undefined,
+            data: null,
+            editingCol: undefined,
             editingPK: undefined,
             editingValues: {},
+            page: search[page_key] ? search[page_key] - 1 : 0,
+            pv_values: {},
             rows: [],
-            sortOrder: undefined,
+            show_columns: undefined,
+            sortFieldName: undefined,
+            sortOrder: 0,
+            title: "",
+            topRow: 0,
         };
-        this.get_data();
-        // Why do we need to create another copy of cols?
-        this.state.cols = props.actorData.col.map((column, i) => (
+        this.gridData.cols = this.props.actorData.col.map((column, i) => (
             {
                 label: column.label,
                 value: i + "",
                 col: column
             }));
-        if (this.state.show_columns === undefined) {
-            this.state.show_columns = this.state.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
+        if (this.gridData.show_columns === undefined) {
+            this.gridData.show_columns = this.gridData.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
         }
         this.get_data = this.get_data.bind(this);
-        this.reload = this.get_data;
+        this.reload = this.reload.bind(this);
 //        this.log = debounce(this.log.bind(this), 200);
         this.onRowSelect = this.onRowSelect.bind(this);
         this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
         this.columnEditor = this.columnEditor.bind(this);
         this.expand = this.expand.bind(this);
-        this.quickFilter = this.quickFilter.bind(this);
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
         this.update_pv_values = this.update_pv_values.bind(this);
         this.update_url_values = this.update_url_values.bind(this);
         this.update_col_value = this.update_col_value.bind(this);
         this.get_full_id = this.get_full_id.bind(this);
         this.get_cols = this.get_cols.bind(this);
-        // this.handelKeydown = this.handelKeydown.bind(this);
         this.onCancel = this.onCancel.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onEditorInit = this.onEditorInit.bind(this);
@@ -234,7 +226,7 @@ export class LinoGrid extends Component {
         console.log("onCancel");
     }
 
-    onSubmit(cellProps) {
+    onSubmit(cellProps, explicit_call) {
         let {rowData, field, rowIndex} = cellProps.columnProps;
         let editingPK = this.gridData.editingPK;
         if (!this.editorDirty) {
@@ -249,14 +241,21 @@ export class LinoGrid extends Component {
                 base_params: {mk: this.props.mk, mt: this.props.mt}
             },
             response_callback: (data) => {
-                this.gridData.rows[rowIndex] = data.rows[0];
-                this.setState({loading: false});
+                if (data.rows !== undefined) {
+                    this.gridData.rows[rowIndex] = data.rows[0];
+                    this.editorDirty = false;
+                    this.setState({loading: false});
+                }
             }
         });
     }
 
     onEditorInit(e) {
+        if (this.editorDirty) {
+            this.onSubmit({columnProps: this.gridData.editingCol}, true);
+        }
         this.editorDirty = false;
+        this.editingCol = e;
         this.gridData.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
         this.gridData.editingValues = Object.assign({}, {...e.columnProps.rowData});
     }
@@ -264,13 +263,13 @@ export class LinoGrid extends Component {
     onSort(e) {
         let {sortField, sortOrder} = e,
             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
-        this.gridData.sortOrder = this.gridData.sortOrder === 1 ? -1 : 1;
-        this.get_data({sortCol: col, sortOrder: this.gridData.sortOrder})
+        this.reload({sortCol: col, sortOrder: this.dataTable.props.sortOrder});
     }
 
     update_col_value(v, elem, col) {
         (!this.editorDirty) && (this.editorDirty = true);
         this.gridData.editingValues = Object.assign({}, {...v});
+        this.gridData.editingCol = col;
     }
 
     expand(e) {
@@ -358,12 +357,12 @@ export class LinoGrid extends Component {
         }
 
 
-        if (this.state.sortFieldName && this.gridData.sortOrder) { // if table is sorted add sort.
+        if (this.gridData.sortFieldName && this.gridData.sortOrder) { // if table is sorted add sort.
             ajaxArgs.dir = this.gridData.sortOrder === 1 ? "ASC" : "DESC";
-            ajaxArgs.sort = this.state.sortFieldName;
+            ajaxArgs.sort = this.gridData.sortFieldName;
         }
 
-        if (this.state.pv_values) ajaxArgs.pv = pvObj2array(this.state.pv_values, this.props.actorData.pv_fields);
+        if (this.gridData.pv_values) ajaxArgs.pv = pvObj2array(this.gridData.pv_values, this.props.actorData.pv_fields);
 
         return ajaxArgs
 
@@ -376,13 +375,6 @@ export class LinoGrid extends Component {
         this.setState({showPVDialog: true});
     }
 
-    quickFilter(query) {
-        // in own method so we can use it as a debouce
-        // this.setState({query: query});
-        this.get_data({query: query});
-//        this.log(query);
-    }
-
     update_url_values(vals, router) {
         // Does nothing.
         let search = queryString.parse(router.history.location.search);
@@ -390,12 +382,17 @@ export class LinoGrid extends Component {
         router.history.replace({search: queryString.stringify(search)});
     }
 
-    get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}) {
+    reload(values) {
         this.setState({loading: true});
+        this.get_data(values, true);
+    }
+
+    get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}, reload) {
+        Object.assign(this.gridData, {loading: true});
         let pass = {loading: true};
-        pass.query = query !== undefined ? query : this.state.query;
-        pass.page =  page !== undefined ? page : this.state.page;
-        pass.sortFieldName = sortCol !== undefined ? sortCol.name : this.state.sortFieldName;
+        pass.query = query !== undefined ? query : this.gridData.query; // query is assigned to gridData onChange event
+        pass.page =  page !== undefined ? page : this.gridData.page;
+        pass.sortFieldName = sortCol !== undefined ? sortCol.name : this.gridData.sortFieldName;
         pass.sortOrder = sortOrder !== undefined ? sortOrder : this.gridData.sortOrder;
         let ajax_query = {
             fmt: "json",
@@ -406,16 +403,16 @@ export class LinoGrid extends Component {
             wt: this.state.display_mode === "grid" ? "g" : "c",
         };
         pass.sortFieldName !== undefined && (ajax_query.sort = pass.sortFieldName);
-        pass.sortOrder !== undefined && (ajax_query.dir = pass.sortOrder === 1 ? "ASC" : "DESC");
+        pass.sortOrder !== 0 && (ajax_query.dir = pass.sortOrder === 1 ? "ASC" : "DESC");
         if (this.props.actorData.use_detail_params_value && this.props.parent_pv) {
             ajax_query.pv = pvObj2array(this.props.parent_pv, this.props.actorData.pv_fields);
         } else if (this.props.actorData.pv_layout) {
             let search = queryString.parse(this.props.match.history.location.search);
             // use either, pv passed with reload method, current state, or failing all, in url
-            if (!this.props.inDetail && pv === undefined && Object.keys(this.state.pv_values).length === 0) {
+            if (!this.props.inDetail && pv === undefined && Object.keys(this.gridData.pv_values).length === 0) {
                 ajax_query.pv = search.pv
-            } else if (Object.keys(this.state.pv_values).length !== 0) { // only apply when there's some data there to insure getting of default values form server
-                ajax_query.pv = pvObj2array(pv || this.state.pv_values, this.props.actorData.pv_fields);
+            } else if (Object.keys(this.gridData.pv_values).length !== 0) { // only apply when there's some data there to insure getting of default values form server
+                ajax_query.pv = pvObj2array(pv || this.gridData.pv_values, this.props.actorData.pv_fields);
             }
             // convert pv values from obj to array and add to ajax call
         }
@@ -426,21 +423,28 @@ export class LinoGrid extends Component {
             window.App.handleAjaxResponse
         ).then(data => {
             if (!data.success) {
-                Object.assign(this.gridData, {rows: []});
-                this.setState({
-                    loading: false,
-                    data: null,
+                Object.assign(this.gridData, {
+                    data: data,
+                    rows: [],
                     count: 0,
                 });
             } else {
-                Object.assign(this.gridData, {rows: data.rows});
+                Object.assign(this.gridData, {
+                    count: data.count,
+                    data: data,
+                    loading: false,
+                    page: pass.page,
+                    pv_values: this.props.inDetail ? {} : data.param_values,
+                    rows: data.rows,
+                    sortFieldName: pass.sortFieldName,
+                    sortOrder: pass.sortOrder === 1 ? -1 : 1,
+                    title: data.title,
+                    topRow: (pass.page) * this.state.rowsPerPage,
+                });
+            }
+            if (reload) {
                 this.setState({
                     loading: false,
-                    data: data,
-                    title: data.title,
-                    count: data.count,
-                    topRow: (pass.page) * this.state.rowsPerPage,
-                    pv_values: this.props.inDetail ? {} : data.param_values,
                 });
             }
         }).catch(window.App.handleAjaxException);
@@ -458,7 +462,7 @@ export class LinoGrid extends Component {
     }
 
     componentDidMount() {
-        this.cols = undefined;
+        this.get_data({}, true);
         window.addEventListener("resize", this.handleWindowChange);
     }
 
@@ -471,25 +475,28 @@ export class LinoGrid extends Component {
     }
 
     update_pv_values(values) {
+        let old_pv_values = pvObj2array(this.gridData.pv_values, this.props.actorData.pv_fields),
+            updated_pv = Object.assign({}, this.gridData.pv_values, {...values}),
+            updated_array_pv = pvObj2array(updated_pv, this.props.actorData.pv_fields);
         // console.log(v);
-        this.setState((prevState) => {
-            let old_pv_values = pvObj2array(prevState.pv_values, this.props.actorData.pv_fields);
-            let updated_pv = Object.assign({}, prevState.pv_values, {...values});
-            let updated_array_pv = pvObj2array(updated_pv, this.props.actorData.pv_fields);
-
-            if (queryString.stringify(old_pv_values) !== queryString.stringify(updated_array_pv)) {
-                // There's a change in the hidden values of PV's
-
-                // Update url query params
-                let search = queryString.parse(this.props.match.history.location.search);
-                search.pv = updated_array_pv;
-                this.props.match.history.replace({search: queryString.stringify(search)});
-
-
-                // this.reload();
-                return {pv_values: updated_pv};
-            }
-        });
+        // this.setState((prevState) => {
+        //     let old_pv_values = pvObj2array(prevState.pv_values, this.props.actorData.pv_fields);
+        //     let updated_pv = Object.assign({}, prevState.pv_values, {...values});
+        //     let updated_array_pv = pvObj2array(updated_pv, this.props.actorData.pv_fields);
+        //
+        //     if (queryString.stringify(old_pv_values) !== queryString.stringify(updated_array_pv)) {
+        //         // There's a change in the hidden values of PV's
+        //
+        //         // Update url query params
+        //         let search = queryString.parse(this.props.match.history.location.search);
+        //         search.pv = updated_array_pv;
+        //         this.props.match.history.replace({search: queryString.stringify(search)});
+        //
+        //
+        //         // this.reload();
+        //         return {pv_values: updated_pv};
+        //     }
+        // });
     }
 
     /**
@@ -498,15 +505,15 @@ export class LinoGrid extends Component {
      * @returns {JSX columns for PR's DataTable}
      */
     get_cols() {
-        if (this.cols === undefined) {
+        if (this.gridData.component.cols === undefined) {
             // let total_widths = 0; // get total of all width values to use % rather than ch.
             // this.state.show_columns.map((i) => (this.props.actorData.col[i - 0])).forEach(
             //     (col) => total_widths += (col.width || col.preferred_width)
             // );
-            this.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
-            this.update_url_values({'show_columns': this.state.show_columns.toString()}, this.props.match);
-            this.cols = this.cols.concat(
-                this.state.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
+            this.gridData.component.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
+            this.update_url_values({'show_columns': this.gridData.show_columns.toString()}, this.props.match);
+            this.gridData.component.cols = this.gridData.component.cols.concat(
+                this.gridData.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
                     col === "SelectCol" ?
                         <Column selectionMode="multiple"
@@ -553,7 +560,7 @@ export class LinoGrid extends Component {
                 )
             )
         }
-        return this.cols
+        return this.gridData.component.cols
     }
 
     /*
@@ -571,15 +578,16 @@ export class LinoGrid extends Component {
 
     renderToggle_colControls() {
         return this.state.toggle_col ?
-            <MultiSelect value={this.state.show_columns} options={this.state.cols}
+            <MultiSelect value={this.gridData.show_columns} options={this.gridData.cols}
                          ref={(el) => this.show_col_selector = el}
                          onChange={(e) => {
-                             this.cols = undefined;
+                             this.gridData.component.cols = undefined;
                              clearTimeout(this.show_col_timeout);
                              this.show_col_selector.focusInput.focus();
                              setTimeout(() => (this.show_col_selector.dont_blur = false), 400);
                              this.show_col_selector.dont_blur = true;
-                             this.setState({show_columns: e.value});
+                             this.gridData.show_columns = e.value;
+                             this.setState({loading: false});
                          }
                          }
                          onBlur={e => this.show_col_timeout = setTimeout(() => {
@@ -595,7 +603,7 @@ export class LinoGrid extends Component {
                          }
             /> :
             <Button icon={"pi pi-list"} onClick={() => {
-                this.setState({toggle_col: true})
+                this.setState({toggle_col: true});
                 setTimeout(() => {
                         this.show_col_selector.focusInput.focus();
                         this.show_col_selector.show();
@@ -637,8 +645,11 @@ export class LinoGrid extends Component {
                               marginLeft: wide ? "1ch" : undefined,
                           }}
                           placeholder="QuickSearch"
-                          value={this.state.query}
-                          onChange={(e) => this.quickFilter(e.target.value)}/>
+                          value={this.gridData.query}
+                          onChange={(e) => {
+                              this.gridData.query = e.target.value;
+                              this.reload({query: e.target.value});
+                          }}/>
     }
 
     renderActionBar() {
@@ -656,7 +667,7 @@ export class LinoGrid extends Component {
     renderSimpleHeader() {
         return <div>
             <div
-                className="l-grid-header">{this.state.title || this.props.actorData.label}
+                className="l-grid-header">{this.gridData.title || this.props.actorData.label}
                 <div style={{float: "right", marginTop: "-.5ch"}}>
                     {this.renderExpandButton()}
                 </div>
@@ -675,7 +686,7 @@ export class LinoGrid extends Component {
 
         return <React.Fragment>
             <div className="table-header">
-                <div>{this.state.title || this.props.actorData.label} {this.renderExpandButton()}</div>
+                <div>{this.gridData.title || this.props.actorData.label} {this.renderExpandButton()}</div>
                 {this.renderDataViewLayout()}
 
             </div>
@@ -700,7 +711,9 @@ export class LinoGrid extends Component {
                     className="data_view-toggle"
                     style={{marginLeft: "-20px"}}
                     checked={this.state.data_view}
-                    onChange={() => this.setState({data_view: !this.state.data_view})}
+                    onChange={() => {
+                        this.setState({data_view: !this.state.data_view});
+                    }}
                     onIcon="pi pi-table"
                     offIcon="pi pi-list"
                     onLabel=""
@@ -724,7 +737,7 @@ export class LinoGrid extends Component {
     renderPaginator() {
         if (this.props.actorData.preview_limit === 0 ||
             this.gridData.rows.length === 0 ||
-            this.state.count < this.state.rowsPerPage) {
+            this.gridData.count < this.state.rowsPerPage) {
             return undefined
         } else if (this.props.actorData.simple_paginator) {
             return
@@ -733,8 +746,8 @@ export class LinoGrid extends Component {
         return <Paginator
             rows={this.state.rowsPerPage}
             paginator={true}
-            first={this.state.topRow}
-            totalRecords={this.state.count}
+            first={this.gridData.topRow}
+            totalRecords={this.gridData.count}
             template={this.props.actorData.paginator_template || undefined}
             // paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
             // rowsPerPageOptions={[5, 10, 20]}
@@ -744,7 +757,7 @@ export class LinoGrid extends Component {
                 this.reload({page: e.page});
             }}
             rightContent={
-                this.state.count && <span className={"l-grid-count"}><span>{this.state.count}</span> rows</span>
+                this.gridData.count && <span className={"l-grid-count"}><span>{this.gridData.count}</span> rows</span>
             }
         />;
     }
@@ -753,7 +766,7 @@ export class LinoGrid extends Component {
         // console.log('e.event',e.event);
         let show_columns = e.event.filter((c) => c.props.cellIndex).map((col) => col.props.cellIndex - 1);
         // console.log('show_columns',show_columns);
-        this.setState({'show_columns': show_columns});
+        this.gridData.show_columns = show_columns;
         this.update_url_values({'show_columns': show_columns.toString()}, this.props.match);
     }
 
@@ -799,13 +812,13 @@ export class LinoGrid extends Component {
             footer = this.renderPaginator();
         return <React.Fragment>
             <h1 className={"l-detail-header"}>
-                <span dangerouslySetInnerHTML={{ __html:this.state.title || this.props.actorData.label || "\u00a0" }}></span>
+                <span dangerouslySetInnerHTML={{ __html:this.gridData.title || this.props.actorData.label || "\u00a0" }}></span>
                 {!this.props.actorData.slave && <ToggleButton
                     style={{'float': 'right'}}
                     checked={this.state.show_top_toolbar}
-                    onChange={e => this.setState({
-                        show_top_toolbar: !this.state.show_top_toolbar
-                    })}
+                    onChange={e => {
+                        this.setState({show_top_toolbar: !this.state.show_top_toolbar});
+                    }}
                     onLabel=''
                     offLabel=''
                     onIcon='pi pi-caret-up'
@@ -833,15 +846,16 @@ export class LinoGrid extends Component {
                         onColReorder={e => this.onColReorder({event: e.columns})}
                         onRowSelect={this.onRowSelect}
                         selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
-                        loading={this.state.loading}
+                        loading={this.gridData.loading}
                         // emptyMessage={this.state.emptyMessage} // this.state.emptyMessage is not defined.
                         ref={(ref) => this.dataTable = ref}
                         onRowDoubleClick={this.onRowDoubleClick}
                         onSort={this.onSort}
                         // sortMode={"multiple"} No editable yet
                         // multiSortMeta={multiSortMeta}
-                        sortField={this.state.sortField + ""}
+                        sortField={this.gridData.sortFieldName}
                         sortOrder={this.gridData.sortOrder}
+                        // sortOrder={-1}
                         lazy={true}
                     >
                         {this.get_cols()}
@@ -878,14 +892,16 @@ export class LinoGrid extends Component {
                             }}/>
                     </div>}
                     visible={this.state.showPVDialog} modal={true}
-                    onHide={(e) => this.setState({showPVDialog: false})}>
+                    onHide={(e) => {
+                        this.setState({showPVDialog: false});
+                    }}>
 
                 {this.props.actorData.pv_layout && this.state.showPVDialog &&
                 <LinoLayout
                     window_layout={this.props.actorData.pv_layout}
                     window_type={"p"} // param value layout, used for blank filter val
                     actorData={this.props.actorData}
-                    data={this.state.pv_values}
+                    data={this.gridData.pv_values}
                     actorId={this.get_full_id()}
                     update_value={this.update_pv_values}
                     editing_mode={true}

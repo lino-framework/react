@@ -21,6 +21,7 @@ class TextFieldElement extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            unsaved: false,
             value: getValue(props) || "",
         }
         this.onTextChange = this.onTextChange.bind(this);
@@ -48,10 +49,15 @@ class TextFieldElement extends React.Component {
 
     componentWillUnmount() {
         this.controller.abort();
+        if (this.state.unsaved) {
+            this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
+            this.state.unsaved = false;
+        }
     }
 
     onTextChange(e) {
         let value = e.htmlValue || "";
+        if (!this.state.unsaved) this.setState({unsaved: true});
         this.setState({value: value});
         this.props.update_value({[getDataKey(this.props)]: value},
             this.props.elem,
@@ -104,6 +110,7 @@ class TextFieldElement extends React.Component {
                 flexDirection: "column",},
             elem = this.props.editing_mode ?
                 <div
+                    style={{position: "relative", height: "75%"}}
                     onKeyDown={(e) => {
                         if (this.props.in_grid && (((!e.shiftKey) && e.keyCode === 13) || e.keyCode === 9)) {
                             e.stopPropagation();
@@ -111,7 +118,7 @@ class TextFieldElement extends React.Component {
                     }}>
                     <Editor
                         ref={(e) => this.editor = e}
-                        style={{height: '75%', minHeight: '80px'}}
+                        style={{height: '100%'}}
                         value={this.state.value}
                         modules={{
                             mention: {
