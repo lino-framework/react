@@ -166,57 +166,65 @@ const LinoComponents = {
     },
 
     ChoiceListFieldElement: class ChoiceListFieldElement extends React.Component {
-        // TODO : restore shouldComponentUpdate after 20201003?
-        // constructor() {
-        //     super();
-        //     this.shouldComponentUpdate = shouldComponentUpdate.bind(this);
-        // }
+        constructor(props) {
+            super(props);
+            this.state = {
+                hidden_value: getHiddenValue(this.props),
+                unsaved: false,
+                value: getValue(props),
+            }
+        }
 
-        focus() {
-            this.dropDown && this.dropDown.focusInput.focus();
+        getSnapshotBeforeUpdate(prevProps, prevState) {
+            if (getValue(prevProps) !== getValue(this.props)){
+                return "newValue"
+            }
+            return null
+        }
+
+        componentDidUpdate(prevProps, prevState, snapshot) {
+            if (snapshot === "newValue") {
+                let value = getValue(this.props);
+                if (this.state.value !== value) {
+                    this.setState({
+                        hidden_value: getHiddenValue(this.props),
+                        value: value,
+                    });
+                }
+            }
         }
 
         render() {
-            let {props} = this, // equivalent (or almost) to let props = this.props;
-                value = getValue(props),
-                hidden_value = getHiddenValue(props);
             return <SiteContext.Consumer>{(siteData) => {
-                let options = siteData.choicelists[props.elem.field_options.store];
-                // console.log(options, siteData.choicelists, props.elem, props.elem.field_options.store);
-                // console.log("20201002 ChoiceListFieldElement.render()", options)
-                return <Labeled {...props} elem={props.elem} labeled={props.labeled} isFilled={value}>
-                    {props.editing_mode && !isDisabledField(props) ?
+                let options = siteData.choicelists[this.props.elem.field_options.store];
+                return <Labeled {...this.props} elem={this.props.elem} labeled={this.props.labeled} isFilled={this.state.value}>
+                    {this.props.editing_mode && !isDisabledField(this.props) ?
                         <div className="l-ChoiceListFieldElement"
                              style={{margin_top: "1px"}}>
                             <Dropdown
-                                // autoWidth={false}
                                 style={{width: "100%"}}
                                 optionLabel="text"
-                                // optionValue="value"
-                                value={hidden_value}
-                                // value={{text: value, value: hidden_value}}
-                                // dataKey="value"
-                                showClear={props.elem.field_options.allowBlank} // no need to include a blank option, if we allow for a clear button.
+                                value={this.state.hidden_value}
+                                showClear={this.props.elem.field_options.allowBlank} // no need to include a blank option, if we allow for a clear button.
                                 options={options}
                                 appendTo={window.App.topDiv}
                                 onChange={(e) => {
-                                    // console.log("20201121 a onChange", e, props);
                                     let v = e.value === null ? "" : e.value;
-                                    // let v = e.value === null ? "" : e.value['text'],
-                                    //     h = e.value === null ? "" : e.value['value'];
-                                    props.update_value({
-                                            [props.in_grid ? props.elem.fields_index + 1 : props.elem.name + "Hidden"]: v,
-                                            [getDataKey(props)]: v
+                                    if (!this.state.unsaved) {
+                                        this.state.unsaved = true;
+                                    }
+                                    this.setState({hidden_value: e.value});
+                                    this.props.update_value({
+                                            [this.props.in_grid ? this.props.elem.fields_index + 1 : this.props.elem.name + "Hidden"]: v,
+                                            [getDataKey(this.props)]: v
                                         },
-                                        props.elem,
-                                        props.column)
-                                    // console.log("20201121 b onChange", e, props);
+                                        this.props.elem,
+                                        this.props.column)
                                 }}
                                 ref={el => this.dropDown = el}
-                                // placeholder={""}
                             />
                         </div> :
-                        <div dangerouslySetInnerHTML={{__html: (value) || "\u00a0"}}/>
+                        <div dangerouslySetInnerHTML={{__html: (this.state.value) || "\u00a0"}}/>
                     }</Labeled>
             }}
             </SiteContext.Consumer>
@@ -337,23 +345,31 @@ const LinoComponents = {
         constructor(props) {
             super(props);
             this.state = {
+                unsaved: false,
                 value: getValue(props),
             }
         }
 
         getSnapshotBeforeUpdate(prevProps, prevState) {
-            if (getValue(prevProps) === getValue(this.props)){
-                return true
+            if (getValue(prevProps) !== getValue(this.props)){
+                return "newValue"
             }
-            return false
+            return null
         }
 
         componentDidUpdate(prevProps, prevState, snapshot) {
-            if (!snapshot) {
+            if (snapshot === "newValue") {
                 let value = getValue(this.props);
                 if (this.state.value !== value) {
                     this.setState({value: value});
                 }
+            }
+        }
+
+        componentWillUnmount() {
+            if (this.state.unsaved) {
+                this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
+                this.state.unsaved = false;
             }
         }
 
@@ -364,6 +380,7 @@ const LinoComponents = {
                         style={{width: "100%"}}
                         value={this.state.value || ""}
                         onChange={(e) => {
+                            if (!this.state.unsaved) this.setState({unsaved: true});
                             this.setState({value: e.target.value});
                             this.props.update_value(
                                 {[getDataKey(this.props)]: e.target.value},
