@@ -49,7 +49,7 @@ class TextFieldElement extends React.Component {
 
     componentWillUnmount() {
         this.controller.abort();
-        if (this.state.unsaved) {
+        if (this.props.in_grid && this.state.unsaved) {
             this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
             this.state.unsaved = false;
         }

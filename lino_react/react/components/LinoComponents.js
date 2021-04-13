@@ -194,6 +194,13 @@ const LinoComponents = {
             }
         }
 
+        componentWillUnmount() {
+            if (this.props.in_grid && this.state.unsaved) {
+                this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
+                this.state.unsaved = false;
+            }
+        }
+
         render() {
             return <SiteContext.Consumer>{(siteData) => {
                 let options = siteData.choicelists[this.props.elem.field_options.store];
@@ -367,7 +374,7 @@ const LinoComponents = {
         }
 
         componentWillUnmount() {
-            if (this.state.unsaved) {
+            if (this.props.in_grid && this.state.unsaved) {
                 this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
                 this.state.unsaved = false;
             }
