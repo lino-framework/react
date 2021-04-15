@@ -68,7 +68,7 @@ export class LinoGrid extends Component {
             // ===COSMETIC===
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
 
-            sortField: undefined, // Sort data index   (used in PR) //====================> NotCosmetic
+            // sortField: undefined, // Sort data index   (used in PR) //====================> NotCosmetic
             //====================> NotCosmetic
             sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined,
 
@@ -92,6 +92,7 @@ export class LinoGrid extends Component {
             rows: [],
             rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
             show_columns: undefined,
+            sortField: undefined,
             sortFieldName: undefined,
             sortOrder: 0,
             title: "",
@@ -264,7 +265,8 @@ export class LinoGrid extends Component {
     onSort(e) {
         let {sortField, sortOrder} = e,
             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
-        this.reload({sortCol: col, sortOrder: this.dataTable.props.sortOrder});
+        this.gridData.sortField = sortField;
+        this.reload({sortCol: col, sortOrder: sortOrder});
     }
 
     update_col_value(v, elem, col) {
@@ -439,7 +441,7 @@ export class LinoGrid extends Component {
                     pv_values: this.props.inDetail ? {} : data.param_values,
                     rows: data.rows,
                     sortFieldName: pass.sortFieldName,
-                    sortOrder: pass.sortOrder === 1 ? -1 : 1,
+                    sortOrder: pass.sortOrder,
                     title: data.title,
                     topRow: (pass.page) * this.gridData.rowsPerPage,
                 });
@@ -760,7 +762,7 @@ export class LinoGrid extends Component {
                     className={"l-grid-count"}>Showing <Dropdown
                         style={{width: "80px"}}
                         value={this.gridData.rowsPerPage}
-                        placeholder={this.gridData.rowsPerPage}
+                        placeholder={this.gridData.rowsPerPage.toString()}
                         options={[25, 50, 100, 200, 400, 800]}
                         onChange={(e) => {
                             let value = parseInt(e.value)
@@ -864,7 +866,7 @@ export class LinoGrid extends Component {
                         onSort={this.onSort}
                         // sortMode={"multiple"} No editable yet
                         // multiSortMeta={multiSortMeta}
-                        sortField={this.gridData.sortFieldName}
+                        sortField={this.gridData.sortField}
                         sortOrder={this.gridData.sortOrder}
                         // sortOrder={-1}
                         lazy={true}
