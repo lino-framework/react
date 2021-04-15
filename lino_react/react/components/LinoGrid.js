@@ -61,9 +61,9 @@ export class LinoGrid extends Component {
         this.state = {
             toggle_col: false, // show multiselect elem for thing && ===COSMETIC===
             //===STATIC===
-            rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
+            // rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
             selectedRows: [], //====================> NotCosmetic
-            loading: false, //===COSMETIC===
+            loading: true, //===COSMETIC===
             editingCellIndex: undefined, //====================> NotCosmetic
             // ===COSMETIC===
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
@@ -90,6 +90,7 @@ export class LinoGrid extends Component {
             page: search[page_key] ? search[page_key] - 1 : 0,
             pv_values: {},
             rows: [],
+            rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
             show_columns: undefined,
             sortFieldName: undefined,
             sortOrder: 0,
@@ -396,8 +397,8 @@ export class LinoGrid extends Component {
         pass.sortOrder = sortOrder !== undefined ? sortOrder : this.gridData.sortOrder;
         let ajax_query = {
             fmt: "json",
-            start: pass.page * this.state.rowsPerPage,
-            limit: this.state.rowsPerPage,
+            start: pass.page * this.gridData.rowsPerPage,
+            limit: this.gridData.rowsPerPage,
             query: pass.query,
             rp: this.rp,
             wt: this.state.display_mode === "grid" ? "g" : "c",
@@ -427,6 +428,7 @@ export class LinoGrid extends Component {
                     data: data,
                     rows: [],
                     count: 0,
+                    loading: false,
                 });
             } else {
                 Object.assign(this.gridData, {
@@ -439,7 +441,7 @@ export class LinoGrid extends Component {
                     sortFieldName: pass.sortFieldName,
                     sortOrder: pass.sortOrder === 1 ? -1 : 1,
                     title: data.title,
-                    topRow: (pass.page) * this.state.rowsPerPage,
+                    topRow: (pass.page) * this.gridData.rowsPerPage,
                 });
             }
             if (reload) {
@@ -506,23 +508,20 @@ export class LinoGrid extends Component {
      */
     get_cols() {
         if (this.gridData.component.cols === undefined) {
-            // let total_widths = 0; // get total of all width values to use % rather than ch.
-            // this.state.show_columns.map((i) => (this.props.actorData.col[i - 0])).forEach(
-            //     (col) => total_widths += (col.width || col.preferred_width)
-            // );
             this.gridData.component.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
             this.update_url_values({'show_columns': this.gridData.show_columns.toString()}, this.props.match);
             this.gridData.component.cols = this.gridData.component.cols.concat(
                 this.gridData.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
             ).map((col, i) => (
                     col === "SelectCol" ?
-                        <Column selectionMode="multiple"
+                        <Column
+                            selectionMode="multiple"
+                            key={i}
                             style={{
                                 width: '2em',
                                 "padding": "unset",
                                 "textAlign": "center"
                             }}
-                            // editor={this.columnEditor(col)}
 
                         /> :
                         <Column
@@ -531,7 +530,7 @@ export class LinoGrid extends Component {
                             body={this.columnTemplate(col)}
                             editor={this.columnEditor(col)}
                             header={col.label}
-                            key={key(col)}
+                            key={i}
                             col={col}
                             style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
                             className={`l-grid-col l-grid-col-${col.name} ${
@@ -570,8 +569,10 @@ export class LinoGrid extends Component {
     renderParamValueControls() {
         return this.props.actorData.pv_layout && <React.Fragment>
             <Button icon={"pi pi-filter"} onClick={this.showParamValueDialog}/>
-            {Object.keys(this.state.pv || {}).length !== 0 &&
-            <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>}
+            {
+                Object.keys(this.state.pv || {}).length !== 0 &&
+                <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>
+            }
         </React.Fragment>
 
     }
@@ -737,14 +738,14 @@ export class LinoGrid extends Component {
     renderPaginator() {
         if (this.props.actorData.preview_limit === 0 ||
             this.gridData.rows.length === 0 ||
-            this.gridData.count < this.state.rowsPerPage) {
+            this.gridData.count < this.gridData.rowsPerPage) {
             return undefined
         } else if (this.props.actorData.simple_paginator) {
             return
         }
 
         return <Paginator
-            rows={this.state.rowsPerPage}
+            rows={this.gridData.rowsPerPage}
             paginator={true}
             first={this.gridData.topRow}
             totalRecords={this.gridData.count}
@@ -752,12 +753,22 @@ export class LinoGrid extends Component {
             // paginatorLeft={paginatorLeft} paginatorRight={paginatorRight}
             // rowsPerPageOptions={[5, 10, 20]}
             onPageChange={(e) => {
-                /*Can't be set via set-state, as we need to
-                  do an ajax call to change the data not state*/
                 this.reload({page: e.page});
             }}
             rightContent={
-                this.gridData.count && <span className={"l-grid-count"}><span>{this.gridData.count}</span> rows</span>
+                this.gridData.count && <span
+                    className={"l-grid-count"}>Showing <Dropdown
+                        style={{width: "80px"}}
+                        value={this.gridData.rowsPerPage}
+                        placeholder={this.gridData.rowsPerPage}
+                        options={[25, 50, 100, 200, 400, 800]}
+                        onChange={(e) => {
+                            let value = parseInt(e.value)
+                            this.gridData.rowsPerPage = value <= this.gridData.count ? value : this.gridData.count;
+                            this.reload();
+                        }}/>
+                    <span> of {this.gridData.count}</span> rows
+                </span>
             }
         />;
     }
@@ -846,7 +857,7 @@ export class LinoGrid extends Component {
                         onColReorder={e => this.onColReorder({event: e.columns})}
                         onRowSelect={this.onRowSelect}
                         selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
-                        loading={this.gridData.loading}
+                        loading={this.state.loading}
                         // emptyMessage={this.state.emptyMessage} // this.state.emptyMessage is not defined.
                         ref={(ref) => this.dataTable = ref}
                         onRowDoubleClick={this.onRowDoubleClick}
