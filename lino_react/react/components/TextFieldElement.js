@@ -32,6 +32,7 @@ class TextFieldElement extends React.Component {
         if (getValue(prevProps) !== getValue(this.props)) {
             return "newValue"
         }
+        return null
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
