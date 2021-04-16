@@ -51,6 +51,7 @@ class LinoDTable extends Component {
         this.component.show_columns = this.component.cols.filter((col) => !col.col.hidden).map((col) => col.value);
         this.columnEditor = this.columnEditor.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
+        this.onBeforeEditorHide = this.onBeforeEditorHide.bind(this);
         this.onCancel = this.onCancel.bind(this);
         this.onEditorInit = this.onEditorInit.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -81,10 +82,13 @@ class LinoDTable extends Component {
         }
     }
 
-    onEditorInit(e) {
+    onBeforeEditorHide(col) {
         if (this.data.editorDirty) {
-            this.onSubmit({columnProps: this.data.editingCol}, true);
+            this.onSubmit(col, true);
         }
+    }
+
+    onEditorInit(e) {
         this.data.editorDirty = false;
         this.data.editingCol = e;
         this.data.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
@@ -117,11 +121,14 @@ class LinoDTable extends Component {
                     this.data.rows[rowIndex] = data.rows[0];
                     this.props.linoGrid.gridData.rows[rowIndex] = data.rows[0];
                     this.data.editorDirty = false;
-                    this.setState({loading: false});
+                    if (!explicit_call) this.setState({loading: false});
                 }
             }
         });
         this.data.editorDirty = false;
+        if (explicit_call) {
+            this.props.refresh();
+        }
     }
 
     onCancel() {
@@ -224,6 +231,7 @@ class LinoDTable extends Component {
                             className={`l-grid-col l-grid-col-${col.name} ${
                                 this.data.editingCellIndex === i ? 'p-cell-editing' : ''
                             }`}
+                            onBeforeEditorHide={this.onBeforeEditorHide}
                             onEditorCancel={this.onCancel}
                             onEditorSubmit={this.onSubmit}
                             onEditorInit={this.onEditorInit}
@@ -300,6 +308,12 @@ class LinoDTable extends Component {
                 />
             : <Button icon={"pi pi-list"} onClick={() => {
                 this.setState({toggle_col: true});
+                setTimeout(() => {
+                        this.show_col_selector.focusInput.focus();
+                        this.show_col_selector.show();
+                    },
+                    25
+                )
             }}/>
     }
 
