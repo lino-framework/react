@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
+import _ from "lodash";
+
 import queryString from 'query-string';
 import key from "weak-key";
 import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
@@ -23,6 +25,410 @@ import {debounce, pvObj2array, isMobile, find_cellIndex, gridList2Obj} from "./L
 import LinoLayout from "./LinoComponents";
 import LinoBbar from "./LinoBbar";
 
+
+class LinoDTable extends Component {
+    get_full_id() {
+        return `${this.props.packId}.${this.props.actorId}`
+    }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            toggle_col: false,
+            selectedRows: [],
+        };
+        this.component = {};
+        this.data = {
+            editingCellIndex: undefined,
+            query: "",
+            rows: props.rows,
+        };
+        this.component.cols = props.actorData.col.map((column, i) => ({
+            label: column.label,
+            value: i + "",
+            col: column,
+        }));
+        this.component.show_columns = this.component.cols.filter((col) => !col.col.hidden).map((col) => col.value);
+        this.columnEditor = this.columnEditor.bind(this);
+        this.columnTemplate = this.columnTemplate.bind(this);
+        this.onCancel = this.onCancel.bind(this);
+        this.onEditorInit = this.onEditorInit.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.set_cols = this.set_cols.bind(this);
+        this.update_col_value = this.update_col_value.bind(this);
+
+        this.set_cols();
+    }
+
+    shouldComponentUpdate(nextProps) {
+        if (nextProps.fetching === "on" || (!_.isEqual(nextProps, this.props))) {
+            return true
+        }
+        return false
+    }
+
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        if (!_.isEqual(prevProps.rows, this.props.rows)) {
+            return "newValue"
+        }
+        return null
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (snapshot === "newValue") {
+            this.data.rows = this.props.rows;
+            this.setState({loading: false});
+        }
+    }
+
+    onEditorInit(e) {
+        if (this.data.editorDirty) {
+            this.onSubmit({columnProps: this.data.editingCol}, true);
+        }
+        this.data.editorDirty = false;
+        this.data.editingCol = e;
+        this.data.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
+        this.data.editingValues = Object.assign({}, {...e.columnProps.rowData});
+        this.data.editingCellIndex = e.columnProps.cellIndex;
+    }
+
+    update_col_value(v, elem, col) {
+        (!this.data.editorDirty) && (this.data.editorDirty = true);
+        this.data.editingValues = Object.assign({}, {...v});
+        this.data.editingCol = col;
+    }
+
+    onSubmit(cellProps, explicit_call) {
+        let {rowData, field, rowIndex} = cellProps.columnProps;
+        let editingPK = this.data.editingPK;
+        if ((!this.data.editorDirty)) {
+            return
+        }
+        window.App.runAction({
+            rp: this,
+            an: editingPK === null ? "grid_post" : "grid_put",
+            actorId: `${this.props.packId}.${this.props.actorId}`,
+            sr: editingPK === null ? undefined : editingPK,
+            status: {
+                base_params: {mk: this.props.mk, mt: this.props.mt}
+            },
+            response_callback: (data) => {
+                if (data.rows !== undefined) {
+                    this.data.rows[rowIndex] = data.rows[0];
+                    this.props.linoGrid.gridData.rows[rowIndex] = data.rows[0];
+                    this.data.editorDirty = false;
+                    this.setState({loading: false});
+                }
+            }
+        });
+        this.data.editorDirty = false;
+    }
+
+    onCancel() {
+        console.log('Cancelled!')
+    }
+
+    columnEditor(col) {
+        if (!col.editable) return undefined;
+        return (column) => {
+            const prop_bundle = {
+                actorId: this.get_full_id(),
+                data: column.rowData,
+                actorData: this.props.actorData,
+                disabled_fields: this.props.disabled_fields || [],
+                update_value: this.update_col_value,
+                hide_label: true,
+                in_grid: true,
+                container: this.dataTable && this.dataTable.table,
+                column: column,
+                editing_mode: true,
+                match: this.props.match,
+                mk: this.props.mk,
+                mt: this.props.mt,
+            };
+            return <div
+                onKeyDown={(event) => {
+                    if (event.target.className !== "ql-editor") {
+                        let el = event.target,
+                            tr = el.closest("tr");
+                        if (event.key === "Enter") {
+                            tr = event.shiftKey ? tr.previousSibling :
+                                tr.nextSibling;
+                            let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
+
+                            if (tr) {
+                                tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
+                            }
+                        }
+                        if (event.key === "Tab") {
+                            let tbl = el.closest("table");
+                            let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
+                                i = cols.findIndex((n) => n.parentElement.contains(el));
+                            i = event.shiftKey ? i - 1 : i + 1;
+                            cols[i].focus()
+                        }
+                    }
+                }}>
+                <LinoLayout {...prop_bundle} elem={col}/>
+            </div>
+        }
+    }
+
+    columnTemplate(col) {
+        return (rowData, column) => {
+            const prop_bundle = {
+                actorId: this.get_full_id(),
+                actorData: this.props.actorData,
+                data: rowData,
+                disabled_fields: this.props.disabled_fields || [],
+                update_value: this.update_col_value,
+                editing_mode: false,
+                hide_label: true,
+                in_grid: true,
+                column: column,
+                match: this.props.match,
+                container: this.dataTable && this.dataTable.table,
+                mk: this.props.mk,
+                mt: this.props.mt,
+            };
+            return <LinoLayout {...prop_bundle} elem={col}/>;
+        }
+    }
+
+    set_cols() {
+        if (this.component.columns === undefined) {
+            this.component.columns = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"];
+            this.component.columns = this.component.columns.concat(
+                this.component.show_columns.map((i) => (this.props.actorData.col[i - 0]))
+            ).map((col, i) => (
+                    col === "SelectCol" ?
+                        <Column
+                            selectionMode="multiple"
+                            key={i}
+                            style={{
+                                width: '2em',
+                                "padding": "unset",
+                                "textAlign": "center"
+                            }}
+
+                        /> :
+                        <Column
+                            cellIndex={i}
+                            field={String(col.fields_index)}
+                            body={this.columnTemplate(col)}
+                            editor={this.columnEditor(col)}
+                            header={col.label}
+                            key={i}
+                            col={col}
+                            style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
+                            className={`l-grid-col l-grid-col-${col.name} ${
+                                this.data.editingCellIndex === i ? 'p-cell-editing' : ''
+                            }`}
+                            onEditorCancel={this.onCancel}
+                            onEditorSubmit={this.onSubmit}
+                            onEditorInit={this.onEditorInit}
+                            // isDisabled={
+                            //     (props) => (props.rowData[props.rowData.length - 1] ||
+                            //         (props.rowData[props.rowData.length - 2]
+                            //             && //if null / phantom row / not disabled
+                            //             Object.keys(props.rowData[props.rowData.length - 2]).find(
+                            //                 (e) => e === props.col.name
+                            //             )
+                            //         )
+                            //     )
+                            // }
+                            sortable={true}
+                        />
+                )
+            )
+        }
+    }
+
+    renderQuickFilter(wide) {
+        return <InputText className="l-grid-quickfilter"
+                          style={{
+                              width: wide ? "100%" : undefined,
+                              marginRight: wide ? "1ch" : undefined,
+                              marginLeft: wide ? "1ch" : undefined,
+                          }}
+                          placeholder="QuickSearch"
+                          value={this.data.query}
+                          onChange={(e) => {
+                              this.data.query = e.target.value;
+                              this.props.refresh({query: e.target.value});
+                          }}/>
+    }
+
+    // needs work!
+    renderParamValueControls() {
+        return this.props.actorData.pv_layout && <React.Fragment>
+            <Button icon={"pi pi-filter"} onClick={this.props.showParamValueDialog}/>
+            {
+                Object.keys(this.props.pv || {}).length !== 0 &&
+                <Button icon={"pi pi-times-circle"} onClick={() => this.props.refresh({pv: {}})}/>
+            }
+        </React.Fragment>
+    }
+
+    renderToggle_colControls() {
+        return this.state.toggle_col ?
+            <MultiSelect
+                value={this.component.show_columns} options={this.component.cols}
+                ref={(el) => this.show_col_selector = el}
+                onChange={(e) => {
+                    this.component.columns = undefined;
+                    clearTimeout(this.show_col_timeout);
+                    this.show_col_selector.focusInput.focus();
+                    setTimeout(() => (this.show_col_selector.dont_blur = false), 400);
+                    this.show_col_selector.dont_blur = true;
+                    this.component.show_columns = e.value;
+                    this.set_cols();
+                    this.setState({loading: false});
+                }}
+                onBlur={
+                    e =>
+                    this.show_col_timeout = setTimeout(() => {
+                    {
+                        if (this.show_col_selector && this.show_col_selector.dont_blur) {
+                            this.show_col_selector.focusInput.focus();
+                        } else {
+                            this.setState({toggle_col: false})
+                        }
+                    }
+                }, 200)
+                }
+                />
+            : <Button icon={"pi pi-list"} onClick={() => {
+                this.setState({toggle_col: true});
+            }}/>
+    }
+
+    renderActionBar() {
+        return <div style={{"textAlign": "left"}}>
+            <LinoBbar
+                actorData={this.props.actorData}
+                sr={this.state.selectedRows}
+                reload={this.props.refresh}
+                srMap={(row) => row[this.props.actorData.pk_index]}
+                rp={this.props.linoGrid} an={'grid'}
+                runAction={window.App.runAction}
+                />
+        </div>
+    }
+
+    renderDataViewLayout() {
+        return <DataViewLayoutOptions
+            style={{marginTop: "5px"}}
+            layoutChoices={["grid", "list", "cards"]}
+            layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
+            // onChange={e => {
+            //     this.setState({display_mode: e.value, rows: []});
+            //     this.reload()
+            // }}
+            // layout={this.state.display_mode}
+        />
+    }
+
+    renderProgressBar() {
+        return <ProgressBar mode="indeterminate" className={this.props.loading ? "" : "lino-transparent"}
+                style={{height: '5px'}}/>
+    }
+
+    renderMainGridHeader() {
+        return this.props.show_top_toolbar && <React.Fragment>
+            <div className={"table-header"}>
+                <div>
+                    {this.renderQuickFilter()}
+                    {this.renderParamValueControls()}
+                    {this.renderToggle_colControls()}
+                </div>
+            </div>
+            <div className={"table-header"}>
+                {this.renderActionBar()}
+                {/*this.state.data_view && this.renderDataViewLayout()*/}
+                <ToggleButton
+                    className="data_view-toggle"
+                    style={{marginLeft: "-20px"}}
+                    checked={this.state.data_view}
+                    onChange={() => {
+                        this.setState({data_view: !this.state.data_view});
+                    }}
+                    onIcon="pi pi-table"
+                    offIcon="pi pi-list"
+                    onLabel=""
+                    offLabel=""/>
+            </div>
+            <div className={"table-header"}>
+                {this.renderProgressBar()}
+            </div>
+        </React.Fragment>
+    }
+
+    renderPaginator() {
+        if (this.props.actorData.preview_limit === 0 ||
+            this.data.rows.length === 0 ||
+            this.props.count < this.props.rowsPerPage) {
+            return undefined
+        } else if (this.props.actorData.simple_paginator) {
+            return
+        }
+
+        return <Paginator
+            rows={this.props.rowsPerPage}
+            paginator={true}
+            first={this.props.topRow}
+            totalRecords={this.props.count}
+            template={this.props.actorData.paginator_template || undefined}
+            onPageChange={(e) => {
+                this.props.refresh({page: e.page});
+            }}
+            rightContent={
+                this.props.count && <span
+                    className={"l-grid-count"}>Showing <Dropdown
+                        style={{width: "80px"}}
+                        value={this.props.rowsPerPage}
+                        placeholder={this.props.rowsPerPage.toString()}
+                        options={[25, 50, 100, 200, 400, 800]}
+                        onChange={(e) => {
+                            let value = parseInt(e.value)
+                            this.props.linoGrid.gridData.rowsPerPage = value <= this.props.count ? value : this.props.count;
+                            this.props.refresh();
+                        }}/>
+                    <span> of {this.props.count}</span> rows
+                </span>
+            }
+        />;
+    }
+
+    render() {
+        return <DataTable
+            // reorderableColumns={true}
+            header={this.renderMainGridHeader()}
+            footer={this.renderPaginator()}
+            responsive={this.props.actorData.react_responsive}
+            resizableColumns={true}
+            value={this.data.rows}
+            paginator={false}
+            editable={true}
+            selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
+            onSelectionChange={(e) => {
+                this.setState({selectedRows: e.value});
+            }}
+            // onColReorder={this.props.onColReorder}
+            // onColReorder={e => this.onColReorder({event: e.columns})}
+            // onRowSelect={}
+            selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
+            loading={this.props.loading}
+            ref={(ref) => this.dataTable = ref}
+            onRowDoubleClick={this.props.onRowDoubleClick}
+            onSort={this.props.onSort}
+            sortField={this.props.sortField}
+            sortOrder={this.props.sortOrder}
+            lazy={true}>
+            {this.component.columns}
+        </DataTable>
+    }
+}
 
 export class LinoGrid extends Component {
 
@@ -59,19 +465,9 @@ export class LinoGrid extends Component {
         // Categorization adjuscent to each state depending on the type whether Cosmetic or not.
         // Cosmetic & Static will stay and the NotCosmetic have to go away. There's also ===NOTSURE===.
         this.state = {
-            toggle_col: false, // show multiselect elem for thing && ===COSMETIC===
-            //===STATIC===
-            // rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
-            selectedRows: [], //====================> NotCosmetic
-            loading: true, //===COSMETIC===
-            editingCellIndex: undefined, //====================> NotCosmetic
+            loading: true,
             // ===COSMETIC===
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
-
-            sortField: undefined, // Sort data index   (used in PR) //====================> NotCosmetic
-            //====================> NotCosmetic
-            sortCol: search['sortField'] ? this.props.actorData.col.find((col) => String(col.fields_index) === search['sortField']) : undefined,
-
             show_top_toolbar: isMobile() ? false : true, //===COSMETIC===
             data_view: props.actorData.display_mode === "grid" ? false : true, //===COSMETIC===
         };
@@ -91,38 +487,23 @@ export class LinoGrid extends Component {
             pv_values: {},
             rows: [],
             rowsPerPage: (props.actorData.preview_limit === 0) ? 99999 : props.actorData.preview_limit,
-            show_columns: undefined,
+            sortCol: undefined,
+            sortField: undefined,
             sortFieldName: undefined,
             sortOrder: 0,
             title: "",
             topRow: 0,
         };
-        this.gridData.cols = this.props.actorData.col.map((column, i) => (
-            {
-                label: column.label,
-                value: i + "",
-                col: column
-            }));
-        if (this.gridData.show_columns === undefined) {
-            this.gridData.show_columns = this.gridData.cols.filter((col) => !col.col.hidden).map((col) => col.value); // Used to override hidden value for columns
-        }
         this.get_data = this.get_data.bind(this);
         this.reload = this.reload.bind(this);
-//        this.log = debounce(this.log.bind(this), 200);
-        this.onRowSelect = this.onRowSelect.bind(this);
+        this.refresh = this.refresh.bind(this);
         this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
-        this.columnTemplate = this.columnTemplate.bind(this);
-        this.columnEditor = this.columnEditor.bind(this);
         this.expand = this.expand.bind(this);
         this.showParamValueDialog = this.showParamValueDialog.bind(this);
         this.update_pv_values = this.update_pv_values.bind(this);
         this.update_url_values = this.update_url_values.bind(this);
         this.update_col_value = this.update_col_value.bind(this);
         this.get_full_id = this.get_full_id.bind(this);
-        this.get_cols = this.get_cols.bind(this);
-        this.onCancel = this.onCancel.bind(this);
-        this.onSubmit = this.onSubmit.bind(this);
-        this.onEditorInit = this.onEditorInit.bind(this);
         this.onSort = this.onSort.bind(this);
         this.get_URL_PARAM_COLUMNS = this.get_URL_PARAM_COLUMNS.bind(this);
         // this.renderDataTable = this.renderDataTable.bind(this);
@@ -140,131 +521,11 @@ export class LinoGrid extends Component {
         this.handleWindowChange = this.handleWindowChange.bind(this);
     }
 
-    /**
-     * Template function generator for grid data.
-     * Looks up the correct template and passes in correct data.
-     * @param col : json Lino site data, the col value.
-     */
-
-    columnTemplate(col) {
-        return (rowData, column) => {
-            let pk = rowData[this.props.actorData.pk_index];
-            let cellIndex = column.cellIndex;
-            let {editingCellIndex} = this.state;
-            let editingPK = this.gridData.editingPK;
-            // let editing = pk == editingPK && cellIndex == editingCellIndex;
-            const prop_bundle = {
-                actorId: this.get_full_id(),
-                actorData: this.props.actorData,
-                data: rowData,
-                disabled_fields: this.state.disabled_fields || [],
-                update_value: this.update_col_value, // No editable yet
-                editing_mode: false,
-                hide_label: true,
-                in_grid: true,
-                column: column,
-                match: this.props.match,
-                container: this.dataTable && this.dataTable.table,
-                mk: this.props.mk,
-                mt: this.props.mt,
-            };
-            return <LinoLayout {...prop_bundle} elem={col}/>;
-        }
-    }
-
-    /**
-     * Editor function generator for grid data.
-     * Looks up the correct template and passes in correct data.
-     * @param col : json Lino site data, the col value.
-     */
-    columnEditor(col) {
-        if (!col.editable) return undefined;
-        return (column) => {
-            const prop_bundle = {
-                actorId: this.get_full_id(),
-                data: column.rowData,
-                actorData: this.props.actorData,
-                disabled_fields: this.state.disabled_fields || [],
-                update_value: this.update_col_value,
-                hide_label: true,
-                in_grid: true,
-                container: this.dataTable && this.dataTable.table,
-                column: column,
-                editing_mode: true,
-                match: this.props.match,
-                mk: this.props.mk,
-                mt: this.props.mt,
-            };
-            return <div
-                onKeyDown={(event) => {
-                    if (event.target.className !== "ql-editor") {
-                        let el = event.target,
-                            tr = el.closest("tr");
-                        if (event.key === "Enter") {
-                            tr = event.shiftKey ? tr.previousSibling :
-                                tr.nextSibling;
-                            let cellIndex = Array.prototype.indexOf.call(event.target.closest("tr").childNodes, event.target.closest("td"));
-
-                            if (tr) {
-                                tr.children[cellIndex].getElementsByClassName("p-cell-editor-key-helper")[0].focus()
-                            }
-                        }
-                        if (event.key === "Tab") {
-                            let tbl = el.closest("table");
-                            let cols = Array.prototype(...tbl.getElementsByClassName("p-cell-editor-key-helper")),
-                                i = cols.findIndex((n) => n.parentElement.contains(el));
-                            i = event.shiftKey ? i - 1 : i + 1;
-                            cols[i].focus() // Open next / prev editor
-                        }
-                    }
-                }}>
-                <LinoLayout {...prop_bundle} elem={col}/>
-            </div>
-        }
-    }
-
-    onCancel(cellProps) {
-        console.log("onCancel");
-    }
-
-    onSubmit(cellProps, explicit_call) {
-        let {rowData, field, rowIndex} = cellProps.columnProps;
-        let editingPK = this.gridData.editingPK;
-        if (!this.editorDirty) {
-            return
-        }
-        window.App.runAction({
-            rp: this,
-            an: editingPK === null ? "grid_post" : "grid_put",
-            actorId: `${this.props.packId}.${this.props.actorId}`,
-            sr: editingPK === null ? undefined : editingPK,
-            status: {
-                base_params: {mk: this.props.mk, mt: this.props.mt}
-            },
-            response_callback: (data) => {
-                if (data.rows !== undefined) {
-                    this.gridData.rows[rowIndex] = data.rows[0];
-                    this.editorDirty = false;
-                    this.setState({loading: false});
-                }
-            }
-        });
-    }
-
-    onEditorInit(e) {
-        if (this.editorDirty) {
-            this.onSubmit({columnProps: this.gridData.editingCol}, true);
-        }
-        this.editorDirty = false;
-        this.editingCol = e;
-        this.gridData.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
-        this.gridData.editingValues = Object.assign({}, {...e.columnProps.rowData});
-    }
-
     onSort(e) {
         let {sortField, sortOrder} = e,
             col = this.props.actorData.col.find((col) => String(col.fields_index) === sortField);
-        this.reload({sortCol: col, sortOrder: this.dataTable.props.sortOrder});
+        this.gridData.sortField = sortField;
+        this.refresh({sortCol: col, sortOrder: sortOrder});
     }
 
     update_col_value(v, elem, col) {
@@ -287,30 +548,10 @@ export class LinoGrid extends Component {
             rp: null,
             status: status
         })
-
     }
 
-
-    /**
-     *
-     * Row selection event on grid, either selects the row or opens a detail action.
-     *
-     * @param originalEvent
-     * @param d
-     * @param type ``"radio" | "checkbox" | "row"` ``
-     */
-    onRowSelect({originalEvent, data, type}) {
-        // console.log("20210216 onRowSelect", originalEvent, data, type);
-        // let cellIndex = find_cellIndex(originalEvent.target);
-        // First thing is to determine which cell was selected, as opposed to row.
-        originalEvent.stopPropagation(); // Prevents multiple fires when selecting checkbox.
-
-        if (type === "checkbox" || type === "radio") {
-            return // We only want selection, no nav.
-        }
-    }
-
-    onRowDoubleClick({originalEvent, data, type}) {
+    onRowDoubleClick(e) {
+        let {originalEvent, data, type} = e;
         let pk = data[this.props.actorData.pk_index];
         // todo check orginalEvent.target to see if it's in an editing cell. if so return
         if (pk != undefined) {
@@ -320,7 +561,6 @@ export class LinoGrid extends Component {
             };
 
             if (this.props.actorData.slave) {
-
                 this.props.mt && (status.base_params.mt = this.props.mt);
                 this.props.mk && (status.base_params.mk = this.props.mk);
             }
@@ -388,10 +628,14 @@ export class LinoGrid extends Component {
         this.get_data(values, true);
     }
 
+    refresh(values) {
+        this.get_data(values, true);
+    }
+
     get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}, reload) {
-        Object.assign(this.gridData, {loading: true});
+        if (reload) Object.assign(this.gridData, {loading: true, fetching: "on"});
         let pass = {loading: true};
-        pass.query = query !== undefined ? query : this.gridData.query; // query is assigned to gridData onChange event
+        pass.query = query !== undefined ? query === "" ? undefined : query : this.gridData.query;
         pass.page =  page !== undefined ? page : this.gridData.page;
         pass.sortFieldName = sortCol !== undefined ? sortCol.name : this.gridData.sortFieldName;
         pass.sortOrder = sortOrder !== undefined ? sortOrder : this.gridData.sortOrder;
@@ -425,30 +669,28 @@ export class LinoGrid extends Component {
         ).then(data => {
             if (!data.success) {
                 Object.assign(this.gridData, {
-                    data: data,
-                    rows: [],
                     count: 0,
-                    loading: false,
+                    rows: [],
                 });
             } else {
                 Object.assign(this.gridData, {
                     count: data.count,
-                    data: data,
-                    loading: false,
-                    page: pass.page,
                     pv_values: this.props.inDetail ? {} : data.param_values,
                     rows: data.rows,
-                    sortFieldName: pass.sortFieldName,
-                    sortOrder: pass.sortOrder === 1 ? -1 : 1,
                     title: data.title,
-                    topRow: (pass.page) * this.gridData.rowsPerPage,
                 });
             }
-            if (reload) {
-                this.setState({
-                    loading: false,
-                });
-            }
+            Object.assign(this.gridData, {
+                data: data,
+                loading: false,
+                page: pass.page,
+                query: pass.query,
+                sortFieldName: pass.sortFieldName,
+                sortOrder: pass.sortOrder,
+                topRow: (pass.page) * this.gridData.rowsPerPage,
+            });
+            if (reload) this.setState({loading: false});
+            this.gridData.fetching = "off";
         }).catch(window.App.handleAjaxException);
     }
 
@@ -501,67 +743,6 @@ export class LinoGrid extends Component {
         // });
     }
 
-    /**
-     * An attempt at cacheing the column data to improve performance during re-rending when editing a cell.
-     * Unclear how much faster it is.
-     * @returns {JSX columns for PR's DataTable}
-     */
-    get_cols() {
-        if (this.gridData.component.cols === undefined) {
-            this.gridData.component.cols = this.props.actorData.preview_limit === 0 ? [] : ["SelectCol"]; // no selection column,
-            this.update_url_values({'show_columns': this.gridData.show_columns.toString()}, this.props.match);
-            this.gridData.component.cols = this.gridData.component.cols.concat(
-                this.gridData.show_columns.map((i) => (this.props.actorData.col[i - 0]) /*filter out hidden rows*/)
-            ).map((col, i) => (
-                    col === "SelectCol" ?
-                        <Column
-                            selectionMode="multiple"
-                            key={i}
-                            style={{
-                                width: '2em',
-                                "padding": "unset",
-                                "textAlign": "center"
-                            }}
-
-                        /> :
-                        <Column
-                            cellIndex={i}
-                            field={String(col.fields_index)}
-                            body={this.columnTemplate(col)}
-                            editor={this.columnEditor(col)}
-                            header={col.label}
-                            key={i}
-                            col={col}
-                            style={{width: `${(col.width || col.preferred_width) /*/ total_widths * 100*/}ch`}}
-                            className={`l-grid-col l-grid-col-${col.name} ${
-                                this.state.editingCellIndex === i ? 'p-cell-editing' : ''
-                            }`}
-                            onEditorCancel={this.onCancel}
-                            onEditorSubmit={this.onSubmit}
-                            onEditorInit={this.onEditorInit}
-                            // validaterEvent={"blur"}
-                            isDisabled={
-                                (props) => (props.rowData[props.rowData.length - 1] ||
-                                    (props.rowData[props.rowData.length - 2]
-                                        && //if null / phantom row / not disabled
-                                        Object.keys(props.rowData[props.rowData.length - 2]).find(
-                                            (e) => e === props.col.name
-                                        )
-                                    )
-                                )
-                            }
-                            // editorValidator={() => {console.log("validate");
-                            //                         return false}}
-                            sortable={true}
-                            // sortFunction={this.onSort}
-                            // columnSortFunction={() => 1}
-                        />
-                )
-            )
-        }
-        return this.gridData.component.cols
-    }
-
     /*
     used in deteail slave tables if actordata."simple_slavegrid_header "
      */
@@ -574,7 +755,6 @@ export class LinoGrid extends Component {
                 <Button icon={"pi pi-times-circle"} onClick={() => this.reload({pv: {}})}/>
             }
         </React.Fragment>
-
     }
 
     renderToggle_colControls() {
@@ -760,7 +940,7 @@ export class LinoGrid extends Component {
                     className={"l-grid-count"}>Showing <Dropdown
                         style={{width: "80px"}}
                         value={this.gridData.rowsPerPage}
-                        placeholder={this.gridData.rowsPerPage}
+                        placeholder={this.gridData.rowsPerPage.toString()}
                         options={[25, 50, 100, 200, 400, 800]}
                         onChange={(e) => {
                             let value = parseInt(e.value)
@@ -778,7 +958,7 @@ export class LinoGrid extends Component {
         let show_columns = e.event.filter((c) => c.props.cellIndex).map((col) => col.props.cellIndex - 1);
         // console.log('show_columns',show_columns);
         this.gridData.show_columns = show_columns;
-        this.update_url_values({'show_columns': show_columns.toString()}, this.props.match);
+        // this.update_url_values({'show_columns': show_columns.toString()}, this.props.match);
     }
 
 
@@ -838,39 +1018,30 @@ export class LinoGrid extends Component {
                 />}
             </h1>
             <div className={"l-grid"} >
-                {this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined ?
-                    <DataTable
-                        reorderableColumns={true}
-                        header={header}
-                        footer={footer}
-                        responsive={this.props.actorData.react_responsive}
-                        resizableColumns={true}
-                        value={this.gridData.rows}
-                        paginator={false}
-                        // selectionMode="single"
-                        editable={true}
-                        // selectionMode={this.props.actorData.hide_top_toolbar ? "single" : "multiple" } // causes row selection
-                        selectionMode={this.props.actorData.editable ? undefined : "multiple"} // causes row selection
-                        onSelectionChange={(e) => {
-                            this.setState({selectedRows: e.value});
-                        }}
-                        onColReorder={e => this.onColReorder({event: e.columns})}
-                        onRowSelect={this.onRowSelect}
-                        selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
-                        loading={this.state.loading}
-                        // emptyMessage={this.state.emptyMessage} // this.state.emptyMessage is not defined.
-                        ref={(ref) => this.dataTable = ref}
+                {!this.state.loading && (this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined) ?
+                    <LinoDTable
+                        {...this.props}
+                        count={this.gridData.count}
+                        disabled_fields={this.state.disabled_fields}
+                        editingPK={this.gridData.editingPK}
+                        fetching={this.gridData.fetching}
+                        linoGrid={this}
+                        loading={this.gridData.loading}
+                        onCancel={this.onCancel}
+                        onEditorInit={this.onEditorInit}
                         onRowDoubleClick={this.onRowDoubleClick}
                         onSort={this.onSort}
-                        // sortMode={"multiple"} No editable yet
-                        // multiSortMeta={multiSortMeta}
-                        sortField={this.gridData.sortFieldName}
+                        onSubmit={this.onSubmit}
+                        pv={this.state.pv}
+                        refresh={this.refresh}
+                        rows={this.gridData.rows}
+                        rowsPerPage={this.gridData.rowsPerPage}
+                        show_top_toolbar={this.state.show_top_toolbar}
+                        showParamValueDialog={this.showParamValueDialog}
+                        sortField={this.gridData.sortField}
                         sortOrder={this.gridData.sortOrder}
-                        // sortOrder={-1}
-                        lazy={true}
-                    >
-                        {this.get_cols()}
-                    </DataTable>
+                        topRow={this.gridData.topRow}
+                        update_value={this.update_col_value}/>
                     :
                     this.props.actorData.borderless_list_mode ?
                         <div>
@@ -878,14 +1049,15 @@ export class LinoGrid extends Component {
                                 <div key={this.gridData.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
                             ))}
                         </div>
-                        :
-                        <DataView value={this.gridData.rows}
-                                  header={header}
-                                  footer={footer}
-                                  layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
-                                  itemTemplate={this.itemTemplate}
-                                  itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}
-                        />}
+                        : null
+                        // <DataView value={this.gridData.rows}
+                        //           header={header}
+                        //           footer={footer}
+                        //           layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
+                        //           itemTemplate={this.itemTemplate}
+                        //           itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}
+                        // />
+                    }
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
