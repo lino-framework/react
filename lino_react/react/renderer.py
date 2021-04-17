@@ -90,16 +90,35 @@ class Renderer(JsRenderer, JsCacheRenderer):
                     actions.add(ba.action)
 
         self.serialise_js_code = True
-        f.write(py2js(dict(
+
+        data = dict(
             actions={a.action_name: a for a in actions},
             # actors={a.actor_id: a for a in self.actors_list},
             menu=settings.SITE.get_site_menu(get_user_profile()),
             choicelists=choicelists_data,
             suggestors=list(settings.SITE.plugins.memo.parser.suggesters.keys())  # [#,@] keytriggers
-        ),
-            compact=not settings.SITE.is_demo_site))
+            )
+
+        # data.update(actors={str(a): a for a in self.actors_list})
+        # data.update(action_param_panels={
+        #     str(p): self.panel2json(p)
+        #         for p in self.action_param_panels })
+        # data.update(param_panels={
+        #     str(p): self.panel2json(p)
+        #         for p in self.param_panels })
+        data.update(form_panels={
+            str(p): self.panel2json(p)
+                for p in self.form_panels })
+
+        # print("20210417", data)
+
+        f.write(py2js(data))
+        # f.write(py2js(data, compact=not settings.SITE.is_demo_site))
         self.serialise_js_code = False
         return 1
+
+    def panel2json(self, p):
+        return ["foo"]
 
     # working, but shouldn't be used, as it clears the app history
 
@@ -517,7 +536,8 @@ class Renderer(JsRenderer, JsCacheRenderer):
         filename += translation.get_language() + '.' + file_type
         return ('cache', file_type, filename)
 
-    def build_js_cache(self, force):
+    def unused_build_js_cache(self, force):
+        # actors now rendered into the lino_900_en.json file
         self.serialise_js_code = True
 
         for actor in self.actors_list:
@@ -529,6 +549,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
                 )
 
             settings.SITE.kernel.make_cache_file(fn, write, force)
+
         self.serialise_js_code = False
 
         return super(Renderer, self).build_js_cache(force)
