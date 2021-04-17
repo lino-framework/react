@@ -51,7 +51,9 @@ class LinoDTable extends Component {
         this.component.show_columns = this.component.cols.filter((col) => !col.col.hidden).map((col) => col.value);
         this.columnEditor = this.columnEditor.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
+        this.demandsFromChildren = this.demandsFromChildren.bind(this);
         this.onBeforeEditorHide = this.onBeforeEditorHide.bind(this);
+        this.onBeforeEditorShow = this.onBeforeEditorShow.bind(this);
         this.onCancel = this.onCancel.bind(this);
         this.onEditorInit = this.onEditorInit.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -82,10 +84,18 @@ class LinoDTable extends Component {
         }
     }
 
+    // To pass arbitrary objects to childrens on demand
+    demandsFromChildren(obj) {
+        this.data.roger = obj;
+    }
+
     onBeforeEditorHide(col) {
         if (this.data.editorDirty) {
             this.onSubmit(col, true);
         }
+    }
+
+    onBeforeEditorShow(col) {
     }
 
     onEditorInit(e) {
@@ -94,6 +104,7 @@ class LinoDTable extends Component {
         this.data.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
         this.data.editingValues = Object.assign({}, {...e.columnProps.rowData});
         this.data.editingCellIndex = e.columnProps.cellIndex;
+        if (this.data.roger !== undefined) delete this.data.roger;
     }
 
     update_col_value(v, elem, col) {
@@ -152,6 +163,8 @@ class LinoDTable extends Component {
                 match: this.props.match,
                 mk: this.props.mk,
                 mt: this.props.mt,
+                refresh: this.props.refresh,
+                ...this.data.roger,
             };
             return <div
                 onKeyDown={(event) => {
@@ -197,6 +210,8 @@ class LinoDTable extends Component {
                 container: this.dataTable && this.dataTable.table,
                 mk: this.props.mk,
                 mt: this.props.mt,
+                pass_roger: this.demandsFromChildren,
+                refresh: this.props.refresh,
             };
             return <LinoLayout {...prop_bundle} elem={col}/>;
         }
@@ -232,19 +247,10 @@ class LinoDTable extends Component {
                                 this.data.editingCellIndex === i ? 'p-cell-editing' : ''
                             }`}
                             onBeforeEditorHide={this.onBeforeEditorHide}
+                            onBeforeEditorShow={this.onBeforeEditorShow}
                             onEditorCancel={this.onCancel}
                             onEditorSubmit={this.onSubmit}
                             onEditorInit={this.onEditorInit}
-                            // isDisabled={
-                            //     (props) => (props.rowData[props.rowData.length - 1] ||
-                            //         (props.rowData[props.rowData.length - 2]
-                            //             && //if null / phantom row / not disabled
-                            //             Object.keys(props.rowData[props.rowData.length - 2]).find(
-                            //                 (e) => e === props.col.name
-                            //             )
-                            //         )
-                            //     )
-                            // }
                             sortable={true}
                         />
                 )
@@ -279,42 +285,31 @@ class LinoDTable extends Component {
     }
 
     renderToggle_colControls() {
-        return this.state.toggle_col ?
-            <MultiSelect
-                value={this.component.show_columns} options={this.component.cols}
-                ref={(el) => this.show_col_selector = el}
-                onChange={(e) => {
-                    this.component.columns = undefined;
-                    clearTimeout(this.show_col_timeout);
-                    this.show_col_selector.focusInput.focus();
-                    setTimeout(() => (this.show_col_selector.dont_blur = false), 400);
-                    this.show_col_selector.dont_blur = true;
-                    this.component.show_columns = e.value;
-                    this.set_cols();
-                    this.setState({loading: false});
-                }}
-                onBlur={
-                    e =>
-                    this.show_col_timeout = setTimeout(() => {
-                    {
-                        if (this.show_col_selector && this.show_col_selector.dont_blur) {
-                            this.show_col_selector.focusInput.focus();
-                        } else {
-                            this.setState({toggle_col: false})
-                        }
-                    }
-                }, 200)
-                }
-                />
-            : <Button icon={"pi pi-list"} onClick={() => {
-                this.setState({toggle_col: true});
-                setTimeout(() => {
-                        this.show_col_selector.focusInput.focus();
+        return <React.Fragment>
+            <span style={{position: "relative"}} ref={ref => this.toggleCol = ref}>
+                <Button
+                    icon={"pi pi-list"}
+                    onClick={() => {
+                        this.setState({toggle_col: true});
                         this.show_col_selector.show();
-                    },
-                    25
-                )
-            }}/>
+                    }}/>
+                <span hidden={true}>
+                    <MultiSelect
+                        appendTo={this.toggleCol}
+                        panelStyle={{zIndex: "99999", height: "auto", width: "auto", position: "absolute"}}
+                        value={this.component.show_columns}
+                        options={this.component.cols}
+                        ref={(el) => this.show_col_selector = el}
+                        onChange={(e) => {
+                            this.component.columns = undefined;
+                            this.component.show_columns = e.value;
+                            this.set_cols();
+                            this.setState({loading: false});
+                        }}
+                        onBlur={e => this.setState({toggle_col: false})}/>
+                </span>
+            </span>
+        </React.Fragment>
     }
 
     renderActionBar() {

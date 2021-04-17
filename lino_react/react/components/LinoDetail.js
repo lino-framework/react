@@ -402,6 +402,7 @@ export class LinoDetail extends Component {
                     reload_timestamp={this.state.reload_timestamp}
                     title={this.state.title}
                     parent_pv={this.state.pv}
+                    save={this.save}
                 />
             </React.Fragment>
         )

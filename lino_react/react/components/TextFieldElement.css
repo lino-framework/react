@@ -22,3 +22,6 @@
 .search-match {
     background-color: #f7f7f7b5;
 }
+.p-transparent-button.p-button:focus {
+    box-shadow: 0 0 white;
+}
