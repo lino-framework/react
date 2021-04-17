@@ -64,11 +64,7 @@ class TextFieldElement extends React.Component {
     }
 
     render() {
-        let style = {
-                height: "90%",
-                display: "flex",
-                flexDirection: "column",},
-            elem = this.props.editing_mode ? <div
+        let elem = this.props.editing_mode ? <div
                 style={{position: "relative", height: "75%"}}
                 onKeyDown={(e) => {
                     if (this.props.in_grid && (((!e.shiftKey) && e.keyCode === 13) || e.keyCode === 9)) {
@@ -84,9 +80,7 @@ class TextFieldElement extends React.Component {
                         background: 'transparent',
                         color: 'black',
                     }}
-                    onClick={(e) => {
-                        this.setState({new_window: true});
-                    }}
+                    onClick={(e) => {this.setState({new_window: true})}}
                     icon="pi pi-external-link"
                     tooltip="Open in Editor?"
                     label=""/>
@@ -103,37 +97,33 @@ class TextFieldElement extends React.Component {
                 </div>
                 : <div style={{position: "relative", height: "100%", width: "100%"}}>
                     <span>{this.state.value}</span>
-                    { //Work in Progress....
-                    // this.props.in_grid && <Button
-                    //     className="p-transparent-button"
-                    //     style={{
-                    //         position: "absolute",
-                    //         right: "-23px",
-                    //         top: "-16px",
-                    //         border: "0px",
-                    //         background: 'transparent',
-                    //         color: 'black',
-                    //     }}
-                    //     onClick={(e) => {
-                    //         this.props.pass_roger({new_window: true});
-                    //     }}
-                    //     icon="pi pi-external-link"
-                    //     tooltip="Open in Editor?"
-                    //     label=""/>
-                    }
+                    {this.props.in_grid && <span
+                        onClick={(e) => e.stopPropagation()}
+                        style={{position: "absolute", right: "-23px", top: "-16px"}}>
+                        <Button
+                            className="p-transparent-button"
+                            style={{border: "0px", background: 'transparent', color: 'black'}}
+                            onClick={(e) => {this.setState({new_window: true})}}
+                            icon="pi pi-external-link"
+                            tooltip="Open in Editor?"
+                            label=""/>
+                    </span>}
                     <LinoEditor {...this.props} parent={this} visible={this.props.new_window || this.state.new_window} />
                 </div>
 
         if (this.props.in_grid) return elem;
 
         if (this.props.editing_mode) {
-            elem = <Labeled {...this.props} elem={this.props.elem} labeled={this.props.labeled}
-                            isFilled={this.state.value}
-            > {elem} </Labeled>
+            elem = <Labeled
+                {...this.props}
+                elem={this.props.elem}
+                labeled={this.props.labeled}
+                isFilled={this.state.value}>
+                {elem}
+            </Labeled>
         } else {
             elem = <Panel
-                headerTemplate={<React.Fragment>
-                    <div className="p-panel-header">
+                headerTemplate={<div className="p-panel-header">
                         {this.props.elem.label}
                         {this.props.elem.name !== "full_preview" && <Button
                             className="p-transparent-button"
@@ -148,9 +138,8 @@ class TextFieldElement extends React.Component {
                             icon="pi pi-external-link"
                             tooltip="Open in Editor?"
                             label=""/>}
-                    </div>
-                </React.Fragment>}
-                style={style}>
+                    </div>}
+                style={{height: "90%", display: "flex", flexDirection: "column"}}>
                 {elem}
             </Panel>
         }
