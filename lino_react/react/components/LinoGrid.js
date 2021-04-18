@@ -60,10 +60,9 @@ export class LinoGrid extends Component {
         // Cosmetic & Static will stay and the NotCosmetic have to go away. There's also ===NOTSURE===.
         this.state = {
             loading: true,
-            // ===COSMETIC===
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
-            show_top_toolbar: isMobile() ? false : true, //===COSMETIC===
-            data_view: props.actorData.display_mode === "grid" ? false : true, //===COSMETIC===
+            show_top_toolbar: isMobile() ? false : true,
+            data_view: props.actorData.display_mode === "grid" ? false : true,
         };
         if (props.display_mode) {
             console.warn("there's a display_mode prop in LinoGrid!");
@@ -603,7 +602,7 @@ export class LinoGrid extends Component {
                 />}
             </h1>
             <div className={"l-grid"} >
-                {!this.state.loading && (this.state.display_mode === "grid" || this.props.actorData.card_layout === undefined) ?
+                {((!this.state.loading) && (!this.state.data_view))/*|| this.props.actorData.card_layout === undefined)*/?
                     <LinoDTable
                         {...this.props}
                         count={this.gridData.count}
@@ -622,22 +621,19 @@ export class LinoGrid extends Component {
                         sortField={this.gridData.sortField}
                         sortOrder={this.gridData.sortOrder}
                         topRow={this.gridData.topRow}/>
-                    :
-                    this.props.actorData.borderless_list_mode ?
+                    : this.props.actorData.borderless_list_mode ?
                         <div>
                             {this.gridData.rows.map((row, index) => (
                                 <div key={this.gridData.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
                             ))}
                         </div>
-                        : null
-                        // <DataView value={this.gridData.rows}
-                        //           header={header}
-                        //           footer={footer}
-                        //           layout={this.state.display_mode === "cards" ? "grid" : "list"} // convert cards to grid (PR value)
-                        //           itemTemplate={this.itemTemplate}
-                        //           itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}
-                        // />
-                    }
+                        : <DataView
+                            value={this.gridData.rows}
+                            header={header}
+                            footer={footer}
+                            layout={this.state.display_mode === "cards" ? "cards" : "list"} // convert cards to grid (PR value)
+                            itemTemplate={this.itemTemplate}
+                            itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}/>}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"
