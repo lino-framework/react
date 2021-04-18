@@ -320,10 +320,10 @@ const LinoComponents = {
                     :
                     <div className={"l-ellipsis"} style={{
                         "display": "block",
-                        "text-overflow": "ellipsis",
+                        "textOverflow": "ellipsis",
                         "overflow": "hidden",
-                        "white-space": "nowrap",
-                        "max-width": "290px"
+                        "whiteSpace": "nowrap",
+                        "maxWidth": "290px"
                     }}><a href={value} title={value}>{value || "\u00a0"}</a></div>
 
                 }

@@ -40,25 +40,21 @@ export class LinoEditor extends React.Component {
             <Dialog
                 header={this.props.elem.label}
                 icons={<Button
-                        className="p-transparent-button"
-                        style={{
-                            border: "0px",
-                            background: 'transparent',
-                            color: 'black',
-                        }}
-                        onClick={(e) => {
-                            this.props.update_value({[getDataKey(this.props)]: this.state.value},
-                                this.props.elem,
-                                this.props.column);
-                            if (this.props.in_grid) {
-                                this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
-                            } else {
-                                this.props.save();
-                            }
-                        }}
-                        icon="pi pi-save"
-                        tooltip="Save!"
-                        label=""/>}
+                    className="p-transparent-button"
+                    style={{border: "0px", background: 'transparent', color: 'black'}}
+                    onClick={(e) => {
+                        this.props.update_value({[getDataKey(this.props)]: this.state.value},
+                            this.props.elem,
+                            this.props.column);
+                        if (this.props.in_grid) {
+                            this.props.column.onEditorSubmit({columnProps: this.props.column}, true);
+                        } else {
+                            this.props.save();
+                        }
+                    }}
+                    icon="pi pi-save"
+                    tooltip="Save!"
+                    label=""/>}
                 maximizable={true}
                 onHide={(e) => {
                     this.props.parent.setState({new_window: false});
@@ -68,9 +64,7 @@ export class LinoEditor extends React.Component {
                 contentStyle={{height: "100%"}}
                 visible={this.props.visible}>
                 <Editor
-                    modules={{
-                        mention: quillMention(this.controller.signal),
-                    }}
+                    modules={{mention: quillMention(this.controller.signal)}}
                     onTextChange={this.onTextChange}
                     value={this.state.value}/>
             </Dialog>
