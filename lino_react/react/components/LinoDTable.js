@@ -33,11 +33,6 @@ export default class LinoDTable extends React.Component {
             query: "",
             rows: props.rows,
         };
-        // this.component.cols = props.actorData.col.map((column, i) => ({
-        //     label: column.label,
-        //     value: i + "",
-        //     col: column,
-        // }));
         this.component.show_columns = props.actorData.col.filter((col) => !col.hidden).map((col) => col.fields_index);
         this.columnEditor = this.columnEditor.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
@@ -136,6 +131,8 @@ export default class LinoDTable extends React.Component {
         this.data.editorDirty = false;
         if (explicit_call) {
             this.props.refresh();
+        } else {
+            this.setState({loading: false});
         }
     }
 
@@ -344,7 +341,7 @@ export default class LinoDTable extends React.Component {
                     style={{marginLeft: "-20px"}}
                     checked={this.state.data_view}
                     onChange={() => {
-                        this.setState({data_view: !this.state.data_view});
+                        this.props.linoGrid.setState({data_view: !this.state.data_view});
                     }}
                     onIcon="pi pi-table"
                     offIcon="pi pi-list"
