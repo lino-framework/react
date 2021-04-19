@@ -536,8 +536,7 @@ class Renderer(JsRenderer, JsCacheRenderer):
         filename += translation.get_language() + '.' + file_type
         return ('cache', file_type, filename)
 
-    def unused_build_js_cache(self, force):
-        # actors now rendered into the lino_900_en.json file
+    def build_js_cache(self, force):
         self.serialise_js_code = True
 
         for actor in self.actors_list:

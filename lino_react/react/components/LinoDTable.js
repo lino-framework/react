@@ -336,17 +336,18 @@ export default class LinoDTable extends React.Component {
             </div>
             <div className={"table-header"}>
                 {this.renderActionBar()}
-                <ToggleButton
+                {this.props.actorData.card_layout && <ToggleButton
                     className="data_view-toggle"
                     style={{marginLeft: "-20px"}}
-                    checked={this.state.data_view}
-                    onChange={() => {
-                        this.props.linoGrid.setState({data_view: !this.state.data_view});
+                    checked={false}
+                    onChange={(e) => {
+                        this.props.linoGrid.setState({data_view: true});
+                        this.props.refresh({wt: "c"});
                     }}
                     onIcon="pi pi-table"
                     offIcon="pi pi-list"
                     onLabel=""
-                    offLabel=""/>
+                    offLabel=""/>}
             </div>
             <div className={"table-header"}>
                 {this.renderProgressBar()}

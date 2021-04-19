@@ -62,7 +62,7 @@ export class LinoGrid extends Component {
             loading: true,
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
             show_top_toolbar: isMobile() ? false : true,
-            data_view: props.actorData.display_mode === "grid" ? false : true,
+            data_view: (props.actorData.display_mode === "grid" || props.actorData.card_layout === undefined) ? false : true,
         };
         if (props.display_mode) {
             console.warn("there's a display_mode prop in LinoGrid!");
@@ -225,20 +225,21 @@ export class LinoGrid extends Component {
         this.get_data(values, true);
     }
 
-    get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined} = {}, reload) {
+    get_data({page = undefined, query = undefined, pv = undefined, sortCol = undefined, sortOrder = undefined, wt = undefined} = {}, reload) {
         if (reload) Object.assign(this.gridData, {loading: true, fetching: "on"});
         let pass = {loading: true};
         pass.query = query !== undefined ? query === "" ? undefined : query : this.gridData.query;
         pass.page =  page !== undefined ? page : this.gridData.page;
         pass.sortFieldName = sortCol !== undefined ? sortCol.name : this.gridData.sortFieldName;
         pass.sortOrder = sortOrder !== undefined ? sortOrder : this.gridData.sortOrder;
+        pass.wt = wt !== undefined ? wt : this.state.data_view ? "c" : "g";
         let ajax_query = {
             fmt: "json",
             start: pass.page * this.gridData.rowsPerPage,
             limit: this.gridData.rowsPerPage,
             query: pass.query,
             rp: this.rp,
-            wt: this.state.display_mode === "grid" ? "g" : "c",
+            wt: pass.wt,
         };
         pass.sortFieldName !== undefined && (ajax_query.sort = pass.sortFieldName);
         pass.sortOrder !== 0 && (ajax_query.dir = pass.sortOrder === 1 ? "ASC" : "DESC");
@@ -484,9 +485,10 @@ export class LinoGrid extends Component {
                 <ToggleButton
                     className="data_view-toggle"
                     style={{marginLeft: "-20px"}}
-                    checked={this.state.data_view}
+                    checked={true}
                     onChange={() => {
-                        this.setState({data_view: !this.state.data_view});
+                        this.setState({data_view: false});
+                        this.refresh({wt: "g"});
                     }}
                     onIcon="pi pi-table"
                     offIcon="pi pi-list"
