@@ -247,8 +247,7 @@ export default class LinoDTable extends React.Component {
                             onEditorCancel={this.onCancel}
                             onEditorSubmit={this.onSubmit}
                             onEditorInit={this.onEditorInit}
-                            sortable={true}
-                        />
+                            sortable={true}/>
                 )
             )
         }

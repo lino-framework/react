@@ -17,6 +17,7 @@ import {MultiSelect} from 'primereact/multiselect';
 import {Dialog} from 'primereact/dialog';
 import {Panel} from 'primereact/panel';
 import {ProgressBar} from 'primereact/progressbar';
+import {SplitButton} from 'primereact/splitbutton';
 import {ToggleButton} from 'primereact/togglebutton';
 
 import {debounce, pvObj2array, isMobile, find_cellIndex, gridList2Obj} from "./LinoUtils";
@@ -99,12 +100,11 @@ export class LinoGrid extends Component {
         this.get_full_id = this.get_full_id.bind(this);
         this.onSort = this.onSort.bind(this);
         this.get_URL_PARAM_COLUMNS = this.get_URL_PARAM_COLUMNS.bind(this);
-        // this.renderDataTable = this.renderDataTable.bind(this);
         this.itemTemplate = this.itemTemplate.bind(this);
-        // this.renderDataView = this.renderDataView.bind(this);
         this.renderParamValueControls = this.renderParamValueControls.bind(this);
         this.renderToggle_colControls = this.renderToggle_colControls.bind(this);
         this.renderDataViewLayout = this.renderDataViewLayout.bind(this);
+        this.renderDataViewSortButton = this.renderDataViewSortButton.bind(this);
         this.renderExpandButton = this.renderExpandButton.bind(this);
         this.renderQuickFilter = this.renderQuickFilter.bind(this);
         this.renderActionBar = this.renderActionBar.bind(this);
@@ -397,6 +397,31 @@ export class LinoGrid extends Component {
             layout={this.state.layout}/>
     }
 
+    renderDataViewSortButton() {
+        const model = this.props.actorData.col.map((col) => ({
+            label: col.name,
+            value: String(col.fields_index),
+            command: ((e) => {
+                this.gridData.sortField = e.item.value;
+                this.gridData.sortFieldName = e.item.label;
+                this.refresh();
+            }),
+        }));
+        return <SplitButton
+            icon={
+                this.gridData.sortOrder === 0 ? "pi pi-sort-alt" :
+                this.gridData.sortOrder === 1 ? "pi pi-sort-amount-up" :
+                "pi pi-sort-amount-down"
+            }
+            label={"Sort By: " + (this.gridData.sortFieldName || "")}
+            model={model}
+            onClick={(e) => {
+                let order = this.gridData.sortOrder === 1 ? -1 : 1;
+                this.onSort({sortOrder: order, sortField: this.gridData.sortField});
+            }}
+            style={{verticalAlign: "bottom"}}/>
+    }
+
     renderExpandButton() {
         return <Button className="l-button-expand-grid p-button-secondary"
             onClick={this.expand}
@@ -473,6 +498,7 @@ export class LinoGrid extends Component {
                     <div>
                         {this.renderQuickFilter()}
                         {this.renderParamValueControls()}
+                        {this.renderDataViewSortButton()}
                     </div>
                     <ToggleButton
                         className="data_view-toggle"
@@ -634,7 +660,7 @@ export class LinoGrid extends Component {
                     : this.props.actorData.borderless_list_mode ?
                         <div>
                             {this.gridData.rows.map((row, index) => (
-                                <div key={this.gridData.rows[index][this.props.actorData.pk_index]}>{this.itemTemplate(row)}</div>
+                                <div key={this.gridData.rows[index].id}>{this.itemTemplate(row)}</div>
                             ))}
                         </div>
                         : <DataView
@@ -642,6 +668,7 @@ export class LinoGrid extends Component {
                             header={header}
                             footer={footer}
                             layout={this.state.layout}
+                            lazy={true}
                             itemTemplate={this.itemTemplate}
                             itemKey={(data, index) => (this.gridData.rows[index].id)}/>}
             </div>
