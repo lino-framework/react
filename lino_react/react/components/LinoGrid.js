@@ -1,3 +1,5 @@
+import "./LinoGrid.css"
+
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 
@@ -8,6 +10,7 @@ import {fetch as fetchPolyfill} from 'whatwg-fetch' // fills fetch
 import {DataView, DataViewLayoutOptions} from 'primereact/dataview';
 import {Paginator} from 'primereact/paginator';
 import {Button} from 'primereact/button';
+import {Card} from 'primereact/card';
 import {InputText} from 'primereact/inputtext';
 import {Dropdown} from 'primereact/dropdown';
 import {MultiSelect} from 'primereact/multiselect';
@@ -21,7 +24,6 @@ import {debounce, pvObj2array, isMobile, find_cellIndex, gridList2Obj} from "./L
 import LinoBbar from "./LinoBbar";
 import LinoDTable from "./LinoDTable";
 import LinoLayout from "./LinoComponents";
-
 
 
 export class LinoGrid extends Component {
@@ -61,6 +63,7 @@ export class LinoGrid extends Component {
         this.state = {
             loading: true,
             display_mode: props.display_mode || props.actorData && props.actorData.display_mode && props.actorData.display_mode !== "summary" && props.actorData.display_mode || "grid",
+            layout: "list",
             show_top_toolbar: isMobile() ? false : true,
             data_view: (props.actorData.display_mode === "grid" || props.actorData.card_layout === undefined) ? false : true,
         };
@@ -73,9 +76,6 @@ export class LinoGrid extends Component {
             component: {},
             count: undefined,
             data: null,
-            editingCol: undefined,
-            editingPK: undefined,
-            editingValues: {},
             page: search[page_key] ? search[page_key] - 1 : 0,
             pv_values: {},
             rows: [],
@@ -390,26 +390,23 @@ export class LinoGrid extends Component {
 
     renderDataViewLayout() {
         return <DataViewLayoutOptions
-            style={{marginTop: "5px"}}
-            layoutChoices={["grid", "list", "cards"]}
-            layoutIcons={["pi-table", "pi-bars", "pi-th-large"]}
-            // onChange={e => {
-            //     this.setState({display_mode: e.value, rows: []});
-            //     this.reload()
-            // }}
-            layout={this.state.display_mode}
-        />
+            onChange={e => {
+                this.setState({layout: e.value});
+                this.refresh();
+            }}
+            layout={this.state.layout}/>
     }
 
     renderExpandButton() {
-        return <Button className="l-button-expand-grid p-button-secondary" onClick={this.expand}
-                       icon="pi pi-external-link"
-                       style={{
-                           width: "1.2em",
-                           height: "1.2em",
-                           padding: "unset",
-                           marginBottom: "2px"
-                       }}/>
+        return <Button className="l-button-expand-grid p-button-secondary"
+            onClick={this.expand}
+            icon="pi pi-external-link"
+            style={{
+                width: "1.2em",
+                height: "1.2em",
+                padding: "unset",
+                marginBottom: "2px"
+            }}/>
     }
 
     renderQuickFilter(wide) {
@@ -470,31 +467,30 @@ export class LinoGrid extends Component {
     }
 
     renderMainGridHeader() {
-        let {actorData} = this.props;
-        return this.state.show_top_toolbar && <React.Fragment>
-            <div className={"table-header"}>
-                <div>
-                    {this.renderQuickFilter()}
-                    {this.renderParamValueControls()}
-                    {this.renderToggle_colControls()}
+        return <React.Fragment>
+            {this.state.show_top_toolbar && <React.Fragment>
+                <div className={"table-header"}>
+                    <div>
+                        {this.renderQuickFilter()}
+                        {this.renderParamValueControls()}
+                    </div>
+                    <ToggleButton
+                        className="data_view-toggle"
+                        checked={true}
+                        onChange={() => {
+                            this.setState({data_view: false});
+                            this.refresh({wt: "g"});
+                        }}
+                        onIcon="pi pi-table"
+                        offIcon="pi pi-list"
+                        onLabel=""
+                        offLabel=""/>
                 </div>
-            </div>
-            <div className={"table-header"}>
-                {this.renderActionBar()}
-                {this.state.data_view && this.renderDataViewLayout()}
-                <ToggleButton
-                    className="data_view-toggle"
-                    style={{marginLeft: "-20px"}}
-                    checked={true}
-                    onChange={() => {
-                        this.setState({data_view: false});
-                        this.refresh({wt: "g"});
-                    }}
-                    onIcon="pi pi-table"
-                    offIcon="pi pi-list"
-                    onLabel=""
-                    offLabel=""/>
-            </div>
+                <div className={"table-header"}>
+                    {this.renderActionBar()}
+                    {this.state.data_view && this.renderDataViewLayout()}
+                </div>
+            </React.Fragment>}
             <div className={"table-header"}>
                 {this.renderProgressBar()}
             </div>
@@ -548,33 +544,45 @@ export class LinoGrid extends Component {
         />;
     }
 
-    itemTemplate(rowData) {
-        return <Panel className={"l-itemTemplate"}
-                      header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>} toggleable={true}>
-            {rowData.main_card_body ? <div dangerouslySetInnerHTML={{__html: rowData.main_card_body}}/> :
-                <LinoLayout
-                    // window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
-                    window_layout={this.props.actorData.card_layout}
-                    data={rowData}
-                    actorId={this.get_full_id()}
-                    actorData={this.props.actorData}
-                    // disabled_fields={this.state.disabled_fields} // Todo
-                    // update_value={this.update_value}
-                    // editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
+    itemTemplate(rowData, layout) {
+        const content = rowData.main_card_body ? <div dangerouslySetInnerHTML={{__html: rowData.main_card_body}}/> :
+            <LinoLayout
+                // window_layout={this.props.actorData.ba[this.props.actorData.detail_action].window_layout}
+                window_layout={this.props.actorData.card_layout}
+                data={rowData}
+                actorId={this.get_full_id()}
+                actorData={this.props.actorData}
+                // disabled_fields={this.state.disabled_fields} // Todo
+                // update_value={this.update_value}
+                // editing_mode={this.state.data.disable_editing ? false : this.state.editing_mode} // keep detail as editing mode only for now, untill beautifying things/}
 
-                    // update_value={this.update_pv_values} //  Todo
-                    // in_grid={true} // false, true not working, due to fields_index being only set in cols.
-                    editing_mode={false} // keep detail as editing mode only for now, untill beautifying things/}
-                    pk={rowData["id"]}
-                    mk={this.props.mk}
-                    mt={this.props.actorData.content_type}
-                    depth={this.props.depth + 1}
-                    match={this.props.match}
-                    reload_timestamp={this.state.reload_timestamp}
-                    // title={this.state.title}
-                    // parent_pv={this.state.pv}
-                />}
-        </Panel>
+                // update_value={this.update_pv_values} //  Todo
+                // in_grid={true} // false, true not working, due to fields_index being only set in cols.
+                editing_mode={false} // keep detail as editing mode only for now, untill beautifying things/}
+                pk={rowData["id"]}
+                mk={this.props.mk}
+                mt={this.props.actorData.content_type}
+                depth={this.props.depth + 1}
+                match={this.props.match}
+                reload_timestamp={this.state.reload_timestamp}
+                // title={this.state.title}
+                // parent_pv={this.state.pv}
+            />
+        if (layout === "list") {
+            return <Panel
+                className={"l-itemTemplate"}
+                header={<div dangerouslySetInnerHTML={{__html: rowData.card_title}}/>}
+                style={{margin: "5px"}}
+                toggleable={true}>
+                {content}
+            </Panel>
+        } else {
+            return <Card
+                title={rowData.card_title}
+                style={{margin: "20px"}}>
+                {content}
+            </Card>
+        }
     }
 
     renderMinimized() {
@@ -633,9 +641,9 @@ export class LinoGrid extends Component {
                             value={this.gridData.rows}
                             header={header}
                             footer={footer}
-                            layout={this.state.display_mode === "cards" ? "cards" : "list"} // convert cards to grid (PR value)
+                            layout={this.state.layout}
                             itemTemplate={this.itemTemplate}
-                            itemKey={(data, index) => (this.gridData.rows[index][this.props.actorData.pk_index])}/>}
+                            itemKey={(data, index) => (this.gridData.rows[index].id)}/>}
             </div>
             {this.props.actorData.pv_layout && this.state.showPVDialog &&
             <Dialog header="Filter Parameters"

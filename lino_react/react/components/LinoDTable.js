@@ -30,6 +30,9 @@ export default class LinoDTable extends React.Component {
         this.component = {};
         this.data = {
             editingCellIndex: undefined,
+            editingCol: undefined,
+            editingPK: undefined,
+            editingValues: {},
             query: "",
             rows: props.rows,
         };
@@ -326,29 +329,30 @@ export default class LinoDTable extends React.Component {
     }
 
     renderMainGridHeader() {
-        return this.props.show_top_toolbar && <React.Fragment>
-            <div className={"table-header"}>
-                <div>
-                    {this.renderQuickFilter()}
-                    {this.renderParamValueControls()}
-                    {this.renderToggle_colControls()}
+        return <React.Fragment>
+            {this.props.show_top_toolbar && <React.Fragment>
+                <div className={"table-header"}>
+                    <div>
+                        {this.renderQuickFilter()}
+                        {this.renderParamValueControls()}
+                        {this.renderToggle_colControls()}
+                    </div>
+                    {this.props.actorData.card_layout && <ToggleButton
+                        className="data_view-toggle"
+                        checked={false}
+                        onChange={(e) => {
+                            this.props.linoGrid.setState({data_view: true});
+                            this.props.refresh({wt: "c"});
+                        }}
+                        onIcon="pi pi-table"
+                        offIcon="pi pi-list"
+                        onLabel=""
+                        offLabel=""/>}
                 </div>
-            </div>
-            <div className={"table-header"}>
-                {this.renderActionBar()}
-                {this.props.actorData.card_layout && <ToggleButton
-                    className="data_view-toggle"
-                    style={{marginLeft: "-20px"}}
-                    checked={false}
-                    onChange={(e) => {
-                        this.props.linoGrid.setState({data_view: true});
-                        this.props.refresh({wt: "c"});
-                    }}
-                    onIcon="pi pi-table"
-                    offIcon="pi pi-list"
-                    onLabel=""
-                    offLabel=""/>}
-            </div>
+                <div className={"table-header"}>
+                    {this.renderActionBar()}
+                </div>
+            </React.Fragment>}
             <div className={"table-header"}>
                 {this.renderProgressBar()}
             </div>
