@@ -1,4 +1,3 @@
-import 'quill-mention';
 import './TextFieldElement.css';
 
 import React, {Component} from "react";
@@ -6,26 +5,25 @@ import PropTypes from "prop-types";
 
 import {Panel} from 'primereact/panel';
 import {Editor} from 'primereact/editor';
+import {Button} from 'primereact/button';
 
-import queryString from 'query-string';
 import AbortController from 'abort-controller';
-import {fetch as fetchPolyfill} from 'whatwg-fetch';
-import regeneratorRuntime from "regenerator-runtime"; // require for async request (in getting mention/tag suggestion)
 
 import {Labeled, getValue, getDataKey} from "./LinoComponents"
+import {LinoEditor} from "./LinoEditor";
+import {quillMention} from "./quillmodules";
 
-
-const atValue = [{ value: "Mention @People" }], hashValue = [{ value: "Tag #content" }];
 
 class TextFieldElement extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            new_window: false,
             unsaved: false,
             value: getValue(props) || "",
         }
+        this.controller = new AbortController();
         this.onTextChange = this.onTextChange.bind(this);
-        this.mentionSource = this.mentionSource.bind(this);
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -45,7 +43,7 @@ class TextFieldElement extends React.Component {
     }
 
     componentDidMount() {
-        this.controller = new AbortController();
+
     }
 
     componentWillUnmount() {
@@ -65,86 +63,83 @@ class TextFieldElement extends React.Component {
             this.props.column);
     }
 
-    renderItem(item, searchTerm) {
-        let value = "";
-        if (item){
-            if (item.value) {
-                value += item.value;
-            }
-            if (item.title) {
-                value += ": " + item.title;
-            }
-        }
-        return value.toLowerCase().split(searchTerm.toLowerCase()).join(
-            "<span class='search-match'>" + searchTerm + "</span>"
-        )
-    }
-
-    mentionSource(searchTerm, renderList, mentionChar) {
-        if (searchTerm.length === 0) {
-            let values = mentionChar === "@" ? atValue : hashValue;
-            renderList(values, searchTerm);
-        } else {
-            async function asyncFetch(searchTerm, renderList, mentionChar, signal) {
-                let ajax_query = {
-                    query: searchTerm,
-                    trigger: mentionChar};
-                const abortableFetch = ('signal' in new Request('')) ? window.fetch : fetchPolyfill;
-                await abortableFetch(`suggestions?${queryString.stringify(ajax_query)}`, {signal: signal}).then(window.App.handleAjaxResponse).then(data => {
-                    renderList(data.suggestions, searchTerm);
-                }).catch(error => {
-                    if (error.name === "AbortError") {
-                        console.log("Request Aborted due to component unmount!");
-                    } else {
-                        window.App.handleAjaxException(error);
-                    }
-                });
-            }
-            asyncFetch(searchTerm, renderList, mentionChar, this.controller.signal);
-        }
-    }
-
     render() {
-        let style = {
-                height: "90%",
-                display: "flex",
-                flexDirection: "column",},
-            elem = this.props.editing_mode ?
-                <div
-                    style={{position: "relative", height: "75%"}}
-                    onKeyDown={(e) => {
-                        if (this.props.in_grid && (((!e.shiftKey) && e.keyCode === 13) || e.keyCode === 9)) {
-                            e.stopPropagation();
-                        }
-                    }}>
-                    <Editor
-                        ref={(e) => this.editor = e}
-                        style={{height: '100%'}}
-                        value={this.state.value}
-                        modules={{
-                            mention: {
-                                allowedChars: /^[A-Za-z0-9\s]*$/,
-                                mentionDenotationChars: window.App.state.site_data.suggestors,
-                                source: this.mentionSource,
-                                renderItem: this.renderItem,
-                                listItemClass: "ql-mention-list-item",
-                                mentionContainerClass: "ql-mention-list-container",
-                                mentionListClass: "ql-mention-list",
-                                dataAttributes: ["value", "link", "title", "denotationChar"],
-                            },
-                        }}
-                        onTextChange={this.onTextChange}/>
+        let elem = this.props.editing_mode ? <div
+                style={{position: "relative", height: "75%"}}
+                onKeyDown={(e) => {
+                    if (this.props.in_grid && (((!e.shiftKey) && e.keyCode === 13) || e.keyCode === 9)) {
+                        e.stopPropagation();
+                    }
+                }}>
+                {this.props.in_grid && <Button
+                    style={{
+                        position: "absolute",
+                        right: "-10px",
+                        top: "-4px",
+                        border: "0px",
+                        background: 'transparent',
+                        color: 'black',
+                    }}
+                    onClick={(e) => {this.setState({new_window: true})}}
+                    icon="pi pi-external-link"
+                    tooltip="Open in Editor?"
+                    label=""/>
+                }
+                <Editor
+                    ref={(e) => this.editor = e}
+                    style={{height: '100%'}}
+                    value={this.state.value}
+                    modules={{
+                        mention: quillMention(this.controller.signal),
+                    }}
+                    onTextChange={this.onTextChange}/>
+                <LinoEditor {...this.props} parent={this} visible={this.props.new_window || this.state.new_window} />
                 </div>
-                : <div dangerouslySetInnerHTML={{__html: this.state.value || "\u00a0"}}/>;
+                : <div style={{position: "relative", height: "100%", width: "100%"}}>
+                    <span>{this.state.value}</span>
+                    {this.props.in_grid && <span
+                        onClick={(e) => e.stopPropagation()}
+                        style={{position: "absolute", right: "-23px", top: "-16px"}}>
+                        <Button
+                            className="p-transparent-button"
+                            style={{border: "0px", background: 'transparent', color: 'black'}}
+                            onClick={(e) => {this.setState({new_window: true})}}
+                            icon="pi pi-external-link"
+                            tooltip="Open in Editor?"
+                            label=""/>
+                    </span>}
+                    <LinoEditor {...this.props} parent={this} visible={this.props.new_window || this.state.new_window} />
+                </div>
 
         if (this.props.in_grid) return elem;
 
         if (this.props.editing_mode) {
-            elem = <Labeled {...this.props} elem={this.props.elem} labeled={this.props.labeled}
-                            isFilled={this.state.value}
-            > {elem} </Labeled>
+            elem = <Labeled
+                {...this.props}
+                elem={this.props.elem}
+                labeled={this.props.labeled}
+                isFilled={this.state.value}>
+                {elem}
+            </Labeled>
         } else {
-            elem = <Panel header={this.props.elem.label} style={style}>
+            elem = <Panel
+                headerTemplate={<div className="p-panel-header">
+                        {this.props.elem.label}
+                        {this.props.elem.name !== "full_preview" && <Button
+                            className="p-transparent-button"
+                            style={{
+                                border: "0px",
+                                background: 'transparent',
+                                color: 'black',
+                            }}
+                            onClick={(e) => {
+                                this.setState({new_window: true});
+                            }}
+                            icon="pi pi-external-link"
+                            tooltip="Open in Editor?"
+                            label=""/>}
+                    </div>}
+                style={{height: "90%", display: "flex", flexDirection: "column"}}>
                 {elem}
             </Panel>
         }
