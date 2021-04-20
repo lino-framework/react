@@ -511,8 +511,6 @@ export class LinoGrid extends Component {
                         offIcon="pi pi-list"
                         onLabel=""
                         offLabel=""/>
-                </div>
-                <div className={"table-header"}>
                     {this.renderActionBar()}
                     {this.state.data_view && this.renderDataViewLayout()}
                 </div>
@@ -604,7 +602,7 @@ export class LinoGrid extends Component {
             </Panel>
         } else {
             return <Card
-                title={rowData.card_title}
+                title={<p>{rowData.card_title} <span onClick={this.onRowDoubleClick} style={{fontWeight: "bold", textAlign:"right"}}>♂</span></p>}
                 style={{margin: "20px"}}>
                 {content}
             </Card>

@@ -411,6 +411,10 @@ class Renderer(JsRenderer, JsCacheRenderer):
             card_layout = getattr(v, "card_layout", None)
             if card_layout is not None:
                 result.update(card_layout=card_layout.get_layout_handle())
+
+            item_layout = getattr(v, "item_layout", None)
+            if item_layout is not None:
+                result.update(item_layout=item_layout.get_layout_handle())
             # mt + slave-tables
 
             chooser_dict = getattr(v.model, "_choosers_dict", {})
