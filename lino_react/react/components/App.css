@@ -1,1 +1,4 @@
 /* Place your extensions here to make migration to a new release easier. */
+.l-span-clickable:hover {
+    cursor: pointer;
+}
