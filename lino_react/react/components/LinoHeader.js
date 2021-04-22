@@ -38,7 +38,7 @@ export default class LinoHeader extends React.Component {
                 srMap={(row) => row[this.parent.props.actorData.pk_index]}
                 rp={this.parent}
                 an={'grid'}
-                runAction={this.parent.runAction}/>
+                runAction={window.App.runAction}/>
         </div>
     }
 
@@ -143,11 +143,7 @@ export default class LinoHeader extends React.Component {
             onChange={(e) => {
                 this.parent.data.query = e.target.value;
                 this.setState({query: e.target.value});
-                if (e.target.value === "") {
-                    this.parent.reload({query: e.target.value});
-                } else {
-                    this.parent.refresh({query: e.target.value});
-                }
+                this.parent.refresh({query: e.target.value});
             }}/>
     }
 

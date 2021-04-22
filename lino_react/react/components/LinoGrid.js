@@ -175,23 +175,34 @@ export class LinoGrid extends Component {
         router.history.replace({search: queryString.stringify(search)});
     }
 
+    /**
+    * Unmounts & remounts the child components
+    */
     reload(values) {
         this.setState({loading: true});
         this.get_data(values, this.controller.signal, true);
     }
 
+    /**
+    * Re-renders the child components
+    */
     refresh(values) {
         this.get_data(values, this.controller.signal, true);
     }
 
-    reset(values) {
+    /**
+    * Resets the state of the component and childrens
+    * @param {bool} hard_reset if true, it will unmount and remount the child components
+    */
+    reset(values, hard_reset) {
         Object.assign(this.data, {
             page: 0,
             sortOrder: 0,
             query: "",
             sortField: undefined,
         });
-        this.refresh(values);
+        if (hard_reset) this.reload(values)
+        else this.refresh(values);
     }
 
     async get_data({
@@ -279,7 +290,7 @@ export class LinoGrid extends Component {
             this.props.mt !== prevProps.mt ||
             (prevProps.reload_timestamp !== 0 && this.props.reload_timestamp !== prevProps.reload_timestamp)
         ) {
-            this.reload();
+            this.refresh();
         }
     }
 
@@ -384,7 +395,7 @@ export class LinoGrid extends Component {
                 />}
             </h1>
             <div className={"l-grid"} >
-                {!this.props.actorData.slave && <div className="l-header"><LinoHeader parent={this}/></div>}
+                {!this.props.inDetail && <div className="l-header"><LinoHeader parent={this}/></div>}
                 {((!this.state.loading) && (!this.state.data_view))/*|| this.props.actorData.card_layout === undefined)*/?
                     <LinoDTable
                         {...this.props}

@@ -44,7 +44,7 @@ export class LinoDetail extends Component {
         this.state = {
             data: {},
             original_data: {}, // Copy of data for diff test
-            disabled_fields: [],
+            disabled_fields: {},
             editing_mode: false,
             id: null,
             title: "",
