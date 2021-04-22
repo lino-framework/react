@@ -290,7 +290,7 @@ export class LinoGrid extends Component {
             this.props.mt !== prevProps.mt ||
             (prevProps.reload_timestamp !== 0 && this.props.reload_timestamp !== prevProps.reload_timestamp)
         ) {
-            this.reload();
+            this.refresh();
         }
     }
 

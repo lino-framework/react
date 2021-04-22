@@ -985,7 +985,7 @@ class App extends React.Component {
                 summary: "Success",
                 detail: "Record Deleted"
             });
-            if (rp.props.match.match.params.pk) this.router.history.goBack()
+            if (rp && rp.props.match.match.params.pk) this.router.history.goBack()
             else this.router.history.go(0);
         }
         if (response.success && response.goto_url === "/" && response.close_window) {
