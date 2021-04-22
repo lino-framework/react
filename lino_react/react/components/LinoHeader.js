@@ -38,7 +38,7 @@ export default class LinoHeader extends React.Component {
                 srMap={(row) => row[this.parent.props.actorData.pk_index]}
                 rp={this.parent}
                 an={'grid'}
-                runAction={this.parent.runAction}/>
+                runAction={window.App.runAction}/>
         </div>
     }
 

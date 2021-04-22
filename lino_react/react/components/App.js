@@ -653,7 +653,7 @@ class App extends React.Component {
         rp_obj && rp_obj.save && an !== "submit_detail" && rp_obj.save(); // auto save
 
         const action = this.state.site_data.actions[an];
-        // console.log("runAction", action, an, actorId, rp, status, sr);
+
         // Grid show and detail actions change url to correct page.
         let url_args = queryString.parse(this.router.history.location.search);
         let rqdata, xcallback;
@@ -985,7 +985,7 @@ class App extends React.Component {
                 summary: "Success",
                 detail: "Record Deleted"
             });
-            this.router.history.goBack(); // looking at empty recrod, go back!
+            this.router.history.go(0);
         }
         if (response.success && response.goto_url === "/" && response.close_window) {
             // Sign-in action success
