@@ -219,10 +219,10 @@ export class ForeignKeyElement extends Component {
                             <div
                                 dangerouslySetInnerHTML={{__html: value || "\u00a0"}}/>
                             {value && props.link &&
-                            <Button 
-                                className="p-button-secondary l-button-fk"
+                            <span
+                                className="l-span-clickable"
                                 onClick={this.OnExternalLinkClick(props.elem.field_options.related_actor_id)}
-                            >♂</Button>}
+                            >♂</span>}
                         </React.Fragment>}
                 </div>
 

@@ -36,7 +36,7 @@ export function quillMention(signal) {
                     renderList(data.suggestions, searchTerm);
                 }).catch(error => {
                     if (error.name === "AbortError") {
-                        console.log("Request Aborted due to component unmount!");
+                        console.warn("Request Aborted due to component unmount!");
                     } else {
                         window.App.handleAjaxException(error);
                     }

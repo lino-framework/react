@@ -36,7 +36,8 @@ export default class LinoDTable extends React.Component {
             query: "",
             rows: props.rows,
         };
-        this.component.show_columns = props.actorData.col.filter((col) => !col.hidden).map((col) => col.fields_index);
+        this.component.show_columns = props.show_columns;
+
         this.columnEditor = this.columnEditor.bind(this);
         this.columnTemplate = this.columnTemplate.bind(this);
         this.demandsFromChildren = this.demandsFromChildren.bind(this);
@@ -63,12 +64,21 @@ export default class LinoDTable extends React.Component {
         if (!_.isEqual(prevProps.rows, this.props.rows)) {
             return "newValue"
         }
+        if (!_.isEqual(prevProps.show_columns, this.props.show_columns)) {
+            return "newColumns"
+        }
         return null
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (snapshot === "newValue") {
             this.data.rows = this.props.rows;
+            this.setState({loading: false});
+        }
+        if (snapshot === "newColumns") {
+            this.component.columns = undefined;
+            this.component.show_columns = this.props.show_columns;
+            this.set_cols();
             this.setState({loading: false});
         }
     }
@@ -93,12 +103,12 @@ export default class LinoDTable extends React.Component {
     onBeforeEditorShow(col) {
     }
 
-    onEditorInit(e) {
+    onEditorInit(col) {
         this.data.editorDirty = false;
-        this.data.editingCol = e;
-        this.data.editingPK = e.columnProps.rowData[this.props.actorData.pk_index];
-        this.data.editingValues = Object.assign({}, {...e.columnProps.rowData});
-        this.data.editingCellIndex = e.columnProps.cellIndex;
+        this.data.editingCol = col;
+        this.data.editingPK = col.columnProps.rowData[this.props.actorData.pk_index];
+        this.data.editingValues = Object.assign({}, {...col.columnProps.rowData});
+        this.data.editingCellIndex = col.columnProps.cellIndex;
         if (this.data.roger !== undefined) delete this.data.roger;
     }
 
@@ -125,7 +135,7 @@ export default class LinoDTable extends React.Component {
             response_callback: (data) => {
                 if (data.rows !== undefined) {
                     this.data.rows[rowIndex] = data.rows[0];
-                    this.props.linoGrid.gridData.rows[rowIndex] = data.rows[0];
+                    this.props.linoGrid.data.rows[rowIndex] = data.rows[0];
                     this.data.editorDirty = false;
                     if (!explicit_call) this.setState({loading: false});
                 }
@@ -253,170 +263,27 @@ export default class LinoDTable extends React.Component {
         }
     }
 
-    renderQuickFilter(wide) {
-        return <InputText className="l-grid-quickfilter"
-                          style={{
-                              width: wide ? "100%" : undefined,
-                              marginRight: wide ? "1ch" : undefined,
-                              marginLeft: wide ? "1ch" : undefined,
-                          }}
-                          placeholder="QuickSearch"
-                          value={this.data.query}
-                          onChange={(e) => {
-                              this.data.query = e.target.value;
-                              this.props.refresh({query: e.target.value});
-                          }}/>
-    }
-
-    // needs work!
-    renderParamValueControls() {
-        return this.props.actorData.pv_layout && <React.Fragment>
-            <Button icon={"pi pi-filter"} onClick={this.props.showParamValueDialog}/>
-            {
-                Object.keys(this.props.pv || {}).length !== 0 &&
-                <Button icon={"pi pi-times-circle"} onClick={() => this.props.refresh({pv: {}})}/>
-            }
-        </React.Fragment>
-    }
-
-    renderToggle_colControls() {
-        return <React.Fragment>
-            <span style={{position: "relative"}} ref={ref => this.toggleCol = ref}>
-                <Button
-                    icon={"pi pi-list"}
-                    onClick={() => {
-                        this.setState({toggle_col: true});
-                        this.show_col_selector.show();
-                    }}/>
-                <span hidden={true}>
-                    <MultiSelect
-                        appendTo={this.toggleCol}
-                        panelStyle={{zIndex: "99999", height: "auto", width: "auto", position: "absolute"}}
-                        value={this.component.show_columns}
-                        options={this.props.actorData.col.map((col) => {return {label: col.label, value: col.fields_index}})}
-                        ref={(el) => this.show_col_selector = el}
-                        onChange={(e) => {
-                            this.component.columns = undefined;
-                            this.component.show_columns = e.value;
-                            this.set_cols();
-                            this.setState({loading: false});
-                        }}
-                        onBlur={e => this.setState({toggle_col: false})}/>
-                </span>
-            </span>
-        </React.Fragment>
-    }
-
-    renderActionBar() {
-        return <div style={{"textAlign": "left"}}>
-            <LinoBbar
-                actorData={this.props.actorData}
-                sr={this.state.selectedRows}
-                reload={this.props.refresh}
-                srMap={(row) => row[this.props.actorData.pk_index]}
-                // rp={this.props.linoGrid}
-                rp={this}
-                an={'grid'}
-                runAction={window.App.runAction}
-                />
-        </div>
-    }
-
-    renderProgressBar() {
-        return <ProgressBar mode="indeterminate" className={this.props.loading ? "" : "lino-transparent"}
-                style={{height: '5px'}}/>
-    }
-
-    renderMainGridHeader() {
-        return <React.Fragment>
-            {this.props.show_top_toolbar && <React.Fragment>
-                <div className={"table-header"}>
-                    <div>
-                        {this.renderQuickFilter()}
-                        {this.renderParamValueControls()}
-                        {this.renderToggle_colControls()}
-                    </div>
-                    {this.props.actorData.card_layout && <ToggleButton
-                        className="data_view-toggle"
-                        checked={false}
-                        onChange={(e) => {
-                            this.props.linoGrid.setState({data_view: true});
-                            this.props.refresh({wt: "c"});
-                        }}
-                        onIcon="pi pi-table"
-                        offIcon="pi pi-list"
-                        onLabel=""
-                        offLabel=""/>}
-                </div>
-                <div className={"table-header"}>
-                    {this.renderActionBar()}
-                </div>
-            </React.Fragment>}
-            <div className={"table-header"}>
-                {this.renderProgressBar()}
-            </div>
-        </React.Fragment>
-    }
-
-    renderPaginator() {
-        if (this.props.actorData.preview_limit === 0 ||
-            this.data.rows.length === 0 ||
-            this.props.count < this.props.rowsPerPage) {
-            return undefined
-        } else if (this.props.actorData.simple_paginator) {
-            return
-        }
-
-        return <Paginator
-            rows={this.props.rowsPerPage}
-            paginator={true}
-            first={this.props.topRow}
-            totalRecords={this.props.count}
-            template={this.props.actorData.paginator_template || undefined}
-            onPageChange={(e) => {
-                this.props.refresh({page: e.page});
-            }}
-            rightContent={
-                this.props.count && <span
-                    className={"l-grid-count"}>Showing <Dropdown
-                        style={{width: "80px"}}
-                        value={this.props.rowsPerPage}
-                        placeholder={this.props.rowsPerPage.toString()}
-                        options={[25, 50, 100, 200, 400, 800]}
-                        onChange={(e) => {
-                            let value = parseInt(e.value)
-                            this.props.linoGrid.gridData.rowsPerPage = value <= this.props.count ? value : this.props.count;
-                            this.props.refresh();
-                        }}/>
-                    <span> of {this.props.count}</span> rows
-                </span>
-            }
-        />;
-    }
-
     render() {
         return <DataTable
-            reorderableColumns={true}
-            header={this.renderMainGridHeader()}
-            footer={this.renderPaginator()}
-            responsive={this.props.actorData.react_responsive}
-            resizableColumns={true}
-            value={this.data.rows}
-            paginator={false}
             editable={true}
-            selectionMode={this.props.actorData.editable ? undefined : "multiple"}
-            onSelectionChange={(e) => {
-                this.setState({selectedRows: e.value});
-            }}
-            onColReorder={this.onColReorder}
-            selection={this.props.actorData.hide_top_toolbar ? undefined : this.state.selectedRows}
+            lazy={true}
             loading={this.props.loading}
-            ref={(ref) => this.dataTable = ref}
+            onColReorder={this.onColReorder}
             onRowDoubleClick={this.props.onRowDoubleClick}
+            onSelectionChange={(e) => {
+                this.props.linoGrid.setState({selectedRows: e.value});
+            }}
             onSort={this.props.onSort}
+            paginator={false}
+            ref={(ref) => this.dataTable = ref}
+            reorderableColumns={true}
+            resizableColumns={true}
+            responsive={this.props.actorData.react_responsive}
+            selection={this.props.actorData.hide_top_toolbar ? undefined : this.props.selectedRows}
+            selectionMode={this.props.actorData.editable ? undefined : "multiple"}
             sortField={this.props.sortField}
             sortOrder={this.props.sortOrder}
-            lazy={true}>
+            value={this.data.rows}>
             {this.component.columns}
         </DataTable>
     }
