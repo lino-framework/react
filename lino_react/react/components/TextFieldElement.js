@@ -64,14 +64,15 @@ class TextFieldElement extends React.Component {
     }
 
     render() {
-        let elem = this.props.editing_mode ? <div
+        let elem = (this.props.editing_mode && this.props.elem.editable) ? <div
                 style={{position: "relative", height: "75%"}}
                 onKeyDown={(e) => {
                     if (this.props.in_grid && (((!e.shiftKey) && e.keyCode === 13) || e.keyCode === 9)) {
                         e.stopPropagation();
                     }
                 }}>
-                {this.props.in_grid && <Button
+                {//this.props.in_grid &&
+                <Button
                     style={{
                         position: "absolute",
                         right: "-10px",
@@ -113,7 +114,7 @@ class TextFieldElement extends React.Component {
 
         if (this.props.in_grid) return elem;
 
-        if (this.props.editing_mode) {
+        if (this.props.editing_mode && this.props.elem.editable) {
             elem = <Labeled
                 {...this.props}
                 elem={this.props.elem}
@@ -125,7 +126,7 @@ class TextFieldElement extends React.Component {
             elem = <Panel
                 headerTemplate={<div className="p-panel-header">
                         {this.props.elem.label}
-                        {this.props.elem.name !== "full_preview" && <Button
+                        {this.props.elem.editable && <Button
                             className="p-transparent-button"
                             style={{
                                 border: "0px",
