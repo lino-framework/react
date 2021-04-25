@@ -1,6 +1,6 @@
 # lino_react
 
-Warning: This repository has moved to https://gitlab.com/lino-framework/XXX
+Warning: This repository has moved to https://gitlab.com/lino-framework/react
 
 Fully functional mobile friendly Lino Frontend build with React
 
